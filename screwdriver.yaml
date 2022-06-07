@@ -1,0 +1,90 @@
+---
+version: 4
+shared:
+    image: docker.ouroath.com:4443/containers/openjdk-8jdk:latest
+    environment:
+        MAVEN_OPTS: -Xmx3G -Dscalatest.jvm.args='-Xmx9G'
+        BUILD_TYPE: SNAPSHOT
+        REVISION: ''
+        MVN_FLAGS: -B --no-transfer-progress
+        MVN_EXTRA_FLAGS: ''
+        MVN_TARGETS: clean -P shade-samplesource -P build-executable deploy
+    annotations:
+        screwdriver.cd/timeout: 60
+        screwdriver.cd/cpu: HIGH
+        screwdriver.cd/ram: HIGH
+    steps:
+        -   compute-version: |
+                if [ "$GIT_BRANCH" != "origin/master" ] && [ "$REVISION" == "" ]; then
+                    export REVISION=-beta-$(echo ${GIT_BRANCH#*/} | sed 's/[^a-zA-Z0-9]//g')
+                fi
+                export VERSION_LBL=$(./mvnw -q -ntp help:evaluate -Drevision=$REVISION -Dexpression=project.version -DforceStdout)
+        -   set-build-label: &set-build-label |
+                meta set label "${VERSION_LBL}"
+                echo "Build label: ${VERSION_LBL}"
+        -   build-and-deploy: &build-and-deploy ./mvnw $MVN_FLAGS $MVN_EXTRA_FLAGS -Drevision=$REVISION -DwithTests $MVN_TARGETS
+        -   build-cleanup: &build-cleanup |
+                meta set meta.burst.commit "${GIT_COMMIT}"
+                meta set meta.burst.buildType "${BUILD_TYPE}"
+                meta set meta.burst.timestamp $(date +"%s")
+                meta set meta.burst.version "${VERSION_LBL}"
+        -   save-sd-meta: &save-sd-meta |
+                if [ -f "$SD_META_PATH" ]; then
+                  cp $SD_META_PATH $SD_ARTIFACTS_DIR/
+                fi
+
+cache:
+    pipeline: [ ~/.m2 ]
+
+jobs:
+    main-pr: # publishes versions ending with -alpha-\d+-SNAPSHOT
+        requires: [ ~pr ]
+        environment:
+            REVISION: -alpha-$SD_PULL_REQUEST
+
+    main: # publishes versions ending with -SNAPSHOT
+        requires: [ ~commit ]
+
+    dev-branches: # publishes versions ending with -beta-branchname-SNAPSHOT
+        requires: [ ~commit:/^.+-ad-hoc$/, ~commit:bikehead, ~commit:/^.+-erik$/ ]
+
+    release-pr: # publishes versions ending with -RC-\d+-SNAPSHOT
+        requires: [ ~pr:/^burst-\d+\.\d+$/ ]
+        environment:
+            REVISION: -RC-$SD_PULL_REQUEST
+
+    release: # publishes versions like 3.9.0, 3.9.1, 3.10.0, ...
+        requires: [ ~commit:/^burst-\d+\.\d+$/ ]
+        environment:
+            BUILD_TYPE: RELEASE
+            MVN_EXTRA_FLAGS: -P release
+        steps:
+            -   ensure-release-branch: |
+                    if [ "$GIT_BRANCH" == "origin/master" ]; then
+                      echo "Cannot run release job on master"
+                      echo "The release job should not be run manually, it should be triggered by a push or merged PR"
+                      exit 1
+                    fi
+            -   set-release-version: |
+                    export REL_VER=$(./mvnw -q $MVN_FLAGS help:evaluate -Dexpression=project.version -DforceStdout | sed 's/-SNAPSHOT//')
+                    echo "Release version: ${REL_VER}"
+                    ./mvnw $MVN_FLAGS versions:set versions:commit -DnewVersion=${REL_VER}
+                    export VERSION_LBL=${REL_VER}
+            -   set-build-label: *set-build-label
+            -   build-and-deploy: *build-and-deploy
+            -   set-dev-version: |
+                    # commit and tag changes from `compute-release-version`
+                    git commit -a -m "[CI] Release v${REL_VER}"
+                    git tag v${REL_VER} -m "[CI] Released version: ${REL_VER}"
+
+                    # update patch version and add -SNAPSHOT
+                    ./mvnw $MVN_FLAGS release:update-versions
+                    DEV_VER=$(./mvnw -q $MVN_FLAGS help:evaluate -Dexpression=project.version -DforceStdout | sed 's/-SNAPSHOT//')
+                    echo "Found snapshot: ${DEV_VER}"
+
+                    # add back `${revision}` to the version string
+                    ./mvnw $MVN_FLAGS versions:set versions:commit -DnewVersion=${DEV_VER}\${d}\${rev}-SNAPSHOT
+                    git commit -a -m "[CI] Update to development version: ${DEV_VER}"
+                    git push --follow-tags
+            -   build-cleanup: *build-cleanup
+            -   save-sd-meta: *save-sd-meta

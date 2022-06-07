@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Burst</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/burst-hero-id.css">
+    <link rel="stylesheet" href="assets/css/burst-hero.css">
+    <link rel="stylesheet" href="assets/css/data-img-hero.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/learn-more-button-orange.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-logo.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-mobile.css">
+    <link rel="stylesheet" href="assets/css/styles-custom.css">
+    <link rel="stylesheet" href="assets/css/vanilla-zoom.min.css">
+</head>
+
+<body style="font-family: 'Nunito Sans', sans-serif;background-color: #fff;">
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar" id="header-burst-why-burst">
+        <div class="container"><a href="index.html"><img src="assets/img/tech/Burst-Horizontal-RevAccent.svg" style="width: 130px;padding-right: 0px;margin-right: 20px;margin-top: -7px;" /></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" style="color: transparent !important;border-width: 0px;border-color: #ffffff;border: 0 !important;"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon" style="border: 0 !important;border-style: none;border-color: rgba(255,255,255,0);--bs-body-bg: rgba(255,255,255,0);"></span></button>
+            <div class="collapse navbar-collapse scroll-down" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize" href="index.html" style="color: #fff !important;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;opacity: 1;">why Burst</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Documentation</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
+                </ul>
+            </div><a id="navbar-github-logo" class="navbar-github logo" href="#"><i class="fa-brands fa-github" style="color: white;"></i></a>
+        </div>
+    </nav>
+    <main class="page landing-page">
+        <section class="clean-block clean-info dark">
+            <div class="container" style="padding-top: 40px;">
+                <div class="row">
+                    <div class="col-md-6 col-lg-9">
+                        <p style="font-size: 18px;padding-top:30px; padding-bottom:30px; line-height:150%;">Real world experience shows that large behavioral datasets, tight latency constraints, and full featured behavioral questions dictate highly optimized and quite specialized architectural approaches.<br><br>Behavioral calculus requires stunning amounts of highly repetitive low level data accesses and calculations such as counting and grouping. The math involved is for the most part trivial but the data structures and algorithms must be flawless in how they scale in terms of both CPU and memory demands. Great attention must be paid to how the data is binary encoded, distributed across nodes and loaded into modern multicore memory architectures. <br><img src="assets/img/tech/FPO%20Image.svg" style="width: 100%;padding-top: 30px;padding-bottom:30px;"><br></p>
+                        <p style="font-size: 18px;padding-top:30px; padding-bottom:30px; line-height:150%;">&nbsp; 1.&nbsp;Burst provides a highly scalable distributed worker data processing topology. Burst scales across an almost unlimited quantity of worker nodes each with the vast number of cores that characterizes modern server hardware, almost without limit.<br>&nbsp;&nbsp;2.&nbsp;Secondly, Burst provides a proprietary/extended SQL-like language pipeline transforming human friendly high level questions into tight code-generated, hardware sympathetic distributed/parallel query processing plans. Along with the basics of counting, filtering, and grouping/dimensioning, it also provides a toolkit of specialized causal/temporal pattern matching semantics. Burst allows you to ask almost unlimited complexity behavioral questions about extremely large numbers of complex entities in interactive time.<br>&nbsp;&nbsp;3.&nbsp;Burst sits on top of a bespoke data model based on a specialized schema-driven binary-data entity encoding approach. Each entity in a behavioral dataset is a carefully designed object-tree. The Burst processing model depends on extremely fast efficient scans of these entity models where each scan is a depth-first-search of the entity tree including the time ordered event histories that capture the semantics of its behavior. These scans must be hyper efficient in both time and space and always parallelize effectively across many threads. The data model is designed to be stored (cached) efficiently on disk and page rapidly in and out of memory on linux file systems. Both SSD and striped magnetic drive storage is supported. The data is highly compressible and network friendly. Burst includes a refined parallel network data transfer protocol for very fast imports of data views from highly parallel distributed data storage systems such as Hadoop/HBase.</p>
+                        <p style="font-size: 18px;padding-top:30px; padding-bottom:30px; line-height:150%;">Common Burst deployments would contain hundreds of worker nodes each with dozens of cores all running near peak speed and efficiency. All of these components have gone through multiple generations of ruthless elimination of excess CPU cycles and memory churn. It is simply impractical to repurpose a relational system or key-value/map-reduce system to match this sort of uncompromising singular focus. <br><br>If you have the normal enormous amounts of behavioral data and you want to ask interesting behavioral questions with answers in interactive time then Burst is for you.&nbsp;</p>
+                    </div>
+                    <div class="col-md-6 col-lg-3"><img src="assets/img/tech/FPO%20Image.svg" style="width: 100%;padding-bottom: 40px;padding-top: 40px;"><img src="assets/img/tech/FPO%20Image.svg" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-12" style="padding: 20px 0 0 0;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-burst" class="page-footer dark">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3" style="text-align: center;"><img src="assets/img/tech/Burst-Vertical-RevAccent.svg" style="width: 150px;padding-bottom: 40px;"></div>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3">
+                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <ul>
+                        <li><a href="#">Documentation<br></a></li>
+                        <li><a href="#">Open Source<br></a></li>
+                        <li><a href="#">Releases<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <ul>
+                        <li><a href="#">info@burst<br></a></li>
+                        <li><a href="#">Issues<br></a></li>
+                        <li><a href="#">Mailing list<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <ul>
+                        <li><a href="#">Stack Overflow<br></a></li>
+                        <li><a href="#">Contributing<br></a></li>
+                        <li><a href="#">Meetups / Conferences<br></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p id="current-year"></p>
+        </div>
+    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="assets/js/vanilla-zoom.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/active-menu-item.js"></script>
+    <script src="assets/js/current-year.js"></script>
+    <script src="assets/js/custom-js.js"></script>
+    <script src="https://kit.fontawesome.com/4c85290a61.js"></script>
+    <script src="assets/js/mobile-menu-fix.js"></script>
+    <script src="assets/js/refresh_on_resize.js"></script>
+</body>
+
+</html>

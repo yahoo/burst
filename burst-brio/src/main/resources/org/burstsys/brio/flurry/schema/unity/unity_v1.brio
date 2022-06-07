@@ -1,0 +1,114 @@
+schema Unity  {
+
+    version : 1
+
+    root) user : User
+
+    structure User {
+        0) id : string key                       // Flurry ID as hex string
+        1) application : Application
+        2) sessions : vector[Session]
+        3) interests : vector[long]              // BS(YahooInterestCategory, id)
+        4) traits : vector[Trait]
+        5) parameters : map[string, string]      // From SDK
+        6) deviceModelId : long                  // BS(Device, id)
+        7) deviceSubmodelId : long               // BS(DevicePropertyValue, id)
+        8) deviceFormat : short                  // Enum over small set of format types
+        9) estimatedAgeBucket : byte             // Enum: cfb.AgeRange, from BKD
+       10) estimatedGender : byte                // Enum: cfb.Gender, from BKD
+    }
+
+    structure Application {                      // (All values latest/best from summary roll-up)
+        0) id : long key                         // BS(Project, id)
+        1) channels : vector[Channel]
+        2) parameters : map[string, string]      // From SDK
+        3) firstUse : Use                        // First-observed values cohort
+        4) lastUse : Use                         // Most-recently-observed values cohort
+        5) mostUse : Use                         // Most-frequently-observed values cohort
+    }
+
+    structure Use {                              // Properties obtained/distilled at close to the same time
+        0) sessionTime : long                    // Epoch time of session start
+        1) appVersion : AppVersion               // TODO fsg 170808 Source?
+        2) osVersionId : long                    // TODO fsg 171027 Source?
+        3) agentVersionId : long                 // TODO fsg 171027 Source?
+        4) pushTokenStatus : byte                // Enum: cfbe.PushTokenStatus
+        5) timeZone : string                     // See: java.time.ZoneId.getAvailableZoneIds
+        6) timeZoneOffsetSecs : integer          // TODO fsg 170808 Source?
+        7) limitAdTracking : boolean             // From SDK
+        8) cityId : long                         // BS(City, id)
+        9) geoAreaId : long                      // BS(GeoArea, id)
+       10) countryId : long                      // BS(Country, id) (country ID from ??)
+       11) regionId : long                       // BS(Region, id)
+       12) localeId : long                       // BS(Locale, id)
+       13) languageId : long                     // BS(Language, id)
+       14) localeCountryId : long                // BS(Country, id) (country ID from Locale DB)
+       15) reportedBirthDate : long              // Epoch time
+       16) reportedAgeBucket : byte              // Enum: cfb.AgeRange
+       17) reportedGender : byte                 // Enum: cfb.Gender
+       18) crashTime : long                      // Epoch time of most recent "crash" event
+    }
+
+    structure Session {
+        0) id : long key                         // Unique ID for session, from SDK
+        1) events : vector[Event]
+        2) variants : vector[Variant]
+        3) parameters : map[string, string]      // From SDK
+        4) sessionType : byte                    // From SDK
+        5) applicationUserId : string            // From SDK
+        6) pushTokenStatus : byte                // Enum: cfbe.PushTokenStatus
+        7) limitAdTracking : boolean             // From SDK
+        8) osVersionId : long                    // BS(Firmware, id)
+        9) startTime : long ordinal              // Epoch time
+       10) timeZone : string                     // See: java.time.ZoneId.getAvailableZoneIds
+       11) cityId : long                         // BS(City, id)
+       12) geoAreaId : long                      // BS(GeoArea, id)
+       13) countryId : long                      // BS(Country, id)
+       14) regionId : long                       // BS(Region, id)
+       15) localeId : long                       // BS(Locale, id)
+       16) carrierId : long                      // BS(Carrier, id), soon: CarrierV2
+       17) agentVersionId : long                 // BS(AgentVersion, id)
+       18) appVersion : AppVersion
+       19) duration : long                       // Units: milliseconds
+       20) providedOrigin : string               // From SDK
+       21) mappedOriginId: long                  // BS(SessionOrigin, id)?
+       22) originSourceTypeId : long             // BS(SessionOriginTag, id)?
+       23) originMethodTypeId : long             // BS(SessionOriginTag, sessionOriginTagType?)?
+       24) reportedBirthDate : long              // Epoch time
+       25) reportedAgeBucket : byte              // Enum: cfb.AgeRange
+       26) reportedGender : byte                 // Enum: cfb.Gender
+       27) reportingDelay : integer              // Units: seconds, max 30 * 86400
+       28) crashed : boolean                     // True if this session contains a "crash" event
+    }
+
+    structure Event {
+        0) id : long                             // BS(Event, id)
+        1) parameters : map[string, string]      // From SDK
+        2) eventType : byte                      // Enum: cfbe.EventType
+        3) startTime : long key ordinal          // Epoch time
+        4) duration : long                       // (optional) milliseconds
+        5) standardEventId : long                // BS(StandardEvent, id)
+    }
+
+    structure Channel {
+        0) sourceId : long key                   // TODO fsg 170820
+        1) parameters : map[string, string]      // From SDK
+        2) campaignId : long                     // TODO fsg 170820
+        3) channelId : long                      // TODO fsg 170820
+    }
+
+    structure Trait {
+        0) id : long key                         // 190827 user-property value ID
+        1) typeId : long                         // 190827 user-property type ID
+    }
+
+    structure Variant {
+        0) id : long key                         // BS(Variant, reportedId)
+        1) versionId : long                      // BS(Variant, version)
+    }
+
+    structure AppVersion {
+        0) id : long key                         // BS(Version, id)
+    }
+
+}

@@ -1,0 +1,140 @@
+// user.sessions.events.eventId NOT IN (345, 346, count(user.sessions), user.project.installTime)
+//    OR cast('foo' as string) == 'foo'
+//    AND (NOT true && 23436 == 5*4)"
+//  OR user.sessions.events.parameters['foo'] IS NOT NULL"
+{
+  "BINARY_BE" : {
+    "op" : "OR",
+    "left" : {
+      "BINARY_BE" : {
+        "op" : "OR",
+        "left" : {
+          "MEMB_TST_BE" : {
+            "left" : {
+              "PATH" : {
+                "binding" : {
+                  "VAL_SCAL_BD" : {
+                    "vtype" : "LONG"
+                  }
+                },
+                "value" : "user.sessions.events.eventId"
+              }
+            },
+            "members" : [ {
+              "SHORT_C" : {
+                "value" : 345
+              }
+            }, {
+              "SHORT_C" : {
+                "value" : 346
+              }
+            }, {
+              "AGG_VE" : {
+                "expr" : {
+                  "PATH" : {
+                    "binding" : {
+                      "INST_BD" : { }
+                    },
+                    "value" : "user.sessions"
+                  }
+                },
+                "op" : "COUNT"
+              }
+            }, {
+              "PATH" : {
+                "binding" : {
+                  "VAL_SCAL_BD" : {
+                    "vtype" : "LONG"
+                  }
+                },
+                "value" : "user.project.installTime"
+              }
+            } ],
+            "op" : "NOT_IN"
+          }
+        },
+        "right" : {
+          "BINARY_BE" : {
+            "op" : "AND",
+            "left" : {
+              "VAL_COMP_BE" : {
+                "left" : {
+                  "CAST_VE" : {
+                    "expr" : {
+                      "STRING_C" : {
+                        "value" : "foo"
+                      }
+                    },
+                    "dtype" : "STRING"
+                  }
+                },
+                "right" : {
+                  "STRING_C" : {
+                    "value" : "foo"
+                  }
+                },
+                "op" : "EQ"
+              }
+            },
+            "right" : {
+              "BINARY_BE" : {
+                "op" : "AND",
+                "left" : {
+                  "UNARY_BE" : {
+                    "op" : "NOT",
+                    "expr" : {
+                      "BOOL_C" : {
+                        "value" : true
+                      }
+                    }
+                  }
+                },
+                "right" : {
+                  "VAL_COMP_BE" : {
+                    "left" : {
+                      "SHORT_C" : {
+                        "value" : 23436
+                      }
+                    },
+                    "right" : {
+                      "BINARY_VE" : {
+                        "op" : "MULTIPLY",
+                        "left" : {
+                          "BYTE_C" : {
+                            "value" : 5
+                          }
+                        },
+                        "right" : {
+                          "BYTE_C" : {
+                            "value" : 4
+                          }
+                        }
+                      }
+                    },
+                    "op" : "EQ"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "right" : {
+      "NULL_TST_BE" : {
+        "expr" : {
+          "PATH" : {
+            "binding" : {
+              "VAL_MAP_BD" : {
+                "ktype" : "STRING",
+                "vtype" : "STRING"
+              }
+            },
+            "value" : "user.sessions.events.parameters"
+          }
+        },
+        "op" : "IS_NOT_NULL"
+      }
+    }
+  }
+}

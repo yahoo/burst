@@ -1,0 +1,13 @@
+{
+    "storeType": "canned",
+    "duration": "once",
+    "parallelism": 5,
+    "queries": [
+        "SILQ(\"quo\", 1, 0)\n AGGREGATE ( \n \"Users\" as count(user); \n \"Sessions\" as count(user.sessions);\n \"Events\" as count(user.sessions.events);\n)"
+    ],
+    "batches": [
+        {
+            "domainTag": "cannedData"
+        }
+    ]
+}

@@ -1,0 +1,215 @@
+#footer-burst {
+  background: rgba(0,75,115,1) !important;
+  color: #ffffff !important;
+  font-family: 'Nunito Sans', sans-serif;
+  z-index: 999999;
+}
+
+#header-burst {
+  background: rgba(0,75,115,0.4) !important;
+  color: #ffffff !important;
+  font-family: 'Nunito Sans', sans-serif;
+  height: 105.375px;
+  z-index: 999999;
+  /*width: 100%;*/
+}
+
+#header-burst-why-burst {
+  background: rgba(0,75,115,1) !important;
+  color: #ffffff !important;
+  font-family: 'Nunito Sans', sans-serif;
+  height: 105.375px;
+  z-index: 999999;
+}
+
+@media (max-width: 768px) {
+  #header-burst {
+    background: #004B73 !important;
+    color: #ffffff !important;
+    font-family: 'Nunito Sans', sans-serif;
+    height: 105.375px;
+    z-index: 999999;
+    width: 100% !important;
+  }
+}
+
+#header-burst.scrolled {
+  background: rgba(0,75,115,1) !important;
+  color: #ffffff !important;
+  font-family: 'Nunito Sans', sans-serif;
+  height: 105.375px;
+  z-index: 999999;
+  width: 100% !important;
+}
+
+.footer-copyright {
+  background-color: #004B73 !important;
+  border: 0 !important;
+}
+
+.collapse.show {
+  background: #004B73 !important;
+  padding: 3%;
+  margin-left: -10px;
+}
+
+@media (min-width: 300px) {
+  .collapse.show {
+    background: #004B73 !important;
+    padding: 3%;
+    margin-left: -13px;
+  }
+}
+
+@media (min-width: 300px) and (max-width: 768px) {
+  .home-page-col-1-heading {
+    font-size: 44px !important;
+    width: 350px;
+  }
+}
+
+.navbar-collapse {
+  flex-basis: 100% !important;
+  flex-grow: 1;
+  align-items: center;
+}
+
+.navbar-light .navbar-toggler-icon {
+  background-image: url("../../assets/img/tech/icons8-hamburger-menu-384.svg");
+}
+
+#move-cols-up.col-md-3 {
+  margin-top: 10px !important;
+}
+
+.nav-item {
+  height: 105.375px;
+  padding-top: 32px;
+}
+
+.nav-item.active-menu-item {
+  background: #008099 !important;
+  border-bottom: 2px solid #fff !important;
+  /*padding-bottom: 34px !important;*/
+  /*text-align: center;*/
+  /*position: relative !important;*/
+  /*min-height: 2px;*/
+  /*color: #fff;*/
+}
+
+.nav-item.hover-menu-item a:hover {
+  /*border-bottom: 2px solid #fff;*/
+  /*padding-bottom: 39px;*/
+  /*background: transparent;*/
+}
+
+@media (min-width: 300px) {
+  .nav-item.mobile-menu-adjust {
+    height: auto;
+    padding-top: 0px;
+  }
+}
+
+@media (min-width: 300px) and (max-width: 960px) {
+  .navbar-collapse .nav-item.active-menu-item {
+    background: #008099 !important;
+    border-left: 2px solid #fff !important;
+    border-bottom: 0px !important;
+    margin-left: -10px !important;
+    padding-left: 10px;
+    height: 30%;
+    line-height: 30%;
+  }
+}
+
+@media (min-width: 300px) and (max-width: 960px) {
+  #col-mid-3 {
+    height: 100% !important;
+  }
+}
+
+@media (min-width: 300px) and (max-width: 960px) {
+  .navbar-collapse .nav-item {
+    height: auto;
+  }
+}
+
+@media (min-width: 300px) {
+  .nav-item.hover-menu-item.mobile-menu-adjust a:hover {
+    border-bottom: 0px solid #fff;
+    background: transparent;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-footer ul li:before, .page-footer ul li:after {
+    display: none !important;
+    left: -13px !important;
+  }
+}
+
+.page-footer ul li {
+  position: relative;
+  padding-left: 0px;
+}
+
+section.clean-block {
+  background: #fff !important;
+}
+
+section:not("#burst-hero-id") {
+  background: transparent !important;
+}
+
+@media (min-width: 300px) {
+  h1.arch-title {
+    padding-top: 80px;
+  }
+}
+
+h1.arch-title {
+  width: 70%;
+  margin: auto;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  font-weight: bold;
+}
+
+.navbar .navbar-nav .nav-link {
+  color: #ffffff;
+  /*font-size: 1.1em;*/
+}
+
+.navbar .navbar-nav .nav-link:hover {
+  color: #ffffff;
+}
+
+.navbar .navbar-nav .nav-item {
+  position: relative;
+}
+
+.navbar .navbar-nav .nav-item::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  background-color: #ffffff;
+  width: 0%;
+  content: "";
+  height: 2px;
+  /*transition: all 0.5s;*/
+}
+
+.navbar .navbar-nav .nav-item:hover::after {
+  width: 100%;
+}
+
+@media (min-width: 300px) {
+  .navbar-collapse {
+    /*background: #008099;*/
+    /*margin: -.5rem -1rem;*/
+    /*padding: .5rem 1rem;*/
+  }
+}
+

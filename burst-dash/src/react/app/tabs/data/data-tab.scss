@@ -1,0 +1,73 @@
+#data-tab {
+  .Hot { background-color: lightgreen !important; }
+  .Warm { background-color: lightcyan !important; }
+  .Failed { background-color: lightpink !important; }
+  .Mixed { background-color: lemonchiffon !important; }
+  .NoData { background-color: peachpuff !important; }
+  .Uninitialized { background-color: tomato !important; }
+
+  .generation-summary {
+    padding: 0.5rem;
+    min-width: calc(100% - 1rem);
+    text-align: center;
+  }
+
+  .b-pane.flex-grow-1 {
+    max-height: 100%;
+  }
+
+  .ReactTable {
+    width: 100%;
+
+    .rt-td {
+      text-align: center;
+    }
+  }
+
+  #cacheBrowserComponent {
+    .pointer {
+      cursor: pointer;
+    }
+
+    select.form-control {
+      width: 100%;
+    }
+  }
+
+  .cache-list-pane {
+    .heading {
+      font-weight: bold;
+      text-align: center;
+      color: steelblue;
+      background-color: rgb(250, 250, 250);
+      justify-content: center;
+    }
+
+    .body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 90%;
+    }
+
+    td table {
+      width: 100%;
+    }
+
+    table.generation-table, table.cache-table {
+      font-size: 0.9em;
+
+      th, tr {
+        text-align: center;
+        color: steelblue;
+      }
+      tr.selected > td {
+        background: rgba(0, 255, 0, 0.2)
+      }
+      th {
+        font-weight: bold;
+      }
+    }
+  }
+
+
+}

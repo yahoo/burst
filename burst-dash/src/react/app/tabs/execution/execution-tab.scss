@@ -1,0 +1,104 @@
+#execution-tab {
+  .b-pane.flex-grow-1 {
+    max-height: 100%;
+  }
+
+  .b-progress {
+    width: 100%;
+    display: block;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+  }
+
+  .status {
+    font-weight: bold;
+  }
+
+  .summary {
+    span {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  td .summary span {
+    padding-top: 0;
+    padding-bottom: 0;
+
+    &:first-of-type {
+      padding-left: 0;
+    }
+  }
+
+  .SUCCESS, .SUCCEEDED {
+    color: forestgreen;
+  }
+
+  .IN_PROGRESS, .PARSING {
+    color: steelblue;
+  }
+
+  .EXCEPTION, .NOT_READY, .FAILED, .CANCELLED, .INVALID {
+    color: darkred;
+  }
+
+  .TIMEOUT, .LATE {
+    color: palevioletred;
+  }
+
+  .timeline {
+    max-height: 150px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    $particle-states: (
+            "pre-start": #ccc,
+            "start-wait": darken(orange, 15%),
+            "loading": blue,
+            "canned": (
+                    "got-canned-file": lighten(blue, 10%),
+                    "read-canned-file": lighten(blue, 15%),
+                    "wrote-slice-file": lighten(blue, 20%),
+            ),
+            "samplestore": (
+                    "acquired-streams": lighten(blue, 10%),
+                    "finished-streams": lighten(blue, 15%),
+                    "finished-writes": lighten(blue, 20%),
+            ),
+            "data-loaded": lighten(green, 10%),
+            "scan": green,
+            "end-wait": #ccc
+    );
+
+    @mixin particle-colors($map, $prefix: '') {
+      @each $name, $value in $map {
+        @if type-of($value) == 'map' {
+          @include particle-colors($value, $name)
+        } @else {
+          .#{if($prefix != '', $prefix + "-", "")}#{$name} {
+            background-color: $value;
+
+            &:hover {
+              background-color: lighten($value, 15%);
+            }
+          }
+        }
+      }
+    }
+
+    .particle {
+      height: 5px;
+      min-height: 5px;
+      margin-bottom: 1px;
+
+      &.expanded {
+        height: 20px;
+        min-height: 20px;
+      }
+
+      @include particle-colors($particle-states)
+    }
+  }
+}

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.burstsys</groupId>
+        <artifactId>burst-samplestore</artifactId>
+        <version>4.0.0${revision}-SNAPSHOT</version>
+    </parent>
+    <artifactId>burst-samplesource</artifactId>
+
+    <properties>
+        <artifact.skip-deploy>false</artifact.skip-deploy>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-vitals</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-tesla</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-samplestore-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-nexus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>shade-samplesource</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>${deploy.maven-plugin.version}</version>
+                    </plugin>
+
+                    <!-- Shade in the burst classes for which there are no published artifacts  -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>${shade.maven-plugin.version}</version>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.burstsys:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
+                        <configuration>
+                            <updatePomFile>true</updatePomFile>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

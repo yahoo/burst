@@ -1,0 +1,28 @@
+{
+    "flush": "G",
+    "limit": 1,
+    "parallelism": 1,
+    "duration": "5 minutes",
+    "loadRate": 0.5,
+    "batches": [
+        {
+            "queries": [
+                "SILQ(\"unity\", 1, 0)\n AGGREGATE ( \n \"Users\" as count(user); \n \"Sessions\" as count(user.sessions);\n \"Events\" as count(user.sessions.events);\n)"
+            ],
+            "motif": "VIEW pleasework { INCLUDE user WHERE (count(user.sessions) WHERE user.sessions.startTime > NOW-DAYS(365)) > 0; INCLUDE user.sessions WHERE user.sessions.startTime > NOW-DAYS(365)}",
+            "temporaryViewStoreProperties" : {
+                "burst.store.name": "sample",
+                "beast.view.max.rows.mock": 400,
+                "burst.samplestore.source.name": "AppEventsBrio",
+                "burst.samplestore.source.version": "0.1",
+                "beast.samplestore.stackdump.tripwire": 13000
+            },
+            "domains": [
+                { "projectId": 11044 }
+            ]
+        }
+    ]
+}
+
+
+

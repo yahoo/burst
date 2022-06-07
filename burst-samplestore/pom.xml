@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.burstsys</groupId>
+        <artifactId>burst-root</artifactId>
+        <version>4.0.0${revision}-SNAPSHOT</version>
+    </parent>
+    <artifactId>burst-samplestore</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>burst-cell-samplestore</module>
+        <module>burst-samplestore-api</module>
+        <module>burst-samplesource</module>
+        <module>burst-json-samplestore</module>
+    </modules>
+</project>

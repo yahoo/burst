@@ -1,0 +1,68 @@
+#workers {
+  .b-pane {
+    max-height: unset;
+  }
+
+  #chart {
+    min-height: 120px;
+  }
+
+  .ReactTable {
+    max-height: 100%;
+
+    .rt-th {
+      font-weight: bold;
+    }
+  }
+
+  .sha {
+    color: #19692c;
+
+    &.mismatch {
+      color: #856404;
+    }
+  }
+
+  $live: DarkSeaGreen;
+  $dead: LightCoral;
+  $flaky: PeachPuff;
+  $tardy: LemonChiffon;
+  $exiled: WhiteSmoke;
+  $unknown: repeating-linear-gradient(-45deg, #f0f0f0, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 20px);
+
+  .Live {
+    background: $live !important;
+  }
+
+  .Dead {
+    background: $dead !important;
+  }
+
+  .Flaky {
+    background: $flaky !important;
+  }
+
+  .Tardy {
+    background: $tardy !important;
+  }
+
+  .Exiled {
+    background: $exiled !important;
+  }
+
+  .node-state {
+    background: $unknown;
+  }
+
+  .node-summary {
+    span {
+      padding: 0.5em 1em;
+      display: inline-block;
+      background: $unknown;
+    }
+
+    .total {
+      background: none;
+    }
+  }
+}

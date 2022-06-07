@@ -1,0 +1,15 @@
+/* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
+package org.burstsys.hydra
+
+import org.burstsys.vitals.properties.{VitalsPropertyRegistry, VitalsPropertySpecification}
+
+package object configuration extends VitalsPropertyRegistry {
+
+  val burstHydraParserCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+    key = "burst.hydra.parser.count",
+    description = "pool size for hydra parsers",
+    default = Some(Runtime.getRuntime.availableProcessors)
+  )
+
+
+}

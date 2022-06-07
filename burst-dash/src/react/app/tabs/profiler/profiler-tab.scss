@@ -1,0 +1,98 @@
+.profiler {
+  .CodeMirror {
+    border-width: 3px;
+  }
+
+  &.locked {
+    .CodeMirror {
+      border-color: orange;
+    }
+  }
+
+  &.unlocked {
+    .CodeMirror {
+      border-color: steelblue;
+    }
+  }
+}
+
+.profiler-results {
+  overflow: auto;
+
+  .header-groups {
+    text-align: center;
+    font-weight: bold;
+    color: maroon;
+
+    &:nth-child(2n) {
+      background-color: linen;
+    }
+    &:nth-child(2n+1) {
+      background-color: oldlace;
+    }
+  }
+
+  .header-names {
+    text-align: center;
+    font-weight: bold;
+
+    &:first-child {
+      text-align: right;
+    }
+  }
+
+  .profiler-events {
+    text-align: right;
+    color: blue;
+
+    tr.event {
+      td:first-of-type {
+        font-weight: bold;
+      }
+
+      td:last-of-type {
+        text-align: left;
+        width: 10em;
+        margin: 0;
+        padding: 0;
+
+        pre {
+          color: green;
+          background: white;
+          height: 3em;
+          width: 30em;
+          font-style: italic;
+          font-size: 0.8rem;
+          padding: 0.1em;
+          margin: 0.1em;
+          overflow: hidden;
+
+          &.error {
+            color: red;
+          }
+        }
+      }
+
+      .timestamp {
+        width: 12em;
+        color: maroon;
+      }
+
+      .scan-rate {
+        color: maroon;
+      }
+    }
+
+    tr.message pre {
+      text-align: left;
+      color: green;
+
+      &.error {
+        color: red
+      }
+    }
+    .w-6 {
+      width: 6em;
+    }
+  }
+}

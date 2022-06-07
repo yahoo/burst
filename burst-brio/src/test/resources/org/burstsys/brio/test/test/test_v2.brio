@@ -1,0 +1,69 @@
+schema BrioTest {
+
+    version: 2
+
+    root) foobar :  ScalarReferenceTestStructure
+
+    structure ScalarValueTestStructure {
+        0) field1  : byte key
+        1) field2  : short
+        2) field3  : integer
+    }
+
+    structure VectorValueTestStructure {
+        0) field1  : vector[byte]
+        1) field2  : vector[short]
+        2) field3  : vector[integer]
+        3) field4  : vector[long]
+        4) field5  : vector[double]
+        5) field6  : vector[string]
+    }
+
+    structure ReferenceTestStructure1 {
+        0) field1  : string  key
+        1) field2  : long
+    }
+
+    structure ReferenceTestStructure2 {
+        0) field1  : string
+        1) field2  : long
+    }
+
+    structure ScalarReferenceTestStructure {
+        0) field1  : ReferenceTestStructure1
+        1) field2  : ReferenceTestStructure2
+    }
+
+    structure VectorReferenceTestStructure {
+        0) field1  : vector[ReferenceTestStructure1]
+        1) field2  : vector[ReferenceTestStructure2]
+    }
+
+    structure VersionedTestStructure {
+        0) field1  : vector[ScalarValueTestStructure]
+    }
+
+    structure FirstLevelTestStructure {
+        0) field1  : string key
+        1) field2  : long ordinal
+        2) field3  : double
+        3) field4  : SecondLevelTestStructure
+        4) level2s  : vector[SecondLevelTestStructure]
+    }
+
+    structure SecondLevelTestStructure {
+        0) field1  : long key
+        1) field2  : long ordinal
+        2) field3  : double
+        3) level3s  : vector[ThirdLevelTestStructure]
+        4) level3  : ThirdLevelTestStructure
+    }
+
+    structure ThirdLevelTestStructure {
+       0)  field1  : long key
+       1)  field2  : long ordinal
+       2)  field3  : double
+    }
+
+
+}

@@ -1,0 +1,26 @@
+{
+  "schemaName": "unity",
+  "flush": "F",
+  "batches": [
+    {
+      "queries": [
+        "select count(user) as users, count(user.events) as events from schema quo",
+        "select\n\tmonthofyear(month(user.sessions.startTime)) as Month,\n\ttheyear(year(user.sessions.startTime)) as Year,\n\tcount(user) as users, \n\tcount(user.sessions) as sessions, \n\tcount(user.sessions.events) as events\nfrom schema quo"
+      ],
+      "motif": "VIEW template {\n  INCLUDE user\n  INCLUDE user.sessions.events where false\n}",
+      "domains": [
+        {
+          "moniker": "Domain1"
+        },
+        {
+          "moniker": "Domain2",
+          "motif": "VIEW template { INCLUDE user}"
+        },
+        {
+          "moniker": "Domain1"
+        }
+      ]
+    }
+  ]
+}
+

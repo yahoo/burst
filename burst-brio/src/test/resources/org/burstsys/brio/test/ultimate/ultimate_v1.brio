@@ -1,0 +1,71 @@
+/*
+ * A Schema to show off extended features and a futuristic data model
+ */
+schema UltimateSchema  {
+
+    /*
+     * Schema Version
+     */
+    version: 1
+
+    /*
+     * The root of the object tree
+     */
+    root) user : User
+
+    /*
+     * The User across applications and devices
+     */
+    structure User  {
+        0) pk : string key
+        1) parameters : map[string, string]
+        2) sessions : vector[Session]
+        3) applications : vector[Application]
+    }
+
+    /*
+     * The applications that the User interacts with on a Device
+     */
+    structure Application {
+        0) pk : long key
+        1) parameters : map[string, string]
+        3) foobar:long
+    }
+
+    /*
+     * The Session container for events
+     */
+    structure Session {
+        0) pk : long key
+        1) parameters : map[string, string]
+        2) events : vector[Event] // heterogeneous collection (subtypes)
+    }
+
+    /*
+     * This is the mother of all events
+     */
+    structure Event  {
+        0) pk : long key
+        1) parameters : map[string, string]
+        2) startTime: long ordinal
+    }
+
+    /*
+     * A subtype of Event
+     */
+    structure CrashEvent extends Event {
+        3) specialField3 : elastic( 3 ) // 3 byte number space
+        4) specialField4 : lookup( 1, lookup1 ) // 1 bytes with lookup table 'lookup1'
+        5) specialField5 : elastic( 3, offset2 ) // 3 bytes with an offset 'offset2'
+    }
+
+    /*
+     * A subtype of Event
+     */
+    structure RevenueEvent extends Event {
+        6) specialField6 : elastic( 5, 3 ) // 5 byte number space with 3 bit resolution truncation
+        7) specialField7 : lookup( 1, lookup1 ) // 1 bytes with lookup table 'lookup1'
+        8) specialField8 : elastic( 2, 2, offset2 ) // 2 byte number space with 2 bit resolution truncation and  offset 'offset2'
+    }
+
+}

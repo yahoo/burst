@@ -1,0 +1,120 @@
+#catalogTab {
+  @media (max-width: 850px) {
+    .navbar-expand {
+      flex-wrap: wrap !important;
+    }
+    .form-group {
+      flex-basis: 100%;
+    }
+    .burst-labeled-item {
+      flex-basis: 100%;
+      display: flex;
+      align-items: baseline;
+    }
+    .burst-label {
+      min-width: 70px;
+    }
+    .burst-value {
+      flex-grow: 1;
+
+      input, select, button {
+        width: 100% !important;
+      }
+    }
+  }
+
+  .left-pane {
+    flex-basis: 35%;
+    flex-grow: 0;
+  }
+  .right-pane {
+    flex-basis: 65%;
+  }
+
+  #catalog-results {
+    max-height: 100%
+  }
+
+  #catalog-tree {
+    padding: 0.5em;
+    overflow: auto;
+    background-color: rgb(253, 253, 253);
+    height: 100%;
+    width: 100%;
+
+    .tree-node {
+      cursor: pointer;
+      //display: flex;
+      //align-items: center;
+      //flex-direction: row;
+
+      &.selected {
+        color: steelblue;
+      }
+
+      &.domain {
+        margin: 0.3em 0;
+      }
+
+      &.view {
+        margin: 0.2em 0;
+        padding-left: 0.5em;
+      }
+
+      .fa {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  #catalog-editor {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    padding: 0.5em 1em;
+
+    .entity-header {
+      gap: 1em;
+    }
+
+    .burst-label {
+      font-weight: bold;
+      color: steelblue;
+      margin-right: 0.1em;
+    }
+
+    .burst-value {
+      font-weight: bold;
+      color: black;
+      padding: 0 0.4em;
+      display: inline-block;
+    }
+
+    .burst-moniker {
+      font-weight: bold;
+      color: maroon;
+      margin-right: 1em;
+      padding: 0.4em
+    }
+
+    .editor-tab {
+      padding: 1em 0.5em;
+
+      .b-flex-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .tr-middle > td {
+        vertical-align: middle;
+      }
+    }
+
+    .react-codemirror2 {
+      .CodeMirror {
+        height: auto
+      }
+    }
+  }
+}

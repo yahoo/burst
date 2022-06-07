@@ -1,0 +1,58 @@
+.query-title {
+  max-width: 40%;
+}
+
+.query-results {
+  overflow: auto;
+
+  > * {
+    display: block !important;
+  }
+
+  .error-header {
+    font-weight: bold;
+    color: red;
+  }
+  pre.error-message {
+    padding: 0.5em 1em;
+    color: #cd5c5c;
+    margin-bottom: 0;
+  }
+
+  .group-metrics {
+    color: maroon;
+    background: #f8f8f8;
+    padding: 0.2em;
+    margin-bottom: 0.8em;
+  }
+
+  .result-group {
+    padding: 0 1em;
+
+    table {
+      font-weight: bold;
+      th {
+        background: white;
+      }
+      td {
+        color: black;
+        text-align: right;
+
+        &.nan {
+          font-weight: bold;
+          color: maroon;
+        }
+
+        &.null {
+          font-weight: bold;
+          color: blue;
+        }
+
+        &.string {
+          text-align: center;
+          color: green;
+        }
+      }
+    }
+  }
+}

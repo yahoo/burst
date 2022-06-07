@@ -1,0 +1,77 @@
+schema Quo  {
+
+    version:1
+
+    root) user : User
+
+    // root structure
+    structure User {
+        0) flurryId:  string key
+        1) project:  Project
+        2) sessions:  vector[Session]
+        3) segments:  vector[Segment]
+        4) channels:  vector[Channel]
+        5) personas:  vector[Persona]
+        6) deviceModelId:   long
+        7) deviceSubModelId:   long
+    }
+
+    // off main axis
+    structure Project {
+        0) projectId:  long  key
+        1) installTime:  long ordinal
+        2) lastUsedTime:  long
+        3) retainedTime:  long
+        4) cityId:  long
+        5) stateId:  long
+        6) countryId:  long
+        7) regionId:  long
+        8) localeId:  long
+        9) languageId:  long
+        10) birthDate:  long
+        11) gender:  byte
+    }
+
+    structure Persona {
+         0) personaId:  long  key
+    }
+
+    structure Segment {
+         0) segmentId:  long  key
+    }
+
+    structure Channel {
+        0) channelId:  long  key
+        1) networkId:  long
+        2) isQuality:  boolean
+    }
+
+    structure Session {
+         0) sessionId:  long key
+         1) osVersion:  long
+         2) startTime:  long ordinal
+         3) totalErrors:  long
+         4) timeZoneId:  long
+         5) localeId:  long
+         6) regionId:  long
+         7) countryId:  long
+         8) stateId:  long
+        9) cityId:  long
+        10) carrierId:  long
+        11) agentVersionId:  long
+        12) appVersionId:  long
+        13) duration:  long
+        14) totalEvents:  long
+        15) events:  vector[Event]
+    }
+
+    structure Event {
+        0) eventId:  long
+        1) startTime:  long ordinal
+        2) duration:  long
+        3) order:  integer
+        4) eventType:  byte
+        5) parameters:  map[string, string]
+    }
+
+}

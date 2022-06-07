@@ -1,0 +1,39 @@
+/*
+ * Burst - presser schema
+ * This motif/brio schema is used to test pressing/lattice read/write
+ * Note that you can pretty much always add relations/structures etc
+ * but you *cannot* change existing relations in any way, and you
+ * cannot *delete* anything. You must keep ordinals consistent even within
+ * type hierarchies
+ */
+schema Presser {
+
+    version: 1
+
+    // all traversal paths start with what is a special root relation in the schema itself
+    root) 'root' : RootStructure
+
+    structure RootStructure {
+        0) f0 : string key
+        1) f1 : long ordinal
+        2) f2 : short
+        3) f3 : SecondLevelStructure
+        4) f4 : vector[SecondLevelStructure]
+    }
+
+    structure SecondLevelStructure {
+        0) f0 : long key
+        1) f1 : long ordinal
+        2) f2 : double
+        3) f3 : vector[ThirdLevelStructure]
+        4) f4 : ThirdLevelStructure
+    }
+
+    structure ThirdLevelStructure {
+        0) f0 : long key
+        1) f1 : long ordinal
+        2) f2 : map[string,string]
+        3) f3 : vector[double]
+    }
+
+}

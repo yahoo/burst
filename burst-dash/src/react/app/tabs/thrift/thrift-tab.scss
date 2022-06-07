@@ -1,0 +1,47 @@
+#thriftTab {
+  .b-pane.flex-grow-1 {
+    max-height: 100%;
+  }
+
+  .table {
+    height: 0;
+
+    td:first-of-type {
+      text-align: center;
+    }
+    tr.detail td:first-of-type {
+      text-align: left;
+    }
+  }
+  .stacktrace {
+    max-height: 200px;
+  }
+  .query-source {
+    flex-basis: fit-content;
+  }
+  .query-params {
+    flex-basis: min-content;
+  }
+  .query-actions {
+    display: flex;
+    flex-direction: column;
+    flex-basis: min-content;
+  }
+
+  .SuccessStatus, .NoDataStatus {
+    color: forestgreen;
+  }
+
+  .InProgressStatus {
+    color: steelblue;
+  }
+
+  .ExceptionStatus {
+    color: darkred;
+  }
+
+  .TimeoutStatus, .NotReadyStatus, .NotFoundStatus {
+    color: palevioletred;
+  }
+
+}

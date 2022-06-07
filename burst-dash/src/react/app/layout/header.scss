@@ -1,0 +1,31 @@
+#burst-header {
+  .row {
+    min-height: 4rem;
+
+    > div {
+      height: 100%;
+      align-items: center;
+      display: flex;
+    }
+  }
+
+  .torcher-message {
+    color: red;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+
+  .pulse {
+    animation: 1s ease alternate infinite pulse_effect;
+  }
+
+  @keyframes pulse_effect {
+    0% {
+      opacity: 0.25;
+    }
+    100% {
+      opacity: 1.0;
+    }
+  }
+
+}

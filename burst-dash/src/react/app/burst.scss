@@ -1,0 +1,421 @@
+#burstMasterBody {
+  min-height: 100vh;
+  font-variant-numeric: tabular-nums;
+}
+
+#burst-header {
+  background: #eee;
+  min-height: 56px;
+  overflow: hidden;
+}
+
+#burst-nav {
+  padding: 0.5em 1em;
+  min-height: 51px;
+}
+
+#burst-content {
+  padding: 0.2em 1em 1em 1em;
+  flex-grow: 1;
+  overflow: auto;
+}
+
+#burst-footer {
+  background: #eee;
+  padding: 0.25em 1em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 30px;
+  font-size: 0.9rem;
+
+  #config-info {
+    display: flex;
+
+    .label {
+      padding-right: 0.5em;
+      font-weight: bold;
+    }
+    .value {
+      padding-right: 1em;
+      color: steelblue;
+    }
+    > div:last-of-type {
+      .value {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+.min-h-100 {
+  //overscroll-behavior-y: none;
+  min-height: 100vh !important;
+}
+
+@media screen and (min-width: 850px) {
+  .min-h-100 {
+    height: 100vh !important;
+  }
+}
+
+.b-flex-col {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  & > * {
+    display: flex;
+    width: 100%
+  }
+
+  .b-pane {
+    min-height: 50px;
+    max-height: 50%;
+    width: 100%;
+    margin-top: 0.5em;
+    overflow: auto;
+    flex-direction: column;
+
+    @media screen and (max-width: 850px) {
+      & {
+        max-height: unset !important;
+        height: unset !important;
+      }
+    }
+
+    & > * {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    &.b-overflow {
+      overflow: visible;
+    }
+
+    &.flex-grow-1 {
+      min-height: 150px;
+    }
+  }
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.hide {
+  display: none;
+}
+
+#boundry-message {
+  white-space: pre-line;
+}
+
+#boundry-stack {
+  white-space: pre-line;
+  flex-direction: column;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.details {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: help;
+  font-weight: 600;
+}
+
+.summary-table {
+  td.label {
+    color: #aaa;
+    padding-right: 1rem;
+    padding-left: 1rem;
+
+    &:first-of-type {
+      padding-left: 0;
+    }
+  }
+
+}
+
+//////////////////////////////////////////////////////
+// mixins + variables
+//////////////////////////////////////////////////////
+
+
+%burst-border {
+  border-radius: 4px;
+  border: solid thin rgb(220, 220, 220);
+}
+
+
+//////////////////////////////////////////////////////
+// fixes + additions
+//////////////////////////////////////////////////////
+
+.nav-link {
+  border: 1px solid transparent;
+  border-radius: 5px;
+
+  &.active {
+    border-color: lightsteelblue;
+  }
+}
+
+.bg-medium {
+  background-color: #f3f3f3;
+}
+
+.btn-toolbar {
+  & > * {
+    margin-left: 0.5em;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.card-header-tabs, .card-header-pills {
+  margin: 0;
+}
+
+.table thead th {
+  vertical-align: middle;
+}
+
+html, body, p {
+  font-size: 14px;
+}
+
+.alert.main-status {
+  border: 1px solid;
+  opacity: 0.9;
+}
+
+.modal-body {
+  max-height: 75vh;
+  overflow: auto;
+
+  & > * {
+    max-height: calc(75vh - 2rem);
+  }
+}
+
+.navbar-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.react-codemirror2 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.CodeMirror {
+  height: 100%;
+  min-height: 100%;
+
+  @extend %burst-border;
+}
+
+.ReactTable {
+  &.-scroll-headers {
+    // ensure headers and body both always have scroll bars
+    .rt-thead {
+      overflow-y: scroll;
+    }
+    .rt-tbody {
+      overflow-y: scroll;
+    }
+
+
+    // don't force nested table to scroll
+    .ReactTable .rt-thead {
+      overflow-y: auto;
+    }
+    .ReactTable .rt-tbody {
+      overflow-y: auto;
+    }
+  }
+}
+
+.w-95 {
+  width: 95%;
+}
+
+.burst-inline-form {
+  label {
+    margin-right: -10px;
+  }
+}
+
+//////////////////////////////////////////////////////
+// old
+//////////////////////////////////////////////////////
+
+
+.burst-separator {
+  font-style: italic;
+  color: black;
+}
+
+.burst-vertical-condensed {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+
+}
+
+.burst-full-size {
+  width: 100%;
+  height: 100%;
+}
+
+.burst-condensed {
+  margin: 0;
+  padding: 0;
+}
+
+.burst-horizontal-condensed {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.burst-border {
+  @extend %burst-border;
+}
+
+.burst-empty-message {
+  padding: 3em;
+  font-size: 2rem;
+  width: auto;
+  color: rgb(230, 230, 230);
+  text-align: center;
+  vertical-align: middle;
+
+  &.small {
+    padding: 1.5em;
+    font-size: 1.5rem;
+  }
+}
+
+.burst-form-label {
+  margin: 0.1em 0.3em 0 1.1em;
+  vertical-align: middle;
+  font-size: 1rem;
+  font-weight: bold;
+  color: steelblue;
+}
+
+.burst-small-label {
+  color: steelblue;
+  font-weight: bold;
+  text-align: right;
+  padding: 0.2em;
+}
+
+.burst-small-control {
+  color: maroon;
+  text-align: left;
+  padding: 0.2em 1em 0.2em 0.2em;
+  margin: 0.2em 1em 0.2em 0.0em;
+  background-color: rgb(252, 252, 252);
+  border-radius: 6px;
+  border: 1px solid rgb(235, 235, 235);
+}
+
+.burst-bold-text {
+  color: steelblue;
+  font-weight: bold;
+}
+
+.burst-form-control {
+  margin-top: 0.1em;
+  min-width: 7em;
+  max-width: 12em;
+  height: 2.2em;
+  display: inline-block;
+  vertical-align: middle;
+  color: black;
+  background-color: white;
+  border-radius: 4px;
+  border-color: rgb(220, 220, 220);
+  font-size: 1rem;
+}
+
+.burst-form-button {
+  margin-top: 0.1em;
+  margin-left: 1em;
+  height: 2.2em;
+  display: inline-block;
+  vertical-align: middle;
+  color: rgb(135, 135, 135);
+  background-color: white;
+  border-radius: 4px;
+  border-color: rgb(220, 220, 220);
+  font-size: 1rem;
+}
+
+.burst-treeview-item {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+td.spacer {
+  width: 2em;
+}
+
+button {
+  span.fa {
+    color: steelblue;
+  }
+
+  &:hover {
+    span.fa {
+      color: inherit;
+    }
+  }
+
+  &:disabled {
+    span.fa {
+      color: inherit;
+    }
+  }
+}
