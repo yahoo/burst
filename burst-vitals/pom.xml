@@ -145,7 +145,6 @@
                 </executions>
 
                 <configuration>
-                    <useNativeGit>true</useNativeGit>
                     <verbose>true</verbose>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>src/main/resources/org/burstsys/vitals/git/burst-git.properties

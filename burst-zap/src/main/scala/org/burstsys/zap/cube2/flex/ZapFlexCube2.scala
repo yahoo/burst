@@ -56,7 +56,11 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
 
   override def rowsCount: Int = internalCollector.rowsCount
 
+  override def rowCount: Int = internalCollector.rowCount
+
   override def rowsLimited: Boolean = internalCollector.rowsLimited
+
+  override def rowLimited: Boolean = internalCollector.rowLimited
 
   override def isEmpty: Boolean = internalCollector.isEmpty
 
@@ -362,11 +366,7 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
   override def importCollector(sourceCollector: ZapCube2, sourceItems: TeslaPoolId, builder: ZapCube2Builder): Unit =
     throw VitalsException(s"importCollector should not be called in flex cube!")
 
-  override def rowCount: TeslaPoolId = ???
-
   override def rowCount_=(count: TeslaPoolId): Unit = ???
-
-  override def rowLimited: Boolean = ???
 
   override def writeAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, column: TeslaPoolId): Unit = ???
 

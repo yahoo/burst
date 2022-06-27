@@ -17,6 +17,16 @@ trait ZapCubeIterator extends Any with ZapCube {
    */
   @inline final private[zap]
   def foreachRow(builder: ZapCubeBuilder, thisCube: ZapCubeContext, body: ZapCubeRow => Unit): Unit = {
+    var i = 0
+    while (i < thisCube.rowCount) {
+      body(thisCube.row(builder, thisCube, i))
+      i += 1
+    }
+  }
+
+
+  @inline final private[zap]
+  def foreachRowByBucket(builder: ZapCubeBuilder, thisCube: ZapCubeContext, body: ZapCubeRow => Unit): Unit = {
     var b = 0
     while (b < bucketCount) {
       thisCube.bucket(builder, thisCube, b) match {
@@ -31,17 +41,4 @@ trait ZapCubeIterator extends Any with ZapCube {
       b += 1
     }
   }
-
-  /**
-   * Iterate over all rows in a bucket
-   */
-  @inline final private[zap]
-  def foreachRowInBucketList(builder: ZapCubeBuilder, thisCube: ZapCubeContext, firstRow: ZapCubeRow, body: ZapCubeRow => Unit): Unit = {
-    var row = firstRow
-    do {
-      body(row)
-      row = row.linkRow(builder, thisCube)
-    } while (row.validRow)
-  }
-
 }

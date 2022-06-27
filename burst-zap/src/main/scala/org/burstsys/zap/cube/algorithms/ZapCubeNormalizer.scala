@@ -3,11 +3,15 @@ package org.burstsys.zap.cube.algorithms
 
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
+import org.burstsys.felt.model.collectors.cube.FeltCubeBuilder
+import org.burstsys.felt.model.collectors.cube.FeltCubeCollector
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.text.VitalsTextCodec
 import org.burstsys.zap
-import org.burstsys.zap.cube.{ZapCube, ZapCubeBuilder, ZapCubeContext, ZapCubeRow}
+import org.burstsys.zap.cube.ZapCube
+import org.burstsys.zap.cube.ZapCubeBuilder
+import org.burstsys.zap.cube.ZapCubeContext
+import org.burstsys.zap.cube.ZapCubeRow
 
 /**
  * If we use strings for dimensions or aggregations in a zapcube,
@@ -71,13 +75,12 @@ trait ZapCubeNormalizer extends Any with ZapCube {
     val newThatCube = zap.cube.factory.grabZapCube(builder)
     try {
       // go through all the rows
-      thatCube.foreachRow(builder, thatCube, {
-        thatRow =>
-          normalizeJustDimensionsForExistingThatRowToNewThatCube(
-            builder = builder, thisCube = thisCube, thisDictionary = thisDictionary,
-            thatCube = thatCube, thatDictionary = thatDictionary,
-            oldRow = thatRow, newCube = newThatCube
-          )
+      thatCube.foreachRowByBucket(builder, thatCube, { thatRow =>
+        normalizeJustDimensionsForExistingThatRowToNewThatCube(
+          builder = builder, thisCube = thisCube, thisDictionary = thisDictionary,
+          thatCube = thatCube, thatDictionary = thatDictionary,
+          oldRow = thatRow, newCube = newThatCube
+        )
       })
     } catch safely {
       case t: Throwable =>
@@ -105,13 +108,12 @@ trait ZapCubeNormalizer extends Any with ZapCube {
     val newThatCube = zap.cube.factory.grabZapCube(builder)
     try {
       // got through all the rows
-      thatCube.foreachRow(builder, thatCube, {
-        thatRow =>
-          normalizeDimensionsAndAggregationsForExistingThatRowToNewThatCube(
-            builder = builder, thisCube = thisCube, thisDictionary = thisDictionary,
-            thatCube = thatCube, thatDictionary = thatDictionary, oldRow = thatRow,
-            newCube = newThatCube
-          )
+      thatCube.foreachRowByBucket(builder, thatCube, { thatRow =>
+        normalizeDimensionsAndAggregationsForExistingThatRowToNewThatCube(
+          builder = builder, thisCube = thisCube, thisDictionary = thisDictionary,
+          thatCube = thatCube, thatDictionary = thatDictionary, oldRow = thatRow,
+          newCube = newThatCube
+        )
       })
     } catch safely {
       case t: Throwable =>
@@ -134,8 +136,7 @@ trait ZapCubeNormalizer extends Any with ZapCube {
   def normalizeJustDimensionsForExistingThatRowToNewThatCube(
                                                               builder: ZapCubeBuilder,
                                                               thisCube: ZapCubeContext, thisDictionary: BrioMutableDictionary,
-                                                              thatCube: ZapCubeContext,
-                                                              thatDictionary: BrioMutableDictionary,
+                                                              thatCube: ZapCubeContext, thatDictionary: BrioMutableDictionary,
                                                               oldRow: ZapCubeRow, newCube: ZapCubeContext)
                                                             (implicit text: VitalsTextCodec): Unit = {
     val newRow = newNormalizedDimensionsThatRowInNewCube(
@@ -183,12 +184,11 @@ trait ZapCubeNormalizer extends Any with ZapCube {
                                                    thatCube: ZapCubeContext,
                                                    thatDictionary: BrioMutableDictionary)
                                                   (implicit text: VitalsTextCodec): ZapCubeContext = {
-    thatCube foreachRow(builder, thatCube, {
-      thatRow =>
-        normalizeAggregationsForExistingThatRow(
-          builder = builder, thisCube = thisCube, thisDictionary = thisDictionary,
-          thatCube = thatCube, thatDictionary = thatDictionary, thatRow = thatRow
-        )
+    thatCube.foreachRowByBucket(builder, thatCube, { thatRow =>
+      normalizeAggregationsForExistingThatRow(
+        builder = builder, thisCube = thisCube, thisDictionary = thisDictionary,
+        thatCube = thatCube, thatDictionary = thatDictionary, thatRow = thatRow
+      )
     })
     //    thatCube.dictionary = this.dictionary
     thatCube

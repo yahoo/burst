@@ -34,7 +34,7 @@ class EqlSingleCubeQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("userCount")).asLong, row(names("eventCount")).asLong, row(names("day")).asLong, row(names("dashboard")).asByte)
       }.sortBy(_._1)
 
-      r should equal(Array((50,12500,-57600000,1)))
+      r should contain theSameElementsAs Array((50,12500,-57600000,1))
     })
   }
 
@@ -236,8 +236,9 @@ it should "successfully generate a top aggregate query" in {
         row => (row(names("evnts")).asLong, row(names("kys")).asString.take(2))
       }.sortBy{r => r._1}.reverse
 
-      r should equal(Array((8929, "EK"), (8929, "EK"), (8929, "EK"), (8929, "EK"),
-        (8928, "EK"), (8928, "EK"), (8928, "EK")))
+      r should contain theSameElementsAs Array(
+        (8929, "EK"), (8929, "EK"), (8929, "EK"), (8929, "EK"), (8928, "EK"), (8928, "EK"), (8928, "EK")
+      )
     })
   }
 
@@ -265,7 +266,7 @@ it should "successfully generate a top aggregate query" in {
       val rs = result.resultSets(0).rowSet(0)
       val r = Array(Array(rs(names("users")).asLong, rs(names("sessions")).asLong, rs(names("events")).asLong))
 
-      r should equal(Array(Array(4, 10, 0)))
+      r should contain theSameElementsAs Array(Array(4, 10, 0))
     })
 
     // over different dataset
@@ -286,7 +287,7 @@ it should "successfully generate a top aggregate query" in {
       val rs = result.resultSets(0).rowSet(0)
       val r = Array(Array(rs(names("users")).asLong, rs(names("sessions")).asLong, rs(names("events")).asLong))
 
-      r should equal(Array(Array(50, 1250, 12500)))
+      r should contain theSameElementsAs Array(Array(50, 1250, 12500))
     })
   }
 
@@ -315,7 +316,7 @@ it should "successfully generate a top aggregate query" in {
         row => Array(row(names("events")).asLong, row(names("d")).asLong)
       }.sortBy(_.head)
 
-      r should equal(Array(Array(4, 1), Array(4, 2), Array(4, 3), Array(4, 4)))
+      r should contain theSameElementsAs Array(Array(4, 1), Array(4, 2), Array(4, 3), Array(4, 4))
     })
   }
 
@@ -345,7 +346,7 @@ it should "successfully generate a top aggregate query" in {
         row => Array(row(names("projects")).asLong, row(names("languageId")).asLong)
       }.sortBy(_.head)
 
-      r should equal(Array(Array(4, 0)))
+      r should contain theSameElementsAs Array(Array(4, 0))
     })
   }
 
@@ -374,7 +375,7 @@ it should "successfully generate a top aggregate query" in {
         row => Array(row(names("users")).asLong, row(names("osId")).asLong)
       }.sortBy(_.head)
 
-      r should equal(Array(Array(4, 0)))
+      r should contain theSameElementsAs Array(Array(4, 0))
     })
   }
 
@@ -404,7 +405,7 @@ it should "successfully generate a top aggregate query" in {
         row => Array(row(names("users")).asLong, row(names("sessions")).asLong, row(names("events")).asLong)
       }.sortBy(_.head)
 
-      r should equal(Array(Array(50, 1250, 12500)))
+      r should contain theSameElementsAs Array(Array(50, 1250, 12500))
     })
   }
 
@@ -434,7 +435,7 @@ it should "successfully generate a top aggregate query" in {
         row => Array(row(names("users")).asLong, row(names("sessions")).asLong, row(names("events")).asLong)
       }.sortBy(_.head)
 
-      r should equal(Array(Array(50, 1250, 12500)))
+      r should contain theSameElementsAs Array(Array(50, 1250, 12500))
     })
   }
 }

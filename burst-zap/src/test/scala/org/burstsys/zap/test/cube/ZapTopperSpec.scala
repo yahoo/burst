@@ -14,14 +14,19 @@ class ZapTopperSpec extends ZapAbstractSpec {
 
   import ZapTestData._
 
-  private val sequence = Array[BrioPrimitive](
-    3, 700, 12, 45, 100, 500, 300, 400, 200, 43, 600, 2, 999, 23, 404, 505,
-    77, 2000, 349, 1277, 4596, 7888, 33334, 2220, 222228, 1022
-  )
+  private val values = Seq.fill(5)(4: BrioPrimitive) ++
+    Seq(10: BrioPrimitive) ++
+    Seq.fill(3)(2: BrioPrimitive) ++
+    Seq(11: BrioPrimitive) ++
+    Seq.fill(2)(1: BrioPrimitive) ++
+    Seq(12: BrioPrimitive) ++
+    Seq.fill(3)(3: BrioPrimitive) ++
+    Seq(13: BrioPrimitive) ++
+    Seq.fill(3)(3: BrioPrimitive) ++
+    Seq(14: BrioPrimitive)
 
 
   "Zap Topper" should "do a simple top k sort/truncate" in {
-
     initData()
     TeslaWorkerCoupler {
 
@@ -32,15 +37,14 @@ class ZapTopperSpec extends ZapAbstractSpec {
         z1.initialize(builder = builder, thisCube = z1)
         z1.rowCount should equal(0)
 
-        for (i <- sequence.indices) {
+        for (i <- values.indices) {
           val key = FabricDataKeyAnyVal(Array(0L, 0L, 0L))
           key.writeKeyDimensionPrimitive(0, i)
           val row = z1.navigate(builder, z1, key)
-          row.writeRowAggregationPrimitive(builder, z1, 0, sequence(i))
-
+          row.writeRowAggregationPrimitive(builder, z1, 0, values(i))
         }
 
-        z1.truncateToTopKBasedOnAggregation(builder, z1, 5, 0)
+        z1.truncateToTopKBasedOnAggregation(builder, z1, 8, 0)
 
         val topK = new ArrayBuffer[BrioPrimitive]
 
@@ -48,7 +52,7 @@ class ZapTopperSpec extends ZapAbstractSpec {
           row => topK += row.readRowAggregationPrimitive(builder, z1, 0)
         })
 
-        topK.sorted should equal(Array(2220, 4596, 7888, 33334, 222228))
+        topK should contain theSameElementsInOrderAs Array(14, 13, 12, 11, 10, 4, 4, 4)
 
 
       } finally {
@@ -67,15 +71,15 @@ class ZapTopperSpec extends ZapAbstractSpec {
         z1.initialize(builder, z1)
         z1.rowCount should equal(0)
 
-        for (i <- sequence.indices) {
+        for (i <- values.indices) {
           val key = FabricDataKeyAnyVal(Array(0L, 0L, 0L))
           key.writeKeyDimensionPrimitive(0, i)
           val row = z1.navigate(builder, z1, key)
-          row.writeRowAggregationPrimitive(builder, z1, 0, sequence(i))
+          row.writeRowAggregationPrimitive(builder, z1, 0, values(i))
 
         }
 
-        z1.truncateToBottomKBasedOnAggregation(builder, z1, 5, 0)
+        z1.truncateToBottomKBasedOnAggregation(builder, z1, 8, 0)
 
         val topK = new ArrayBuffer[BrioPrimitive]
 
@@ -83,7 +87,7 @@ class ZapTopperSpec extends ZapAbstractSpec {
           row => topK += row.readRowAggregationPrimitive(builder, z1, 0)
         })
 
-        topK.sorted should equal(Array(2, 3, 12, 23, 43))
+        topK should contain theSameElementsInOrderAs Array(1, 1, 2, 2, 2, 3, 3, 3)
 
       } finally {
         brio.dictionary.factory.releaseMutableDictionary(dictionary)

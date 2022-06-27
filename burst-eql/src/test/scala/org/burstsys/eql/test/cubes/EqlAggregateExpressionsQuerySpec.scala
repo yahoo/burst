@@ -24,7 +24,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asLong, row(names("two")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((50, 0), (50, 10)))
+      r should contain theSameElementsAs Array((50, 0), (50, 10))
     })
   }
 
@@ -47,7 +47,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asLong, row(names("four")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((50, 276)))
+      r should contain theSameElementsAs Array((50, 276))
     })
   }
 
@@ -73,7 +73,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         }
       }
 
-      r.sortBy(_._2) should equal(Array((50, 12500)))
+      r should contain theSameElementsAs Array((50, 12500))
     })
   }
 
@@ -99,7 +99,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         }
       }
 
-      r.sortBy(_._2) should equal(Array((50, 13800)))
+      r should contain theSameElementsAs Array((50, 13800))
     })
   }
 
@@ -119,7 +119,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asLong, row(names("two")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((50, 4), (50, 5)))
+      r should contain theSameElementsAs Array((50, 4), (50, 5))
     })
   }
 
@@ -140,7 +140,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
           row => (row(names("one")).asLong, row(names("two")).asLong)
         }
 
-        r.sortBy(_._2) should equal(Array((50, 0), (50, 10)))
+        r should contain theSameElementsAs Array((50, 0), (50, 10))
       })
     }
   }
@@ -161,7 +161,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asByte, row(names("two")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((100, 0), (100, 3)))
+      r should contain theSameElementsAs Array((100, 0), (100, 3))
     })
   }
 
@@ -188,7 +188,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asLong, row(names("two")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((50, 1)))
+      r should contain theSameElementsAs Array((50, 1))
     })
   }
 
@@ -274,8 +274,10 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asLong, row(names("two")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((13, 1), (12, 1), (13, 2), (12, 2), (13, 3), (12, 3), (13, 4), (12, 4), (12, 5),
-        (13, 5), (12, 6), (13, 6), (12, 7), (13, 7), (12, 8), (13, 8), (12, 9), (13, 9), (12, 10), (13, 10)))
+      r should contain theSameElementsAs Array(
+        (13, 1), (12, 1), (13, 2), (12, 2), (13, 3), (12, 3), (13, 4), (12, 4), (12, 5), (13, 5),
+        (12, 6), (13, 6), (12, 7), (13, 7), (12, 8), (13, 8), (12, 9), (13, 9), (12, 10), (13, 10)
+      )
     })
   }
 
@@ -295,7 +297,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("one")).asLong, row(names("two")).asLong)
       }
 
-      r.sortBy(_._2) should equal(Array((13, 1), (12, 1)))
+      r should contain theSameElementsAs Array((13, 1), (12, 1))
     })
   }
 

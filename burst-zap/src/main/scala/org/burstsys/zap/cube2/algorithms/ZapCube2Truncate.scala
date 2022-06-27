@@ -2,10 +2,11 @@
 package org.burstsys.zap.cube2.algorithms
 
 import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
-import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
-import org.burstsys.zap.cube2.state._
+import org.burstsys.felt.model.collectors.cube.FeltCubeBuilder
+import org.burstsys.felt.model.collectors.cube.FeltCubeCollector
 import org.burstsys.zap.cube2.row.ZapCube2Row
 import org.burstsys.zap.cube2.state.ZapCube2State
+import org.burstsys.zap.cube2.state._
 
 /**
  * == Algorithm ==
@@ -143,178 +144,95 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
   /**
    * forward quicksort a cubes rows
    *
-   * @param aggregation
+   * @param aggIndex
    * @param lowerIndex
    * @param higherIndex
    */
   @inline final private
-  def sortRowsAscending(aggregation: Int, lowerIndex: Int, higherIndex: Int): Unit = {
-    var i = lowerIndex
-    var j = higherIndex
-
-    // get pivot row index
-    val pivotKeyPoint = lowerIndex + ((higherIndex - lowerIndex) / 2)
-
-    // and the associated row
-    val pivotRow = row(pivotKeyPoint)
-
-    // this is the value for the chosen aggregation in that row
-    val pivotValue: BrioPrimitive = pivotRow.aggRead(aggregation)
-
-    // swap two rows field by field
-    def swap(leftCursor: Int, rightCursor: Int): Unit = {
-      if (leftCursor == rightCursor) return
-
-      // swap one by one each field in the left row with the same field in the right row
-      val leftRow = row(leftCursor)
-      val rightRow = row(rightCursor)
-
-      // swap dimensions
-      {
-        var d = 0
-        while (d < dimCount) {
-
-          val leftIsNull = leftRow.dimIsNull(d)
-          val rightIsNull = rightRow.dimIsNull(d)
-
-          val leftValue = leftRow.dimRead(d)
-          val rightValue = rightRow.dimRead(d)
-
-          if (rightIsNull) leftRow.dimSetNull(d) else leftRow.dimWrite(d, rightValue)
-          if (leftIsNull) rightRow.dimSetNull(d) else rightRow.dimWrite(d, leftValue)
-
-          d += 1
-        }
-      }
-
-      // swap aggregations
-      {
-        var a = 0
-        while (a < aggCount) {
-
-          val leftIsNull = leftRow.aggIsNull(a)
-          val rightIsNull = rightRow.aggIsNull(a)
-
-          val leftValue = leftRow.aggRead(a)
-          val rightValue = rightRow.aggRead(a)
-
-          if (rightIsNull) leftRow.aggSetNull(a) else leftRow.aggWrite(a, rightValue)
-          if (leftIsNull) rightRow.aggSetNull(a) else rightRow.aggWrite(a, leftValue)
-
-          a += 1
-        }
-      }
-
-    }
-
-    def iValue: BrioPrimitive = row(i).aggRead(aggregation)
-
-    def jValue: BrioPrimitive = row(j).aggRead(aggregation)
-
-    while (i <= j) {
-      while (iValue < pivotValue) i += 1
-      while (jValue > pivotValue) j -= 1
-      if (i <= j) {
-        swap(i, j)
-        i += 1
-        j -= 1
-      }
-    }
-
-    if (lowerIndex < j) {
-      sortRowsAscending(aggregation, lowerIndex, j)
-    }
-    if (i < higherIndex) {
-      sortRowsAscending(aggregation, i, higherIndex)
+  def sortRowsAscending(aggIndex: Int, low: Int, high: Int): Unit = {
+    if (low >= 0 && high > low) {
+      val pivotIndex = partition(aggIndex, low, high)
+      sortRowsAscending(aggIndex, low, pivotIndex)
+      sortRowsAscending(aggIndex, pivotIndex + 1, high)
     }
   }
 
   /**
    * reverse quicksort a cube's rows.
    *
-   * @param aggregation
-   * @param lowerIndex
-   * @param higherIndex
+   * @param aggIndex
+   * @param low
+   * @param high
    */
   @inline final private
-  def sortRowsDescending(aggregation: Int, lowerIndex: Int, higherIndex: Int): Unit = {
-    var i = lowerIndex
-    var j = higherIndex
+  def sortRowsDescending(aggIndex: Int, low: Int, high: Int): Unit = {
+    if (low >= 0 && high > low) {
+      val pivotIndex = partition(aggIndex, low, high, ascending = false)
+      sortRowsDescending(aggIndex, low, pivotIndex)
+      sortRowsDescending(aggIndex, pivotIndex + 1, high)
+    }
+  }
 
-    // get pivot row index
-    val pivotKeyPoint = lowerIndex + ((higherIndex - lowerIndex) / 2)
+  private def partition(aggIndex: Int, low: Int, high: Int, ascending: Boolean = true): Int = {
+    val pivotValue = row((high + low) / 2).aggRead(aggIndex)
 
-    // and the associated row
-    val pivotRow = row(pivotKeyPoint)
+    var i = low - 1
+    var j = high + 1
 
-    // this is the value for the chosen aggregation in that row
-    val pivotValue: BrioPrimitive = pivotRow.aggRead(aggregation)
+    while (true) {
+      do i += 1 while (
+        if (ascending) row(i).aggRead(aggIndex) < pivotValue
+        else row(i).aggRead(aggIndex) > pivotValue
+      )
+      do j -= 1 while (
+        if (ascending) row(j).aggRead(aggIndex) > pivotValue
+        else row(j).aggRead(aggIndex) < pivotValue
+      )
 
-    // swap two rows field by field
-    def swap(leftCursor: Int, rightCursor: Int): Unit = {
-      if (leftCursor == rightCursor) return
+      if (i >= j) return j
+      else swap(i, j)
+    }
+    throw new IllegalStateException("Cube partition failed!")
+  }
 
-      // swap one by one each field in the left row with the same field in the right row
-      val leftRow = row(leftCursor)
-      val rightRow = row(rightCursor)
+  // swap two rows field by field
+  private def swap(left: Int, right: Int): Unit = {
+    if (left == right) return
 
-      // swap dimensions
-      {
-        var d = 0
-        while (d < dimCount) {
+    // swap one by one each field in the left row with the same field in the right row
+    val leftRow = row(left)
+    val rightRow = row(right)
 
-          val leftIsNull = leftRow.dimIsNull(d)
-          val rightIsNull = rightRow.dimIsNull(d)
+    // swap dimensions
+    var d = 0
+    while (d < dimCount) {
 
-          val leftValue = leftRow.dimRead(d)
-          val rightValue = rightRow.dimRead(d)
+      val leftIsNull = leftRow.dimIsNull(d)
+      val rightIsNull = rightRow.dimIsNull(d)
 
-          if (rightIsNull) leftRow.dimSetNull(d) else leftRow.dimWrite(d, rightValue)
-          if (leftIsNull) rightRow.dimSetNull(d) else rightRow.dimWrite(d, leftValue)
+      val leftValue = leftRow.dimRead(d)
+      val rightValue = rightRow.dimRead(d)
 
-          d += 1
-        }
-      }
+      if (rightIsNull) leftRow.dimSetNull(d) else leftRow.dimWrite(d, rightValue)
+      if (leftIsNull) rightRow.dimSetNull(d) else rightRow.dimWrite(d, leftValue)
 
-      // swap aggregations
-      {
-        var a = 0
-        while (a < aggCount) {
-
-          val leftIsNull = leftRow.aggIsNull(a)
-          val rightIsNull = rightRow.aggIsNull(a)
-
-          val leftValue = leftRow.aggRead(a)
-          val rightValue = rightRow.aggRead(a)
-
-          if (rightIsNull) leftRow.aggSetNull(a) else leftRow.aggWrite(a, rightValue)
-          if (leftIsNull) rightRow.aggSetNull(a) else rightRow.aggWrite(a, leftValue)
-
-          a += 1
-        }
-      }
-
+      d += 1
     }
 
-    def iValue: BrioPrimitive = row(i).aggRead(aggregation)
+    // swap aggregations
+    var a = 0
+    while (a < aggCount) {
 
-    def jValue: BrioPrimitive = row(j).aggRead(aggregation)
+      val leftIsNull = leftRow.aggIsNull(a)
+      val rightIsNull = rightRow.aggIsNull(a)
 
-    while (i <= j) {
-      while (iValue > pivotValue) i += 1
-      while (jValue < pivotValue) j -= 1
-      if (i <= j) {
-        swap(i, j)
-        i += 1
-        j -= 1
-      }
-    }
+      val leftValue = leftRow.aggRead(a)
+      val rightValue = rightRow.aggRead(a)
 
-    if (lowerIndex < j) {
-      sortRowsDescending(aggregation, lowerIndex, j)
-    }
-    if (i < higherIndex) {
-      sortRowsDescending(aggregation, i, higherIndex)
+      if (rightIsNull) leftRow.aggSetNull(a) else leftRow.aggWrite(a, rightValue)
+      if (leftIsNull) rightRow.aggSetNull(a) else rightRow.aggWrite(a, leftValue)
+
+      a += 1
     }
   }
 
