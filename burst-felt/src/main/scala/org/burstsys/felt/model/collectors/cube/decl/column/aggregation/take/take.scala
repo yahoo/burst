@@ -61,7 +61,7 @@ package object take {
    */
   abstract
   class FeltCubeAggTopColSem extends FeltCubeAggTakeColSem {
-    final override val mode: FeltCubeTakeSemMode = FeltCubeBottomTakeSemMode
+    final override val mode: FeltCubeTakeSemMode = FeltCubeTopTakeSemMode
   }
 
   /**
@@ -69,7 +69,7 @@ package object take {
    */
   abstract
   class FeltCubeAggBottomColSem extends FeltCubeAggTakeColSem {
-    final override val mode: FeltCubeTakeSemMode = FeltCubeTopTakeSemMode
+    final override val mode: FeltCubeTakeSemMode = FeltCubeBottomTakeSemMode
   }
 
 }

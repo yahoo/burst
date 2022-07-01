@@ -38,37 +38,6 @@ class EqlSingleCubeQuerySpec extends EqlAlloyTestRunner {
     })
   }
 
-  it should "successfully do a top aggregate query" in {
-    val source =
-      s"""
-         |select top[20](user.application) as frequency, user.application.firstUse.osVersionId as osIds where (
-         |  user.sessions.startTime >= day(NOW - weeks(10000)) && user.sessions.sessionType != 1
-         |) && user.application.firstUse.osVersionId is not null
-         |limit 20
-         |from schema unity
-         """.stripMargin
-
-    runTest(source, 100, 200, { result =>
-      if (!result.resultStatus.isSuccess)
-        throw VitalsException(s"execution failed: ${result.resultStatus}")
-      if (result.groupMetrics.executionMetrics.overflowed > 0)
-        throw VitalsException(s"execution overflowed")
-      if (result.groupMetrics.executionMetrics.limited > 0)
-        throw VitalsException(s"execution limited")
-      if (result.groupMetrics.executionMetrics.rowCount <= 0)
-        throw VitalsException(s"execution row count mismatch: expected rows got ${result.groupMetrics.executionMetrics.rowCount}")
-
-      // all the besides should return a result set
-      result.resultSets.keys.size should be > 0
-
-      val names = result.resultSets(0).columnNames.zipWithIndex.toMap
-      val rs = result.resultSets(0).rowSet(0)
-      val r = rs(names("osIds")).asLong
-
-      r should not be 0
-    })
-  }
-
   it should "successfully generate a couple of aggregates query" in {
     val source =
       s"""
@@ -211,36 +180,6 @@ class EqlSingleCubeQuerySpec extends EqlAlloyTestRunner {
     })
   }
 
-it should "successfully generate a top aggregate query" in {
-    val source =
-      s"""
-         | select top[8](user.sessions.events) as evnts, user.sessions.events.parameters.key as kys
-         | from schema Unity
-       """.stripMargin
-
-    runTest(source, 100, 200, { result =>
-      if (!result.resultStatus.isSuccess)
-        throw VitalsException(s"execution failed: ${result.resultStatus}")
-      if (result.groupMetrics.executionMetrics.overflowed > 0)
-        throw VitalsException(s"execution overflowed")
-      if (result.groupMetrics.executionMetrics.limited > 0)
-        throw VitalsException(s"execution limited")
-      if (result.groupMetrics.executionMetrics.rowCount <= 0)
-        throw VitalsException(s"execution row count mismatch: expected rows got ${result.groupMetrics.executionMetrics.rowCount}")
-
-      // all the besides should return a result set
-      result.resultSets.keys.size should be > 0
-
-      val names = result.resultSets(0).columnNames.zipWithIndex.toMap
-      val r = result.resultSets(0).rowSet.map {
-        row => (row(names("evnts")).asLong, row(names("kys")).asString.take(2))
-      }.sortBy{r => r._1}.reverse
-
-      r should contain theSameElementsAs Array(
-        (8929, "EK"), (8929, "EK"), (8929, "EK"), (8929, "EK"), (8928, "EK"), (8928, "EK"), (8928, "EK")
-      )
-    })
-  }
 
   it should "successfully generate simple aggregate query" in {
     val source =
