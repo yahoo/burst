@@ -168,7 +168,6 @@ section:not("#burst-hero-id") {
 }
 
 h1.arch-title {
-  width: 70%;
   margin: auto;
   padding-top: 40px;
   padding-bottom: 40px;
@@ -211,5 +210,9 @@ h1.arch-title {
     /*margin: -.5rem -1rem;*/
     /*padding: .5rem 1rem;*/
   }
+}
+
+li.nav-item #nav-a-padd {
+  padding-left: 30px;
 }
 
