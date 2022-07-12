@@ -18,6 +18,7 @@ import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.algorithms.{ZapCube2Join, ZapCube2Merge, ZapCube2Normalize, ZapCube2Truncate}
 import org.burstsys.zap.cube2.key.ZapCube2Key
 import org.burstsys.zap.cube2.row.ZapCube2Row
+import org.burstsys.zap.cube2.state.ZapCube2Iterator
 import org.burstsys.zap.cube2.state.{ZapCube2Codec, ZapCube2Extract, ZapCube2Nav, ZapCube2Print, ZapCube2State}
 
 /**
@@ -333,7 +334,7 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
  */
 final case
 class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyVal with ZapCube2 with ZapCube2State
-  with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Normalize
+  with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Normalize with ZapCube2Iterator
   with ZapCube2Join with ZapCube2Truncate with ZapCube2Merge with ZapCube2Extract {
 
   override

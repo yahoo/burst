@@ -32,7 +32,7 @@ package object flex extends VitalsLogger {
         log info
           s"""|
               |--------------------------------------
-              |ALLOC(basePtr=${cube.basePtr}
+              |ALLOC(basePtr=${cube.basePtr} Cube2
               | size=$size (${prettyByteSizeString(size)}))
               | newSize=$newSize (${prettyByteSizeString(newSize)}))
               | blkSize=$blkSize (${prettyByteSizeString(blkSize)}))
@@ -41,7 +41,7 @@ package object flex extends VitalsLogger {
       }
 
       final override def releaseInternalCollector(collector: ZapCube2): Unit = {
-        log info s"FREE(basePtr=${collector.basePtr})"
+        log info s"FREE(basePtr=${collector.basePtr}) Cube2"
         cube2.factory.releaseCube2(collector)
       }
 

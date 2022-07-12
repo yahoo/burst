@@ -6,6 +6,7 @@ import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes.{SizeOfLong, TeslaMemoryOffset, TeslaMemorySize}
 import org.burstsys.tesla.offheap
 import org.burstsys.tesla.pool.{TeslaPoolId, TeslaPooledResource}
+import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.zap.cube2.key.{ZapCube2Key, ZapCube2KeyAnyVal}
 import org.burstsys.zap.cube2.row.{ZapCube2Row, ZapCube2RowAnyVal, limitExceededMarkerRow}
 import org.burstsys.zap.cube2.{ZapCube2, ZapCube2Builder}
@@ -262,7 +263,10 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   }
 
   @inline final override
-  def row(index: Int): ZapCube2Row = ZapCube2RowAnyVal(basePtr + rowOffset(index))
+  def row(index: Int): ZapCube2Row = {
+    if (index >= rowsCount) throw VitalsException(s"Row index out of bounds. index=$index rowCount=$rowCount")
+    ZapCube2RowAnyVal(basePtr + rowOffset(index))
+  }
 
   @inline final
   def rowOffset(row: ZapCube2Row): TeslaMemoryOffset = (row.basePtr - this.basePtr).toInt

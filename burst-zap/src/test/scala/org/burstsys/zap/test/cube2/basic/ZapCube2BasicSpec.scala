@@ -1,23 +1,29 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.zap.test.cube2.basic
 
-import com.esotericsoftware.kryo.io.{Input, Output}
-import org.burstsys.tesla.thread.request.TeslaRequestCoupler
+import com.esotericsoftware.kryo.io.Input
+import com.esotericsoftware.kryo.io.Output
+import org.burstsys.brio.types.BrioTypes.BrioLongKey
+import org.burstsys.fabric.execution.model.result.row.FabricAggregationCell
+import org.burstsys.fabric.execution.model.result.row.FabricDimensionCell
+import org.burstsys.fabric.execution.model.result.row.FabricResultCell
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
+import org.burstsys.vitals.kryo.acquireKryo
+import org.burstsys.vitals.kryo.releaseKryo
 import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.ZapCube2Builder
 import org.burstsys.zap.test.cube2.ZapCube2Spec
-import org.scalatest.Ignore
 
 import scala.collection.mutable
 
 //@Ignore
 class ZapCube2BasicSpec extends ZapCube2Spec {
 
-  val builder: ZapCube2Builder = cube2.ZapCube2Builder(dimensionCount = 2, aggregationCount = 2)
+  val builder: ZapCube2Builder = cube2.ZapCube2Builder(
+    dimensionCount = 2, dimensionFieldTypes = Array(BrioLongKey, BrioLongKey),
+    aggregationCount = 2, aggregationFieldTypes = Array(BrioLongKey, BrioLongKey))
 
   it should "grab/release a cube2" in {
     TeslaWorkerCoupler {
@@ -194,5 +200,40 @@ class ZapCube2BasicSpec extends ZapCube2Spec {
     }
   }
 
+  it should "extract results" in {
+    CubeTest {
+      defineAscending(cubeA, 5)
+      val results = cubeA.extractRows(builder, cubeA, dictA)
 
+      results.length shouldEqual 5
+      results.indices foreach { i =>
+        val row = results(i)
+        row.length shouldEqual 4
+        row(0).cellType shouldEqual FabricDimensionCell
+        row(0).bType shouldEqual BrioLongKey
+        row(0).isNan shouldEqual false
+        row(0).isNull shouldEqual false
+        row(0).value shouldEqual i
+
+        row(1).cellType shouldEqual FabricDimensionCell
+        row(1).bType shouldEqual BrioLongKey
+        row(1).isNan shouldEqual false
+        row(1).isNull shouldEqual false
+        row(1).value shouldEqual i
+
+        row(2).cellType shouldEqual FabricAggregationCell
+        row(2).bType shouldEqual BrioLongKey
+        row(2).isNan shouldEqual false
+        row(2).isNull shouldEqual false
+        row(2).value shouldEqual i
+
+        row(3).cellType shouldEqual FabricAggregationCell
+        row(3).bType shouldEqual BrioLongKey
+        row(3).isNan shouldEqual false
+        row(3).isNull shouldEqual false
+        row(3).value shouldEqual i
+
+      }
+    }
+  }
 }
