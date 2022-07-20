@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Burst</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/burst-hero-id.css">
+    <link rel="stylesheet" href="assets/css/burst-hero.css">
+    <link rel="stylesheet" href="assets/css/data-img-hero.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/learn-more-button-orange.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-logo.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-mobile.css">
+    <link rel="stylesheet" href="assets/css/styles-custom.css">
+    <link rel="stylesheet" href="assets/css/vanilla-zoom.min.css">
+</head>
+
+<body style="font-family: 'Nunito Sans', sans-serif;background-color: #fff;">
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar" id="header-burst-why-burst">
+        <div class="container"><a href="index.html"><img src="assets/img/tech/Burst-Horizontal-RevAccent.svg" style="width: 130px;padding-right: 0px;margin-right: 20px;margin-top: -7px;" /></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" style="color: transparent !important;border-width: 0px;border-color: #ffffff;border: 0 !important;"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon" style="border: 0 !important;border-style: none;border-color: rgba(255,255,255,0);--bs-body-bg: rgba(255,255,255,0);"></span></button>
+            <div class="collapse navbar-collapse scroll-down" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Documentation</a></li>
+                    <li class="nav-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="why-burst.html" style="color: #fff !important;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;opacity: 1;">why Burst</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
+                </ul>
+            </div><a id="navbar-github-logo" class="navbar-github logo" href="#"><i class="fa-brands fa-github" style="color: white;"></i></a>
+        </div>
+    </nav>
+    <main class="page landing-page" style="background-color: #fff;">
+        <section class="clean-block clean-info dark">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Paragraph</p>
+                    </div>
+                    <div class="col-md-12">
+                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Runtime Architecture</span></strong><br></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Burst runtime topology is a fairly standard single-master, multiple-worker cluster that is called a Cell. It managed requests from clients and imports data from one or more SampleStores.</span><br /><br /></p>
+                        <h1 style="font-size: 30px;font-weight: bold;"><strong><span style="color: rgb(36, 41, 47);">Cell Runtime Components</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The top level elements in a Cell are:</span><br></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">Master Node</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Worker Node(s)</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Metadata Catalog</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Client Protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Fabric Protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">SampleStore Protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Nexus Protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Data Caches</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">SampleStore Instance</span><br></li>
+                        </ol>
+                        <p style="font-size: 20px;"><strong><span style="color: rgb(36, 41, 47);">Master Node Responsibilities</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">There is a single Master node. It is conceptually possible to have multiple masters, and in fact the team toyed with that idea since there are some workloads that&nbsp;</span><em><span style="color: rgb(36, 41, 47);">can</span></em><span style="color: rgb(36, 41, 47);">&nbsp;bottleneck during master node processing, but the added value was not worth the attendant implementation complexity&nbsp;</span><em><span style="color: rgb(36, 41, 47);">for the current use cases</span></em><span style="color: rgb(36, 41, 47);">.</span><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The Master node is responsible for:</span><br></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">destination for incoming requests from clients via client protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">pre-processing of the requests</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">scattering processed requests out to worker nodes via Fabric protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">gathering processed results from the worker nodes via Fabric protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">returning results to the clients via client protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">managing metadata via the Catalog via JDBC protocol</span><br></li>
+                        </ol>
+                        <p style="font-size: 20px;"><strong><span style="color: rgb(36, 41, 47);">Worker Node Responsibilities</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">There are one or more Worker nodes. Each is responsible for:</span><br></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">Receiving incoming (scatter) requests from the Master node via the Fabric protocol.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Fetch/Load data through the Data Cache, using samplestore protocol as appropriate for the request</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">process requests into execution scans that produce results</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">send results back to Master node (gather) via the Fabric protocol</span><br></li>
+                        </ol>
+                        <p style="font-size: 20px;"><strong><span style="color: rgb(36, 41, 47);">The Catalog</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The Catalog is a relational store for the metadata that is used throughout the Burst ecosystem. The primary use is to define datasets and how/where they are located and fetched. Burst uses a very simple JDBC interface to a very simple relational model. MySql and Derby are currently supported out of the box but due to the dead simple model used, it is considered easy to port this to just about any SQL DBMS.</span><br></p>
+                        <p style="font-size: 20px;"><strong><span style="color: rgb(36, 41, 47);">Cell Deployment</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The Burst codebase does not dictate or provide for any specific form of deployment for the Master and Worker nodes. Master and Worker nodes can be started up via JVM jar files that read traditional&nbsp;</span><em><span style="color: rgb(36, 41, 47);">property</span></em><span style="color: rgb(36, 41, 47);">&nbsp;based configurations as well as a few command line parameters. Burst Cells have been deployed via standalone scripts, chef, and currently kubernetes.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">SampleStore Runtime Components</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Any given Burst Cell can import data from one or more SampleStore instances. The SampleStore can be thought of as being separated into a single Master role along with one or more Worker roles. These can coexist on the same runtime deployment process or container or be on separate contexts where it is valuable to import data via massive parallelism where you want to distribute the Worker rolee across many nodes e.g. a store such as HBASE. Its responsibilities are:</span><br></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">Receive incoming dataset fetch requests from Cell Master node via SampleStore protocol</span></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-burst" class="page-footer dark">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3" style="text-align: center;"><img src="assets/img/tech/Burst-Vertical-RevAccent.svg" style="width: 150px;padding-bottom: 40px;"></div>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3">
+                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <ul>
+                        <li><a href="#">Documentation<br></a></li>
+                        <li><a href="#">Open Source<br></a></li>
+                        <li><a href="#">Releases<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <ul>
+                        <li><a href="#">info@burst<br></a></li>
+                        <li><a href="#">Issues<br></a></li>
+                        <li><a href="#">Mailing list<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <ul>
+                        <li><a href="#">Stack Overflow<br></a></li>
+                        <li><a href="#">Contributing<br></a></li>
+                        <li><a href="#">Meetups / Conferences<br></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p id="current-year"></p>
+        </div>
+    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="assets/js/vanilla-zoom.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/active-menu-item.js"></script>
+    <script src="assets/js/current-year.js"></script>
+    <script src="assets/js/custom-js.js"></script>
+    <script src="https://kit.fontawesome.com/4c85290a61.js"></script>
+    <script src="assets/js/mobile-menu-fix.js"></script>
+    <script src="assets/js/refresh_on_resize.js"></script>
+</body>
+
+</html>

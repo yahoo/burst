@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Burst</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/burst-hero-id.css">
+    <link rel="stylesheet" href="assets/css/burst-hero.css">
+    <link rel="stylesheet" href="assets/css/data-img-hero.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/learn-more-button-orange.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-logo.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-mobile.css">
+    <link rel="stylesheet" href="assets/css/styles-custom.css">
+    <link rel="stylesheet" href="assets/css/vanilla-zoom.min.css">
+</head>
+
+<body style="font-family: 'Nunito Sans', sans-serif;background-color: #fff;">
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar" id="header-burst-why-burst">
+        <div class="container"><a href="index.html"><img src="assets/img/tech/Burst-Horizontal-RevAccent.svg" style="width: 130px;padding-right: 0px;margin-right: 20px;margin-top: -7px;" /></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" style="color: transparent !important;border-width: 0px;border-color: #ffffff;border: 0 !important;"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon" style="border: 0 !important;border-style: none;border-color: rgba(255,255,255,0);--bs-body-bg: rgba(255,255,255,0);"></span></button>
+            <div class="collapse navbar-collapse scroll-down" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Documentation</a></li>
+                    <li class="nav-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="why-burst.html" style="color: #fff !important;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;opacity: 1;">why Burst</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
+                </ul>
+            </div><a id="navbar-github-logo" class="navbar-github logo" href="#"><i class="fa-brands fa-github" style="color: white;"></i></a>
+        </div>
+    </nav>
+    <main class="page landing-page" style="background-color: #fff;">
+        <section class="clean-block clean-info dark">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Paragraph</p>
+                    </div>
+                    <div class="col-md-12">
+                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Data Model Architecture</span></strong></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">Burst represents a significant architectural investment in a custom behavioral-optimized approach to data modeling.<br><br>The most salient data concepts are:</span><br /><br /></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">A Burst behavioral analysis is applied to a</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">dataset</span><span style="color: rgb(36, 41, 47);">&nbsp;which is best conceptualized as an enormous number of individual complex-object-trees, each called an&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Entity</span><span style="color: rgb(36, 41, 47);">, partitioned into one or more&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Slices</span><span style="color: rgb(36, 41, 47);">&nbsp;that are distributed across some or all of the compute nodes (workers) within the Burst Cell (cluster).</span></li>
+                            <li><span style="color: rgb(36, 41, 47);">Each of these complex-object-tree entities represents a single behavioral analysis target e.g. a person, a mobile or PC device, customer, client, manufactured-assembly, or medical patient.</span></li>
+                            <li><span style="color: rgb(36, 41, 47);">This object-tree must contain one or more&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">time</span><span style="color: rgb(36, 41, 47);">&nbsp;or&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">causal ordered</span><span style="color: rgb(36, 41, 47);">&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">event-collections</span><span style="color: rgb(36, 41, 47);">&nbsp;that represent the&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">behavior</span><span style="color: rgb(36, 41, 47);">&nbsp;of this entity. The very basis of behavioral analysis is derived from and dependent on, the scanning of these sequences.</span></li>
+                            <li><span style="color: rgb(36, 41, 47);">The entity object-tree is an acyclic, rooted, tree of objects representing a network of strongly modeled singular or plural relations between object(s) i.e. a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">strongly-typed object-model</span></li>
+                            <li><span style="color: rgb(36, 41, 47);">The Burst data model support subsystem is called&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Brio</span><span style="color: rgb(36, 41, 47);">. Brio contains a complete type-system, a language-driven schema with parser/validator for authoring entity models, as well as subsystems for encoding, decoding data to and from a highly specialized binary format called&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Blobs</span><span style="color: rgb(36, 41, 47);">.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Behavioral analysis execution against this data involves the&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">scan</span><span style="color: rgb(36, 41, 47);">&nbsp;or&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">depth-first-search</span><span style="color: rgb(36, 41, 47);">&nbsp;(</span><strong><span style="color: rgb(36, 41, 47);">DFS</span></strong><span style="color: rgb(36, 41, 47);">) of the entire object-tree including ordered iteration of the time/causal ordered sequences.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">The&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">results</span><span style="color: rgb(36, 41, 47);">&nbsp;of each of these scans of each of these entities is then merged together to provide a final result.</span><br></li>
+                        </ol>
+                        <h1 style="font-weight: bold;"><strong><span style="color: rgb(36, 41, 47);">datasets</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">Behavioral analysis as Burst defines it is quite unique in that each dataset to be analyzed must be modeled as a set of individual entities, where each entity is a complex object-tree, that contains causal or time ordered collections of events along with a rich set of unordered fields and collections of values and objects. There is&nbsp;</span><em><span style="color: rgb(36, 41, 47);">no ordering between entities</span></em><span style="color: rgb(36, 41, 47);">&nbsp;and&nbsp;</span><em><span style="color: rgb(36, 41, 47);">no direct relationships between entities</span></em><span style="color: rgb(36, 41, 47);">&nbsp;and&nbsp;</span><em><span style="color: rgb(36, 41, 47);">no access paths between entities</span></em><span style="color: rgb(36, 41, 47);">&nbsp;that can be explored or asserted.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 25.88px;"><strong><span style="color: rgb(36, 41, 47);">two phase analysis</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The basic premise is that the analysis consists of&nbsp;</span><strong><span style="color: rgb(36, 41, 47);">two phases</span></strong><span style="color: rgb(36, 41, 47);">:</span><br></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">a&nbsp;</span><em><span style="color: rgb(36, 41, 47);">depth-first-scan</span></em><span style="color: rgb(36, 41, 47);">&nbsp;of each entity that explores the rich internal modeled world with very few limitations on the types and relationships. This produces a well-defined set of results that is in its own schema.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">a&nbsp;</span><em><span style="color: rgb(36, 41, 47);">merge</span></em><span style="color: rgb(36, 41, 47);">&nbsp;of all scan results across all entities. The semantics of this merger across entity results can take multiple forms. Burst has a default one we will describe later.</span><br></li>
+                        </ol>
+                        <p style="font-size: 18px;padding-top: 0px;"><span style="color: rgb(36, 41, 47);">Its important to consider carefully if this restricted semantic is a supportive of your application domain modeling needs. Remember that an entity is something out there, physical or otherwise, whose behavior you are trying to understand as it relates to the behavior of some or all of the other entities.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 25.88px;"><strong><span style="color: rgb(36, 41, 47);">Brio type system</span></strong><br></h1>
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Brio type system supports the authoring of typed object-trees that contain the structure and state associated with an&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">entity</span><span style="color: rgb(36, 41, 47);">&nbsp;in a dataset. The following semantic rules apply:</span><br></p>
+                        <ol style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">The&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">object-tree</span><span style="color: rgb(36, 41, 47);">&nbsp;consists of one or more&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">&nbsp;instances</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">each&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">&nbsp;contains one or more&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-relationship</span><span style="color: rgb(36, 41, 47);">&nbsp;instances</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">each&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-relationship</span><span style="color: rgb(36, 41, 47);">&nbsp;is either&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">scalar</span><span style="color: rgb(36, 41, 47);">&nbsp;</span><strong><span style="color: rgb(36, 41, 47);">(1:1)</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;or&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">vector</span><span style="color: rgb(36, 41, 47);">&nbsp;</span><strong><span style="color: rgb(36, 41, 47);">(0:N)</span></strong><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">each&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-relationship</span><span style="color: rgb(36, 41, 47);">&nbsp;is a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-type</span><span style="color: rgb(36, 41, 47);">&nbsp;or a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">reference-type</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">the&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">reference-type</span><span style="color: rgb(36, 41, 47);">&nbsp;is a relationship to a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">the&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-type</span><span style="color: rgb(36, 41, 47);">&nbsp;is a relationship to a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">primitive-value</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">This means there are four relationship types:</span><br>
+                                <ul>
+                                    <li><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-scalar</span><span style="color: rgb(36, 41, 47);">&nbsp;-- a 1:1 relationship with a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">primitive-value</span></li>
+                                    <li><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-vector</span><span style="color: rgb(36, 41, 47);">&nbsp;-- a 0:1 relationship to (collection of) primitive values</span></li>
+                                    <li><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">reference-scalar</span><span style="color: rgb(36, 41, 47);">&nbsp;-- a 1:1 relationship with a structure</span></li>
+                                    <li><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">reference-vector</span><span style="color: rgb(36, 41, 47);">&nbsp;-- a 0:1 relationship to (collectionof ) structures</span></li>
+                                </ul>
+                            </li>
+                            <li><span style="color: rgb(36, 41, 47);">There is a specialized&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-vector</span><span style="color: rgb(36, 41, 47);">&nbsp;called a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-map</span><span style="color: rgb(36, 41, 47);">&nbsp;that is a collection of&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-value</span><span style="color: rgb(36, 41, 47);">&nbsp;associations</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">there is always a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">root-relationship</span><span style="color: rgb(36, 41, 47);">&nbsp;which is a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">reference-scalar</span><span style="color: rgb(36, 41, 47);">&nbsp;pointing to a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">&nbsp;which is the&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">root</span><span style="color: rgb(36, 41, 47);">&nbsp;of the tree.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">there are no cycles (its a tree!)</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">there are a fixed set of&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">primitive-value</span><br>
+                                <ul>
+                                    <li><strong><span style="color: rgb(36, 41, 47);">boolean</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;- single byte logical value</span><br></li>
+                                    <li><strong><span style="color: rgb(36, 41, 47);">short</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;- two byte fixed value</span><br></li>
+                                    <li><strong><span style="color: rgb(36, 41, 47);">integer</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;- four byte fixed value</span><br></li>
+                                    <li><strong><span style="color: rgb(36, 41, 47);">long</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;- eight byte fixed value</span><br></li>
+                                    <li><strong><span style="color: rgb(36, 41, 47);">double</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;- eight byte floating value</span><br></li>
+                                    <li><strong><span style="color: rgb(36, 41, 47);">string</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;-- all strings in Brio are contained in Dictionaries. Each object-tree has a dictionary. What this means is that a string value in a Brio object-tree is actually an index lookup into the object-tree dictionary.</span><br></li>
+                                </ul>
+                            </li>
+                            <li><span style="color: rgb(36, 41, 47);">all relationships can have a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">null</span><span style="color: rgb(36, 41, 47);">&nbsp;value which means the reference or value is&nbsp;</span><em><span style="color: rgb(36, 41, 47);">unknown</span></em><span style="color: rgb(36, 41, 47);">.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">within a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">, a single&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-scalar</span><span style="color: rgb(36, 41, 47);">&nbsp;relationship can be annotated with the key word&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">ordinal</span><span style="color: rgb(36, 41, 47);">&nbsp;which means any collection containing that&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">&nbsp;will be sorted/ordered using the natural ordering of that&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-scalar</span><span style="color: rgb(36, 41, 47);">.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">within a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">, a single&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">value-scalar</span><span style="color: rgb(36, 41, 47);">&nbsp;relationship can be annotated with the key word&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">key</span><span style="color: rgb(36, 41, 47);">&nbsp;which means any collection containing that&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">typed-structure</span><span style="color: rgb(36, 41, 47);">&nbsp;will treat that as a&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">primary-key</span><span style="color: rgb(36, 41, 47);">&nbsp;within the collection</span><br></li>
+                        </ol>
+                        <h1 style="font-weight: bold;font-size: 25.88px;"><strong><span style="color: rgb(36, 41, 47);">schema versions</span></strong><br></h1>
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">Brio schemas can be versioned. (NEED MORE)</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 25.88px;"><strong><span style="color: rgb(36, 41, 47);">schema specifications</span></strong><br></h1>
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">Authoring of entity object-tree data models using the Burst type system is done using two schema language specification files, a high level&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Motif</span><span style="color: rgb(36, 41, 47);">&nbsp;</span><em><span style="color: rgb(36, 41, 47);">language</span></em><span style="color: rgb(36, 41, 47);">&nbsp;schema, and a low level&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Brio</span><span style="color: rgb(36, 41, 47);">&nbsp;</span><em><span style="color: rgb(36, 41, 47);">encoding</span></em><span style="color: rgb(36, 41, 47);">&nbsp;schema. Both of these need to be resources in the classpath for the Cell nodes as well as data import systems that use Burst standard libraries.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 18px;"><strong><span style="color: rgb(36, 41, 47);">Motif schema</span></strong><br></h1>
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Motif schema is used by the EQL language as well as in the data import system SampleStore. It is a pure object model schema definition.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 18px;"><strong><span style="color: rgb(36, 41, 47);">Brio schema</span></strong><br></h1>
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Brio schema is used by the lower level data systems. It has:</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 18px;"><strong><span style="color: rgb(36, 41, 47);">Brio and Motif compatibility</span></strong><br></h1>
+                        <ul style="font-size: 18px;">
+                            <li><strong><span style="color: rgb(36, 41, 47);">merges</span></strong></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">blobs</span></strong></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">pressing</span></strong></li>
+                        </ul>
+                        <h1 style="font-weight: bold;font-size: 18px;"><strong><span style="color: rgb(36, 41, 47);">data organization/partitioning</span></strong><br></h1>
+                        <ul style="font-size: 18px;">
+                            <li><strong><span style="color: rgb(36, 41, 47);">slices</span></strong><br></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">regions</span></strong><br></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-burst" class="page-footer dark">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3" style="text-align: center;"><img src="assets/img/tech/Burst-Vertical-RevAccent.svg" style="width: 150px;padding-bottom: 40px;"></div>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3">
+                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <ul>
+                        <li><a href="#">Documentation<br></a></li>
+                        <li><a href="#">Open Source<br></a></li>
+                        <li><a href="#">Releases<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <ul>
+                        <li><a href="#">info@burst<br></a></li>
+                        <li><a href="#">Issues<br></a></li>
+                        <li><a href="#">Mailing list<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <ul>
+                        <li><a href="#">Stack Overflow<br></a></li>
+                        <li><a href="#">Contributing<br></a></li>
+                        <li><a href="#">Meetups / Conferences<br></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p id="current-year"></p>
+        </div>
+    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="assets/js/vanilla-zoom.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/active-menu-item.js"></script>
+    <script src="assets/js/current-year.js"></script>
+    <script src="assets/js/custom-js.js"></script>
+    <script src="https://kit.fontawesome.com/4c85290a61.js"></script>
+    <script src="assets/js/mobile-menu-fix.js"></script>
+    <script src="assets/js/refresh_on_resize.js"></script>
+</body>
+
+</html>

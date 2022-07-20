@@ -216,3 +216,7 @@ li.nav-item #nav-a-padd {
   padding-left: 30px;
 }
 
+#set-color-arch-a a {
+  color: #008AAB;
+}
+

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Burst</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/burst-hero-id.css">
+    <link rel="stylesheet" href="assets/css/burst-hero.css">
+    <link rel="stylesheet" href="assets/css/data-img-hero.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/learn-more-button-orange.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-logo.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-mobile.css">
+    <link rel="stylesheet" href="assets/css/styles-custom.css">
+    <link rel="stylesheet" href="assets/css/vanilla-zoom.min.css">
+</head>
+
+<body style="font-family: 'Nunito Sans', sans-serif;background-color: #fff;">
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar" id="header-burst-why-burst">
+        <div class="container"><a href="index.html"><img src="assets/img/tech/Burst-Horizontal-RevAccent.svg" style="width: 130px;padding-right: 0px;margin-right: 20px;margin-top: -7px;" /></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" style="color: transparent !important;border-width: 0px;border-color: #ffffff;border: 0 !important;"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon" style="border: 0 !important;border-style: none;border-color: rgba(255,255,255,0);--bs-body-bg: rgba(255,255,255,0);"></span></button>
+            <div class="collapse navbar-collapse scroll-down" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Documentation</a></li>
+                    <li class="nav-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="why-burst.html" style="color: #fff !important;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;opacity: 1;">why Burst</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
+                </ul>
+            </div><a id="navbar-github-logo" class="navbar-github logo" href="#"><i class="fa-brands fa-github" style="color: white;"></i></a>
+        </div>
+    </nav>
+    <main class="page landing-page" style="background-color: #fff;">
+        <section class="clean-block clean-info dark">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Paragraph</p>
+                    </div>
+                    <div class="col-md-12">
+                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Data Structure Architecture</span></strong><br></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The combination of our dependency on a standard JVM runtime and the hot inner loop algorithms of Burst's single pass scan model, make for extraordinary high demands on CPU/memory architecture. From the very start of design and implementation, we had to be uncompromising in our approach to time and space resources.</span><br /><br /></p>
+                        <h1 style="font-size: 30px;font-weight: bold;"><strong><span style="color: rgb(36, 41, 47);">Design Rules</span></strong></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">What this translated to was a small number of rules to follow for what we consider major data structures (</span><em><span style="color: rgb(36, 41, 47);">those that are large and/or accessed within hot inner loops</span></em><span style="color: rgb(36, 41, 47);">):</span></p>
+                        <ul style="font-size: 18px;">
+                            <li><strong><span style="color: rgb(36, 41, 47);">never</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;allocate JVM objects during the single pass scan.</span><br></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">all</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;major data structures are contiguous chunks of non-JVM (</span><em><span style="color: rgb(36, 41, 47);">native</span></em><span style="color: rgb(36, 41, 47);">) memory</span><br></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">where possible</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;keep accesses to major data structures isolated to a single thread</span><br></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">where possible</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;access major data structures in a forward-only access pattern</span><br></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">always</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;examine and optimize generated bytecode for major data structures</span><br></li>
+                            <li><strong><span style="color: rgb(36, 41, 47);">where possible</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;avoid locks/synchronization on high concurrency, high transaction rate data structures.</span><br></li>
+                        </ul>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Put another way, do not allow the JVM to manage your objects and try to help out the CPU cache line memory system.</span><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">This then translated to a series of design patterns:</span><br></p>
+                        <ul style="font-size: 18px;">
+                            <li><span style="color: rgb(36, 41, 47);">create our own custom data structures in non JVM allocated off-heap memory</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">allocate and access those data structures using per-thread pools based on lock-free off-heap queues</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">grow data structures via appending memory</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">do not use java accessors - do your own memory ptr math</span><br></li>
+                        </ul>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Non JVM Structures (off-heap)</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">Burst was committed to a JVM runtime environment at the beginning of our research and design phase. As we developed our base line algorithms, i.e. the single-pass scan combined with the basic set of counting/grouping calculus operations, we discovered right away that the required transaction rates against required scale scale datasets would quickly break down where even a single JVM object was allocated in an inner loop. That is a sobering reality and one we had to grapple with in a big way. While the modern JAVA GC subsystem was nothing short of miraculous in being good at what it does, and could be fine tuned a million different ways, it was completely inadequate to meet our needs. So like many other JVM based systems we had to code all of our inner loop operations completely outside the JVM womb.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Off Heap JVM</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The way we did this is by using basically the same techniques that are used in the Java libraries. While not explicitly supported, it is possible to reach below the Java veneer and directly allocate, manipulate (</span><em><span style="color: rgb(36, 41, 47);">via standard memory pointer arithmetic</span></em><span style="color: rgb(36, 41, 47);">), and free process level memory. This is often called&nbsp;</span><em><span style="color: rgb(36, 41, 47);">off-heap</span></em><span style="color: rgb(36, 41, 47);">&nbsp;or&nbsp;</span><em><span style="color: rgb(36, 41, 47);">native</span></em><span style="color: rgb(36, 41, 47);">&nbsp;memory. It is at time challenging to use, especially in the lack of direct tools support, but it was a lifesaver.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Scala Value Classes</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">While we gave up on standard JVM objects, we did get some help from the fact that Burst is written in Scala. Scala has a language feature called&nbsp;</span><a href="https://docs.scala-lang.org/overviews/core/value-classes.html"><span style="color: var(--color-accent-fg);">Value Classes</span></a><span style="color: rgb(36, 41, 47);">. These are a special category of Scala Objects that can in a well-defined set of usage patterns create a compiler driven&nbsp;</span><em><span style="color: rgb(36, 41, 47);">illusion</span></em><span style="color: rgb(36, 41, 47);">&nbsp;of an object without in most cases actually creating an underlying JVM object. This allows Burst to take an off-heap physical memory pointer or physical memory offset referencing some part of native, off-heap memory, and have the compiler 'wrap' that in a set of static accessor that deliver much of the convenience and design elegance of objects.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Locking and concurrency</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The high transaction rates and large data sizes that Burst demanded also showed us that many (most?) standard data structure such as standard JAVA queues did not perform well when stressed by high rates of fine-grained operations especially with more than one thread involved. They also tended to&nbsp;</span><em><span style="color: rgb(36, 41, 47);">shed</span></em><span style="color: rgb(36, 41, 47);">&nbsp;or&nbsp;</span><em><span style="color: rgb(36, 41, 47);">churn</span></em><span style="color: rgb(36, 41, 47);">&nbsp;JVM objects. Luckily we did not have to write our own lock free off heap queues. Luckily we found them in&nbsp;</span><a href="https://github.com/JCTools/JCTools"><span style="color: var(--color-accent-fg);">JCTools</span></a><span style="color: rgb(36, 41, 47);">. Our off heap data structures are&nbsp;</span><em><span style="color: rgb(36, 41, 47);">pooled</span></em><span style="color: rgb(36, 41, 47);">&nbsp;using their lock free queues.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Thread binding and Locality</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">We were also very careful to organize/pool off heap memory into regions that were restricted to use only by a single thread. While we do not have&nbsp;</span><strong><span style="color: rgb(36, 41, 47);">direct evidence</span></strong><span style="color: rgb(36, 41, 47);">&nbsp;this method delivered to our expectations, our working theory of operations regarding modern multiprocessor/memory systems would seem to favor this.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">linux disk-backed memory</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">Burst single pass scans large datasets stored in disk backed caches. These caches need to be able to flip this data in and out of memory quickly and efficiently. Like many systems out there, Burst makes heavy use of the OS provided (linux) disk mmap operations. These operations can be coaxed to work with our off-heap data structures. The combination of off heap, mmap, regions, caching, async IO, all come together harmoniously in standard Java lib disk operations. This allows us to outsource much of our memory management to the operating system. This performed very well for us especially since we also scanned memory in a forward only mode which works well with standard OS aggressive page prefetching models.</span><br></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-burst" class="page-footer dark">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3" style="text-align: center;"><img src="assets/img/tech/Burst-Vertical-RevAccent.svg" style="width: 150px;padding-bottom: 40px;"></div>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3">
+                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <ul>
+                        <li><a href="#">Documentation<br></a></li>
+                        <li><a href="#">Open Source<br></a></li>
+                        <li><a href="#">Releases<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <ul>
+                        <li><a href="#">info@burst<br></a></li>
+                        <li><a href="#">Issues<br></a></li>
+                        <li><a href="#">Mailing list<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <ul>
+                        <li><a href="#">Stack Overflow<br></a></li>
+                        <li><a href="#">Contributing<br></a></li>
+                        <li><a href="#">Meetups / Conferences<br></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p id="current-year"></p>
+        </div>
+    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="assets/js/vanilla-zoom.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/active-menu-item.js"></script>
+    <script src="assets/js/current-year.js"></script>
+    <script src="assets/js/custom-js.js"></script>
+    <script src="https://kit.fontawesome.com/4c85290a61.js"></script>
+    <script src="assets/js/mobile-menu-fix.js"></script>
+    <script src="assets/js/refresh_on_resize.js"></script>
+</body>
+
+</html>
