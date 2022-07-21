@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Burst</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/burst-hero-id.css">
+    <link rel="stylesheet" href="assets/css/burst-hero.css">
+    <link rel="stylesheet" href="assets/css/data-img-hero.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/learn-more-button-orange.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-logo.css">
+    <link rel="stylesheet" href="assets/css/media-navbar-github-mobile.css">
+    <link rel="stylesheet" href="assets/css/styles-custom.css">
+    <link rel="stylesheet" href="assets/css/vanilla-zoom.min.css">
+</head>
+
+<body style="font-family: 'Nunito Sans', sans-serif;background-color: #fff;">
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar" id="header-burst-why-burst">
+        <div class="container"><a href="index.html"><img src="assets/img/tech/Burst-Horizontal-RevAccent.svg" style="width: 130px;padding-right: 0px;margin-right: 20px;margin-top: -7px;" /></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" style="color: transparent !important;border-width: 0px;border-color: #ffffff;border: 0 !important;"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon" style="border: 0 !important;border-style: none;border-color: rgba(255,255,255,0);--bs-body-bg: rgba(255,255,255,0);"></span></button>
+            <div class="collapse navbar-collapse scroll-down" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Documentation</a></li>
+                    <li class="nav-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="why-burst.html" style="color: #fff !important;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;opacity: 1;">why Burst</a></li>
+                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
+                </ul>
+            </div><a id="navbar-github-logo" class="navbar-github logo" href="#"><i class="fa-brands fa-github" style="color: white;"></i></a>
+        </div>
+    </nav>
+    <main class="page landing-page" style="background-color: #fff;">
+        <section class="clean-block clean-info dark">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Paragraph</p>
+                    </div>
+                    <div class="col-md-12">
+                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Single Pass Scan Architecture</span></strong><br></h1>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The single pass scan is one of the earliest and most aggressive decisions in the Burst architecture. Processing speed of large datasets is center stage and everything else takes on a supporting role.</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12">
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Behavioral Calculus</span></strong><br></h1>
+                        <hr style="height: 3px;"><p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Behavioral analysis on high scale datasets involves scanning stunning quantities of data records each of which represents an individual entity whose behavior is being studied and compared to other entity data records. The aggregate analysis counts and groups and generally measures/organizes a rich set of facts about the various entity cohorts as well as the the total superset. Each of these data records is a complex object-tree of nested structures and relationships. The analysis scans through this object-tree with opportunities to evaluate contained value fields, constantly updating running tallies of value counts that are carefully grouped by associated dimension values. The evaluations use language constructed predicates and aggregating functions to determine what result data to collect.<br><br>The single pass scan is how Burst does that fast and efficiently.</span><br /></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">The single pass scan</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The way that the Burst architecture scales up to these hyper transaction rates, is something we call the single pass scan. The basics of this approach are in how we&nbsp;</span><em><span style="color: rgb(36, 41, 47);">linearize</span></em><span style="color: rgb(36, 41, 47);">,&nbsp;</span><em><span style="color: rgb(36, 41, 47);">regionalize</span></em><span style="color: rgb(36, 41, 47);">,&nbsp;</span><em><span style="color: rgb(36, 41, 47);">loading</span></em><span style="color: rgb(36, 41, 47);">,&nbsp;</span><em><span style="color: rgb(36, 41, 47);">threading</span></em><span style="color: rgb(36, 41, 47);">&nbsp;and&nbsp;</span><em><span style="color: rgb(36, 41, 47);">collecting</span></em><span style="color: rgb(36, 41, 47);">.</span></p>
+                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">linearize</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Each entity is&nbsp;</span><em><span style="color: rgb(36, 41, 47);">encoded</span></em><span style="color: rgb(36, 41, 47);">&nbsp;into a binary data format that&nbsp;</span><em><span style="color: rgb(36, 41, 47);">linearizes</span></em><span style="color: rgb(36, 41, 47);">&nbsp;a&nbsp;</span><em><span style="color: rgb(36, 41, 47);">depth-first-search</span></em><span style="color: rgb(36, 41, 47);">&nbsp;of the entity object-tree into a single byte-sequence. What that means is that during the evaluation of a particular entity, all data access operations are a constantly advancing CPU/memory system march through a linear sequence of bytes in a single block of contiguous physical memory. The algorithm can jump&nbsp;</span><em><span style="color: rgb(36, 41, 47);">forward</span></em><span style="color: rgb(36, 41, 47);">&nbsp;in order to skip&nbsp;</span><em><span style="color: rgb(36, 41, 47);">unused</span></em><span style="color: rgb(36, 41, 47);">&nbsp;data, but it never goes backwards.</span><br></p>
+                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">regionalize</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Each of these byte-sequences is assembled into large groupings called Regions. The scans always move forward through the entities within a single Region. Entities are always managed as groups of Regions.</span><br></p>
+                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">threading</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">All the byte-sequences in a Region are always scanned by the same CPU thread. This reduces the need for thread synchronization and CPU cache flushing.</span><br></p>
+                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">loading</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Each Regions is loaded from disk cache into memory as a read-only OS level&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">MMAP</span><span style="color: rgb(36, 41, 47);">&nbsp;operation. The mapping to physical memory and the managed relationship to disk IO operations is controlled by the sophisticated virtual memory systems of a modern operating system.</span><br></p>
+                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">collecting</span></strong><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Along with this scan of linearized contiguous read-only data by a single thread is a set of mutable data structures that collect data that is used as temporary and final results during the scan. Each of these data structures are carefully designed to avoid lock waits and to keep all data in a single contiguous memory block, always growing by extending the end of the block.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Scanning and the JVM</span></strong><br></h1>
+                        <hr style="height: 3px;">
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Burst is written primarily in Scala which is a Java VM based execution environment. What this means is that part of the Burst challenge is leveraging and mitigating various Java performance constructs.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">don't use Java objects</span></strong><br></h1>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Burst invests a significant amount into making sure its data structures and algorithms&nbsp;</span><em><span style="color: rgb(36, 41, 47);">don't create Java objects</span></em><span style="color: rgb(36, 41, 47);">&nbsp;during scans. This involves the use of careful coding practices and the extensive use of direct manipulation of native memory, sometimes called off-heap memory.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">optimize at the byte-code level</span></strong><br></h1>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The Burst pipeline architecture, discussed in more depth elsewhere, does full code-generation for each query executed. This means very complicated algorithms are based on standard code generation templates that are carefully designed to be relentlessly byte-code friendly.</span><br></p>
+                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">help the JIT compiler</span></strong><br></h1>
+                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The same code generated system and scan access patterns are also designed to be effectively JIT compiled.</span><br></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-burst" class="page-footer dark">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3" style="text-align: center;"><img src="assets/img/tech/Burst-Vertical-RevAccent.svg" style="width: 150px;padding-bottom: 40px;"></div>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-sm-3">
+                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <ul>
+                        <li><a href="#">Documentation<br></a></li>
+                        <li><a href="#">Open Source<br></a></li>
+                        <li><a href="#">Releases<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <ul>
+                        <li><a href="#">info@burst<br></a></li>
+                        <li><a href="#">Issues<br></a></li>
+                        <li><a href="#">Mailing list<br></a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
+                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <ul>
+                        <li><a href="#">Stack Overflow<br></a></li>
+                        <li><a href="#">Contributing<br></a></li>
+                        <li><a href="#">Meetups / Conferences<br></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p id="current-year"></p>
+        </div>
+    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="assets/js/vanilla-zoom.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/active-menu-item.js"></script>
+    <script src="assets/js/current-year.js"></script>
+    <script src="assets/js/custom-js.js"></script>
+    <script src="https://kit.fontawesome.com/4c85290a61.js"></script>
+    <script src="assets/js/mobile-menu-fix.js"></script>
+    <script src="assets/js/refresh_on_resize.js"></script>
+</body>
+
+</html>
