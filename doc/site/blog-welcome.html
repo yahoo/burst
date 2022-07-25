@@ -26,10 +26,10 @@
         <div class="container"><a href="index.html"><img src="assets/img/tech/Burst-Horizontal-RevAccent.svg" style="width: 130px;padding-right: 0px;margin-right: 20px;margin-top: -7px;" /></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" style="color: transparent !important;border-width: 0px;border-color: #ffffff;border: 0 !important;"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon" style="border: 0 !important;border-style: none;border-color: rgba(255,255,255,0);--bs-body-bg: rgba(255,255,255,0);"></span></button>
             <div class="collapse navbar-collapse scroll-down" id="navcol-1">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
+                    <li class="nav-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="architecture.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Architecture</a></li>
                     <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="index.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Documentation</a></li>
                     <li class="nav-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="why-burst.html" style="color: #fff !important;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;opacity: 1;">why Burst</a></li>
-                    <li class="nav-item hover-menu-item"><a class="nav-link text-capitalize" id="nav-a-padd" href="blog-welcome.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
+                    <li class="nav-item active-menu-item"><a class="nav-link text-capitalize active" id="nav-a-padd" href="blog-welcome.html" style="color: #fff;font-family: 'Nunito Sans', sans-serif;font-weight: 600;font-size: 16px;">Blog</a></li>
                 </ul>
             </div><a id="navbar-github-logo" class="navbar-github logo" href="#"><i class="fa-brands fa-github" style="color: white;"></i></a>
         </div>
@@ -41,27 +41,23 @@
                     <div class="col-md-12">
                         <p>Paragraph</p>
                     </div>
-                    <div class="col-md-12">
-                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Data Management Architecture</span></strong><br></h1>
+                    <div class="col-md-12 col-lg-3">
+                        <ul class="list-group" style="padding-top: 30px;">
+                            <li class="list-group-item"><span><strong><span style="color: rgb(29, 28, 29);"><a href="meet-the-burst-team.html">Meet the Burst team!</a></span></strong></span></li>
+                            <li class="list-group-item"><span>Blog Post 2</span></li>
+                            <li class="list-group-item"><span>Blog Post 3</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-12 col-lg-9">
+                        <p style="font-size: 18px;padding-top: 30px;"><span style="color: rgb(0, 0, 0); background-color: transparent;">Welcome to the open source release of the Burst behavioral analysis engine! I very much hope you have as much fun exploring the code of this system as we did developing it. We want to learn from your experience and encourage you to give us your feedback freely. As you dive in, I thought perhaps it's worth setting expectations in regards to the state of this first release.&nbsp;</span></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(0, 0, 0); background-color: transparent;">First of all Burst has been in 24x7 production for many years, handling real world high concurrency ad-hoc, interactive client sessions performing deep analysis of large datasets. In short it has been pushed hard for a long time by diverse, continuous, real world unforgiving workloads. It imports large datasets on demand, in parallel,&nbsp; directly from hundreds of HBASE region servers&nbsp; hosting petabytes of mobile application event data for many thousands of customers.</span><br></p>
+                        <p style="font-size: 18px;"><span style="color: rgb(0, 0, 0); background-color: transparent;">That being said, because of our limitations as a small team, and the overall sophistication of this approach, our open source release is not a plug and play product that you can download, configure and run in a weekend. We are releasing this to the world now instead of waiting because we believe there is much of interest here for those who are doing this sort of work and supporting this kind of analysis. We have endeavored to document extensively so that even a casual investigation will be of value. But to actually deploy Burst on your compute cluster, loading data from your stores, you will need to invest non trivial time and effort into authoring a custom schema, implementing custom data encoders and data loaders and setting up an appropriate node orchestration for the runtime. We are hoping to have our custom HBASE data importer published in a subsequent release as a generic store example and that others contribute their data stores as this effort progresses.&nbsp; Stay tuned.</span><br></p><p style="font-size: 18px;padding-top:25px;"><span style="color: rgb(0, 0, 0); background-color: transparent;">-erik freed<br> Yahoo Distinguished Architect</span><br /></p>
                     </div>
                 </div>
             </div>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12 col-lg-12">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">partitioned data distribution</span></strong><br></h1>
-                        <hr style="height: 3px;">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">binary encoding</span></strong><br></h1>
-                        <hr style="height: 3px;">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">network/memory/disk formats</span></strong><br></h1>
-                        <hr style="height: 3px;">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">mmap disk import</span></strong><br></h1>
-                        <hr style="height: 3px;">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">parallel import nexus protocol</span></strong><br></h1>
-                        <hr style="height: 3px;">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">sampling</span></strong><br></h1>
-                        <hr style="height: 3px;">
-                    </div>
+                    <div class="col-md-12 col-lg-12"></div>
                 </div>
             </div>
         </section>
