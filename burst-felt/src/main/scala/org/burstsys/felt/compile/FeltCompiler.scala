@@ -1,21 +1,29 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.compile
 
-import org.burstsys.felt.FeltService
-import org.burstsys.felt.compile.artifact.{FeltArtifactKey, FeltArtifactTag}
-import org.burstsys.felt.model.tree.code.{FeltCode, className}
-import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.felt.compile.artifact.FeltArtifactKey
+import org.burstsys.felt.compile.artifact.FeltArtifactTag
+import org.burstsys.felt.model.tree.code.FeltCode
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.errors._
 
 import java.io.File
-import java.net.{URL, URLClassLoader}
-import java.nio.file.{Files, Paths}
-import java.util.concurrent.ConcurrentHashMap
+import java.io.FileOutputStream
+import java.net.URL
+import java.net.URLClassLoader
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.jar.Attributes
 import java.util.jar.JarFile
-import scala.collection.mutable.ArrayBuffer
+import java.util.jar.JarOutputStream
+import java.util.zip.ZipEntry
 import scala.reflect.internal.util.BatchSourceFile
+import scala.tools.nsc.Global
+import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.IMain
-import scala.tools.nsc.{Global, Settings}
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 /**
  * One of a fixed set of scala compiler instances that are managed in a pool.
@@ -177,9 +185,6 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
 
   private
   def jarFromByteCode(specList: FeltClassSpecList): URL = {
-    import java.io.FileOutputStream
-    import java.util.jar.{Attributes, JarOutputStream}
-    import java.util.zip.ZipEntry
 
     val bindingsJarFolder = FeltCompiler synchronized {
       val bindingsJarFolder = FeltCompileEngine.generatedBindingsJarFolder
@@ -235,33 +240,27 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
 
   private
   def _feltFilteredClassPath: List[String] = {
-    _feltClassPath filter {
-      s =>
-        FeltCompileEngine.includeFilter.exists(f => s.contains(f))
-    }
+    _feltClassPath.filter(p => FeltCompileEngine.includeFilter.exists(p.contains(_)))
   }
 
   private
   def _feltClassPath: List[String] = {
 
-    val classPath = getClassLoaderClassPath(Thread.currentThread.getContextClassLoader)
-    val currentClassPath = classPath.head
+    val classPaths: List[List[String]] = getClassLoaderClassPath(Thread.currentThread.getContextClassLoader)
+    val rtClassPath = classPaths.head
 
     // if there's just one thing in the classpath, and it's a jar, assume an executable jar.
-    currentClassPath ::: (if (currentClassPath.size == 1 && currentClassPath.head.endsWith(".jar")) {
-      val jarFile = currentClassPath.head
-      val relativeRoot = new File(jarFile).getParentFile
-      val nestedClassPath = new JarFile(jarFile).getManifest.getMainAttributes.getValue("Class-Path")
-      if (nestedClassPath eq null) {
-        Nil
-      } else {
-        nestedClassPath.split(" ").map {
-          f => new File(relativeRoot, f).getAbsolutePath
-        }.toList
-      }
-    } else {
-      Nil
-    }) ::: classPath.tail.flatten
+    val bundledClassPathJars = if (rtClassPath.size > 1 || !rtClassPath.head.endsWith(".jar")) { Nil } else {
+      val jarPath = rtClassPath.head
+      val relativeRoot = new File(jarPath).getParentFile
+      Option(new JarFile(jarPath).getManifest)
+        .flatMap(m => Option(m.getMainAttributes.getValue("Class-Path")))
+        .map(cp => cp.split(" ").map { f => new File(relativeRoot, f).getAbsolutePath }.toList)
+        .getOrElse(Nil)
+    }
+    val effectiveClassPath = rtClassPath ::: bundledClassPathJars ::: classPaths.tail.flatten
+    log debug s"FeltCompiler effective classpath=$effectiveClassPath"
+    effectiveClassPath
   }
 
   private

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.burstsys</groupId>
@@ -10,6 +11,8 @@
 
     <properties>
         <artifact.skip-deploy>false</artifact.skip-deploy>
+        <docker.app.dir>/app/burst</docker.app.dir>
+        <dockerRepo/>
     </properties>
 
     <dependencies>
@@ -63,7 +66,8 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </plugin>
@@ -79,6 +83,83 @@
                         <artifactId>flatten-maven-plugin</artifactId>
                         <version>${flatten.maven-plugin.version}</version>
                     </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>build-docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>${jib.maven-plugin.version}</version>
+
+                        <configuration>
+                            <to>
+                                <image>${dockerRepo}/burst-cell:${version}</image>
+                                <tags>
+                                    <tag>corretto-latest</tag>
+                                </tags>
+                            </to>
+                            <from>
+                                <image>docker.ouroath.com:4443/burst/amazoncorretto8-build:latest</image>
+                                <platforms>
+                                    <platform>
+                                        <architecture>amd64</architecture>
+                                        <os>linux</os>
+                                    </platform>
+<!--                                    <platform>-->
+<!--                                        <architecture>arm64</architecture>-->
+<!--                                        <os>linux</os>-->
+<!--                                    </platform>-->
+                                </platforms>
+                            </from>
+                            <containerizingMode>packaged</containerizingMode>
+                            <container>
+                                <appRoot>${docker.app.dir}</appRoot>
+                                <environment>
+                                    <BURST_HOME>${docker.app.dir}</BURST_HOME>
+                                </environment>
+                                <entrypoint>${docker.app.dir}/sbin/start.sh</entrypoint>
+                                <expandClasspathDependencies>true</expandClasspathDependencies>
+                                <extraClasspath>${docker.app.dir}/classpath-files</extraClasspath>
+                                <ports>
+                                    <port>443</port>
+                                </ports>
+                            </container>
+                            <extraDirectories>
+                                <paths>
+                                    <path>
+                                        <from>src/main/jib</from>
+                                        <into>${docker.app.dir}</into>
+                                    </path>
+                                </paths>
+                                <permissions>
+                                    <permission>
+                                        <file>${docker.app.dir}/sbin/start.sh</file>
+                                        <mode>755</mode>
+                                    </permission>
+                                    <permission>
+                                        <file>${docker.app.dir}/sbin/pre-start.sh</file>
+                                        <mode>755</mode>
+                                    </permission>
+                                </permissions>
+                            </extraDirectories>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                 </plugins>
             </build>
         </profile>

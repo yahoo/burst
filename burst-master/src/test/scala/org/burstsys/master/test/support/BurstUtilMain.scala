@@ -1,57 +1,60 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.master.server.container
+package org.burstsys.master.test.support
 
 import org.burstsys.catalog.CatalogService.CatalogMasterConfig
 import org.burstsys.catalog.CatalogUtilManager
-import org.burstsys.catalog.configuration._
+import org.burstsys.catalog.configuration.burstCatalogDbHostProperty
+import org.burstsys.catalog.configuration.burstCatalogDbPasswordProperty
+import org.burstsys.catalog.configuration.burstCatalogDbUserProperty
 import org.burstsys.master.configuration.burstMasterPropertiesFileProperty
-import org.burstsys.vitals.configuration._
+import org.burstsys.vitals.configuration.burstCellNameProperty
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
-import org.burstsys.vitals.logging._
+import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.logging.burstStdMsg
 
 /**
  * Burst Util Main is the entry point for the Command Line Interface for the system.  It is used for
  * initialization of a new system and for scripting
  * <br><br>
  *
- **  <strong>Initialize a New System</strong>
+ * *  <strong>Initialize a New System</strong>
  * <br><br>
  * 1)  Initialize the Mysql DBMS with all the tables needed for the catalog:<pre>
  *
- *      {@code BurstUtilMain catalog [-h host] [-u user] [-p password] setup schema [--dropTables]}
+ * {@code BurstUtilMain catalog [-h host] [-u user] [-p password] setup schema [--dropTables]}
  *
- *      {@code --dropTables} will drop any preexisting tables
- *      {@code -h|--dbHost} will change the target host (default = localhost}
- *      {@code -u|--dbUser} will change the db user (default = burst}
- *      {@code -u|--dbPassword} will change the db password (default = burst}
+ * {@code --dropTables} will drop any preexisting tables
+ * {@code -h|--dbHost} will change the target host (default = localhost}
+ * {@code -u|--dbUser} will change the db user (default = burst}
+ * {@code -u|--dbPassword} will change the db password (default = burst}
  *
- *     </pre>
- *      The schema {@code burst_catalog} is created and the necessary tables are created
+ * </pre>
+ * The schema {@code burst_catalog} is created and the necessary tables are created
  *
  * <br><br>
  * 2)  Initialize the site and cell entries: <pre>
  *
- *      {@code BurstUtilMain catalog [-h host] [-u user] [-p password] setup cell <cellName>}
+ * {@code BurstUtilMain catalog [-h host] [-u user] [-p password] setup cell <cellName>}
  *
- *     </pre>
- *     An cell entry for {@code cellName} is added to the cell table and it becomes part of the {@code default}
- *     site.  The {@code default} site is created if it doesn't exist already.
+ * </pre>
+ * An cell entry for {@code cellName} is added to the cell table and it becomes part of the {@code default}
+ * site.  The {@code default} site is created if it doesn't exist already.
  */
 
 object BurstUtilMain {
 
   final case class BurstUtilArguments(
-                                        /* sql connection info*/
-                                         dbHost: String = burstCatalogDbHostProperty.getOrThrow,
-                                         dbUser: String = burstCatalogDbUserProperty.getOrThrow,
-                                         dbPassword: String = burstCatalogDbPasswordProperty.getOrThrow,
-                                         dbDropTables: Boolean = false,
-                                         /* command */
-                                         command: String = "",
-                                         /* cell */
-                                         cellName: String = burstCellNameProperty.getOrThrow
-                                       )
+                                       /* sql connection info*/
+                                       dbHost: String = burstCatalogDbHostProperty.getOrThrow,
+                                       dbUser: String = burstCatalogDbUserProperty.getOrThrow,
+                                       dbPassword: String = burstCatalogDbPasswordProperty.getOrThrow,
+                                       dbDropTables: Boolean = false,
+                                       /* command */
+                                       command: String = "",
+                                       /* cell */
+                                       cellName: String = burstCellNameProperty.getOrThrow
+                                     )
 
   def main(args: Array[String]): Unit = {
 

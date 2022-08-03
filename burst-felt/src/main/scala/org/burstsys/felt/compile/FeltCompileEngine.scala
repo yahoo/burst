@@ -75,7 +75,9 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
     "burst-fabric",
     "burst-zap",
     "burst-hydra",
-    "esotericsoftware",
+    "kryo",
+    "reflectasm",
+    "minlog",
     "joda",
     "trove4j",
     "objenesis"

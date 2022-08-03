@@ -6,7 +6,7 @@ import org.burstsys.vitals.properties.{VitalsPropertyRegistry, VitalsPropertySpe
 
 package object configuration extends VitalsLogger with VitalsPropertyRegistry {
 
-  final val defaultRestPort: Int = 37030
+  final val defaultRestPort: Int = 443
 
   val burstRestNameProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.liaison.name",

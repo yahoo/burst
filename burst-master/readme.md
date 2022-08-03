@@ -34,7 +34,7 @@ the [Jersey](https://jersey.java.net/) reference implementation for all Burst se
 |---|---|---|
 | burst.liaison.name |  'burst' |  user friendly name of application  |
 | burst.liaison.host |  0.0.0.0 |  hostname/interface for REST API  |
-| burst.liaison.port |  37030 |  port for REST API  |
+| burst.liaison.port |  443 |  port for REST API  |
 | burst.liaison.homepage |  "burst.html" |  home page for UI  |
 | burst.liaison.keystore.path | "" | the keystore to use
 

@@ -78,8 +78,6 @@ object BurstMasterMain {
         parser.showUsageAsError()
         System.exit(-1)
       case Some(arguments) =>
-        if (arguments.standalone) vitals.configuration.burstHomeProperty.set(System.getProperty("user.home"))
-
         /**
          * first get a set of basic config properties - this will eventually just be catalog DB connection info...
          */

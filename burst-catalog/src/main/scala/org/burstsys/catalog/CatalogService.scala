@@ -655,7 +655,7 @@ object CatalogService {
     dialect = RelateMySqlDialect,
     executeDDL = false,
     loadAllCans = false,
-    loadOnlyQueryCans = true,
+    loadOnlyQueryCans = false,
     dropExistingTables = false
   )
 
