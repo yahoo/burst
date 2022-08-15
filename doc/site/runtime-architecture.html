@@ -42,13 +42,14 @@
                         <p>Paragraph</p>
                     </div>
                     <div class="col-md-12">
-                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Runtime Architecture</span></strong><br></h1>
+                        <h1 class="arch-title" style="padding-bottom: 6px;"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Runtime Architecture</span></strong><br></h1>
+                        <hr style="height: 3px;">
                     </div>
                 </div>
             </div>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12 col-lg-12"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Burst runtime topology is a fairly standard single-master, multiple-worker cluster that is called a Cell. It managed requests from clients and imports data from one or more SampleStores.</span><br /><br /></p>
+                    <div class="col-md-12 col-lg-12"><img src="assets/img/tech/burst_runtime_architecture.svg" style="width:100%;max-width:100%;"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Burst runtime topology is a fairly standard single-master, multiple-worker cluster that is called a Cell. It managed requests from clients and imports data from one or more SampleStores.</span><br /><br /></p>
                         <h1 style="font-size: 30px;font-weight: bold;"><strong><span style="color: rgb(36, 41, 47);">Cell Runtime Components</span></strong><br></h1>
                         <hr style="height: 3px;">
                         <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The top level elements in a Cell are:</span><br></p>
@@ -91,6 +92,11 @@
                         <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Any given Burst Cell can import data from one or more SampleStore instances. The SampleStore can be thought of as being separated into a single Master role along with one or more Worker roles. These can coexist on the same runtime deployment process or container or be on separate contexts where it is valuable to import data via massive parallelism where you want to distribute the Worker rolee across many nodes e.g. a store such as HBASE. Its responsibilities are:</span><br></p>
                         <ol style="font-size: 18px;">
                             <li><span style="color: rgb(36, 41, 47);">Receive incoming dataset fetch requests from Cell Master node via SampleStore protocol</span></li>
+                            <li><span style="color: rgb(36, 41, 47);">Send message to remote SampleStore Master with fetch parameters</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Receive message from remote SampleStore Master with instructions for slice requests to send to Cell Workers</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Cell Workers contact SampleStore remote workers using slice instructions and convey slice parameters while establishing Nexus protocol streams</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Cell Workers receive streamed data from SampleStore remote workers and write to disk cache</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Cell Workers return result status and other parameters to Cell Master</span><br></li>
                         </ol>
                     </div>
                 </div>
