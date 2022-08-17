@@ -42,30 +42,30 @@
                         <p>Paragraph</p>
                     </div>
                     <div class="col-md-12">
-                        <h1 class="arch-title" style="padding-bottom: 6px;"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Data Management Architecture</span></strong><br></h1>
+                        <h1 class="first-heading"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Data Management Architecture</span></strong><br></h1>
                         <hr style="height: 3px;">
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Burst has a flexible support library for building data management subsystems that are called 'Stores'. Generally what is meant by that is code that allows a Burst user to import data from a remote data store (outside the Burst Cell), however there is no reason why the Store could not be 100% internal to the Burst Cell.</span></p>
+                        <p><span style="color: rgb(36, 41, 47);">Burst has a flexible support library for building data management subsystems that are called 'Stores'. Generally what is meant by that is code that allows a Burst user to import data from a remote data store (outside the Burst Cell), however there is no reason why the Store could not be 100% internal to the Burst Cell.</span></p>
                     </div>
                 </div>
             </div>
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 col-lg-12">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Stores</span></strong><br></h1>
+                        <h2><strong><span style="color: rgb(36, 41, 47);">Stores</span></strong><br></h2>
                         <hr style="height: 3px;">
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Stores are a very simple abstraction interface that provides pluggable data management for the Burst Cell. There is a Store API for the Cell Master Node and one for the Cell Worker Node. The master Store knows how to partition data into Slices and assign them to Worker Nodes. The worker Store knows how to initialize (import into the local disk cache) a slice and to load an (initialized) slice from the disk cache.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">SampleStore</span></strong><br></h1>
+                        <p><span style="color: rgb(36, 41, 47);">Stores are a very simple abstraction interface that provides pluggable data management for the Burst Cell. There is a Store API for the Cell Master Node and one for the Cell Worker Node. The master Store knows how to partition data into Slices and assign them to Worker Nodes. The worker Store knows how to initialize (import into the local disk cache) a slice and to load an (initialized) slice from the disk cache.</span><br></p>
+                        <h2><strong><span style="color: rgb(36, 41, 47);">SampleStore</span></strong><br></h2>
                         <hr style="height: 3px;">
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The SampleStore is a framework for building Stores that provides additional baseline functionality such as a massively parallel data transfer protocol called 'Nexus' and a set of primitives for managing sample rates.</span><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Over the history of Burst here at Flurry, we have used a variety of Stores to import data. The main ones were a massively parallel HDFS sequence file loader called the FuseStore, and more recently a very full featured massively parallel HBASE type SampleStore. We hope to open source this HBASE SampleStore (called the 'beast' because of the multi-petabyte storage size and the hundreds of region servers involved.)</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Controlling Dataset Size</span></strong><br></h1>
+                        <p><span style="color: rgb(36, 41, 47);">The SampleStore is a framework for building Stores that provides additional baseline functionality such as a massively parallel data transfer protocol called 'Nexus' and a set of primitives for managing sample rates.</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Over the history of Burst here at Flurry, we have used a variety of Stores to import data. The main ones were a massively parallel HDFS sequence file loader called the FuseStore, and more recently a very full featured massively parallel HBASE type SampleStore. We hope to open source this HBASE SampleStore (called the 'beast' because of the multi-petabyte storage size and the hundreds of region servers involved.)</span><br></p>
+                        <h2><strong><span style="color: rgb(36, 41, 47);">Controlling Dataset Size</span></strong><br></h2>
                         <hr style="height: 3px;">
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">One of the challenges in writing Stores is in managing the potentially enormous dataset sizes. Generally speaking most analysis challenges do not need to analyze all the data available to get a good signal. It is prudent, often critical, to provide some way to reduce dataset sizes without reducing desired signal if only to improve general analysis performance if not prevent system failure. Generally this is quite doable since a lot of data is essentially noise, and even simple applied heuristics such as not looking at the entire time history or only looking at certain subtrees of the entity can be quite valuable. We categorize these sorts of control into Sampling and Filtering.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">Sampling</span></strong><br></h1>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">If one does not require a deterministic (repeatable) or absolute answer from an analysis, but instead can live with a more general high level sense of relative or probable values in a result, then one can sample the data. Sampling is a more general topic but specifically for Burst it means as you import the entities in your dataset, you would throw away some percentage of them. If you were doing counts, then presumably you would normalize (scale up) the quantities to reflect the missing (sampled out) entities.</span><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Of course even if you only want a relatively but not completely accurate (sampled) result from your dataset, there are certainly levels of sampling that can introduce unacceptably high error margins. This is a major topic and we can't address it in detail here, but suffice it to say Burst has had to provide facilities to define sample rates and use sampled results effectively.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">Filtering</span></strong><br></h1>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Another approach to the challenges of dataset size is in filtering. The way this works is that when one imports data, a simplified MOTIF predicate query is provided to the SampleStore and the remote datasource can use that query to 'filter' the imported data as it is pressed (binary encoded).</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">One of the challenges in writing Stores is in managing the potentially enormous dataset sizes. Generally speaking most analysis challenges do not need to analyze all the data available to get a good signal. It is prudent, often critical, to provide some way to reduce dataset sizes without reducing desired signal if only to improve general analysis performance if not prevent system failure. Generally this is quite doable since a lot of data is essentially noise, and even simple applied heuristics such as not looking at the entire time history or only looking at certain subtrees of the entity can be quite valuable. We categorize these sorts of control into Sampling and Filtering.</span><br></p>
+                        <h3><strong><span style="color: rgb(36, 41, 47);">Sampling</span></strong><br></h3>
+                        <p><span style="color: rgb(36, 41, 47);">If one does not require a deterministic (repeatable) or absolute answer from an analysis, but instead can live with a more general high level sense of relative or probable values in a result, then one can sample the data. Sampling is a more general topic but specifically for Burst it means as you import the entities in your dataset, you would throw away some percentage of them. If you were doing counts, then presumably you would normalize (scale up) the quantities to reflect the missing (sampled out) entities.</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Of course even if you only want a relatively but not completely accurate (sampled) result from your dataset, there are certainly levels of sampling that can introduce unacceptably high error margins. This is a major topic and we can't address it in detail here, but suffice it to say Burst has had to provide facilities to define sample rates and use sampled results effectively.</span><br></p>
+                        <h3><strong><span style="color: rgb(36, 41, 47);">Filtering</span></strong><br></h3>
+                        <p><span style="color: rgb(36, 41, 47);">Another approach to the challenges of dataset size is in filtering. The way this works is that when one imports data, a simplified MOTIF predicate query is provided to the SampleStore and the remote datasource can use that query to 'filter' the imported data as it is pressed (binary encoded).</span><br></p>
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
             </div>
             <div class="row justify-content-center align-items-center">
                 <div class="col-sm-3">
-                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <h5 class="footer-h5-title">RESOURCES<br></h5>
                     <ul>
                         <li><a href="#">Documentation<br></a></li>
                         <li><a href="#">Open Source<br></a></li>
@@ -86,7 +86,7 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
-                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <h5 class="footer-h5-title">CONTACT<br></h5>
                     <ul>
                         <li><a href="#">info@burst<br></a></li>
                         <li><a href="#">Issues<br></a></li>
@@ -94,7 +94,7 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
-                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <h5 class="footer-h5-title">COMMUNITY<br></h5>
                     <ul>
                         <li><a href="#">Stack Overflow<br></a></li>
                         <li><a href="#">Contributing<br></a></li>

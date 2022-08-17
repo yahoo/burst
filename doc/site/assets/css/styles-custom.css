@@ -64,8 +64,14 @@
 @media (min-width: 300px) and (max-width: 768px) {
   .home-page-col-1-heading {
     font-size: 44px !important;
-    width: 350px;
+    width: 350px !important;
   }
+}
+
+.home-page-col-1-heading {
+  color: rgb(255,255,255);
+  font-size: 53.128px;
+  font-weight: bold;
 }
 
 .navbar-collapse {
@@ -251,5 +257,90 @@ footer p {
   #adjust-meet-team-title h1 {
     font-size: 29px !important;
   }
+}
+
+body p {
+  font-size: 18px;
+}
+
+.single-pass-img {
+  padding-bottom: 30px;
+  max-width: 100%;
+  width: 50%;
+}
+
+body h2 {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+body h3 {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.home-page-fast-h2 {
+  color: rgb(255,255,255);
+  font-size: 36.128px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 40px 0 40px 0;
+}
+
+.home-page-p-intro {
+  color: rgb(255,255,255);
+  font-size: 18px;
+  width: 70%;
+}
+
+.home-page-h3-col4-title {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.footer-h5-title {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.why-burst-intro-text {
+  --bs-body-font-size: 16px;
+  font-size: 18px;
+  font-style: italic;
+  padding-top: 30px;
+  background: rgba(237,231,231,0);
+}
+
+.p-why-burst {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  line-height: 150%;
+}
+
+.why-burst-h4-title {
+  font-size: 20px;
+}
+
+h1.first-heading {
+  font-size: 37px;
+  font-weight: bold !important;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+div h1.first-heading {
+  font-size: 37px;
+  font-weight: bold !important;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+p#architectural-themes, p#single-pass-scan, p#distributed-partioning, p#mechanical-sympathy, p#dataset-size, #fast-on-demand {
+  font-size: 18px;
+  padding-top: 40px;
+}
+
+body {
+  font-family: 'Nunito Sans', Arial;
 }
 

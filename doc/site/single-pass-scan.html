@@ -42,37 +42,37 @@
                         <p>Paragraph</p>
                     </div>
                     <div class="col-md-12">
-                        <h1 class="arch-title"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Single Pass Scan Architecture</span></strong><br></h1>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The single pass scan is one of the earliest and most aggressive decisions in the Burst architecture. Processing speed of large datasets is center stage and everything else takes on a supporting role.</span></p>
+                        <h1 class="first-heading"><strong><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">Burst Single Pass Scan Architecture</span></strong><br></h1>
+                        <p><span style="color: rgb(36, 41, 47);">The single pass scan is one of the earliest and most aggressive decisions in the Burst architecture. Processing speed of large datasets is center stage and everything else takes on a supporting role.</span></p>
                     </div>
                 </div>
             </div>
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 col-lg-12">
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Behavioral Calculus</span></strong><br></h1>
+                        <h2><strong><span style="color: rgb(36, 41, 47);">Behavioral Calculus</span></strong><br></h2>
                         <hr style="height: 3px;"><p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Behavioral analysis on high scale datasets involves scanning stunning quantities of data records each of which represents an individual entity whose behavior is being studied and compared to other entity data records. The aggregate analysis counts and groups and generally measures/organizes a rich set of facts about the various entity cohorts as well as the the total superset. Each of these data records is a complex object-tree of nested structures and relationships. The analysis scans through this object-tree with opportunities to evaluate contained value fields, constantly updating running tallies of value counts that are carefully grouped by associated dimension values. The evaluations use language constructed predicates and aggregating functions to determine what result data to collect.<br><br>The single pass scan is how Burst does that fast and efficiently.</span><br /></p>
-                        <h1 style="font-weight: bold;font-size: 30px;padding-bottom: 0px;"><strong><span style="color: rgb(36, 41, 47);">The single pass scan</span></strong><br></h1>
-                        <hr style="height: 3px;"><img src="assets/img/tech/burst_single_pass_scan.svg" style="padding-bottom: 30px;max-width: 100%;"><p style="font-size: 18px;text-align: left;word-wrap: break-word;"><span style="color: rgb(36, 41, 47);">The way that the Burst architecture scales up to these hyper transaction rates, is something we call the single pass scan. The basics of this approach are in how we </span><em><span style="color: rgb(36, 41, 47);">linearize, regionalize, loading, threading and collecting</span></em><span style="color: rgb(36, 41, 47);">.</span><br /></p>
-                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">linearize</span></strong><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Each entity is&nbsp;</span><em><span style="color: rgb(36, 41, 47);">encoded</span></em><span style="color: rgb(36, 41, 47);">&nbsp;into a binary data format that&nbsp;</span><em><span style="color: rgb(36, 41, 47);">linearizes</span></em><span style="color: rgb(36, 41, 47);">&nbsp;a&nbsp;</span><em><span style="color: rgb(36, 41, 47);">depth-first-search</span></em><span style="color: rgb(36, 41, 47);">&nbsp;of the entity object-tree into a single byte-sequence. What that means is that during the evaluation of a particular entity, all data access operations are a constantly advancing CPU/memory system march through a linear sequence of bytes in a single block of contiguous physical memory. The algorithm can jump&nbsp;</span><em><span style="color: rgb(36, 41, 47);">forward</span></em><span style="color: rgb(36, 41, 47);">&nbsp;in order to skip&nbsp;</span><em><span style="color: rgb(36, 41, 47);">unused</span></em><span style="color: rgb(36, 41, 47);">&nbsp;data, but it never goes backwards.</span><br></p>
-                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">regionalize</span></strong><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Each of these byte-sequences is assembled into large groupings called Regions. The scans always move forward through the entities within a single Region. Entities are always managed as groups of Regions.</span><br></p>
-                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">threading</span></strong><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">All the byte-sequences in a Region are always scanned by the same CPU thread. This reduces the need for thread synchronization and CPU cache flushing.</span><br></p>
-                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">loading</span></strong><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Each Regions is loaded from disk cache into memory as a read-only OS level&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">MMAP</span><span style="color: rgb(36, 41, 47);">&nbsp;operation. The mapping to physical memory and the managed relationship to disk IO operations is controlled by the sophisticated virtual memory systems of a modern operating system.</span><br></p>
-                        <p style="font-size: 18px;"><strong><span style="color: rgb(87, 96, 106);">collecting</span></strong><br></p>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Along with this scan of linearized contiguous read-only data by a single thread is a set of mutable data structures that collect data that is used as temporary and final results during the scan. Each of these data structures are carefully designed to avoid lock waits and to keep all data in a single contiguous memory block, always growing by extending the end of the block.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 30px;"><strong><span style="color: rgb(36, 41, 47);">Scanning and the JVM</span></strong><br></h1>
+                        <h2><strong><span style="color: rgb(36, 41, 47);">The single pass scan</span></strong><br></h2>
+                        <hr style="height: 3px;"><img class="single-pass-img" src="assets/img/tech/burst_single_pass_scan.svg"><p style="font-size: 18px;text-align: left;word-wrap: break-word;"><span style="color: rgb(36, 41, 47);">The way that the Burst architecture scales up to these hyper transaction rates, is something we call the single pass scan. The basics of this approach are in how we </span><em><span style="color: rgb(36, 41, 47);">linearize, regionalize, loading, threading and collecting</span></em><span style="color: rgb(36, 41, 47);">.</span><br /></p>
+                        <p><strong><span style="color: rgb(87, 96, 106);">linearize</span></strong><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Each entity is&nbsp;</span><em><span style="color: rgb(36, 41, 47);">encoded</span></em><span style="color: rgb(36, 41, 47);">&nbsp;into a binary data format that&nbsp;</span><em><span style="color: rgb(36, 41, 47);">linearizes</span></em><span style="color: rgb(36, 41, 47);">&nbsp;a&nbsp;</span><em><span style="color: rgb(36, 41, 47);">depth-first-search</span></em><span style="color: rgb(36, 41, 47);">&nbsp;of the entity object-tree into a single byte-sequence. What that means is that during the evaluation of a particular entity, all data access operations are a constantly advancing CPU/memory system march through a linear sequence of bytes in a single block of contiguous physical memory. The algorithm can jump&nbsp;</span><em><span style="color: rgb(36, 41, 47);">forward</span></em><span style="color: rgb(36, 41, 47);">&nbsp;in order to skip&nbsp;</span><em><span style="color: rgb(36, 41, 47);">unused</span></em><span style="color: rgb(36, 41, 47);">&nbsp;data, but it never goes backwards.</span><br></p>
+                        <p><strong><span style="color: rgb(87, 96, 106);">regionalize</span></strong><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Each of these byte-sequences is assembled into large groupings called Regions. The scans always move forward through the entities within a single Region. Entities are always managed as groups of Regions.</span><br></p>
+                        <p><strong><span style="color: rgb(87, 96, 106);">threading</span></strong><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">All the byte-sequences in a Region are always scanned by the same CPU thread. This reduces the need for thread synchronization and CPU cache flushing.</span><br></p>
+                        <p><strong><span style="color: rgb(87, 96, 106);">loading</span></strong><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Each Regions is loaded from disk cache into memory as a read-only OS level&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">MMAP</span><span style="color: rgb(36, 41, 47);">&nbsp;operation. The mapping to physical memory and the managed relationship to disk IO operations is controlled by the sophisticated virtual memory systems of a modern operating system.</span><br></p>
+                        <p><strong><span style="color: rgb(87, 96, 106);">collecting</span></strong><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Along with this scan of linearized contiguous read-only data by a single thread is a set of mutable data structures that collect data that is used as temporary and final results during the scan. Each of these data structures are carefully designed to avoid lock waits and to keep all data in a single contiguous memory block, always growing by extending the end of the block.</span><br></p>
+                        <h2><strong><span style="color: rgb(36, 41, 47);">Scanning and the JVM</span></strong><br></h2>
                         <hr style="height: 3px;">
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Burst is written primarily in Scala which is a Java VM based execution environment. What this means is that part of the Burst challenge is leveraging and mitigating various Java performance constructs.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">don't use Java objects</span></strong><br></h1>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">Burst invests a significant amount into making sure its data structures and algorithms&nbsp;</span><em><span style="color: rgb(36, 41, 47);">don't create Java objects</span></em><span style="color: rgb(36, 41, 47);">&nbsp;during scans. This involves the use of careful coding practices and the extensive use of direct manipulation of native memory, sometimes called off-heap memory.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">optimize at the byte-code level</span></strong><br></h1>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The Burst pipeline architecture, discussed in more depth elsewhere, does full code-generation for each query executed. This means very complicated algorithms are based on standard code generation templates that are carefully designed to be relentlessly byte-code friendly.</span><br></p>
-                        <h1 style="font-weight: bold;font-size: 25px;"><strong><span style="color: rgb(36, 41, 47);">help the JIT compiler</span></strong><br></h1>
-                        <p style="font-size: 18px;"><span style="color: rgb(36, 41, 47);">The same code generated system and scan access patterns are also designed to be effectively JIT compiled.</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Burst is written primarily in Scala which is a Java VM based execution environment. What this means is that part of the Burst challenge is leveraging and mitigating various Java performance constructs.</span><br></p>
+                        <h3><strong><span style="color: rgb(36, 41, 47);">don't use Java objects</span></strong><br></h3>
+                        <p><span style="color: rgb(36, 41, 47);">Burst invests a significant amount into making sure its data structures and algorithms&nbsp;</span><em><span style="color: rgb(36, 41, 47);">don't create Java objects</span></em><span style="color: rgb(36, 41, 47);">&nbsp;during scans. This involves the use of careful coding practices and the extensive use of direct manipulation of native memory, sometimes called off-heap memory.</span><br></p>
+                        <h3><strong><span style="color: rgb(36, 41, 47);">optimize at the byte-code level</span></strong><br></h3>
+                        <p><span style="color: rgb(36, 41, 47);">The Burst pipeline architecture, discussed in more depth elsewhere, does full code-generation for each query executed. This means very complicated algorithms are based on standard code generation templates that are carefully designed to be relentlessly byte-code friendly.</span><br></p>
+                        <h3><strong><span style="color: rgb(36, 41, 47);">help the JIT compiler</span></strong><br></h3>
+                        <p><span style="color: rgb(36, 41, 47);">The same code generated system and scan access patterns are also designed to be effectively JIT compiled.</span><br></p>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
             </div>
             <div class="row justify-content-center align-items-center">
                 <div class="col-sm-3">
-                    <h5 style="font-style: italic;font-weight: bold;">RESOURCES<br></h5>
+                    <h5 class="footer-h5-title">RESOURCES<br></h5>
                     <ul>
                         <li><a href="#">Documentation<br></a></li>
                         <li><a href="#">Open Source<br></a></li>
@@ -93,7 +93,7 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
-                    <h5 style="font-weight: bold;font-style: italic;">CONTACT<br></h5>
+                    <h5 class="footer-h5-title">CONTACT<br></h5>
                     <ul>
                         <li><a href="#">info@burst<br></a></li>
                         <li><a href="#">Issues<br></a></li>
@@ -101,7 +101,7 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
-                    <h5 style="font-weight: bold;font-style: italic;">COMMUNITY<br></h5>
+                    <h5 class="footer-h5-title">COMMUNITY<br></h5>
                     <ul>
                         <li><a href="#">Stack Overflow<br></a></li>
                         <li><a href="#">Contributing<br></a></li>
