@@ -1,7 +1,7 @@
 #!/bin/sh
 
 new_version=$1
-dev_branch=master
+dev_branch=main
 project_name=burst
 
 if [ "$new_version" == "" ]; then
