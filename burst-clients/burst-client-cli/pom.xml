@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.burstsys</groupId>
         <artifactId>burst-clients</artifactId>
-        <version>4.0.0${revision}-SNAPSHOT</version>
+        <version>4.1.0${revision}-SNAPSHOT</version>
     </parent>
     <artifactId>burst-client-cli</artifactId>
 
