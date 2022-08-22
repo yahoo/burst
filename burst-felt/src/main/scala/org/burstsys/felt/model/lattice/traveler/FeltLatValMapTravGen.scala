@@ -18,7 +18,6 @@ trait FeltLatValMapTravGen extends Any {
 
   self: FeltLatTravGenContext =>
 
-  // TODO https://git.vzbuilders.com/burst/burst/issues/1777
   final
   def processValMapRel(parentNode: BrioNode, version: BrioVersionKey, childNode: BrioNode)(implicit cursor: FeltCodeCursor): FeltCode = {
     val parentSchema = schematic(parentNode.relation.referenceStructure.structureTypeName, version)
@@ -69,7 +68,6 @@ trait FeltLatValMapTravGen extends Any {
   }
 
   // TODO REWRITE FOR ALL POSSIBLE COMBINATIONS - NOW ONLY REALLY SUPPORT STRING STRING MAPS
-  // TODO https://git.vzbuilders.com/burst/burst/issues/1776
   private
   def valueMapMemberData(treeNode: BrioNode)(implicit cursor: FeltCodeCursor): FeltCode = {
     val ke = treeNode.relation.keyEncoding

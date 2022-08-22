@@ -73,7 +73,7 @@ the ones the compiler focuses on the most:
 The Explorer system uses the *Unity* schema which consists of a _user_, containing an _application_, a collection of _sessions_,
 where each session contains a collection of _events_.  The Unity schema mirrors the data representation of users in
 the flurry production system.  The *Unity* schema is fully specified in a
-[Brio IDL file](https://git.ouroath.com/burst/burst/blob/master/burst-schema/src/main/resources/org/burstsys/schema/unity/unity_v1.schema)
+[Brio IDL file](https://github.com/yahoo/burst/blob/main/burst-schema/src/main/resources/org/burstsys/schema/unity/unity_v1.schema)
 
 Any part of the schema can be accessed using a _path identifier_.  For example, in the Unity schema
 the path `user.sessions.events.startTime` is the path identifier to reference the start time of an event. A path

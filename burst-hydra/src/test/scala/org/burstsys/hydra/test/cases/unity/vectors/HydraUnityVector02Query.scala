@@ -5,9 +5,6 @@ import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
 import org.burstsys.hydra.test.cases.support.HydraUseCase
 import org.burstsys.hydra.test.cases.unity.splits.HydraUnitySplitCase00.{analysisName, frameName}
 
-/**
- * https://git.ouroath.com/burst/burst/issues/1727
- */
 object HydraUnityVector02Query extends HydraUseCase(210, 210, "unity") {
 
   /*

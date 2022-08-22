@@ -5,9 +5,6 @@ import org.burstsys.eql.test.support.EqlAlloyTestRunner
 import org.burstsys.vitals.errors.VitalsException
 import org.scalatest.Ignore
 
-/**
- * (Hydra Bug:  https://git.ouroath.com/burst/burst/issues/1720)
- */
 @Ignore
 final
 class DoubleFreeBugTempSpec extends EqlAlloyTestRunner {

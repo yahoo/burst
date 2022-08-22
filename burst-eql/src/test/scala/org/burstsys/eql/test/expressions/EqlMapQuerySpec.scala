@@ -66,7 +66,7 @@ class EqlMapQuerySpec extends EqlAlloyTestRunner {
     })
   }
 
-  it should "successfully do a another key map lookup (Hydra Bug - https://git.vzbuilders.com/burst/burst/issues/1780 but only in production burst-3.1" in {
+  it should "successfully do a another key map lookup (Hydra Bug)" in {
     val source =
       s"""
          |select count(user.sessions) as c, user.sessions.osVersionId as d from schema Unity

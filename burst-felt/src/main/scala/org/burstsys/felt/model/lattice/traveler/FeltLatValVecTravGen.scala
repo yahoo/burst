@@ -18,7 +18,6 @@ trait FeltLatValVecTravGen extends Any {
 
   self: FeltLatTravGenContext =>
 
-  // TODO https://git.vzbuilders.com/burst/burst/issues/1777
   final
   def processValVecRel(parentNode: BrioNode, version: BrioVersionKey, childNode: BrioNode)(implicit cursor: FeltCodeCursor): FeltCode = {
     val parentSchema = schematic(parentNode.relation.referenceStructure.structureTypeName, version)

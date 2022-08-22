@@ -71,7 +71,7 @@ class EqlValueVectorQuerySpec extends EqlAlloyTestRunner {
     })
   }
 
- it should "successfully generate aggregate query with map dimension lookup and test (Hydra Bug https://git.ouroath.com/burst/burst/issues/1674)" in {
+ it should "successfully generate aggregate query with map dimension lookup and test" in {
     val source =
       s"""
          | select count(user) as events, user.sessions.events.parameters['one'] as pkey

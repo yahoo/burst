@@ -66,7 +66,6 @@ trait BrioValuePresser {
   protected final
   def extractLongValueVector(capture: BrioValueVectorPressCapture, array: Array[Long]): Unit = {
     capture.valueVectorEntries(array.length)
-    // https://git.vzbuilders.com/burst/burst/issues/1797 should the be here
     val sortedValueSet = array.sorted // make sure values are sorted to match keys
     Array.copy(sortedValueSet, 0, capture.longVector, 0, array.length)
   }

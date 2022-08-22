@@ -4,9 +4,6 @@ package org.burstsys.hydra.test.cases.unity.bugs.old
 import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
 import org.burstsys.hydra.test.cases.support.HydraUseCase
 
-/**
- * https://git.ouroath.com/burst/burst/issues/1720
- */
 object HydraUnityBug03 extends HydraUseCase(200, 200, "unity") {
 
   //  override val sweep = new B1801F3BDB5444032803E20CFD4D9A728

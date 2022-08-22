@@ -145,7 +145,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
     }
   }
 
- ignore should "single sum aggregate expression dimension with scope (Hydra Bug https://git.ouroath.com/burst/burst/issues/1722)" in {
+ ignore should "single sum aggregate expression dimension with scope (Hydra Bug)" in {
     val source =
       s"""
          | select sum(2) as 'one',

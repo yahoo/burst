@@ -7,7 +7,7 @@ import org.burstsys.vitals.errors.VitalsException
 
 final
 class EqlSingleCaseSpec extends EqlAlloyTestRunner {
- ignore should "single sum aggregate expression dimension with scope (Hydra Bug https://git.ouroath.com/burst/burst/issues/1727)" in {
+ ignore should "single sum aggregate expression dimension with scope (Hydra Bug)" in {
     // staticSweep = new  BDCC5E606C77D406DB338D22A6E6B7AA5
     val source =
       """

@@ -105,7 +105,7 @@
                                 </tags>
                             </to>
                             <from>
-                                <image>docker.ouroath.com:4443/burst/amazoncorretto8-build:latest</image>
+                                <image>${dockerRepo}/amazoncorretto8-build:latest</image>
                                 <platforms>
                                     <platform>
                                         <architecture>amd64</architecture>

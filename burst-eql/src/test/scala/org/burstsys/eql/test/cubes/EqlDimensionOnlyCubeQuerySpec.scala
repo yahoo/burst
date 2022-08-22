@@ -90,7 +90,7 @@ class EqlDimensionOnlyCubeQuerySpec extends EqlAlloyTestRunner {
     })
   }
 
-  ignore should "successfully query through a scalar references (Hydra Bug:  https://git.ouroath.com/burst/burst/issues/1720) " in {
+  ignore should "successfully query through a scalar references (Hydra Bug) " in {
     val source =
       s"""
          | select count(user) as 'count',
