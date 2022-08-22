@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.container.worker
 
-import org.burstsys.{brio, fabric, vitals}
 import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.model.{FabricContainer, FabricContainerContext}
 import org.burstsys.fabric.data.worker.FabricWorkerData
@@ -9,13 +8,9 @@ import org.burstsys.fabric.data.worker.store._
 import org.burstsys.fabric.execution.worker.FabricWorkerEngine
 import org.burstsys.fabric.metadata.worker.FabricWorkerMetadata
 import org.burstsys.fabric.net.client.FabricNetClient
-import org.burstsys.fabric.topology.model.node.worker.FabricWorker
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandaloneServer, VitalsStandardServer}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
-
-import scala.util.{Failure, Success}
 
 /**
  * the one per JVM top level container for a Fabric Worker
@@ -49,13 +44,6 @@ trait FabricWorkerContainer extends FabricContainer {
    * @return
    */
   def netClient: FabricNetClient
-
-  /**
-   * The local worker metadata instance
-   *
-   * @return
-   */
-  def worker: FabricWorker
 
   /**
    * wire up the an event handler for this container
@@ -92,9 +80,6 @@ FabricWorkerContainerContext extends FabricContainerContext with FabricWorkerCon
   val _metadata: FabricWorkerMetadata = FabricWorkerMetadata(this)
 
   private[this]
-  var _worker: FabricWorker = _
-
-  private[this]
   var _listener: FabricWorkerListener = _
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,28 +98,11 @@ FabricWorkerContainerContext extends FabricContainerContext with FabricWorkerCon
   final override
   def metadata: FabricWorkerMetadata = _metadata
 
-  final override
-  def worker: FabricWorker = _worker
-
   override
   def talksTo(listener: FabricWorkerListener): this.type = {
     ensureNotRunning
     _listener = listener
     this
-  }
-
-  protected
-  def registerWorker(): FabricWorker = {
-    val isInCell = !configuration.burstFabricWorkerStandaloneProperty.get.getOrElse(false)
-    val nodeMoniker = if (isInCell) configuration.burstFabricMonikerProperty.getOrThrow else f"W${System.nanoTime}%d"
-
-    val cellMoniker = vitals.configuration.burstCellNameProperty.getOrThrow
-    metadata.lookup.workerRegistration(cellMoniker, nodeMoniker, getPublicHostName, getPublicHostAddress) match {
-      case Success(worker) => worker
-      case Failure(t) =>
-        log error s"unable to register worker $nodeMoniker into $cellMoniker"
-        throw t
-    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,9 +115,8 @@ FabricWorkerContainerContext extends FabricContainerContext with FabricWorkerCon
       synchronized {
         ensureNotRunning
 
-        _worker = registerWorker()
         if (containerId.isEmpty) {
-          containerId = worker.nodeId
+          containerId = System.currentTimeMillis()
         }
 
         // start generic container

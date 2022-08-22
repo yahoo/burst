@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.topology.model.node.worker
 
-import org.burstsys.fabric.topology.model.node
 import org.burstsys.fabric.topology.model.node.{FabricNode, FabricNodeContext, FabricNodeId, UnknownFabricNodeId}
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, convertHostAddressToHostname}
 

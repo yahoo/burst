@@ -79,26 +79,4 @@ class FabricMasterNodeContext(masterNodeId: FabricNodeId, masterNodeName: Vitals
     super.read(kryo, input)
     masterPort = input.readInt
   }
-
-  /*
-    ///////////////////////////////////////////////////////////////////
-    // JAVA SERIALIZATION - for spark transfer - to be deprecated at some point
-    ///////////////////////////////////////////////////////////////////
-
-    def this() = this(UnknownFabricNodeId, null, null, UnknownFabricNodePort)
-
-    override
-    def readExternal(input: ObjectInput): Unit = {
-      super.readExternal(input)
-      masterPort = input.readInt()
-    }
-
-    override
-    def writeExternal(out: ObjectOutput): Unit = {
-      super.writeExternal(out)
-      out.writeInt(masterPort)
-    }
-  */
-
-
 }

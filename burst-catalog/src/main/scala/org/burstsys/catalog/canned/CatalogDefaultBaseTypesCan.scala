@@ -3,15 +3,10 @@ package org.burstsys.catalog.canned
 
 import org.burstsys.catalog.model.account
 import org.burstsys.catalog.model.account.CatalogCannedAccount
-import org.burstsys.catalog.model.cell._
 import org.burstsys.catalog.model.domain.CatalogCannedDomain
-import org.burstsys.catalog.model.master.CatalogCannedMaster
-import org.burstsys.catalog.model.site.CatalogCannedSite
+import org.burstsys.catalog.model.view.CatalogCannedView
 import org.burstsys.catalog.model.view.CatalogView.ViewLoadTimeoutMsProperty
-import org.burstsys.catalog.model.view.{CatalogCannedView, _}
-import org.burstsys.catalog.model.worker.CatalogCannedWorker
 import org.burstsys.fabric
-import org.burstsys.fabric.metadata
 import org.burstsys.fabric.topology.model.node.UnknownFabricNodePort
 import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties._
@@ -25,28 +20,6 @@ final class CatalogDefaultBaseTypesCan extends CatalogCan {
   override def accounts: Array[account.CatalogCannedAccount] = Array(
     CatalogCannedAccount("burst", "burstomatic")
   )
-
-  override def sites: Array[CatalogCannedSite] = {
-    Array(
-      CatalogCannedSite("Site1",
-        """
-          |site_k1=site_v1;
-          |site_k2=site_v2;
-          |site_k3=site_v3;
-        """.stripMargin)
-    )
-  }
-
-  override def cells: Array[CatalogCannedCell] = {
-    Array(
-      CatalogCannedCell("Cell1", "Site1",
-        """
-          |cell_k1=cell_v1;
-          |cell_k2=cell_v2;
-          |cell_k3=cell_v3;
-        """.stripMargin)
-    )
-  }
 
   private val exceptionDomain = "Domain3_Broken"
 
@@ -114,32 +87,4 @@ final class CatalogDefaultBaseTypesCan extends CatalogCan {
         )
       )
   }
-
-  override def masters: Array[CatalogCannedMaster] = {
-    Array(
-      CatalogCannedMaster(
-        moniker = getPublicHostAddress,
-        nodeName = getPublicHostName,
-        nodeAddress = getPublicHostAddress,
-        masterPort = UnknownFabricNodePort,
-        siteMoniker = "Site1",
-        cellMoniker = Some("Cell1"),
-        masterProperties = "local=true; master=true;"
-      )
-    )
-  }
-
-  override def workers: Array[CatalogCannedWorker] = {
-    Array(
-      CatalogCannedWorker(
-        moniker = getPublicHostAddress,
-        nodeName = getPublicHostName,
-        nodeAddress = getPublicHostAddress,
-        siteMoniker = "Site1",
-        cellMoniker = Some("Cell1"),
-        workerProperties = "local=true; worker=true;"
-      )
-    )
-  }
-
 }

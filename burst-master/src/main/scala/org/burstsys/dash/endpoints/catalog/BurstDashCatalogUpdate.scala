@@ -1,19 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.endpoints.catalog
 
-import org.burstsys.catalog.model.cell.CatalogJsonCell
-import org.burstsys.catalog.model.domain.CatalogJsonDomain
-import org.burstsys.catalog.model.master.CatalogJsonMaster
-import org.burstsys.catalog.model.query.CatalogJsonQuery
-import org.burstsys.catalog.model.site.CatalogJsonSite
-import org.burstsys.catalog.model.view.CatalogJsonView
-import org.burstsys.catalog.model.worker.CatalogJsonWorker
-import org.burstsys.dash.application.BurstDashEndpointBase
-
 import jakarta.ws.rs._
 import jakarta.ws.rs.core.MediaType
-import scala.util.Failure
-import scala.util.Success
+import org.burstsys.catalog.model.domain.CatalogJsonDomain
+import org.burstsys.catalog.model.query.CatalogJsonQuery
+import org.burstsys.catalog.model.view.CatalogJsonView
+import org.burstsys.dash.application.BurstDashEndpointBase
+
+import scala.util.{Failure, Success}
 
 trait BurstDashCatalogUpdate extends Any {
   self: BurstDashEndpointBase =>

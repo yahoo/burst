@@ -101,16 +101,4 @@ class MockWorkerContainerContext(logFile: String) extends FabricWorkerContainerC
     this
   }
 
-  override
-  def registerWorker(): FabricWorker = {
-    containerId match {
-      case None =>
-        super.registerWorker()
-      case Some(id) =>
-        // fakeout worker with id...
-        val name = getPublicHostName
-        FabricWorker(id, moniker = name, nodeName = name, getPublicHostAddress)
-    }
-  }
-
 }

@@ -9,25 +9,15 @@ import org.burstsys.fabric.execution.master.FabricMasterExecution
 import org.burstsys.fabric.metadata.master.FabricMasterMetadata
 import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.net.server.FabricNetServer
-import org.burstsys.fabric.topology.master.{FabricMasterTopology, FabricTopologyReporter}
-import org.burstsys.fabric.topology.model.node.master.FabricMaster
+import org.burstsys.fabric.topology.master.FabricMasterTopology
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandaloneServer, VitalsStandardServer}
-import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
 
 import scala.language.postfixOps
-import scala.util.{Failure, Success}
 
 /**
  * the one per JVM top level container for a Fabric Master
  */
 trait FabricMasterContainer extends FabricContainer {
-
-  /**
-   * the  [[FabricMaster]] metadata type for this local master instance
-   *
-   * @return
-   */
-  def master: FabricMaster
 
   /**
    * the master network
@@ -105,15 +95,9 @@ class FabricMasterContainerContext(netConfig: FabricNetworkConfig) extends Fabri
   private[this]
   var _listener: FabricMasterListener = _
 
-  private[this]
-  var _master: FabricMaster = _
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // hookups
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override
-  def master: FabricMaster = _master
 
   override
   def netServer: FabricNetServer = _net
@@ -139,11 +123,8 @@ class FabricMasterContainerContext(netConfig: FabricNetworkConfig) extends Fabri
     synchronized {
       ensureNotRunning
 
-      // register the master
-      _master = registerMaster()
-
       if (containerId.isEmpty) {
-        containerId = master.nodeId
+        containerId = System.currentTimeMillis()
       }
 
       // make sure that subtype has already defined metadata lookup and stores before calling this super start
@@ -199,16 +180,5 @@ class FabricMasterContainerContext(netConfig: FabricNetworkConfig) extends Fabri
     _listener = listener
     this
   }
-
-  private
-  def registerMaster(): FabricMaster = {
-    val nodeMoniker = configuration.burstFabricMonikerProperty.getOrThrow
-    val cellMoniker = org.burstsys.vitals.configuration.burstCellNameProperty.getOrThrow
-    metadata.lookup.masterRegistration(cellMoniker, nodeMoniker, getPublicHostName, getPublicHostAddress) match {
-      case Success(master) => master
-      case Failure(t) => throw t
-    }
-  }
-
 }
 

@@ -2,13 +2,9 @@
 package org.burstsys.catalog
 
 import org.burstsys.catalog.model.account.CatalogCannedAccount
-import org.burstsys.catalog.model.cell._
 import org.burstsys.catalog.model.domain._
-import org.burstsys.catalog.model.master.CatalogCannedMaster
 import org.burstsys.catalog.model.query.CatalogCannedQuery
-import org.burstsys.catalog.model.site.CatalogCannedSite
 import org.burstsys.catalog.model.view.CatalogCannedView
-import org.burstsys.catalog.model.worker.CatalogCannedWorker
 import org.burstsys.catalog.persist.CatalogSqlProvider
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.logging._
@@ -29,19 +25,11 @@ package object canned extends VitalsLogger {
   trait CatalogCan {
     def accounts: Array[CatalogCannedAccount] = Array.empty
 
-    def sites: Array[CatalogCannedSite] = Array.empty
-
-    def cells: Array[CatalogCannedCell] = Array.empty
-
     def domains: Array[CatalogCannedDomain] = Array.empty
 
     def views: Array[CatalogCannedView] = Array.empty
 
     def queries: Array[CatalogCannedQuery] = Array.empty
-
-    def masters: Array[CatalogCannedMaster] = Array.empty
-
-    def workers: Array[CatalogCannedWorker] = Array.empty
   }
 
   val defaultMotif: String =

@@ -3,13 +3,10 @@ package org.burstsys.system.canned
 
 import org.burstsys.catalog.canned
 import org.burstsys.catalog.canned.CatalogCan
-import org.burstsys.catalog.model.cell._
 import org.burstsys.catalog.model.domain._
-import org.burstsys.catalog.model.site.CatalogCannedSite
 import org.burstsys.catalog.model.view._
 import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
-import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
+import org.burstsys.samplestore.api.{SampleStoreSourceNameProperty, SampleStoreSourceVersionProperty}
 
 final class Catalog_GQ1_C2_SSCan extends CatalogCan {
 
@@ -18,18 +15,6 @@ final class Catalog_GQ1_C2_SSCan extends CatalogCan {
     SampleStoreSourceNameProperty -> "AppEventsBrio",
     SampleStoreSourceVersionProperty -> "0.0"
   )
-
-  override def sites: Array[CatalogCannedSite] = {
-    Array(
-      CatalogCannedSite("GQ1_SS")
-    )
-  }
-
-  override def cells: Array[CatalogCannedCell] = {
-    Array(
-      CatalogCannedCell("GQ1_C2", "GQ1_SS")
-    )
-  }
 
   override def domains: Array[CatalogCannedDomain] = {
     Array(

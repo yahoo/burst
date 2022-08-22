@@ -3,15 +3,12 @@ package org.burstsys.master.test.support
 
 import org.burstsys.catalog.CatalogService.CatalogMasterConfig
 import org.burstsys.catalog.CatalogUtilManager
-import org.burstsys.catalog.configuration.burstCatalogDbHostProperty
-import org.burstsys.catalog.configuration.burstCatalogDbPasswordProperty
-import org.burstsys.catalog.configuration.burstCatalogDbUserProperty
+import org.burstsys.catalog.configuration.{burstCatalogDbHostProperty, burstCatalogDbPasswordProperty, burstCatalogDbUserProperty}
 import org.burstsys.master.configuration.burstMasterPropertiesFileProperty
 import org.burstsys.vitals.configuration.burstCellNameProperty
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
-import org.burstsys.vitals.logging.VitalsLog
-import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.{VitalsLog, burstStdMsg}
 
 /**
  * Burst Util Main is the entry point for the Command Line Interface for the system.  It is used for
@@ -132,7 +129,6 @@ object BurstUtilMain {
           case "catalog_setup_cell" =>
             try {
               val util = CatalogUtilManager(CatalogMasterConfig)
-              util.createCell(arguments.cellName)
               util.cleanUp()
               log info burstStdMsg(s"Cell '${arguments.cellName}' setup complete")
             } catch safely {

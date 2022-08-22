@@ -1,8 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.topology.master
 
-import java.util.concurrent.ConcurrentHashMap
-
 import org.burstsys.fabric.configuration._
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
 import org.burstsys.fabric.net.server.FabricNetServerListener
@@ -11,9 +9,10 @@ import org.burstsys.fabric.topology.model.node.FabricNode
 import org.burstsys.fabric.topology.model.node.worker.{FabricWorkerNode, FabricWorkerProxy}
 import org.burstsys.vitals.git
 import org.burstsys.vitals.instrument._
-
-import scala.collection.JavaConverters._
 import org.burstsys.vitals.logging._
+
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConverters._
 
 /**
  * This is where workers are collected, ranked, organized, and distributed to interested parties
@@ -192,7 +191,7 @@ trait FabricTopologyTender extends AnyRef with FabricNetServerListener {
               if (!requireHomogeneity || worker.commitId == git.commitId)
                 log info s"TOPO_RECONNECT_WORKER $workerKey $tag"
           }
-          val worker = FabricWorkerProxy(connection, gitCommit, container.metadata.lookup.workerLookup(connection.clientKey.nodeId))
+          val worker = FabricWorkerProxy(connection, gitCommit)
           if (!requireHomogeneity || gitCommit == git.commitId) {
             addWorker(worker)
           } else {

@@ -1,12 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog.api.server
 
-import org.burstsys.api.{BurstApiServer, ApiTwitterRequestFuture}
+import com.twitter.util.Future
+import org.burstsys.api.{ApiTwitterRequestFuture, BurstApiServer}
 import org.burstsys.catalog.CatalogExceptions.{CatalogInvalidException, CatalogNotFoundException}
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.api.BurstCatalogApiStatus.{BurstCatalogApiException, BurstCatalogApiInvalid, BurstCatalogApiNotFound}
 import org.burstsys.catalog.api._
-import com.twitter.util.Future
 
 import scala.util.{Failure, Success, Try}
 
@@ -15,9 +15,8 @@ import scala.util.{Failure, Success, Try}
   */
 final case
 class CatalogApiServer(service: CatalogService) extends BurstApiServer
-  with CatalogApi with CatalogSiteApiReactor
-  with CatalogCellApiReactor with CatalogDomainApiReactor with CatalogViewApiReactor
-  with CatalogQueryApiReactor with CatalogWorkerApiReactor with CatalogMasterApiReactor {
+  with CatalogApi with  CatalogDomainApiReactor with CatalogViewApiReactor
+  with CatalogQueryApiReactor {
 
   def mapResponse[U, R](data: => Try[U], success: U => R, failure: BurstCatalogApiResult => R = null): Future[R] = {
     ensureRunning

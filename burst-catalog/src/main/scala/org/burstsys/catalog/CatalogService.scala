@@ -9,13 +9,9 @@ import org.burstsys.catalog.api.server.CatalogApiServer
 import org.burstsys.catalog.canned.{CatalogCannedProvider, CatalogCannedService}
 import org.burstsys.catalog.configuration.{CatalogApiProperties, burstCatalogCannedImportStandaloneOnlyProperty}
 import org.burstsys.catalog.model.account._
-import org.burstsys.catalog.model.cell._
 import org.burstsys.catalog.model.domain._
-import org.burstsys.catalog.model.master._
 import org.burstsys.catalog.model.query._
-import org.burstsys.catalog.model.site._
 import org.burstsys.catalog.model.view._
-import org.burstsys.catalog.model.worker._
 import org.burstsys.catalog.persist.CatalogSqlProvider
 import org.burstsys.catalog.provider._
 import org.burstsys.fabric.metadata.model.FabricMetadataLookup
@@ -24,9 +20,7 @@ import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateDialect, RelateMyS
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandaloneServer, VitalsStandardClient, VitalsStandardServer}
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
 import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
-import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties.VitalsPropertyMap
 import scalikejdbc.{DBConnection, GlobalSettings, LoggingSQLAndTimeSettings}
 
@@ -117,315 +111,6 @@ trait CatalogService extends VitalsService with CatalogApiProperties {
     * @return
     */
   def searchQueriesByLabel(label: String, value: Option[String] = None, limit: Option[Int] = None): Try[Array[CatalogQuery]]
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-  // Masters
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def findMasterByPk(key: Long): Try[CatalogMaster]
-
-  /**
-    *
-    * @param moniker
-    * @return
-    */
-  def findMasterByMoniker(moniker: String): Try[CatalogMaster]
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def deleteMaster(key: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param siteFk
-    * @return
-    */
-  def deleteMastersForSite(siteFk: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param cellFk
-    * @return
-    */
-  def deleteMastersForCell(cellFk: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param master
-    * @return
-    */
-  def insertMaster(master: CatalogMaster): Try[RelatePk]
-
-  /**
-    *
-    * @param master
-    * @return
-    */
-  def updateMaster(master: CatalogMaster): Try[CatalogMaster]
-
-  /**
-    *
-    * @return
-    */
-  def allMasters(limit: Option[Int] = None): Try[Array[CatalogMaster]]
-
-  /**
-    *
-    * @param siteFk
-    * @param limit
-    * @return
-    */
-  def allMastersForSite(siteFk: RelatePk, limit: Option[Int] = None): Try[Array[CatalogMaster]]
-
-  /**
-    *
-    * @param cellFk
-    * @param limit
-    * @return
-    */
-  def allMastersForCell(cellFk: RelatePk, limit: Option[Int] = None): Try[Array[CatalogMaster]]
-
-  /**
-    *
-    * @param descriptor
-    * @return
-    */
-  def searchMasters(descriptor: String, limit: Option[Int] = None): Try[Array[CatalogMaster]]
-
-  /**
-    *
-    * @param label
-    * @return
-    */
-  def searchMastersByLabel(label: String, value: Option[String] = None, limit: Option[Int] = None): Try[Array[CatalogMaster]]
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-  // Workers
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def findWorkerByPk(key: Long): Try[CatalogWorker]
-
-  /**
-    *
-    * @param moniker
-    * @return
-    */
-  def findWorkerByMoniker(moniker: String): Try[CatalogWorker]
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def deleteWorker(key: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param siteFk
-    * @return
-    */
-  def deleteWorkersForSite(siteFk: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param cellFk
-    * @return
-    */
-  def deleteWorkersForCell(cellFk: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param worker
-    * @return
-    */
-  def insertWorker(worker: CatalogWorker): Try[RelatePk]
-
-  /**
-    *
-    * @param worker
-    * @return
-    */
-  def updateWorker(worker: CatalogWorker): Try[CatalogWorker]
-
-  /**
-    *
-    * @return
-    */
-  def allWorkers(limit: Option[Int] = None): Try[Array[CatalogWorker]]
-
-  /**
-    *
-    * @param siteFk
-    * @param limit
-    * @return
-    */
-  def allWorkersForSite(siteFk: RelatePk, limit: Option[Int] = None): Try[Array[CatalogWorker]]
-
-  /**
-    *
-    * @param cellFk
-    * @param limit
-    * @return
-    */
-  def allWorkersForCell(cellFk: RelatePk, limit: Option[Int] = None): Try[Array[CatalogWorker]]
-
-  /**
-    *
-    * @param descriptor
-    * @return
-    */
-  def searchWorkers(descriptor: String, limit: Option[Int] = None): Try[Array[CatalogWorker]]
-
-  /**
-    *
-    * @param label
-    * @return
-    */
-  def searchWorkersByLabel(label: String, value: Option[String] = None, limit: Option[Int] = None): Try[Array[CatalogWorker]]
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-  // Sites
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def findSiteByPk(key: Long): Try[CatalogSite]
-
-  /**
-    *
-    * @param moniker
-    * @return
-    */
-  def findSiteByMoniker(moniker: String): Try[CatalogSite]
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def deleteSite(key: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param site
-    * @return
-    */
-  def insertSite(site: CatalogSite): Try[RelatePk]
-
-  /**
-    *
-    * @param site
-    * @return
-    */
-  def updateSite(site: BurstCatalogApiSite): Try[CatalogSite]
-
-  /**
-    *
-    * @return
-    */
-  def allSites(limit: Option[Int] = None): Try[Array[CatalogSite]]
-
-  /**
-    *
-    * @param descriptor
-    * @return
-    */
-  def searchSites(descriptor: String, limit: Option[Int] = None): Try[Array[CatalogSite]]
-
-  /**
-    *
-    * @param label
-    * @return
-    */
-  def searchSitesByLabel(label: String, value: Option[String] = None, limit: Option[Int] = None): Try[Array[CatalogSite]]
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-  // Cells
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def findCellByPk(key: Long): Try[CatalogCell]
-
-  /**
-    *
-    * @param moniker
-    * @return
-    */
-  def findCellByMoniker(moniker: String): Try[CatalogCell]
-
-  /**
-    *
-    * @param key
-    * @return
-    */
-  def deleteCell(key: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param siteFk
-    * @return
-    */
-  def deleteCellsForSite(siteFk: Long): Try[RelatePk]
-
-  /**
-    *
-    * @param cell
-    * @return
-    */
-  def insertCell(cell: CatalogCell): Try[RelatePk]
-
-  /**
-    *
-    * @param cell
-    * @return
-    */
-  def updateCell(cell: BurstCatalogApiCell): Try[CatalogCell]
-
-  /**
-    *
-    * @return
-    */
-  def allCells(limit: Option[Int] = None): Try[Array[CatalogCell]]
-
-  /**
-    *
-    * @return
-    */
-  def allCellsForSite(siteFk: RelatePk, limit: Option[Int] = None): Try[Array[CatalogCell]]
-
-  /**
-    *
-    * @param descriptor
-    * @return
-    */
-  def searchCells(descriptor: String, limit: Option[Int] = None): Try[Array[CatalogCell]]
-
-  /**
-    *
-    * @param label
-    * @return
-    */
-  def searchCellsByLabel(label: String, value: Option[String] = None, limit: Option[Int] = None): Try[Array[CatalogCell]]
 
   /////////////////////////////////////////////////////////////////////////////////////////
   // Domains
@@ -714,9 +399,9 @@ object CatalogService {
 
 private[catalog] final case
 class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef with CatalogService
-  with CatalogAccountReactor with CatalogCellReactor with CatalogDomainReactor with CatalogSiteReactor
-  with CatalogQueryReactor with CatalogSearchReactor with CatalogViewReactor with CatalogWorkerReactor
-  with CatalogMasterReactor with CatalogSqlConsumer  with VitalsHealthMonitoredService {
+  with CatalogAccountReactor with CatalogDomainReactor
+  with CatalogQueryReactor with CatalogSearchReactor with CatalogViewReactor
+  with CatalogSqlConsumer  with VitalsHealthMonitoredService {
 
   override val serviceName: String = s"$cellName-catalog($configuration)"
 
@@ -737,12 +422,6 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
 
   private[this]
   val _cannedService: CatalogCannedService = CatalogCannedProvider(modality)
-
-  private[this]
-  lazy val defaultSitePk: Long = checkForSite()
-
-  private[this]
-  lazy val defaultCellPk: Long = checkForCell()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -792,9 +471,6 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
         loadCannedData(queryOnly = configuration.loadOnlyQueryCans)
       }
 
-      // force lazy initialization of default cell after we load canned data
-      val _ = defaultCellPk
-
     } else {
       _apiClient.start
     }
@@ -841,51 +517,6 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
     }
     connection localTx {
       implicit session => cannedService.loadCannedData(sql, queryOnly, addSecurity)
-    }
-  }
-
-  private
-  def checkForCell(): Long = {
-    if (modality.isClient) return 0
-    // find or insert the cell
-    this.findCellByMoniker(cellName) match {
-      case Failure(_) =>
-        // default site - just for unit tests
-        val sitePk = defaultSitePk
-        log info s"Creating cell entry for $cellName"
-        val cCell = CatalogCell(0, cellName, sitePk)
-        this.insertCell(cCell) match {
-          case Success(cellPk) =>
-            cellPk
-          case Failure(ex) =>
-            // really bad if we can't create a cell entry for our cell
-            log error burstStdMsg(s"Unable to create cell entry for $cellName", ex)
-            throw VitalsException(s"Unable to create default cell entry for $cellName", ex)
-        }
-      case Success(cell) =>
-        cell.pk
-    }
-  }
-
-  // Used only for unit tests
-  private
-  def checkForSite(): Long = {
-    if (modality.isClient) return 0
-    // find or insert the site
-    this.findSiteByMoniker(siteName) match {
-      case Failure(_) =>
-        log info s"Creating site entry for $siteName"
-        val cSite = CatalogSite(0, siteName)
-        this.insertSite(cSite) match {
-          case Success(sitePk) =>
-            sitePk
-          case Failure(ex) =>
-            // really bad if we can't create a cell entry for our cell
-            log error burstStdMsg(s"Unable to create site entry for $siteName", ex)
-            throw VitalsException(s"Unable to create default site entry for $siteName", ex)
-        }
-      case Success(site) =>
-        site.pk
     }
   }
 

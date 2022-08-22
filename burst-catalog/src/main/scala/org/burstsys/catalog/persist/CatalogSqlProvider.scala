@@ -3,13 +3,9 @@ package org.burstsys.catalog.persist
 
 import org.burstsys.catalog.CatalogSqlConsumer
 import org.burstsys.catalog.persist.account.CatalogAccountPersister
-import org.burstsys.catalog.persist.cell.CatalogCellPersister
 import org.burstsys.catalog.persist.domain.CatalogDomainPersister
-import org.burstsys.catalog.persist.master.CatalogMasterPersister
 import org.burstsys.catalog.persist.query.CatalogQueryPersister
-import org.burstsys.catalog.persist.site.CatalogSitePersister
 import org.burstsys.catalog.persist.view.CatalogViewPersister
-import org.burstsys.catalog.persist.worker.CatalogWorkerPersister
 import org.burstsys.relate.dialect.RelateDialect
 import org.burstsys.relate.provider.RelateProvider
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
@@ -27,14 +23,6 @@ class CatalogSqlProvider(service: CatalogSqlConsumer) extends RelateProvider {
   val accounts: CatalogAccountPersister = CatalogAccountPersister(this)
 
   val queries: CatalogQueryPersister = CatalogQueryPersister(this)
-
-  val sites: CatalogSitePersister = CatalogSitePersister(this)
-
-  val cells: CatalogCellPersister = CatalogCellPersister(this)
-
-  val workers: CatalogWorkerPersister = CatalogWorkerPersister(this)
-
-  val masters: CatalogMasterPersister = CatalogMasterPersister(this)
 
   val domains: CatalogDomainPersister = CatalogDomainPersister(this)
 
@@ -80,10 +68,6 @@ class CatalogSqlProvider(service: CatalogSqlConsumer) extends RelateProvider {
     Array(
       accounts,
       queries,
-      sites,
-      cells,
-      masters,
-      workers,
       domains,
       views
     ).foreach(registerPersister)

@@ -83,27 +83,6 @@ abstract class FabricMasterWorkerBaseSpec extends AnyFlatSpec with Suite with Ma
     workerContainers.foreach(_.stopIfNotAlreadyStopped)
   }
 
-  // lookup overrrides
-  override def masterRegistration(cellMoniker: String, nodeMoniker: String, name: VitalsHostName,
-                                  address: VitalsHostAddress): Try[FabricMaster] = {
-    Success(
-      FabricMaster(
-        masterId = 0,
-        masterNodeName = name,
-        masterNodeAddress = address,
-        masterPort = 0
-      )
-    )
-  }
-
-  override def workerRegistration(cellMoniker: String, nodeMoniker: String, name: VitalsHostName, address: VitalsHostAddress): Try[FabricWorker] = {
-    Success(
-      FabricWorker(0, nodeMoniker, name, address)
-    )
-  }
-
-  override def workerLookup(pk: FabricDomainKey): Try[FabricWorker] =  Failure(VitalsException("No database"))
-
   override def domainLookup(key: FabricDomainKey): Try[FabricDomain] = ???
 
   override def viewLookup(key: FabricViewKey, validate: Boolean): Try[FabricView] = ???

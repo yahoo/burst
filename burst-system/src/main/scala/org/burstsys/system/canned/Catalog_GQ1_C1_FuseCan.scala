@@ -4,27 +4,13 @@ package org.burstsys.system.canned
 import org.burstsys.alloy
 import org.burstsys.catalog.canned
 import org.burstsys.catalog.canned.CatalogCan
-import org.burstsys.catalog.model.cell.CatalogCannedCell
 import org.burstsys.catalog.model.domain.CatalogCannedDomain
-import org.burstsys.catalog.model.site.CatalogCannedSite
 import org.burstsys.catalog.model.view.CatalogCannedView
 import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
 
 import scala.language.postfixOps
 
 final class Catalog_GQ1_C1_FuseCan extends CatalogCan {
-
-  override def sites: Array[CatalogCannedSite] = {
-    Array(
-      CatalogCannedSite("GQ1_Fuse")
-    )
-  }
-
-  override def cells: Array[CatalogCannedCell] = {
-    Array(
-      CatalogCannedCell("GQ1_C1", "GQ1_Fuse")
-    )
-  }
 
   override def domains: Array[CatalogCannedDomain] = {
     Array(

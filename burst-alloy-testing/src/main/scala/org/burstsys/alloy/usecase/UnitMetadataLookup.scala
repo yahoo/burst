@@ -42,27 +42,4 @@ trait UnitMetadataLookup extends FabricMetadataLookup {
       case Some(v) => Success(false)
     }
   }
-
-  final override
-  def masterRegistration(cellMoniker: String, nodeMoniker: String,
-                         name: VitalsHostName, address: VitalsHostAddress): Try[FabricMaster] = {
-    Success(
-      FabricMaster(
-        masterId = 0,
-        masterNodeName = name,
-        masterNodeAddress = address,
-        masterPort = 0
-      )
-    )
-  }
-
-  final override
-  def workerRegistration(cellMoniker: String, nodeMoniker: String, name: VitalsHostName, address: VitalsHostAddress): Try[FabricWorker] = {
-    Success(
-      FabricWorker(0, nodeMoniker, name, address)
-    )
-  }
-
-  override def workerLookup(pk: FabricDomainKey): Try[FabricWorker] =  Failure(VitalsException("No database"))
-
 }

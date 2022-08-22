@@ -1,31 +1,22 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.endpoints.catalog
 
+import jakarta.ws.rs._
+import jakarta.ws.rs.core.{MediaType, Response}
 import org.burstsys.catalog.api.BurstCatalogApiQueryLanguageType
-import org.burstsys.catalog.model.cell._
 import org.burstsys.catalog.model.domain._
-import org.burstsys.catalog.model.master._
 import org.burstsys.catalog.model.query._
-import org.burstsys.catalog.model.site._
 import org.burstsys.catalog.model.view._
-import org.burstsys.catalog.model.worker._
 import org.burstsys.dash.application.BurstDashEndpointBase
 import org.burstsys.fabric
 import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.metadata
-import org.burstsys.fabric.topology.model.node.UnknownFabricNodePort
 import org.burstsys.motif.Metadata
-import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
-import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
+import org.burstsys.samplestore.api.{SampleStoreSourceNameProperty, SampleStoreSourceVersionProperty}
 import org.burstsys.vitals.errors.VitalsException
 
-import jakarta.ws.rs._
-import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 /**
  * Endpoints for creating new catalog object

@@ -11,21 +11,6 @@ package object server extends VitalsLogger {
     def apply(pk: Option[RelatePk] = None): BurstCatalogApiEntityPkResponse = BurstCatalogApiEntityPkResponse(Result(), pk)
   }
 
-  object SiteResponse {
-    def apply(result: BurstCatalogApiResult): BurstCatalogApiSiteResponse = BurstCatalogApiSiteResponse(result)
-
-    def apply(site: Option[BurstCatalogApiSite] = None, sites: Option[Seq[BurstCatalogApiSite]] = None): BurstCatalogApiSiteResponse
-    = BurstCatalogApiSiteResponse(Result(), site, sites)
-  }
-
-
-  object CellResponse {
-    def apply(result: BurstCatalogApiResult): BurstCatalogApiCellResponse = BurstCatalogApiCellResponse(result)
-
-    def apply(cell: Option[BurstCatalogApiCell] = None, cells: Option[Seq[BurstCatalogApiCell]] = None): BurstCatalogApiCellResponse
-    = BurstCatalogApiCellResponse(Result(), cell, cells)
-  }
-
   object DomainResponse {
     def apply(result: BurstCatalogApiResult): BurstCatalogApiDomainResponse = BurstCatalogApiDomainResponse(result)
 
@@ -38,14 +23,6 @@ package object server extends VitalsLogger {
     def apply(domain: Option[BurstCatalogApiDomain] = None,
               views: Option[Seq[BurstCatalogApiView]] = None): BurstCatalogApiDomainAndViewsResponse
     = BurstCatalogApiDomainAndViewsResponse(Result(), domain, views)
-  }
-
-  object MasterResponse {
-    def apply(result: BurstCatalogApiResult): BurstCatalogApiMasterResponse = BurstCatalogApiMasterResponse(result)
-
-    def apply(master: Option[BurstCatalogApiMaster] = None,
-              masters: Option[Seq[BurstCatalogApiMaster]] = None): BurstCatalogApiMasterResponse
-    = BurstCatalogApiMasterResponse(Result(), master, masters)
   }
 
   object QueryResponse {
@@ -63,15 +40,6 @@ package object server extends VitalsLogger {
               views: Option[Seq[BurstCatalogApiView]] = None): BurstCatalogApiViewResponse
     = BurstCatalogApiViewResponse(Result(), view, views)
   }
-
-  object WorkerResponse {
-    def apply(result: BurstCatalogApiResult): BurstCatalogApiWorkerResponse = BurstCatalogApiWorkerResponse(result)
-
-    def apply(worker: Option[BurstCatalogApiWorker] = None,
-              workers: Option[Seq[BurstCatalogApiWorker]] = None): BurstCatalogApiWorkerResponse
-    = BurstCatalogApiWorkerResponse(Result(), worker, workers)
-  }
-
 
   object Result {
     def apply(status: BurstCatalogApiStatus = BurstCatalogApiSuccess): BurstCatalogApiResult = BurstCatalogApiResult(status)

@@ -72,27 +72,6 @@ abstract class FabricCacheOpsBaseSpec extends AnyFlatSpec with Suite with org.sc
     workerContainer2.stop
   }
 
-  // lookup overrides
-  override def masterRegistration(cellMoniker: String, nodeMoniker: String, name: VitalsHostName,
-                                  address: VitalsHostAddress): Try[FabricMaster] = {
-    Success(
-      FabricMaster(
-        masterId = 0,
-        masterNodeName = name,
-        masterNodeAddress = address,
-        masterPort = 0
-      )
-    )
-  }
-
-  override def workerRegistration(cellMoniker: String, nodeMoniker: String, name: VitalsHostName, address: VitalsHostAddress): Try[FabricWorker] = {
-    Success(
-      FabricWorker(1, name, name, address)
-    )
-  }
-
-  override def workerLookup(pk: FabricDomainKey): Try[FabricWorker] =  Failure(VitalsException("No database"))
-
   override def domainLookup(key: FabricDomainKey): Try[FabricDomain] = ???
 
   override def viewLookup(key: FabricViewKey, validate: Boolean): Try[FabricView] = ???

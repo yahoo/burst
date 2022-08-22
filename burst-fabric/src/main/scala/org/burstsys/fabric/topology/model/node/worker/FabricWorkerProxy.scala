@@ -87,13 +87,13 @@ trait FabricWorkerProxy extends FabricWorkerNode with VitalsJsonRepresentable[Js
 
 object FabricWorkerProxy {
 
-  def apply(connection: FabricNetServerConnection, gitCommit: String, fromDb: Try[FabricWorker]): FabricWorkerProxy =
-    FabricWorkerProxyContext(connection, gitCommit, fromDb.toOption)
+  def apply(connection: FabricNetServerConnection, gitCommit: String): FabricWorkerProxy =
+    FabricWorkerProxyContext(connection, gitCommit)
 
 }
 
 private[fabric] final case
-class FabricWorkerProxyContext(connection: FabricNetServerConnection, commitId: String, stored: Option[FabricWorker])
+class FabricWorkerProxyContext(connection: FabricNetServerConnection, commitId: String)
   extends FabricWorkerProxy {
 
   override def toString: String = s"FabricWorkerProxy(nodeName=$nodeName, nodeAddress=$nodeAddress, masterPort=$fabricPort)"
@@ -143,10 +143,10 @@ class FabricWorkerProxyContext(connection: FabricNetServerConnection, commitId: 
   def nodeId: FabricNodeId = connection.clientKey.nodeId
 
   override
-  lazy val nodeName: VitalsHostName = stored.map(_.nodeName).getOrElse(convertHostAddressToHostname(nodeAddress))
+  lazy val nodeName: VitalsHostName = convertHostAddressToHostname(nodeAddress)
 
   override
-  lazy val nodeMoniker: VitalsHostName = stored.map(_.nodeMoniker).getOrElse("Unknown Node")
+  lazy val nodeMoniker: VitalsHostName = nodeName
 
   override
   def nodeAddress: VitalsHostAddress = connection.remoteAddress

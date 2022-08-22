@@ -72,28 +72,4 @@ case class FabricMasterContext(
     masterPort = input.readInt
     // TODO ADD masterProperties
   }
-
-  /*
-    ///////////////////////////////////////////////////////////////////
-    // JAVA SERIALIZATION - for spark transfer - to be deprecated at some point
-    ///////////////////////////////////////////////////////////////////
-
-    def this() = this(UnknownFabricNodeId, null, null, UnknownFabricNodePort, null)
-
-    override
-    def readExternal(input: ObjectInput): Unit = {
-      super.readExternal(input)
-      masterPort = input.readInt()
-      // TODO ADD masterProperties
-    }
-
-    override
-    def writeExternal(out: ObjectOutput): Unit = {
-      super.writeExternal(out)
-      out.writeInt(masterPort)
-      // TODO ADD masterProperties
-    }
-  */
-
-
 }
