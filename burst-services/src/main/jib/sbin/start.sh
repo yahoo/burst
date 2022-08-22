@@ -30,7 +30,19 @@ if [ "${LOG_LEVEL}" == "" ]; then
     LOG_LEVEL="INFO"
 fi
 
+# make sure important dirs exist
+mkdir -p ${BURST_HOME}/logs/dump
 mkdir -p ${BURST_HOME}/classpath-files
+if [ "${SPINDLE_DIR}" == "" ]; then
+    SPINDLE_DIR=${BURST_HOME}/data1/burst
+fi
+mkdir -p ${SPINDLE_DIR}
+
+# allow for late variable substitution in these environment variables
+# because docker is so finicky about the timing.
+eval "SSL_CERT_PATH=${SSL_CERT_PATH}"
+eval "SSL_KEY_PATH=${SSL_KEY_PATH}"
+eval "SSL_CERT_BUNDLE_PATH=${SSL_CERT_BUNDLE_PATH}"
 
 # Customization hook
 if [ -f "$BURST_HOME/sbin/pre-start.sh" ]; then
