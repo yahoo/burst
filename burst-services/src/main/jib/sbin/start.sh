@@ -35,6 +35,7 @@ fi
 eval "SSL_CERT_PATH=${SSL_CERT_PATH}"
 eval "SSL_KEY_PATH=${SSL_KEY_PATH}"
 eval "SSL_CERT_BUNDLE_PATH=${SSL_CERT_BUNDLE_PATH}"
+eval "BURST_SUPERVISOR_HOST=${BURST_SUPERVISOR_HOST}"
 
 # make sure important dirs exist
 mkdir -p ${BURST_HOME}/logs/dump
