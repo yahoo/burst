@@ -1,7 +1,4 @@
-![Burst](../../doc/burst_small.png "")
---
-
-![](../doc/eql.png "")
+![Burst](../../documentation/burst_h_small.png "") ![](../doc/eql_small.png "")
 
 
 ___EQL___ is a high level query language for exploring data in the BURST system.

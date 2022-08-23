@@ -1,4 +1,4 @@
-![Burst](../../../documentation/burst_small.png)
+![Burst](../../../documentation/burst_h_small.png)
 
 # `Burst Data Structure Architecture`
 The combination of our dependency on a standard JVM runtime

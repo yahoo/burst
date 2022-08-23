@@ -1,4 +1,4 @@
-![Burst](../doc/burst_small.png "") ![](../../doc/hydra_small.png "")
+![Burst](../../../documentation/burst_h_small.png "") ![](../../doc/hydra_small.png "")
 --
 
 ![](../../../burst-zap/doc/cubes.png "")

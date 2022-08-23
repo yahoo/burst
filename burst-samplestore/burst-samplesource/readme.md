@@ -1,3 +1,3 @@
-![Burst](../../doc/burst_small.png "")
+![Burst](../../documentation/burst_h_small.png "")
 
 # Burst Samplesource

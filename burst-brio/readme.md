@@ -1,7 +1,7 @@
-![Burst](../doc/burst_small.png "")
+![Burst](../documentation/burst_h_small.png "")
 
 
-![Burst](./doc/brio.png "")
+![Brio](./doc/brio.png "")
 
 ___Brio___ is Burst's data model.
 

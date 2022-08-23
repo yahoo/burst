@@ -1,4 +1,4 @@
-![Burst](../../../delete/open-source/doc/burst.png "") 
+![Burst](../../../delete/open-source/doc/burst_h.png "") 
 
 ---
 [`Why Burst`](whatwhyhow/burst_whatwhyhow.md) [`Get Started`](boot/burst_get_started.md) [`Use Cases`](usecase/burst_use_cases.md) [`Architecture`](architecture/burst_architecture.md) [`Documentation`](burst_documentation.md) [`Blog`](blog/burst_blog.md)

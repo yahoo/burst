@@ -1,5 +1,6 @@
-![Burst](../../../../../../../../../../doc/burst_small.png "")
-![](../../../../../../../../../doc/felt_small.png "")
+![Burst](../../../../../../../../../documentation/burst_h_small.png "")
+![](../../../../../../../../doc/felt_small.png "")
+
 
 # Control Verbs
 Control verbs provide _control_ of Brio subtree data collection

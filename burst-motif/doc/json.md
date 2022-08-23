@@ -1,4 +1,4 @@
-![Burst](../../doc/burst_small.png "") ![Yahoo](../../doc/yahoo_small.png "")
+![Burst](../../documentation/burst_h_small.png "") ![Yahoo](../../doc/yahoo_small.png "")
 
 _Motif:_ ```'recurring salient thematic element...'```
 

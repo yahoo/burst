@@ -1,5 +1,6 @@
-![Burst](../../../../../../../../../../doc/burst_small.png "")
-![](../../../../../../../../../doc/felt_small.png "")
+![Burst](../../../../../../../../../documentation/burst_h_small.png "")
+![](../../../../../../../../doc/felt_small.png "")
+
 
 # Frames
 A behavioral [Analysis](../analysis/readme.md) is a set of one or more Frames which

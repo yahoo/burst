@@ -1,4 +1,4 @@
-![Burst](documentation/burst.png "")
+![Burst](documentation/burst_h.png "")
 
 ## The Burst Behavioral Analysis Engine
 

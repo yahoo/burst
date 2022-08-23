@@ -1,4 +1,4 @@
-![Burst](../../../../delete/open-source/doc/burst_small.png "") 
+![Burst](../../../../delete/open-source/doc/burst_h_small.png "") 
 
 # `Burst Use Cases`
 

@@ -1,5 +1,6 @@
-![Burst](../../../../../../../../../../doc/burst_small.png "")
-![](../../../../../../../../../doc/felt_small.png "")
+![Burst](../../../../../../../../../documentation/burst_h_small.png "")
+![](../../../../../../../../doc/felt_small.png "")
+
 
 # Felt Mutables
 Mutables are one of a set of collection types that are used to implement all

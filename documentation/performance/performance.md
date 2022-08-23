@@ -1,4 +1,4 @@
-![Burst](../burst.png "")
+![Burst](../burst_h.png "")
 
 # `Burst performance and scaling`
 

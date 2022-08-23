@@ -1,4 +1,4 @@
-![Burst](burst.png "")
+![Burst](burst_h.png "")
 
 # `Burst Dependencies`
 We thank all the various open source projects we depend on from the 

@@ -1,4 +1,4 @@
-![Burst](../doc/burst_small.png "")
+![Burst](../documentation/burst_h_small.png "")
 --
 
 ![](./doc/nexus.png "")

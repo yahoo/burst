@@ -1,9 +1,9 @@
-![Burst](../doc/burst_small.png "")
+![Burst](../documentation/burst_h_small.png "")
 --
 
 ![](./doc/dash.png "")
 
-___Dash___ is a  [React](https://reactjs.org/)/[Redux](https://redux.js.org/)
+___Dash___ is a  [React](https://reactjs.org/) / [Redux](https://redux.js.org/)
 Javascript application that provides use friendly administration,
 authoring, & monitoring for the Burst ecosystem.
 This module depends heavily on the [Rest](../burst-rest/readme.md) module
