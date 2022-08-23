@@ -1,4 +1,4 @@
-![Burst](../../../../doc/burst_small.png)
+![Burst](../../../documentation/burst_small.png)
 
 # `Burst Language Architecture`
 
@@ -17,7 +17,7 @@ high performance `JIT` warmed scan closures that execute the intended semantics 
 `EQL` construction.
 
 ## The pipeline runtime
-![](../../../image/burst_pipeline.svg "")
+![](../../../documentation/image/burst_pipeline.svg "")
 The sequence of operations as depicted above are:
 1. **MASTER:**
     1. EQL source is received via the client library

@@ -1,4 +1,4 @@
-![Burst](../../../../doc/burst_small.png)
+![Burst](../../../documentation/burst_small.png)
 
 
 # `Burst Data Model Architecture`
@@ -137,7 +137,7 @@ The Brio schema is used by the lower level data systems. It has
 ![](../../../image/burst_pressing.svg)
 
 ## data organization/partitioning
-![](../../../image/burst_data_model.svg "")
+![](../../../documentation/image/burst_data_model.svg "")
 
 
 ### slices

@@ -1,4 +1,4 @@
-![Burst](doc/burst.png "")
+![Burst](documentation/burst.png "")
 
 ## The Burst Behavioral Analysis Engine
 
@@ -16,21 +16,21 @@ it does and is now available to you as an open source platform.
 ## is Burst for you?
 We suggest you start any effort to understand Burst and what it does
 is by first taking a look at how we define
-[Behavioral Analysis](doc/behavior/behavioral_analysis.md). This
+[Behavioral Analysis](documentation/behavior/behavioral_analysis.md). This
 is there to allow you to quickly understand
 if your data, and the questions you want to ask of it,
 match well what Burst does well. Then we
-suggest turning to the overview of the  Burst [Data Model](doc/data/data_model.md),
-the Burst [Execution Model](doc/execution/execution_model.md), and finally the Burst
-[Runtime Model](doc/runtime/runtime_model.md). These high level
+suggest turning to the overview of the  Burst [Data Model](documentation/data/data_model.md),
+the Burst [Execution Model](documentation/execution/execution_model.md), and finally the Burst
+[Runtime Model](documentation/runtime/runtime_model.md). These high level
 presentations should help you get a cleaner and deeper
 sense of what Burst is, how it works, and how you might envision it working for you.
 Extra credit to dig into a unique approach that Burst takes called the
-[Single Pass Scan](doc/singlepass/single_pass_scans.md), as well as
+[Single Pass Scan](documentation/singlepass/single_pass_scans.md), as well as
 high level discussions of
-[[Performance]](doc/performance/performance.md),
-[[Security]](doc/security/security.md),
-and [[Sampling]](doc/sampling/sampling.md)
+[[Performance]](documentation/performance/performance.md),
+[[Security]](documentation/security/security.md),
+and [[Sampling]](documentation/sampling/sampling.md)
 
 ## what Burst is not
 Equally important is to spend a moment clarifying what Burst is _not_...
@@ -101,14 +101,14 @@ data feed endpoints across numerous data nodes.
 ## digging deeper
 If you are still with us, and you want to understand and/or vette the implementation,
 we suggest you take a look at the
-[individual subsystem documentation](doc/subsystems.md) and
-as well as become familiar with our  [external dependencies](doc/dependencies.md).
+[individual subsystem documentation](documentation/subsystems.md) and
+as well as become familiar with our  [external dependencies](documentation/dependencies.md).
 
 ## next steps
 If you want to get close and personal we have a few more steps for you to take...
-* [build the Burst source tree](doc/building.md)
-* [play around with standalone Burst](doc/playing.md)
-* [launch Burst with your schema, your data, and your questions](doc/launchpad.md)
+* [build the Burst source tree](documentation/building.md)
+* [play around with standalone Burst](documentation/playing.md)
+* [launch Burst with your schema, your data, and your questions](documentation/launchpad.md)
 
 ---
 ------ [HOME](./readme.md) --------------------------------------------

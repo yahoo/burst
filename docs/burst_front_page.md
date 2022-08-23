@@ -49,7 +49,7 @@ It has the proven capability to juggle large numbers of peak sessions in a real
 world 24x7 cost-effective interactive service.
 
 # What does it take to run Burst with my data?
-![](../image/burst_front.svg "")
+![](../documentation/image/burst_front.svg "")
 
 
 ### Burst Cell (master/worker linux cluster)

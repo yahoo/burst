@@ -1,4 +1,4 @@
-![Burst](../../../doc/burst_small.png)
+![Burst](../../documentation/burst_small.png)
 
 # The Burst Architecture
 
