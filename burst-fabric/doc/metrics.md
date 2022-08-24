@@ -1,4 +1,4 @@
-![Burst](../doc/burst_small.png "") ![Burst](../fabric_small.png "")
+![Burst](../../doc/burst_small.png "") ![Burst](../fabric_small.png "")
 ---
 
 # Metrics

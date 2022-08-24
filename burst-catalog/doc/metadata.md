@@ -1,4 +1,4 @@
-![Burst](../doc/burst_small.png "") ![](./catalog_small.png "")
+![Burst](../../doc/burst_small.png "") ![](catalog_small.png "")
 --
 
 # Metadata

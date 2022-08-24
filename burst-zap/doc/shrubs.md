@@ -1,4 +1,4 @@
-![Burst](../..//doc/burst_small.png "") ![](./zap_small.png "")
+![Burst](../../doc/burst_small.png "")  ![](./zap_small.png "")
 
 ![](./shrubs.png "")
 

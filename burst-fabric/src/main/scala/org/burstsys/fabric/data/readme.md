@@ -1,5 +1,5 @@
-![Burst](../../../../../../../../../doc/burst_small.png "")
-![Burst](../../../../../../../../fabric_small.png "")
+![Burst](../../../../../../../../doc/burst_small.png "")
+![Fabric](../../../../../../../fabric_small.png "")
 
 # Fabric Data
 ## Fabric Distributed Data Model

@@ -1,4 +1,4 @@
-![Alloy Sample Source Server](../../../../../../../../../doc/burst_small.png "")
+![Alloy Sample Source Server](../../../../../../../../doc/burst_small.png "")
 --
 
 ___Alloy Source Server___ is an example sample source server that reads Json files, extracts data, transforms it into 

@@ -1,3 +1,4 @@
-![Burst](../../../../../../../../../../doc/burst_small.png "")
-![](../../../../../../../../../doc/felt_small.png "")
+![Burst](../../../../../../../../../doc/burst_small.png "")
+![Felt](../../../../../../../../doc/felt_small.png "")
+
 #Felt Types

@@ -1,4 +1,4 @@
-![Burst](../doc/burst_small.png "")
+![Burst](../../doc/burst_small.png "")
 
 
 ## Linux Kernel Config Issues

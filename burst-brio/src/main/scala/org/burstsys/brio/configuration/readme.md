@@ -1,5 +1,5 @@
-![Burst](../../../../../../../..//../doc/burst_small.png "")
-![](../../../../../../../../doc/brio_small.png "")
+![Burst](../../../../../../../../doc/burst_small.png "")
+![](../../../../../../../doc/brio_small.png "")
 
 # Brio Configuration
 
