@@ -1,0 +1,74 @@
+---
+annotations:
+    screwdriver.cd/restrictPR: fork
+shared:
+    image: openjdk:8
+    environment:
+        MAVEN_OPTS: -Xmx3G -Dscalatest.jvm.args='-Xmx9G'
+        REVISION: ''
+        MVN_FLAGS: -B --no-transfer-progress -Drevision=$REVISION
+        MVN_EXTRA_FLAGS: ''
+        MVN_TARGETS: -DwithTests -P shade-samplesource clean install
+    annotations:
+        screwdriver.cd/timeout: 40
+        screwdriver.cd/cpu: HIGH
+        screwdriver.cd/ram: HIGH
+    steps:
+        -   compute-context: &compute-context |
+                export SHORT_GIT_COMMIT=$(echo $SD_BUILD_SHA | cut -c1-7)
+                export BURST_BRANCH=$(echo $GIT_BRANCH | awk -F/ '{print $NF}')
+                if [ "$GIT_BRANCH" != "origin/main" ] && [ "$REVISION" == "" ]; then
+                    export REVISION=-beta-${BURST_BRANCH}
+                fi
+                export TIMESTAMP=$(date +%s)
+                export MVN_FLAGS="$MVN_FLAGS -Djib.to.tags=$TIMESTAMP"
+                export VERSION_LBL=$(./mvnw -q -ntp help:evaluate -Drevision=$REVISION -Dexpression=project.version -DforceStdout)
+                echo "REVISION=$REVISION"
+                echo "VERSION_LBL=$VERSION_LBL"
+                echo "BRANCH=$BURST_BRANCH"
+                echo "TIMESTAMP=$TIMESTAMP"
+        -   set-build-label: &set-build-label |
+                meta set label "${VERSION_LBL}"
+                echo "Build label: ${VERSION_LBL}"
+        -   build: &build-and-deploy |
+                echo "./mvnw $MVN_FLAGS $MVN_EXTRA_FLAGS $MVN_TARGETS"
+                ./mvnw $MVN_FLAGS $MVN_EXTRA_FLAGS $MVN_TARGETS
+jobs:
+    pr:
+        requires: [ ~pr ]
+
+    main:
+        requires: [ ~commit, build-base-image ]
+
+    base-image: &build-base-image
+        requires: [ ~commit ]
+        sourcePaths: [ "screwdriver.yaml", "docker/corretto" ]
+        image: docker:dind
+        annotations:
+            screwdriver.cd/dockerEnabled: true
+        environment:
+            JAVA_VERSION: 8
+        steps:
+            -   setup: &docker-setup |
+                    export TIMESTAMP=$(date +%s)
+
+                    # explain why we are building
+                    echo Build triggered by source=$SD_SOURCE_PATH
+            -   build: &docker-build |
+                    echo "docker build docker/corretto --progress=plain \
+                        --build-arg JAVA_VERSION=${JAVA_VERSION} \
+                        -t burst/corretto-burst:${JAVA_VERSION} \
+                        -t burst/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}"
+                    docker build docker/corretto --progress=plain \
+                        --build-arg JAVA_VERSION=${JAVA_VERSION} \
+                        -t burst/corretto-burst:${JAVA_VERSION} \
+                        -t burst/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}
+            -   push: |
+                    echo 'docker image push --all-tags burst/corretto-burst'
+
+    base-image-pr-build:
+        <<: *build-base-image
+        requires: [ ~pr ]
+        steps:
+            - setup: *docker-setup
+            - build: *docker-build

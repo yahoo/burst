@@ -11,6 +11,7 @@
 
     <properties>
         <artifact.skip-deploy>false</artifact.skip-deploy>
+        <corretto.version>8</corretto.version>
         <docker.app.dir>/app/burst</docker.app.dir>
         <dockerRepo/>
     </properties>
@@ -100,12 +101,9 @@
                         <configuration>
                             <to>
                                 <image>${dockerRepo}/burst-cell:${version}</image>
-                                <tags>
-                                    <tag>corretto-latest</tag>
-                                </tags>
                             </to>
                             <from>
-                                <image>${dockerRepo}/amazoncorretto8-build:latest</image>
+                                <image>${dockerRepo}/corretto-burst:${corretto.version}</image>
                                 <platforms>
                                     <platform>
                                         <architecture>amd64</architecture>
