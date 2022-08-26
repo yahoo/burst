@@ -15,6 +15,7 @@ shared:
         screwdriver.cd/ram: HIGH
     steps:
         -   compute-context: &compute-context |
+                readlink -f $(which sh)
                 export SHORT_GIT_COMMIT=${SD_BUILD_SHA:0:7}
                 export BURST_BRANCH=$(echo ${GIT_BRANCH#*/} | sed 's/[^a-zA-Z0-9]//g')
                 if [ "$GIT_BRANCH" != "origin/main" ] && [ "$REVISION" == "" ]; then
@@ -38,12 +39,14 @@ jobs:
         requires: [ ~pr ]
 
     main:
-        requires: [ ~commit ]
+        requires: [ ~commit, build-base-image ]
 
     build-base-image:
         requires: [ ~commit ]
         sourcePaths: [ "screwdriver.yaml", "docker/corretto" ]
         image: docker:dind
+        annotations:
+            screwdriver.cd/dockerEnabled: true
         environment:
             JAVA_VERSION: 8
         steps:
@@ -59,4 +62,3 @@ jobs:
                         -t burst/corretto-base:${JAVA_VERSION}-${TIMESTAMP}
             -   push: |
                     echo 'docker image push --all-tags burst/corretto-base'
-
