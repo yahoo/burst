@@ -15,7 +15,7 @@ shared:
         screwdriver.cd/ram: HIGH
     steps:
         -   compute-context: &compute-context |
-                export SHORT_GIT_COMMIT=${SD_BUILD_SHA:0:7}
+                export SHORT_GIT_COMMIT=$(echo $SD_BUILD_SHA | cut -c1-7)
                 export BURST_BRANCH=$(echo $GIT_BRANCH | awk -F/ '{print $NF}')
                 if [ "$GIT_BRANCH" != "origin/main" ] && [ "$REVISION" == "" ]; then
                     export REVISION=-beta-${BURST_BRANCH}
