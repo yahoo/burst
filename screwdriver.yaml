@@ -57,14 +57,14 @@ jobs:
             -   build: &docker-build |
                     echo "docker build docker/corretto --progress=plain \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
-                        -t burst/corretto-base:${JAVA_VERSION} \
-                        -t burst/corretto-base:${JAVA_VERSION}-${TIMESTAMP}"
+                        -t burst/corretto-burst:${JAVA_VERSION} \
+                        -t burst/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}"
                     docker build docker/corretto --progress=plain \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
-                        -t burst/corretto-base:${JAVA_VERSION} \
-                        -t burst/corretto-base:${JAVA_VERSION}-${TIMESTAMP}
+                        -t burst/corretto-burst:${JAVA_VERSION} \
+                        -t burst/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}
             -   push: |
-                    echo 'docker image push --all-tags burst/corretto-base'
+                    echo 'docker image push --all-tags burst/corretto-burst'
 
     base-image-pr-build:
         <<: *build-base-image
