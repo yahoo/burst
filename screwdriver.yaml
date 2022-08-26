@@ -16,7 +16,7 @@ shared:
     steps:
         -   compute-context: &compute-context |
                 export SHORT_GIT_COMMIT=${SD_BUILD_SHA:0:7}
-                export BURST_BRANCH=$(echo ${GIT_BRANCH##*/} | sed 's/[^a-zA-Z0-9]//g')
+                export BURST_BRANCH=$(echo $GIT_BRANCH | awk -F/ '{print $NF}')
                 if [ "$GIT_BRANCH" != "origin/main" ] && [ "$REVISION" == "" ]; then
                     export REVISION=-beta-${BURST_BRANCH}
                 fi
@@ -55,6 +55,10 @@ jobs:
                     # explain why we are building
                     echo Build triggered by source=$SD_SOURCE_PATH
             -   build: |
+                    echo "docker build docker/corretto \
+                        --build-arg JAVA_VERSION=${JAVA_VERSION} \
+                        -t burst/corretto-base:${JAVA_VERSION} \
+                        -t burst/corretto-base:${JAVA_VERSION}-${TIMESTAMP}"
                     docker build docker/corretto \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
                         -t burst/corretto-base:${JAVA_VERSION} \
