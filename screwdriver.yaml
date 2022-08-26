@@ -62,6 +62,6 @@ jobs:
             -   push: |
                     echo 'docker image push --all-tags burst/corretto-base'
 
-    pr-base-image:
+    base-image-pr-build:
         <<: *build-base-image
         requires: [ ~pr ]
