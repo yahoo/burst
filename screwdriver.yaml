@@ -55,11 +55,11 @@ jobs:
                     # explain why we are building
                     echo Build triggered by source=$SD_SOURCE_PATH
             -   build: |
-                    echo "docker build docker/corretto \
+                    echo "docker build docker/corretto --progress=plain \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
                         -t burst/corretto-base:${JAVA_VERSION} \
                         -t burst/corretto-base:${JAVA_VERSION}-${TIMESTAMP}"
-                    docker build docker/corretto \
+                    docker build docker/corretto --progress=plain \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
                         -t burst/corretto-base:${JAVA_VERSION} \
                         -t burst/corretto-base:${JAVA_VERSION}-${TIMESTAMP}
