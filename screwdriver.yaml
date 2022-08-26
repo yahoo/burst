@@ -2,7 +2,7 @@
 annotations:
     screwdriver.cd/restrictPR: fork
 shared:
-    image: openjdk:11
+    image: openjdk:8
     environment:
         MAVEN_OPTS: -Xmx3G -Dscalatest.jvm.args='-Xmx9G'
         REVISION: ''
@@ -49,12 +49,12 @@ jobs:
         environment:
             JAVA_VERSION: 8
         steps:
-            -   setup: |
+            -   setup: &docker-setup |
                     export TIMESTAMP=$(date +%s)
 
                     # explain why we are building
                     echo Build triggered by source=$SD_SOURCE_PATH
-            -   build: |
+            -   build: &docker-build |
                     echo "docker build docker/corretto --progress=plain \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
                         -t burst/corretto-base:${JAVA_VERSION} \
@@ -69,3 +69,6 @@ jobs:
     base-image-pr-build:
         <<: *build-base-image
         requires: [ ~pr ]
+        steps:
+            - setup: *docker-setup
+            - build: *docker-build
