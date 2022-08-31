@@ -9,7 +9,7 @@ package object configuration extends VitalsPropertyRegistry {
   val burstWorkerPropertiesFileProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.worker.properties.file",
     description = "Location of properties file containing environment specific variables",
-    exportToWorker = false, default = Some("burst-worker-local.properties")
+    default = Some("burst-worker-local.properties")
   )
 
 }

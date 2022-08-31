@@ -55,7 +55,8 @@ fi
 ######################################################
 # additional java options if desired such as heap size
 ######################################################
-containerOpts="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockDiagnosticVMOptions"
+containerOpts="--add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
+containerOpts="${containerOpts} -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockDiagnosticVMOptions"
 containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/burst-crash-%p.log"
 containerOpts="${containerOpts} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ERROR_DIR}"
 containerOpts="${containerOpts} -Xss2M -Xmx${JVM_HEAP}G -XX:MaxDirectMemorySize=${JVM_DIRECT}G"
@@ -84,6 +85,7 @@ if [ "${WORKLOAD}" = "supervisor" ]; then
     envConfig="${envConfig} -Dburst.fabric.master.host=${POD_IP}"
     envConfig="${envConfig} -Dburst.samplestore.api.host=${SAMPLESTORE_HOST}"
     envConfig="${envConfig} -Dburst.master.properties.file=supervisor.properties"
+    envConfig="${envConfig} -Dburst.liaison.keystore.password=${KEYSTORE_PASS}"
 
 elif [ "${WORKLOAD}" = "worker" ]; then
     mainClass="org.burstsys.worker.BurstWorkerMain"

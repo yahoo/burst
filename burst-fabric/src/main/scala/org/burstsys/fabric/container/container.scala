@@ -46,7 +46,7 @@ package object container extends VitalsLogger {
     val clazz = classes.head
     if (!containerClass.isAssignableFrom(clazz))
       throw VitalsException(s"annotation '${annotationClass.getSimpleName}' was not on '${containerClass.getSimpleName}' container class")
-    clazz.newInstance.asInstanceOf[FabricMasterContainer]
+    clazz.getDeclaredConstructor().newInstance().asInstanceOf[FabricMasterContainer]
   }
 
   /**
@@ -70,6 +70,6 @@ package object container extends VitalsLogger {
     val clazz = classes.head
     if (!containerClass.isAssignableFrom(clazz))
       throw VitalsException(s"annotation '${annotationClass.getSimpleName}' was not on '${containerClass.getSimpleName}' container class")
-    clazz.newInstance.asInstanceOf[FabricWorkerContainer]
+    clazz.getDeclaredConstructor().newInstance().asInstanceOf[FabricWorkerContainer]
   }
 }

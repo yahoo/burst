@@ -29,7 +29,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   val burstHomePageProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.liaison.homepage",
     description = "home page for UI",
-    exportToWorker = true, default = Some("burst.html")
+    default = Some("burst.html")
   )
 
   val burstRestUsesHttpsProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
@@ -49,8 +49,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   val burstRestSslKeystorePassword: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.liaison.keystore.password",
     description = "the keystore for the http server",
-    hidden = true,
-    exportToWorker = false,
+    sensitive = true,
     default = Some(KEYSTORE_SERVER_PWD)
   )
 

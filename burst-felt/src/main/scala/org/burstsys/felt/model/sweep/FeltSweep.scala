@@ -146,7 +146,7 @@ object FeltSweep extends FeltArtifactory[FeltAnalysisDecl, FeltSweepArtifact] {
       fetchArtifact(key = key, tag = tag, input = analysis).sweep
     } catch {
       case t: Throwable =>
-        throw FeltException(analysis.location, s"FELT_SWEEP_GEN_APPLY_FAIL $t $tag")
+        throw FeltException(analysis.location, s"FELT_SWEEP_GEN_APPLY_FAIL $t $tag", t)
     }
   }
 

@@ -22,4 +22,11 @@ package object properties extends VitalsPropertyRegistry {
     default = Some(10 minutes)
   )
 
+  val mockSensitiveProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.hidden.prop",
+    description = "Value should be redacted",
+    sensitive = true,
+    default = Some("You won't see me")
+  )
+
 }

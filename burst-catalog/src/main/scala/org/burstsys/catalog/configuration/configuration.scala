@@ -92,7 +92,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   val burstCatalogDbPasswordProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.catalog.db.password",
     description = "burst catalog sql db password",
-    hidden = true,
+    sensitive = true,
     default = Some("burst")
   )
 

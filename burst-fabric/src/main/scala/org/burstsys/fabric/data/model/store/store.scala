@@ -61,7 +61,7 @@ package object store extends VitalsLogger {
 
   private[fabric]
   lazy val storeProviders: Array[FabricStoreProvider[_, _]] = {
-    reflection.getSubTypesOf(classOf[FabricStoreProvider[_, _]]).asScala.map(_.newInstance).toArray
+    reflection.getSubTypesOf(classOf[FabricStoreProvider[_, _]]).asScala.map(_.getDeclaredConstructor().newInstance()).toArray
   }
 
 }

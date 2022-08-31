@@ -113,12 +113,13 @@ class RestServiceContext(
 
   def start: this.type = {
     ensureNotRunning
-    log info startingMessage
     val uri = UriBuilder.fromPath(url).build()
     val config = new BurstDashApplication(agent, catalog, master, profiler, torcher)
-    server = GrizzlyHttpServerFactory.createHttpServer(
-      uri, config, useHttps, new SSLEngineConfigurator(restSslContext).setClientMode(false), false
-    )
+    val sslConfig = new SSLEngineConfigurator(restSslContext).setClientMode(false)
+    log info startingMessage
+    log info s"Configured TLS protocols:     ${Option(sslConfig.getEnabledProtocols).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
+    log info s"Configured TLS cipher suites: ${Option(sslConfig.getEnabledCipherSuites).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
+    server = GrizzlyHttpServerFactory.createHttpServer(uri, config, useHttps, sslConfig, false)
     val addOn: WebSocketAddOn = new WebSocketAddOn()
     for (nl: NetworkListener <- server.getListeners.asScala) {
       nl.registerAddOn(addOn)

@@ -14,7 +14,7 @@ class ParsedFunnelImpl(val funnel: Funnel)(implicit globalContext: GlobalContext
   private val gLimit: Integer = if (funnel.getLimit != null && funnel.getLimit > 0)
     funnel.getLimit
   else
-    new Integer(100)
+    Integer.valueOf(100)
 
   override def getSchema: MotifSchema = funnel.getSchema
 

@@ -11,8 +11,7 @@ import org.burstsys.vitals.logging.burstStdMsg
 /**
  * The startup of a container is where the horizontal strata of top level
  * services are wired together. All configuration is done using [[org.burstsys.vitals.properties.VitalsPropertySpecification]]
- * instances. All of these have defaults, can be set in the VM command line, and are also sent to the
- * worker pods in their startup (if they have their ''exportToWorker'' flags set)
+ * instances. All of these have defaults, can be set in the VM command line
  */
 trait BurstSystemTestMasterStartup extends Any {
 

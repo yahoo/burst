@@ -11,7 +11,7 @@
 
     <properties>
         <artifact.skip-deploy>false</artifact.skip-deploy>
-        <corretto.version>8</corretto.version>
+        <corretto.version>11</corretto.version>
         <docker.app.dir>/app/burst</docker.app.dir>
         <dockerRepo/>
     </properties>

@@ -7,7 +7,6 @@ burst.common.git.validate.build=false
 burst.fabric.cache.spindles=$SPINDLE_DIR
 burst.fabric.cache.stale.hours=1
 burst.jfragent.enable=false
-burst.liaison.keystore.password=$KEYSTORE_PASS
 burst.liaison.keystore.path=$KEYSTORE_FILE
 # burst.liaison.port=
 burst.log4j2.name=kubernetes

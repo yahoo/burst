@@ -6,6 +6,8 @@ import org.burstsys.motif.motif.tree.constant.*;
 import org.burstsys.motif.motif.tree.values.BinaryValueComparisonOperator;
 import org.burstsys.motif.motif.tree.values.BinaryValueOperatorType;
 
+import static java.lang.Long.valueOf;
+
 public final class IntegerConstantContext extends NumberContext implements IntegerConstant {
 
     public IntegerConstantContext() {
@@ -28,7 +30,7 @@ public final class IntegerConstantContext extends NumberContext implements Integ
     @Override
     public BooleanConstant binaryBooleanCompare(BinaryValueComparisonOperator comparison, Constant rightConstant) {
         checkConstantIsNumber(rightConstant);
-        Long thisValue = new Long(this.getIntegerValue());
+        Long thisValue = Long.valueOf(this.getIntegerValue());
         Boolean result = null;
         switch (rightConstant.getDtype()) {
             case BYTE:

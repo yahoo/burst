@@ -14,7 +14,7 @@ class ParsedQueryImpl(val query: Query)(implicit globalContext: GlobalContext) e
   private val gLimit: Integer = if (query.getLimit != null && query.getLimit > 0)
     query.getLimit
   else
-    new Integer(100)
+    Integer.valueOf(100)
 
   override def getSchema: MotifSchema = query.getSchema
 

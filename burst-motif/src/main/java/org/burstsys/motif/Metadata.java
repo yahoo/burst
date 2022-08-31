@@ -113,7 +113,7 @@ public interface Metadata {
                 String loaderName = provider.getSimpleName();
                 log.info("Loading schema from '{}'", loaderName);
                 try {
-                    MotifSchemaProvider instance = provider.newInstance();
+                    MotifSchemaProvider instance = provider.getDeclaredConstructor().newInstance();
                     MotifSchema schema = schemaParser.parseSchema(instance.getSchema());
                     if (schema == null) {
                         log.warn("Failed to parse intrensic schema from '{}'", loaderName);

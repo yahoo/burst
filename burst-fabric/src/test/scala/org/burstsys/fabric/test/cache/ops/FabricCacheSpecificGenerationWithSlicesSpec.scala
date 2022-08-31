@@ -36,7 +36,7 @@ class FabricCacheSpecificGenerationWithSlicesSpec extends FabricCacheOpsBaseSpec
     val promise1 = Promise[FabricGather]
 
     // first make sure the worker is connected
-    newWorkerGate.await(10, TimeUnit.SECONDS) should equal(true)
+    newWorkerGate.await(30, TimeUnit.SECONDS) should equal(true)
 
     val quo: BrioSchema = BrioSchema("quo")
 

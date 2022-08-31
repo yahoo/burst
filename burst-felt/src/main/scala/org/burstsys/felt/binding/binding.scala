@@ -24,7 +24,7 @@ package object binding extends VitalsLogger {
     reflection.getSubTypesOf(classOf[FeltBinding]).forEach {
       bindClass =>
         try {
-          val binding = bindClass.newInstance()
+          val binding = bindClass.getDeclaredConstructor().newInstance()
           log info s"FELT_BINDING_MAP_FOUND ${binding.name}"
           map put (binding.name, binding)
         } catch {

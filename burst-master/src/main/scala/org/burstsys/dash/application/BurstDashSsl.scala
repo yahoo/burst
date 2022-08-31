@@ -5,9 +5,13 @@ import java.io.{File, FileInputStream, InputStream}
 import org.burstsys.dash.{BurstDashService, configuration}
 import com.google.common.io.ByteStreams
 import org.apache.commons.io.IOUtils
+import org.burstsys.vitals.errors.safely
 
 import javax.net.ssl.SSLContext
 import org.glassfish.jersey.SslConfigurator
+
+import java.io.ByteArrayInputStream
+import java.security.KeyStore
 
 /**
  * You don't need to specify a truststore, because there's a default value for it (it's bundled with the JRE),
@@ -21,11 +25,26 @@ trait BurstDashSsl {
       .collect({ case path if path.nonEmpty => new FileInputStream(new File(path)) })
       .getOrElse(defaultInsecureKeystore)
 
-    val sslConfigServer: SslConfigurator = SslConfigurator.newInstance()
-      .keyStoreBytes(IOUtils.toByteArray(keyStore))
-      .keyPassword(configuration.burstRestSslKeystorePassword.getOrThrow)
+    val keystoreBytes = IOUtils.toByteArray(keyStore)
+    val sslConfigurator: SslConfigurator = SslConfigurator.newInstance()
+      .keyStoreBytes(keystoreBytes)
+      .keyStorePassword(configuration.burstRestSslKeystorePassword.getOrThrow)
 
-    sslConfigServer.createSSLContext()
+    val keystorePath = configuration.burstRestSslKeystorePath.get.orNull
+    val passwordLength = configuration.burstRestSslKeystorePassword.get.map(_.length).getOrElse(-1)
+    try {
+      log debug s"Attempting to list keystore of assumed type '${KeyStore.getDefaultType}'"
+      log debug s"path=$keystorePath"
+      log debug s"password length=$passwordLength"
+      val ks = KeyStore.getInstance(KeyStore.getDefaultType)
+      ks.load(new ByteArrayInputStream(keystoreBytes), configuration.burstRestSslKeystorePath.getOrThrow.toCharArray)
+      log debug s"Found ${ks.size()} entries in keystore"
+    } catch safely {
+      case t: Throwable =>
+        log warn(s"Failed to list keystore entries for path=$keystorePath defaultType=${KeyStore.getDefaultType} passwordLength=$passwordLength", t)
+    }
+
+    sslConfigurator.createSSLContext()
   }
 
   private def defaultInsecureKeystore: InputStream = classOf[BurstDashService].getResourceAsStream(KEYSTORE_SERVER_FILE)

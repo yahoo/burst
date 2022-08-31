@@ -103,7 +103,7 @@ package object configuration extends VitalsPropertyRegistry {
   val burstFabricMonikerProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.fabric.moniker",
     description = "moniker of this node as registered in the catalog",
-    exportToWorker = false, default = Some(getPublicHostName)
+    default = Some(getPublicHostName)
   )
 
   val burstFabricPortProperty: VitalsPropertySpecification[VitalsHostPort] = VitalsPropertySpecification[VitalsHostPort](

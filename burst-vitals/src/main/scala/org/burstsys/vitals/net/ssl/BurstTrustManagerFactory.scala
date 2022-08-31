@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object BurstTrustManagerFactory {
-  private val PROVIDER: Provider = new Provider("", 0.0, "") {}
+  private val PROVIDER: Provider = new Provider("", "0.0", "") {}
 
   def apply(caChain: File): BurstTrustManagerFactory = {
     new BurstTrustManagerFactory(new BurstTrustManagerFactorySpi(caChain), PROVIDER)

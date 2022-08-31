@@ -88,7 +88,7 @@ class FeltCollectorBuilderContext extends AnyRef with FeltCollectorBuilder {
   final
   def newCollectorPlaneOnWorker(): FeltCollectorPlane[_, _] = {
     try {
-      collectorPlaneClass.newInstance.asInstanceOf[FeltCollectorPlane[_, _]].init(builder = this)
+      collectorPlaneClass.getDeclaredConstructor().newInstance().asInstanceOf[FeltCollectorPlane[_, _]].init(builder = this)
     } catch safely {
       case t: Throwable =>
         throw t

@@ -12,7 +12,7 @@ package object usecase extends VitalsLogger {
   lazy val alloyUseCases: Array[AlloyUseCase] = {
     reflection.getSubTypesOf(
       classOf[AlloyUseCase]
-    ).asScala.map(_.newInstance).toArray
+    ).asScala.map(_.getDeclaredConstructor().newInstance()).toArray
   }
 
 }

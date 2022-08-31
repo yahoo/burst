@@ -84,7 +84,7 @@ object SampleSourceHandler extends VitalsService {
     log info burstStdMsg(f"found ${scannedClasses.size}%,d sources(s)")
     scannedClasses.forEach {
       klass =>
-        val i = klass.newInstance
+        val i = klass.getDeclaredConstructor().newInstance()
         log info burstStdMsg(s"loading handler for schema '${i.id}'")
 
         if (_handlerNameMap.containsKey(i.id)) {

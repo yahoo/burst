@@ -28,7 +28,7 @@ package object kryo extends VitalsLogger {
   lazy val kryoClasses: Array[VitalsKryoClassPair] =
     reflection.getSubTypesOf(
       classOf[VitalsKryoCatalogProvider]
-    ).asScala.toList.flatMap(_.newInstance.kryoClasses).sortBy(_._1).toArray
+    ).asScala.toList.flatMap(_.getDeclaredConstructor().newInstance().kryoClasses).sortBy(_._1).toArray
 
   private val codecQueue: LinkedBlockingQueue[Kryo] = new LinkedBlockingQueue[Kryo]()
 

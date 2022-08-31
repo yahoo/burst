@@ -33,12 +33,6 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some("/home/burst")
   )
 
-  val burstSiteNameProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.site.name",
-    description = "site environment",
-    default = Some("local")
-  )
-
   val burstCellNameProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.cell.name",
     description = "cell environment",

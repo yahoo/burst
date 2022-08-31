@@ -1,19 +1,22 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.properties
 
-import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reflection
 import org.burstsys.vitals.strings._
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 trait VitalsPropertyRegistry
 
 object VitalsPropertyRegistry extends VitalsLogger {
-  val hdr: String = " TYPE      KEY                                      ENV_VAR                                  DESCRIPTION                                VALUE"
-  val sep: String = "---------------------------------------------------------------------------------------------------------------------------------------------------"
+  val keyPadding = 50
+  val sourcePadding = 11
+  val typeNamePadding = 10
+  val descriptionPadding = 40
+
+  val hdr: String = s" ${"TYPE".padded(typeNamePadding)} ${"KEY".padded(keyPadding)} ${"SOURCE".padded(sourcePadding)}   ${"DESCRIPTION".padded(descriptionPadding)} VALUE"
+  val sep: String = "-" * (hdr.length + 5)
 
   private[this]
   val _registry = new mutable.HashMap[String, VitalsPropertySpecification[_]]
@@ -35,25 +38,16 @@ object VitalsPropertyRegistry extends VitalsLogger {
 
   private def printAllProperties: String = {
     val properties = registry.keys.toList.sorted
-      .collect({ case k if !registry(k).hidden => registry(k) })
-      .map { property =>
-        property.get   // force the load
-        s"$property \n"
-      }
-      .stringify.trimAtEnd
+      .map(property => {
+        s"${registry(property)} \n"
+      })
+      .mkString("").trimAtEnd
     s"""
        |$sep
        |$hdr
        |$properties
        |$sep
        |""".stripMargin
-  }
-
-  def exportToWorkerAsStrings: Array[String] = {
-    registry.filter(_._2.exportToWorker).map {
-      case (k, v) =>
-        s"""-D$k="${v.get.getOrElse("")}""""
-    }.toArray
   }
 
   def importProperties(properties: Map[String, String]): this.type = {
@@ -64,6 +58,6 @@ object VitalsPropertyRegistry extends VitalsLogger {
   }
 
   def allProperties: Map[String, VitalsPropertySpecification[_]] = {
-    _registry.filterNot(kv => kv._2.hidden).toMap
+    _registry.filterNot(kv => kv._2.sensitive).toMap
   }
 }

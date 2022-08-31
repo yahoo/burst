@@ -403,7 +403,7 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
   with CatalogQueryReactor with CatalogSearchReactor with CatalogViewReactor
   with CatalogSqlConsumer  with VitalsHealthMonitoredService {
 
-  override val serviceName: String = s"$cellName-catalog($configuration)"
+  override val serviceName: String = s"catalog($configuration)"
 
   override val modality: VitalsServiceModality = configuration.modality
 

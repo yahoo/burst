@@ -23,7 +23,7 @@ import scala.reflect.ClassTag
  * This is a pretty straight forward key manager that just returns the provided private key.
  */
 object BurstKeyManagerFactory {
-  private val PROVIDER: Provider = new Provider("BurstKeyManager", 0.0, "") {}
+  private val PROVIDER: Provider = new Provider("BurstKeyManager", "0.0", "") {}
 
   def apply(privateKey: File, certificate: File): BurstKeyManagerFactory =
     new BurstKeyManagerFactory(new BurstKeyManagerSpi(privateKey, certificate), PROVIDER)

@@ -32,11 +32,7 @@ import org.burstsys.vitals.logging.{VitalsLog, burstStdMsg}
  * <br><br>
  * 2)  Initialize the site and cell entries: <pre>
  *
- * {@code BurstUtilMain catalog [-h host] [-u user] [-p password] setup cell <cellName>}
- *
  * </pre>
- * An cell entry for {@code cellName} is added to the cell table and it becomes part of the {@code default}
- * site.  The {@code default} site is created if it doesn't exist already.
  */
 
 object BurstUtilMain {
@@ -49,8 +45,6 @@ object BurstUtilMain {
                                        dbDropTables: Boolean = false,
                                        /* command */
                                        command: String = "",
-                                       /* cell */
-                                       cellName: String = burstCellNameProperty.getOrThrow
                                      )
 
   def main(args: Array[String]): Unit = {
@@ -72,15 +66,6 @@ object BurstUtilMain {
               .hidden()
               .action((_, c) => c.copy(command = c.command + "_schema"))
               .text("create schema and tables."),
-            cmd("cell")
-              .action((_, c) => c.copy(command = c.command + "_cell"))
-              .text("create a new cell in catalog.")
-              .children(
-                arg[String]("<cell>")
-                  .maxOccurs(1)
-                  .action((cellName, c) => c.copy(cellName = cellName))
-                  .text("Cell name")
-              )
           ),
           opt[String]("dbHost")
             .abbr("h")
@@ -113,7 +98,6 @@ object BurstUtilMain {
         burstCatalogDbHostProperty.set(arguments.dbHost)
         burstCatalogDbUserProperty.set(arguments.dbUser)
         burstCatalogDbPasswordProperty.set(arguments.dbPassword)
-        burstCellNameProperty.set(arguments.cellName)
         arguments.command match {
           case "catalog_setup_schema" =>
             try {
@@ -121,16 +105,6 @@ object BurstUtilMain {
               util.createTables(arguments.dbDropTables)
               util.cleanUp()
               log info burstStdMsg("Schema setup complete")
-            } catch safely {
-              case e: Exception =>
-                log error burstStdMsg("unable to setup schema", e)
-                System.exit(-1)
-            }
-          case "catalog_setup_cell" =>
-            try {
-              val util = CatalogUtilManager(CatalogMasterConfig)
-              util.cleanUp()
-              log info burstStdMsg(s"Cell '${arguments.cellName}' setup complete")
             } catch safely {
               case e: Exception =>
                 log error burstStdMsg("unable to setup schema", e)

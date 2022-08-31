@@ -2,24 +2,13 @@
 package org.burstsys.catalog.configuration
 
 import org.burstsys.catalog.configuration
-import org.burstsys.vitals.configuration.{SslGlobalProperties, burstCellNameProperty, burstSiteNameProperty}
-import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort}
+import org.burstsys.vitals.configuration.SslGlobalProperties
+import org.burstsys.vitals.net.VitalsHostAddress
+import org.burstsys.vitals.net.VitalsHostPort
 
 import scala.concurrent.duration.Duration
 
 trait CatalogApiProperties extends Any with SslGlobalProperties with CatalogSqlProperties {
-
-  /**
-    * Site name this catalog resides in
-    * @return
-    */
-  final def siteName: String = burstSiteNameProperty.getOrThrow
-
-  /**
-    * Cell name this catalog resides in
-    * @return
-    */
-  final def cellName: String = burstCellNameProperty.getOrThrow
 
   final def apiHost: VitalsHostAddress = configuration.burstCatalogApiHostProperty.getOrThrow
 

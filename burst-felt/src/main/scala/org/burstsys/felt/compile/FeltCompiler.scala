@@ -1,29 +1,22 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.compile
 
-import org.burstsys.felt.compile.artifact.FeltArtifactKey
-import org.burstsys.felt.compile.artifact.FeltArtifactTag
+import org.burstsys.felt.compile.artifact.{FeltArtifactKey, FeltArtifactTag}
 import org.burstsys.felt.model.tree.code.FeltCode
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
+import org.burstsys.vitals.errors.{VitalsException, _}
 
-import java.io.File
-import java.io.FileOutputStream
+import java.io.{File, FileOutputStream}
 import java.net.URL
-import java.net.URLClassLoader
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.jar.Attributes
-import java.util.jar.JarFile
-import java.util.jar.JarOutputStream
+import java.nio.file.{Files, Paths}
+import java.util.jar.{Attributes, JarOutputStream}
 import java.util.zip.ZipEntry
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.reflect.internal.util.BatchSourceFile
-import scala.tools.nsc.Global
-import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.IMain
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.tools.nsc.{Global, Settings}
+import scala.util.{Failure, Success, Try}
 
 /**
  * One of a fixed set of scala compiler instances that are managed in a pool.
@@ -82,7 +75,9 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
   val _reporter = FeltCompileReporter(_settings, offset)
 
   private[this]
-  val _global = new Global(_settings, _reporter)
+  val _global = {
+    new Global(_settings, _reporter)
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -140,7 +135,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
         if (clazz.getConstructors.length != 1 || clazz.getConstructors.head.getParameterCount > 0) {
           null
         } else {
-          clazz.newInstance
+          clazz.getDeclaredConstructor().newInstance()
         }
     }.filter(_ != null)
   }
@@ -179,6 +174,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
       Success(bytecode)
     } catch safely {
       case t: Throwable =>
+        log error s"Compile error (classpath=${_global.classPath.asClassPathString})"
         Failure(t)
     }
   }
@@ -221,51 +217,46 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
     FeltCompileEngine.jarFileUrls ++= urls
   }
 
-  @scala.annotation.tailrec
-  private
-  def getClassLoaderClassPath(cl: ClassLoader, acc: List[List[String]] = List.empty): List[List[String]] = {
-    val cp = cl match {
-      case urlClassLoader: URLClassLoader => urlClassLoader.getURLs.filter(_.getProtocol == "file").
-        map(u => new File(u.toURI).getPath).toList
-      case _ => Nil
-    }
-    cl.getParent match {
-      case null => (cp :: acc).reverse
-      case parent => getClassLoaderClassPath(parent, cp :: acc)
-    }
-  }
-
   private
   def _scalaClassPath: List[String] = _scalaCompilerPath ::: _scalaLibraryPath
 
   private
   def _feltFilteredClassPath: List[String] = {
-    _feltClassPath.filter(p => FeltCompileEngine.includeFilter.exists(p.contains(_)))
+    val fcl = _feltClassPath.filter(p => FeltCompileEngine.includeFilter.exists(p.contains(_)))
+    fcl
   }
+
+  private final lazy val names = List(
+    "org.burstsys.felt.compile.FeltCompiler",
+    "org.burstsys.vitals.VitalsService",
+    "org.burstsys.brio.model.BrioPathBuilder",
+    "org.burstsys.ginsu.functions.coerce.GinsuCoerceFunctions",
+    "org.burstsys.fabric.execution.model.runtime.FabricRuntime",
+    "org.burstsys.tesla.director.TeslaDirector",
+    "org.burstsys.zap.cube.ZapCube",
+    "org.burstsys.hydra.HydraService",
+    "org.joda.time.DateTime",
+    "com.esotericsoftware.kryo.KryoSerializable"
+  )
 
   private
   def _feltClassPath: List[String] = {
-
-    val classPaths: List[List[String]] = getClassLoaderClassPath(Thread.currentThread.getContextClassLoader)
-    val rtClassPath = classPaths.head
-
-    // if there's just one thing in the classpath, and it's a jar, assume an executable jar.
-    val bundledClassPathJars = if (rtClassPath.size > 1 || !rtClassPath.head.endsWith(".jar")) { Nil } else {
-      val jarPath = rtClassPath.head
-      val relativeRoot = new File(jarPath).getParentFile
-      Option(new JarFile(jarPath).getManifest)
-        .flatMap(m => Option(m.getMainAttributes.getValue("Class-Path")))
-        .map(cp => cp.split(" ").map { f => new File(relativeRoot, f).getAbsolutePath }.toList)
-        .getOrElse(Nil)
+    val tcl: ClassLoader = Thread.currentThread().getContextClassLoader
+    val effectiveClassPath: mutable.Set[String] = mutable.Set()
+    tcl.getResources("org/burstsys").asScala.map(_.getPath).foreach(p => effectiveClassPath.add(p.replace("org/burstsys", "")))
+    for (n <- names) {
+      Try(tcl.loadClass(n)) match {
+        case Success(c) =>
+          effectiveClassPath.add(c.getProtectionDomain.getCodeSource.getLocation.getPath)
+        case Failure(e) =>
+      }
     }
-    val effectiveClassPath = rtClassPath ::: bundledClassPathJars ::: classPaths.tail.flatten
-    log debug s"FeltCompiler effective classpath=$effectiveClassPath"
-    effectiveClassPath
+    effectiveClassPath.toList
   }
 
   private
   def _scalaCompilerPath: List[String] = try {
-    classPathOfClassInJar(classOf[IMain].getName)
+    classPathOfClass(classOf[IMain])
   } catch safely {
     case e: Exception =>
       throw VitalsException(s" Unable to load scala interpreter from classpath (scala-compiler jar is missing?)", e)
@@ -273,27 +264,15 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
 
   private
   def _scalaLibraryPath: List[String] = try {
-    classPathOfClassInJar(classOf[Any].getName)
+    classPathOfClass(classOf[List[_]])
   } catch safely {
     case e: Exception =>
       throw VitalsException(s"Unable to load scala base object from classpath (scala-library jar is missing?)", e)
   }
 
-  /**
-   * For a given FQ classname, trick the resource finder into telling us the containing jar.
-   */
   private
-  def classPathOfClassInJar(className: String): List[String] = {
-    val resource = className.split('.').mkString("/", "/", ".class")
-    val path = getClass.getResource(resource).getPath
-    if (path.indexOf("file:") >= 0) {
-      val indexOfFile = path.indexOf("file:") + 5
-      val indexOfSeparator = path.lastIndexOf('!')
-      List(path.substring(indexOfFile, indexOfSeparator))
-    } else {
-      require(path.endsWith(resource))
-      List(path.substring(0, path.length - resource.length + 1))
-    }
+  def classPathOfClass(clazz: Class[_]): List[String] = {
+    val l = List(clazz.getProtectionDomain.getCodeSource.getLocation.getPath)
+    l
   }
-
 }

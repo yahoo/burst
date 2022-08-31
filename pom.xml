@@ -10,16 +10,6 @@
     <name>Burst</name>
 
     <profiles>
-        <profile>
-            <id>java8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <java-short.version>1.8</java-short.version>
-                <java-exports/>
-            </properties>
-        </profile>
 
         <profile>
             <id>java11</id>
@@ -29,9 +19,19 @@
             <properties>
                 <java-short.version>11</java-short.version>
                 <java-exports>
-                    --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                    --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+                    --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
                 </java-exports>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>java8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <java-short.version>1.8</java-short.version>
+                <java-exports/>
             </properties>
         </profile>
 
@@ -170,6 +170,7 @@
         <copyright.text>${copyright.text1}. ${copyright.text2}.</copyright.text>
         <argLine/>
 
+        <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
         <build-helper.maven-plugin.version>3.3.0</build-helper.maven-plugin.version>
         <compiler.maven-plugin.version>3.10.0</compiler.maven-plugin.version>
         <deploy.maven-plugin.version>2.8.2</deploy.maven-plugin.version>

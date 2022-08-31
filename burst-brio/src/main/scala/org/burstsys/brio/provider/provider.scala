@@ -51,7 +51,7 @@ package object provider extends VitalsLogger {
   private
   lazy val schemaProviders: Array[BrioSchemaProvider[_]] = {
     val scannedClasses = reflection.getSubTypesOf(classOf[BrioSchemaProvider[_]])
-    scannedClasses.asScala.map(_.newInstance()).toArray
+    scannedClasses.asScala.map(_.getDeclaredConstructor().newInstance()).toArray
   }
 
   private[this]
