@@ -508,7 +508,7 @@ class EqlFunnelSpec extends EqlAlloyTestRunner {
     })
   }
 
-  it should "do funnel with cubed paths and steps" in {
+  ignore should "do funnel with cubed paths and steps" in {
     StaticSweep = null
     val source =
       """

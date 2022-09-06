@@ -17,7 +17,7 @@ object ZapPerformanceTest extends ZapAbstractSpec {
 
   final val rows: BrioRelationCount = 1024
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val iterations = 1e6.toInt
     val keys = rows
 

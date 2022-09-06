@@ -23,8 +23,8 @@ object HydraQuoGroupBy01 extends HydraUseCase(domain = 10, view = 10, schemaName
             }
           }
         }
-        user.sessions ⇒ {
-          pre ⇒ {
+        user.sessions => {
+          pre => {
             $analysisName.$frameName.appVersion = user.sessions.appVersionId
             $analysisName.$frameName.sessionCount = 1
           }

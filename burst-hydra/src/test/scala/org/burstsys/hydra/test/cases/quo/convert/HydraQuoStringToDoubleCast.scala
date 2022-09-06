@@ -23,8 +23,8 @@ object HydraQuoStringToDoubleCast extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
 
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        $analysisName.$frameName.'cast' = cast( value(user.sessions.events.parameters) as double )
        |        insert($analysisName.$frameName)
        |      }

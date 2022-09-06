@@ -35,7 +35,7 @@ trait HydraWaveExecutor extends FabricGroupExecuteContext with HydraService {
   final override
   def executeHydraAsWave(groupUid: FabricGroupUid, hydraSource: String, over: FabricOver, call: Option[FabricCall] = None): Future[FabricResultGroup] = {
     val tag = s"HydraWaveExecutor.executeHydraAsWave(guid=$groupUid)"
-    val promise = Promise[FabricResultGroup]
+    val promise = Promise[FabricResultGroup]()
     //  parse the hydra source so we can validate the syntax/semantics and generate its normalized form.
     var datasource: FabricDatasource = null
     var schema: BrioSchema = null

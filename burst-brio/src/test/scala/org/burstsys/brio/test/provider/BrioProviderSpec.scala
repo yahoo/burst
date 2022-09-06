@@ -11,7 +11,7 @@ class BrioProviderSpec extends BrioAbstractSpec {
     provider.loadBrioSchemaProviders()
   }
 
-  private final case class SchemaTestCase(alias: String, schemaName: String, versions: Int)
+  private case class SchemaTestCase(alias: String, schemaName: String, versions: Int)
 
   private val cases = Array(
     SchemaTestCase("test", "BrioTest", 2),

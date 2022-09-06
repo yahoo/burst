@@ -130,7 +130,7 @@ class FabricScannerContext extends AnyRef with FabricScanner with KryoSerializab
    *
    */
   override
-  def write(kryo: Kryo, output: Output) {
+  def write(kryo: Kryo, output: Output): Unit = {
     try {
       kryo.writeClassAndObject(output, _group)
       kryo.writeClassAndObject(output, _datasource)
@@ -146,7 +146,7 @@ class FabricScannerContext extends AnyRef with FabricScanner with KryoSerializab
    * @param input
    */
   override
-  def read(kryo: Kryo, input: Input) {
+  def read(kryo: Kryo, input: Input): Unit = {
     try {
       _group = kryo.readClassAndObject(input).asInstanceOf[FabricGroupKeyContext]
       _datasource = kryo.readClassAndObject(input).asInstanceOf[FabricDatasourceContext]

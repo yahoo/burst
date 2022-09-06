@@ -65,7 +65,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
             log debug s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration"
             if (future.isSuccess) {
               FabricNetReporter.onMessageXmit(buffSize)
-              promise.success(Unit)
+              promise.success(())
             } else {
               log warn s"FAB_NET_XMIT_FAIL ${future.cause} $tag"
               if (!promise.isCompleted)
@@ -114,7 +114,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
                 log debug s"$tag data message encodeNanos=$encodeDuration transmitNanos=$transmitDuration"
                 if (future.isSuccess) {
                   FabricNetReporter.onMessageXmit(buffSize)
-                  promise.success(Unit)
+                  promise.success(())
                 } else {
                   log warn burstStdMsg(s"$tag FAIL  ${future.cause}", future.cause)
                   if (!promise.isCompleted)

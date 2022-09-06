@@ -15,7 +15,7 @@ import org.burstsys.motif.motif.tree.values.ValueExpression
 import org.burstsys.motif.paths.Path
 import org.burstsys.motif.symbols.PathSymbols
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * This context can be placed in the motif parse tree and so mimics an expression

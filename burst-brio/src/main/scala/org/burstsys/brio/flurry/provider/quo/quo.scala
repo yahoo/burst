@@ -48,7 +48,8 @@ package object quo extends VitalsLogger {
       Files.copy(stream, newPath)
       newPath
     } catch safely {
-      case t: Throwable ⇒ throw VitalsException(t)
+      case t: Throwable =>
+        throw VitalsException(t)
     }
   }
 

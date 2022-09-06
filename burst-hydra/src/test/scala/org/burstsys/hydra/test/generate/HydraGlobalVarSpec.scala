@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.generate
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraGlobalVarSpec extends HydraSpecSupport {
 
@@ -24,9 +21,9 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
+         |    user => {
          |
-         |      pre ⇒ {
+         |      pre => {
          |        var lv4:long = gv3
          |        gv3 = lv4       // LINE #1
          |        lv4 = gv3 + gv3  // LINE #2
@@ -55,9 +52,9 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
+         |    user => {
          |
-         |      pre ⇒ {
+         |      pre => {
          |        val v4:integer = gv3
          |      } // end pre
          |
@@ -84,8 +81,8 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
-         |      pre ⇒ {
+         |    user => {
+         |      pre => {
          |        gv3 = gv3 + gv3  // LINE #1
          |      } // end pre
          |
@@ -112,9 +109,9 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
+         |    user => {
          |
-         |      pre ⇒ {
+         |      pre => {
          |        gv3 = user.id
          |      } // end pre
          |
@@ -141,8 +138,8 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |        a1:sum[integer]
          |      } // end aggregate
          |    } // end cube
-         |    user ⇒ {
-         |      pre ⇒ {
+         |    user => {
+         |      pre => {
          |        gv3 = user.id * 3
          |      } // end pre
          |
@@ -169,8 +166,8 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
-         |      pre ⇒ {
+         |    user => {
+         |      pre => {
          |        gv3 = user.id * user.id
          |      } // end pre
          |
@@ -198,8 +195,8 @@ class HydraGlobalVarSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
-         |      pre ⇒ {
+         |    user => {
+         |      pre => {
          |        gv3 = "foo"
          |      } // end pre
          |

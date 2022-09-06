@@ -21,8 +21,8 @@ object HydraQuoSecondTicks extends HydraUseCase(1, 1, "quo") {
      |       }
      |     }
      |   }
-     |   user.sessions ⇒ {
-     |     pre ⇒ {
+     |   user.sessions => {
+     |     pre => {
      |       $analysisName.$frameName.'secondTicks' = secondTicks(3)
      |       insert($analysisName.$frameName)
      |     }

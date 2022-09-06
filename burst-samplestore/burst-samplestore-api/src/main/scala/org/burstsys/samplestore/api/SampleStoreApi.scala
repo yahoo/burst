@@ -10,7 +10,7 @@ import scala.concurrent.duration.Duration
 /**
   * A front end to the underlying thrift API
   */
-trait SampleStoreApi extends VitalsService with BurstSampleStoreApiService.FutureIface with BurstApi {
+trait SampleStoreApi extends VitalsService with BurstSampleStoreApiService.MethodPerEndpoint with BurstApi {
 
   def service: SampleStoreApiService
 

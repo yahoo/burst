@@ -103,5 +103,5 @@ class FabricResultGroupContext(
                                 rowCount: Int
                               ) extends FabricResultGroup with VitalsJsonObject {
   override def toJson: FabricResultGroup =
-    FabricResultGroupContext(groupKey, resultStatus, resultMessage, groupMetrics.toJson, resultSets.mapValues(_.toJson), rowCount)
+    FabricResultGroupContext(groupKey, resultStatus, resultMessage, groupMetrics.toJson, resultSets.view.mapValues(_.toJson).toMap, rowCount)
 }

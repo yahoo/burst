@@ -1,19 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.application.websocket
 
-import java.io.StringWriter
-import java.util.concurrent.ConcurrentHashMap
-
 import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectMapper}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.module.scala.ScalaObjectMapper
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import org.burstsys.vitals.background.VitalsBackgroundFunctions
 import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.logging._
 import org.glassfish.grizzly.websockets.{DataFrame, WebSocket, WebSocketApplication, WebSocketEngine}
 
-import scala.collection.JavaConverters._
+import java.io.StringWriter
+import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -64,7 +61,7 @@ object BurstWebSocket {
   def apply(underlying: WebSocket): BurstWebSocket = WebSocketContext(underlying)
 
   private val mapper: ObjectMapper = {
-    val om = new ObjectMapper() with ScalaObjectMapper
+    val om = new ObjectMapper() with ClassTagExtensions
     om.registerModule(DefaultScalaModule)
     om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     om
@@ -146,10 +143,10 @@ class WebSocketGroupContext(url: String, listener: BurstDashWebSocketListener) e
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  var _sockets = ConcurrentHashMap.newKeySet[BurstWebSocket]
+  val _sockets = ConcurrentHashMap.newKeySet[BurstWebSocket]
 
   private[this]
-  var _keepalive = new VitalsBackgroundFunctions(s"$url-keepalive", 1 minute, 1 minute)
+  val _keepalive = new VitalsBackgroundFunctions(s"$url-keepalive", 1 minute, 1 minute)
   _keepalive.start
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////

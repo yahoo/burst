@@ -52,7 +52,7 @@ final class Tablet(segment: Segment)(implicit context: GlobalContext) extends Fr
   }
 
   override def generateDeclarationSource(): CodeBlock = CodeBlock { implicit cb =>
-    s"tablet[long]".source
+    s"tablet[long]".source()
   }
 
   override def selectHydraVisitLaneType(path: VisitPath)(implicit schema: MotifSchema): VisitType = {

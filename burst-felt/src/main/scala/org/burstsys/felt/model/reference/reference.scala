@@ -28,7 +28,7 @@ package object reference extends VitalsLogger {
     def linkReferences(): Unit = {
       val linker = node.global.linker
 
-      node.global.linker.nominate(node.allReferenceDecls)
+      node.global.linker.nominate(node.allReferenceDecls.toIndexedSeq)
 
       def resolve(path: FeltPathExpr): Unit = {
         // some paths are not meant to be handled by the referencing mechanism

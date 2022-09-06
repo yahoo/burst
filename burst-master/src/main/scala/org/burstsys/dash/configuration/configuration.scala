@@ -2,7 +2,8 @@
 package org.burstsys.dash
 
 import org.burstsys.vitals.logging.VitalsLogger
-import org.burstsys.vitals.properties.{VitalsPropertyRegistry, VitalsPropertySpecification}
+import org.burstsys.vitals.properties.VitalsPropertyRegistry
+import org.burstsys.vitals.properties.VitalsPropertySpecification
 
 package object configuration extends VitalsLogger with VitalsPropertyRegistry {
 

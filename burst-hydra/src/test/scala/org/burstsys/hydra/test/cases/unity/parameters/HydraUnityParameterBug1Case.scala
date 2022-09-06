@@ -28,13 +28,13 @@ object HydraUnityParameterBug1Case extends HydraUseCase(
        |				one:verbatim[string]
        |			}
        |		}
-       |		user ⇒ {
+       |		user => {
        |
-       |			pre ⇒ 			{
+       |			pre => 			{
        |				$analysisName.$frameName.one = $analysisName.one
        |
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				insert($analysisName.$frameName)
        |
        |			}

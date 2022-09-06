@@ -7,7 +7,7 @@ import org.burstsys.motif.motif.tree.eql.segments.Segment
 import org.burstsys.motif.motif.tree.expression.ParameterDefinition
 import org.burstsys.motif.schema.model.MotifSchema
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ParsedSegmentImpl(val segment: Segment)(implicit globalContext: GlobalContext) extends ParsedSegment {
 

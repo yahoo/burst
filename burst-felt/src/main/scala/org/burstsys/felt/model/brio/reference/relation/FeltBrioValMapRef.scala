@@ -68,19 +68,19 @@ trait FeltBrioValMapRef extends Any {
               |${I2}${cursor.callScope.scopeNull} = true;
               |${I}} else {
               |${I2}instance.valueMapStringString($blobReaderSym, schematic, $relationOrdinal, ${keyExprCursor.callScope.scopeVal}) match {
-              |${I3}case -1 ⇒ ${cursor.callScope.scopeNull} = true;
-              |${I3}case valueKey ⇒  ${cursor.callScope.scopeNull} = false; ${cursor.callScope.scopeVal} = valueKey;
+              |${I3}case -1 => ${cursor.callScope.scopeNull} = true;
+              |${I3}case valueKey =>  ${cursor.callScope.scopeNull} = false; ${cursor.callScope.scopeVal} = valueKey;
               |${I2}}
               |$I} // FELT-BRIO-VAL-MAP""".stripMargin
         else
           s"""|${T(this)}
               |$I$blobDictionarySym.keyLookup(${keyExprCursor.callScope.scopeVal})($schemaRuntimeSym.text) match {
-              |${I2}case $brioDictionaryNotFound ⇒ ${cursor.callScope.scopeNull} = true;
-              |${I2}case keyKey ⇒ instance.valueMapStringString($blobReaderSym, schematic, $relationOrdinal, keyKey) match {
-              |${I3}case $brioDictionaryNotFound ⇒ ${cursor.callScope.scopeNull} = true;
-              |${I3}case valueKey ⇒ $blobDictionarySym.stringLookup(valueKey)($schemaRuntimeSym.text) match {
-              |${I4}case null ⇒ ${cursor.callScope.scopeNull} = true;
-              |${I4}case str ⇒ ${cursor.callScope.scopeNull} = false; ${cursor.callScope.scopeVal} = str;
+              |${I2}case $brioDictionaryNotFound -> ${cursor.callScope.scopeNull} = true;
+              |${I2}case keyKey => instance.valueMapStringString($blobReaderSym, schematic, $relationOrdinal, keyKey) match {
+              |${I3}case $brioDictionaryNotFound => ${cursor.callScope.scopeNull} = true;
+              |${I3}case valueKey => $blobDictionarySym.stringLookup(valueKey)($schemaRuntimeSym.text) match {
+              |${I4}case null => ${cursor.callScope.scopeNull} = true;
+              |${I4}case str => ${cursor.callScope.scopeNull} = false; ${cursor.callScope.scopeVal} = str;
               |$I3}
               |$I2}
               |$I} // FELT-BRIO-VAL-MAP""".stripMargin

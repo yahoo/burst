@@ -82,6 +82,6 @@ trait FeltActionDecl extends FeltDeclaration {
 
   final override
   def normalizedSource(implicit index: Int): String =
-    s"$S$actionType ⇒ ${expressionBlock.normalizedSource}"
+    s"$S$actionType => ${expressionBlock.normalizedSource}"
 
 }

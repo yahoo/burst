@@ -18,7 +18,7 @@ object BrioStringStringMapCodec {
    * @return number of bytes written
    */
   @inline final
-  def writeStringStringMap(data: Map[BrioDictionaryKey, BrioDictionaryKey], writer: TeslaBufferWriter) {
+  def writeStringStringMap(data: Map[BrioDictionaryKey, BrioDictionaryKey], writer: TeslaBufferWriter): Unit = {
     val sorted = data.toList.sortBy(_._1) // sort by key
     val size = data.size.toShort
     writer.writeShort(size) // number of map entries

@@ -21,8 +21,8 @@ object HydraQuoConditionals01 extends HydraUseCase(1, 1, "quo") {
        |            count2:sum[long]
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |            if(false) { $analysisName.$frameName.count1 = 3 } else { $analysisName.$frameName.count1 = 30 }
        |            if(true) { $analysisName.$frameName.count2 = 3 } else { $analysisName.$frameName.count2 = 30 }
        |         }

@@ -64,7 +64,7 @@ package object group {
           resultName = resultSet.resultName,
           metrics = resultSet.metrics,
           columnNames = resultSet.columnNames.toSeq,
-          columnTypes = resultSet.columnTypeKeys.map(datatypeFor),
+          columnTypes = resultSet.columnTypeKeys.map(datatypeFor).toIndexedSeq,
           rowSet = resultSet.rowSet.map(_.cells: Seq[AgentResultCell]).toSeq
         )
     }

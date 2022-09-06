@@ -13,7 +13,7 @@ import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.Scanner
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object file extends VitalsLogger {
 

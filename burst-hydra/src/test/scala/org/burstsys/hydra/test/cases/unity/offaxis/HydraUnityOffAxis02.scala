@@ -25,11 +25,11 @@ object HydraUnityOffAxis02 extends HydraUseCase(100, 100, "unity") {
        |				}
        |			}
        |		}
-       |		user ⇒ {
-       |			pre ⇒ 			{
+       |		user => {
+       |			pre => 			{
        |				T1 = true
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				if( T1 )
        |				{
        |					T1_summary = true
@@ -37,11 +37,11 @@ object HydraUnityOffAxis02 extends HydraUseCase(100, 100, "unity") {
        |				}
        |			}
        |		}
-       |		user.application.firstUse ⇒ {
-       |			pre ⇒ 			{
+       |		user.application.firstUse => {
+       |			pre => 			{
        |				$analysisName.$frameName.languageId = user.application.firstUse.languageId
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				insert($analysisName.$frameName)
        |			}
        |		}

@@ -6,7 +6,7 @@ import org.burstsys.vitals.instrument._
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.VitalsReporterPercentValueMetric
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**

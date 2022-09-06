@@ -4,7 +4,7 @@ package org.burstsys.dash.service.thrift
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.gen.thrift.api.client.domain.BTDomain
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object domains {
 

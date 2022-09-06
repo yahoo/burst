@@ -2,9 +2,7 @@
 package org.burstsys.hydra.test.cases.unity.bugs
 
 import org.burstsys.alloy.views.unity.UnityUseCaseViews.over_200_200
-import org.burstsys.hydra.test.support.GeneratedUnitySchema.{UnityTraveler_lexicon, UnityTraveler_lexicon_runtime}
 import org.burstsys.hydra.test.support.HydraAlloyTestRunner
-import org.scalatest.Ignore
 
 import scala.language.postfixOps
 

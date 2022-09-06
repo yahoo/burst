@@ -25,7 +25,7 @@ trait FeltGinsuGrpSplitFuncExpr extends FeltGinsuGrpFuncExpr {
   final override
   def resolveTypes: this.type = {
     parameters.foreach(_.resolveTypes)
-    feltType = FeltType.combine(parameters.map(_.feltType): _*)
+    feltType = FeltType.combine(parameters.map(_.feltType).toIndexedSeq: _*)
     this
   }
 

@@ -23,8 +23,8 @@ object HydraQuoParameters05 extends HydraUseCase(1, 1, "quo") {
        |        }
        |      }
        |    }
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        $analysisName.$frameName.'key' = key(user.sessions.events.parameters)
        |        $analysisName.$frameName.'parameter' = value(user.sessions.events.parameters)
        |        insert($analysisName.$frameName)

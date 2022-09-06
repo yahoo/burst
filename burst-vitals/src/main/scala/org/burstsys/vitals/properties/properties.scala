@@ -10,7 +10,7 @@ import java.io.ObjectInput
 import java.io.ObjectOutput
 import java.util
 import java.util.Properties
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration

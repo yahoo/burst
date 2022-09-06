@@ -21,8 +21,8 @@ object HydraUnityNulls00 extends HydraUseCase(200, 200, "unity") {
        |      count2:sum[long]
        |    }
        |  }
-       |  user ⇒ {
-       |    pre ⇒ {
+       |  user => {
+       |    pre => {
        |      if( user.application.firstUse != null ) { $analysisName.$frameName.count1 = 1 }
        |      if(  user.id == null ) { $analysisName.$frameName.count2 = 1 }
        |    }

@@ -28,8 +28,8 @@ object HydraUnityFramesCase01 extends HydraUseCase(100, 100, "unity") {
        |    //val v1:boolean = false // frame level variables (not shared inter-frame)
        |
        |    // visits/actions
-       |     user.sessions.myRoute.paths.steps  ⇒ {
-       |      post ⇒ {
+       |     user.sessions.myRoute.paths.steps  => {
+       |      post => {
        |        tally += 1 // relative reference to local frame
        |        keys = routeVisitStepKey(myRoute)
        |        times = routeVisitStepTime(myRoute)
@@ -51,8 +51,8 @@ object HydraUnityFramesCase01 extends HydraUseCase(100, 100, "unity") {
        |      }
        |    }
        |    // visits/actions
-       |    user.sessions.events ⇒ {
-       |      post ⇒  {
+       |    user.sessions.events => {
+       |      post =>  {
        |        routeScopeStart( myRoute)
        |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
        |        routeScopeCommit( myRoute )

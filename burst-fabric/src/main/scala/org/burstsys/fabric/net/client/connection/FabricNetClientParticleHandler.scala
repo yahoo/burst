@@ -30,23 +30,26 @@ trait FabricNetClientParticleHandler extends FabricPipelineEventListener {
   private[this]
   val _reportingGuids = ConcurrentHashMap.newKeySet[VitalsUid]()
 
-  override def onEvent: PartialFunction[FabricPipelineEvent, Unit] = {
+  override def onEvent: PartialFunction[FabricPipelineEvent, Boolean] = {
     case e: FabricLoadEvent =>
       val ruid = _guidToRuid.get(e.guid)
-      if (ruid == null) log debug s"no ruid for ${e.guid}"
+      if (ruid == null)
+        log debug s"no ruid for ${e.guid}"
       else {
         if (_reportingGuids.contains(e.guid))
           transmitter.transmitControlMessage(FabricNetProgressMsg(clientKey, serverKey, e.guid, ruid, e.eventId, e.nanos, e.store, e.event))
       }
+      true
 
     case e: FabricExecutionEvent =>
       val ruid = _guidToRuid.get(e.guid)
-      if (ruid == null) log debug s"no ruid for ${e.guid}"
+      if (ruid == null)
+        log debug s"no ruid for ${e.guid}"
       else {
         if (_reportingGuids.contains(e.guid))
           transmitter.transmitControlMessage(FabricNetProgressMsg(clientKey, serverKey, e.guid, ruid, e.eventId, e.nanos))
       }
-
+      true
   }
 
   /**

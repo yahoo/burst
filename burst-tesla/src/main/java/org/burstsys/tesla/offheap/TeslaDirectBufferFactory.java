@@ -14,22 +14,16 @@ public class TeslaDirectBufferFactory {
         final ByteBuffer direct;
         direct = ByteBuffer.allocateDirect(1);
         Constructor<?> directBufferConstructor;
-        long address = -1;
         try {
             final Object maybeDirectBufferConstructor =
-                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                        @Override
-                        public Object run() {
-                            try {
-                                final Constructor<?> constructor =
-                                        direct.getClass().getDeclaredConstructor(long.class, int.class);
-                                constructor.setAccessible(true);
-                                return constructor;
-                            } catch (NoSuchMethodException e) {
-                                return e;
-                            } catch (SecurityException e) {
-                                return e;
-                            }
+                    AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                        try {
+                            final Constructor<?> constructor =
+                                    direct.getClass().getDeclaredConstructor(long.class, int.class);
+                            constructor.setAccessible(true);
+                            return constructor;
+                        } catch (NoSuchMethodException | SecurityException e) {
+                            return e;
                         }
                     });
 

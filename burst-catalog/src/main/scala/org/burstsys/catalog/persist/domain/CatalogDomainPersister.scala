@@ -71,11 +71,11 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      VALUES
        ( {labels}, {moniker}, {domainProperties}, {udk}, {createTime}  )
      """.bindByName(
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'moniker -> entity.moniker,
-      'domainProperties -> propertyMapToString(entity.domainProperties),
-      'udk -> entity.udk.orNull,
-      'createTime -> DateTime.now
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("moniker") -> entity.moniker,
+      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
+      Symbol("udk") -> entity.udk.orNull,
+      Symbol("createTime") -> DateTime.now
     )
   }
 
@@ -90,11 +90,11 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      'pk -> entity.pk,
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'domainProperties -> propertyMapToString(entity.domainProperties),
-      'udk -> entity.udk.orNull
+      Symbol("pk") -> entity.pk,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
+      Symbol("udk") -> entity.udk.orNull
     )
   }
 
@@ -111,10 +111,10 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      WHERE
        ${this.column.udk} = {udk}
      """.bindByName(
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'domainProperties -> propertyMapToString(entity.domainProperties),
-      'udk -> entity.udk.orNull
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
+      Symbol("udk") -> entity.udk.orNull
     )
   }
 
@@ -128,11 +128,11 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
        ${this.column.udk} = {udk}
      WHERE
         ${this.column.pk} = {pk}""".bindByName(
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'domainProperties -> propertyMapToString(entity.domainProperties),
-      'udk -> entity.udk.orNull,
-      'pk -> entity.pk
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
+      Symbol("udk") -> entity.udk.orNull,
+      Symbol("pk") -> entity.pk
     )
   }
 

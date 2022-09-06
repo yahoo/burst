@@ -22,7 +22,7 @@ HydraUnityRoute07Query extends HydraUseCase(200, 200, "unity") {
     s"""
        |frame $cubeFrame1 {
        |  cube user { limit = 9999 aggregates { 'keys1':sum[long]  }  }
-       |  $routeFrame1.paths.steps user.sessions (4) ⇒ {
+       |  $routeFrame1.paths.steps user.sessions (4) => {
        |    before => {
        |      $cubeFrame1.'keys1' = routeVisitStepKey( $routeFrame1 )
        |    }
@@ -33,7 +33,7 @@ HydraUnityRoute07Query extends HydraUseCase(200, 200, "unity") {
        |      $cubeFrame1.'keys1' = routeVisitStepKey( $routeFrame1 )
        |    }
        |  }
-       |  $routeFrame2.paths.steps user.sessions (6) ⇒ {
+       |  $routeFrame2.paths.steps user.sessions (6) => {
        |    before => {
        |      $cubeFrame1.'keys1' = routeVisitStepKey( $routeFrame1 )
        |    }
@@ -47,7 +47,7 @@ HydraUnityRoute07Query extends HydraUseCase(200, 200, "unity") {
        |}
        |frame $cubeFrame2 {
        |  cube user { limit = 9999 aggregates { 'keys2':sum[long]  }  }
-       |  $routeFrame1.paths.steps user.sessions (2) ⇒ {
+       |  $routeFrame1.paths.steps user.sessions (2) => {
        |    before => {
        |      $cubeFrame2.'keys2' = routeVisitStepKey( $routeFrame2 )
        |    }
@@ -58,7 +58,7 @@ HydraUnityRoute07Query extends HydraUseCase(200, 200, "unity") {
        |      $cubeFrame2.'keys2' = routeVisitStepKey( $routeFrame2 )
        |    }
        |  }
-       |  $routeFrame2.paths.steps user.sessions (10) ⇒ {
+       |  $routeFrame2.paths.steps user.sessions (10) => {
        |    before => {
        |      $cubeFrame2.'keys2' = routeVisitStepKey( $routeFrame2 )
        |    }
@@ -76,8 +76,8 @@ HydraUnityRoute07Query extends HydraUseCase(200, 200, "unity") {
        |    maxSteps = 1000
        |    graph {  enter 1 { to(2) } exit 2 { } }
        |  }
-       |  user.sessions (3) ⇒ {
-       |    pre ⇒ {
+       |  user.sessions (3) => {
+       |    pre => {
        |        routeScopeStart( $routeFrame1 )
        |        routeFsmStepAssert( $routeFrame1, 1, 101, 1111 )
        |        routeFsmStepAssert( $routeFrame1, 2, 101, 1111 )
@@ -92,8 +92,8 @@ HydraUnityRoute07Query extends HydraUseCase(200, 200, "unity") {
        |    graph {  enter 1 { to(2) } exit 2 { } }
        |  }
        |  // static path visit
-       |  user.sessions ⇒ {
-       |    pre ⇒ {
+       |  user.sessions => {
+       |    pre => {
        |        routeScopeStart( $routeFrame2 )
        |        routeFsmStepAssert( $routeFrame2, 1, 101, 1111 )
        |        routeFsmStepAssert( $routeFrame2, 2, 101, 1111 )

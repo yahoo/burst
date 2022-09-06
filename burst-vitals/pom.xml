@@ -111,7 +111,7 @@
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.12</artifactId>
+            <artifactId>jackson-module-scala_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -124,7 +124,7 @@
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
-            <artifactId>sourcecode_2.12</artifactId>
+            <artifactId>sourcecode_${scala-major.version}</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

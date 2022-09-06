@@ -24,8 +24,8 @@ class HydraBugSpec15 extends HydraAlloyTestRunner {
           |				'_a1_':sum[double]
           |			}
           |		}
-          |		user.sessions.events  ⇒ {
-          |			post ⇒ 			{
+          |		user.sessions.events  => {
+          |			post => 			{
           |				$AnalysisName.$CubeFrame.'_a1_' = 				cast(user.sessions.events.parameters["friendId"] as double)
           |
           |			}

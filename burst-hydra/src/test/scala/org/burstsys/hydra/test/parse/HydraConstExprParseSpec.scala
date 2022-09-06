@@ -5,9 +5,6 @@ import org.burstsys.felt.model.literals.primitive.FeltPrimitive
 import org.burstsys.hydra.test.support.HydraSpecSupport
 import org.scalatest.Ignore
 
-/**
-  * ← ⇒
-  */
 @Ignore
 class HydraConstExprParseSpec extends HydraSpecSupport {
 
@@ -20,8 +17,8 @@ class HydraConstExprParseSpec extends HydraSpecSupport {
 
     val expr = parser printParse (_.parseAnalysisDeclaration(source, schema))
     expr.reduceToLiteral match {
-      case Some(c) ⇒ c.asInstanceOf[FeltAtom].value should equal(4 / 5)
-      case _ ⇒ ???
+      case Some(c) => c.asInstanceOf[FeltAtom].value should equal(4 / 5)
+      case _ => ???
     }
   }
 
@@ -34,8 +31,8 @@ class HydraConstExprParseSpec extends HydraSpecSupport {
     val expr = parser printParse (_.parseAnalysisDeclaration(source, schema))
     expr.reduceToLiteral.nonEmpty should equal(true)
     expr.reduceToLiteral match {
-      case Some(c) ⇒ c.asInstanceOf[FeltAtom].value should equal(5 / 4)
-      case _ ⇒ ???
+      case Some(c) => c.asInstanceOf[FeltAtom].value should equal(5 / 4)
+      case _ => ???
     }
   }
   it should "parse value expression 5" in {
@@ -47,8 +44,8 @@ class HydraConstExprParseSpec extends HydraSpecSupport {
     val expr = parser printParse (_.parseExpression(source, schema))
     expr.reduceToLiteral.nonEmpty should equal(true)
     expr.reduceToLiteral match {
-      case Some(c) ⇒ c.asInstanceOf[FeltAtom].value should equal(20 % 7)
-      case _ ⇒ ???
+      case Some(c) => c.asInstanceOf[FeltAtom].value should equal(20 % 7)
+      case _ => ???
     }
   }
 
@@ -61,8 +58,8 @@ class HydraConstExprParseSpec extends HydraSpecSupport {
     val expr = parser printParse (_.parseExpression(source, schema))
     expr.reduceToLiteral.nonEmpty should equal(true)
     expr.reduceToLiteral match {
-      case Some(c) ⇒ c.asInstanceOf[FeltAtom].value should equal((1 * 2) + (4 / 5) % 4.0)
-      case _ ⇒ ???
+      case Some(c) => c.asInstanceOf[FeltAtom].value should equal((1 * 2) + (4 / 5) % 4.0)
+      case _ => ???
     }
   }
 
@@ -75,8 +72,8 @@ class HydraConstExprParseSpec extends HydraSpecSupport {
     val expr = parser printParse (_.parseExpression(source, schema))
     expr.reduceToLiteral.nonEmpty should equal(true)
     expr.reduceToLiteral match {
-      case Some(c) ⇒ c.asInstanceOf[FeltAtom].value should equal((1.0 * 2.0) + (4.0 / 5.0) % 4.0)
-      case _ ⇒ ???
+      case Some(c) => c.asInstanceOf[FeltAtom].value should equal((1.0 * 2.0) + (4.0 / 5.0) % 4.0)
+      case _ => ???
     }
   }
 

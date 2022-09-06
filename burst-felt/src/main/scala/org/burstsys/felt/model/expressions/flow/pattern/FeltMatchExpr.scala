@@ -64,7 +64,7 @@ trait FeltMatchExpr extends FeltFlowExpr with FeltMatchGen {
     path.resolveTypes
     cases.foreach(_.resolveTypes)
     default.foreach(_.resolveTypes)
-    feltType = FeltType.combine(cases.map(_.feltType) ++ default.map(_.feltType): _*)
+    feltType = FeltType.combine((cases.map(_.feltType) ++ default.map(_.feltType)).toIndexedSeq: _*)
     this
   }
 

@@ -7,7 +7,7 @@ import org.burstsys.brio.model.parser.BrioSchemaParser._
 import org.burstsys.brio.types.BrioTypes.{BrioSchemaName, BrioVersionKey}
 import org.burstsys.vitals.errors.VitalsException
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   *

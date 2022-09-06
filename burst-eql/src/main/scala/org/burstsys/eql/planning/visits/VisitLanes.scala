@@ -16,7 +16,7 @@ import scala.collection.mutable
 class VisitLanes  {
   val laneMap: mutable.Map[lanes.LaneName, LaneActions] = mutable.Map[LaneName, LaneActions]()
 
-  def this(v: VisitLanes) {
+  def this(v: VisitLanes) = {
     this()
     laneMap ++= v.laneMap
   }
@@ -40,7 +40,7 @@ class VisitLanes  {
     */
   def addDimensionWrite(name: LaneName): VisitLanes = {
     // look it up
-    getOrCreate(name) addDimensionWrite()
+    getOrCreate(name).addDimensionWrite()
     this
   }
 

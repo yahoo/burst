@@ -21,8 +21,8 @@ object HydraUnityLexiconCase00 extends HydraUseCase(200, 200, "unity") {
        |      count:sum[long]
        |    }
        |  }
-       |  user ⇒ {
-       |    pre ⇒ {
+       |  user => {
+       |    pre => {
        |      if(  user.id == null ) { $analysisName.$frameName.count = 1 }
        |      insert($analysisName.$frameName)
        |    }

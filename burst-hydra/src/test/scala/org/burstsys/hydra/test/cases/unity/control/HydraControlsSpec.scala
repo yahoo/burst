@@ -24,8 +24,8 @@ class HydraControlsSpec extends HydraAlloyTestRunner {
           |        d0:verbatim[long]
           |      }
           |    }
-          |    user.sessions.events ⇒ {
-          |      pre ⇒ {
+          |    user.sessions.events => {
+          |      pre => {
           |        commitRelation(user.sessions.events)
           |        abortRelation(user.sessions.events)
           |        commitMember(user)
@@ -83,8 +83,8 @@ class HydraControlsSpec extends HydraAlloyTestRunner {
           |        $CubeFrame.a0 = 77
           |      }
           |    }
-          |    user.sessions ⇒ {
-          |      pre ⇒ {
+          |    user.sessions => {
+          |      pre => {
           |        $CubeFrame.d0 = 11
           |        $CubeFrame.a0 = 33
           |        abortRelation(user)
@@ -141,8 +141,8 @@ class HydraControlsSpec extends HydraAlloyTestRunner {
           |        $CubeFrame.a0 = 77
           |      }
           |    }
-          |    user.sessions ⇒ {
-          |      pre ⇒ {
+          |    user.sessions => {
+          |      pre => {
           |        $CubeFrame.d1 = 11
           |        $CubeFrame.a1 = 33
           |        abortMember(user.sessions)

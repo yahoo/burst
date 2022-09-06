@@ -25,7 +25,7 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
           |      'key':verbatim[long]
           |     }
           |   }
-          |   $TabletFrame.members user.ext1 (4) ⇒ {
+          |   $TabletFrame.members user.ext1 (4) => {
           |     situ => {
           |       $CubeFrame.'key' = tabletMemberValue( $TabletFrame )
           |       $CubeFrame.'count' = 1
@@ -34,7 +34,7 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
           | }
           | frame $TabletFrame {
           |   tablet[long]
-          |   user.sessions ⇒ {
+          |   user.sessions => {
           |     pre => {
           |       tabletMemberIsFirst( $TabletFrame )
           |       tabletMemberIsLast( $TabletFrame )
@@ -85,7 +85,7 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
           |      'sessionId':verbatim[long]
           |     }
           |   }
-          |   $TabletFrame.members user.ext1 (4) ⇒ {
+          |   $TabletFrame.members user.ext1 (4) => {
           |     situ => {
           |
           |       $CubeFrame.'sessionId' = tabletMemberValue( $TabletFrame )
@@ -102,7 +102,7 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
           | }
           | frame $TabletFrame {
           |   tablet[long]
-          |   user.sessions ⇒ {
+          |   user.sessions => {
           |     pre => {
           |       tabletMemberAdd( $TabletFrame, user.sessions.id )
           |     }

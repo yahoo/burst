@@ -19,8 +19,8 @@ class HydraUnityCastSpec extends HydraAlloyTestRunner {
          |        'cast':verbatim[string]
          |      }
          |    }
-         |    user.sessions.events.parameters ⇒ {
-         |      situ ⇒ {
+         |    user.sessions.events.parameters => {
+         |      situ => {
          |        var v1:double = cast( value(user.sessions.events.parameters) as double )
          |        MyFrame.'cast' =  cast(v1 as string)
          |        insert( MyFrame)
@@ -59,8 +59,8 @@ class HydraUnityCastSpec extends HydraAlloyTestRunner {
          |        'final':verbatim[double]
          |      }
          |    }
-         |    user.sessions.events.parameters ⇒ {
-         |      situ ⇒ {
+         |    user.sessions.events.parameters => {
+         |      situ => {
          |        val v1:double = cast(value(user.sessions.events.parameters) as double )
          |        val v2:string =  cast(v1 as string)
          |        MyFrame.'final' =  cast(v2 as double)

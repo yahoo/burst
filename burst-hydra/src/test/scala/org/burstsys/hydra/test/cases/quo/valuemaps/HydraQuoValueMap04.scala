@@ -21,8 +21,8 @@ object HydraQuoValueMap04 extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
        |  }
-       |  user.sessions.events.parameters ⇒ {
-       |    situ ⇒ {
+       |  user.sessions.events.parameters => {
+       |    situ => {
        |      if( key(user.sessions.events.parameters) == "cg") {
        |        $analysisName.$frameName.count = 1
        |      }

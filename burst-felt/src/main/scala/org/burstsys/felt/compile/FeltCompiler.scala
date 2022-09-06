@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.compile
 
+import org.burstsys.felt.compile.FeltCompileEngine.generatedAllBindings
 import org.burstsys.felt.compile.artifact.{FeltArtifactKey, FeltArtifactTag}
 import org.burstsys.felt.model.tree.code.FeltCode
 import org.burstsys.vitals.errors.{VitalsException, _}
@@ -10,9 +11,8 @@ import java.net.URL
 import java.nio.file.{Files, Paths}
 import java.util.jar.{Attributes, JarOutputStream}
 import java.util.zip.ZipEntry
-import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
+import scala.jdk.CollectionConverters._
 import scala.reflect.internal.util.BatchSourceFile
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.{Global, Settings}
@@ -90,7 +90,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
       case Failure(t) =>
         Failure(t)
       case Success(classSpecs) =>
-        addByteCodesToClassPath(key, tag, classSpecs)
+        addByteCodesToClassPath(key, tag, classSpecs, source)
         Success(classSpecs.map(_._1))
     }
   }
@@ -102,7 +102,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
       case Failure(t) =>
         Failure(t)
       case Success(byteCodes) =>
-        Success(instantiateSpecListToClassLoader(key, tag, byteCodes))
+        Success(instantiateSpecListToClassLoader(key, tag, byteCodes, source))
     }
   }
 
@@ -124,16 +124,20 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
    * @return a set of instantiated classes from spec list
    */
   private
-  def instantiateSpecListToClassLoader(key: FeltArtifactKey, tag: FeltArtifactTag, specList: FeltClassSpecList): Array[FeltArtifactInstance] = {
+  def instantiateSpecListToClassLoader(key: FeltArtifactKey, tag: FeltArtifactTag, specList: FeltClassSpecList, source: FeltCode): Array[FeltArtifactInstance] = {
+    if (FeltCompileEngine.generatedAllBindings) {
+      val url = jarFromByteCode(specList, source)
+      log debug s"Instantiate class at $url"
+    }
     specList.foreach {
       case (className, bytecode) =>
         FeltCompileEngine.addToClassLoader(key, tag, className, bytecode)
     }
-    specList.map {
-      case (className, bytecode) =>
+    specList.map[FeltArtifactInstance] {
+      case (className, _) =>
         val clazz = FeltCompileEngine._runtimeClassLoader.findClass(className)
         if (clazz.getConstructors.length != 1 || clazz.getConstructors.head.getParameterCount > 0) {
-          null
+          null.asInstanceOf[FeltArtifactInstance]
         } else {
           clazz.getDeclaredConstructor().newInstance()
         }
@@ -141,11 +145,14 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
   }
 
   private
-  def addByteCodesToClassPath(key: FeltArtifactKey, tag: FeltArtifactTag, classSpecs: FeltClassSpecList): Unit = {
+  def addByteCodesToClassPath(key: FeltArtifactKey, tag: FeltArtifactTag, classSpecs: FeltClassSpecList, source: FeltCode): Unit = {
     reset
     // write class to tmp jar file
-    val url = jarFromByteCode(classSpecs)
-    // add jar file to classpath
+    val url = jarFromByteCode(classSpecs, source)
+    if (FeltCompileEngine.generatedAllBindings) {
+      log debug s"Instantiate class at $url"
+    }
+    // add jar file to classpath addUrlToClassPath(url)
     addUrlToClassPath(url)
     classSpecs.foreach {
       case (className, bytecode) =>
@@ -180,7 +187,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
   }
 
   private
-  def jarFromByteCode(specList: FeltClassSpecList): URL = {
+  def jarFromByteCode(specList: FeltClassSpecList, source: FeltCode): URL = {
 
     val bindingsJarFolder = FeltCompiler synchronized {
       val bindingsJarFolder = FeltCompileEngine.generatedBindingsJarFolder
@@ -189,9 +196,12 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
       bindingsJarFolder
     }
 
-    val jarName = s"${specList.head._1}.jar"
+    val topClassName = s"${specList.head._1}"
+    val jarName = s"$topClassName.jar"
     val jarFile = Paths.get(bindingsJarFolder.toString, jarName).toFile
-    jarFile.deleteOnExit()
+    if (!FeltCompileEngine.generatedAllBindings) {
+      jarFile.deleteOnExit()
+    }
 
     val fout = new FileOutputStream(jarFile)
 
@@ -206,6 +216,13 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
         jarOut.write(bytes)
         jarOut.closeEntry()
     }
+
+    {
+      jarOut.putNextEntry(new ZipEntry(s"$topClassName.scala"))
+      jarOut.write(source.getBytes)
+      jarOut.closeEntry()
+    }
+
     jarOut.close()
     jarFile.toURI.toURL
   }
@@ -233,7 +250,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
     "org.burstsys.ginsu.functions.coerce.GinsuCoerceFunctions",
     "org.burstsys.fabric.execution.model.runtime.FabricRuntime",
     "org.burstsys.tesla.director.TeslaDirector",
-    "org.burstsys.zap.cube.ZapCube",
+    "org.burstsys.zap.cube2.ZapCube2",
     "org.burstsys.hydra.HydraService",
     "org.joda.time.DateTime",
     "com.esotericsoftware.kryo.KryoSerializable"

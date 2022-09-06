@@ -41,7 +41,7 @@ abstract class TorquemadaHelper extends AnyFlatSpec
   var catalogServer: CatalogService = CatalogService(CatalogUnitTestServerConfig)
 
   override protected
-  def beforeAll() {
+  def beforeAll(): Unit = {
     loadBrioSchemaProviders()
     catalogServer.start
     catalogClient.start
@@ -52,7 +52,7 @@ abstract class TorquemadaHelper extends AnyFlatSpec
   }
 
   override protected
-  def afterAll() {
+  def afterAll(): Unit = {
     agentService.stop
     agentClient.stop
     catalogClient.stop
@@ -107,7 +107,7 @@ abstract class TorquemadaHelper extends AnyFlatSpec
         case FabricCacheFlush => flushCount.incrementAndGet()
         case _ =>
       }
-      Array.empty.seq
+      Seq.empty
     }
   }
 

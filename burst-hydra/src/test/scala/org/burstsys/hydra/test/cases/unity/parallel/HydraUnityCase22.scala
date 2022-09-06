@@ -17,8 +17,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    userCount:sum[long]
                 }
              }
-            user ⇒ {
-                post ⇒ {
+            user => {
+                post => {
                    $analysisName.frame1.userCount = 1
                 }
              }
@@ -30,8 +30,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              sessionCount:sum[long]
           }
        }
-      user.sessions ⇒ {
-          post ⇒ {
+      user.sessions => {
+          post => {
              $analysisName.frame2.sessionCount = 1
           }
        }
@@ -43,8 +43,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              eventCount:sum[long]
           }
        }
-      user.sessions.events ⇒ {
-          post ⇒ {
+      user.sessions.events => {
+          post => {
              $analysisName.frame3.eventCount = 1
           }
        }
@@ -56,8 +56,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              minInstallTime:min[long]
           }
        }
-      user.application.firstUse ⇒ {
-          post ⇒ {
+      user.application.firstUse => {
+          post => {
              $analysisName.frame4.minInstallTime = user.application.firstUse.sessionTime
           }
        }
@@ -69,8 +69,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              maxInstallTime:max[long]
           }
        }
-      user.application.firstUse ⇒ {
-          post ⇒ {
+      user.application.firstUse => {
+          post => {
              $analysisName.frame5.maxInstallTime = user.application.firstUse.sessionTime
           }
        }
@@ -82,8 +82,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              mixInstallTime:min[long]
           }
        }
-      user.sessions ⇒ {
-          post ⇒ {
+      user.sessions => {
+          post => {
              $analysisName.frame6.mixInstallTime = user.sessions.startTime
           }
        }
@@ -95,8 +95,8 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              maxInstallTime:max[long]
           }
        }
-      user.sessions ⇒ {
-          post ⇒ {
+      user.sessions => {
+          post => {
              $analysisName.frame7.maxInstallTime = user.sessions.startTime
           }
        }
@@ -111,11 +111,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
              deviceModel:verbatim[long]
           }
        }
-      user ⇒ {
-          pre ⇒ {
+      user => {
+          pre => {
              $analysisName.frame8.deviceModel = user.deviceModelId
           }
-          post ⇒ {
+          post => {
              $analysisName.frame8.users = 1
           }
        }
@@ -130,11 +130,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                osVersionId:verbatim[long]
             }
          }
-        user.sessions ⇒ {
-            pre ⇒ {
+        user.sessions => {
+            pre => {
                $analysisName.frame9.osVersionId = user.sessions.osVersionId
             }
-            post ⇒ {
+            post => {
                $analysisName.frame9.sessions = 1
             }
          }
@@ -151,18 +151,18 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    }
                 }
              }
-            user ⇒ {
-                post ⇒ {
+            user => {
+                post => {
                    $analysisName.frame10.projects = 1
                 }
              }
-             user.application.firstUse ⇒ {
-                pre ⇒ {
+             user.application.firstUse => {
+                pre => {
                    $analysisName.frame10.languageId = user.application.firstUse.languageId
                 }
              }
-             user.application ⇒ {
-                post ⇒ {
+             user.application => {
+                post => {
                    insert($analysisName.frame10)
                 }
              }
@@ -179,18 +179,18 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    }
                 }
              }
-            user.sessions.appVersion ⇒ {
-                pre ⇒ {
+            user.sessions.appVersion => {
+                pre => {
                    $analysisName.frame11.appVersion = user.sessions.appVersion.id
                 }
              }
-             user ⇒ {
-                post ⇒ {
+             user => {
+                post => {
                    $analysisName.frame11.users = 1
                 }
              }
-             user.sessions ⇒ {
-                post ⇒ {
+             user.sessions => {
+                post => {
                    insert($analysisName.frame11)
                 }
              }
@@ -205,11 +205,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    providedOrigin:verbatim[string]
                 }
              }
-            user.sessions ⇒ {
-                pre ⇒ {
+            user.sessions => {
+                pre => {
                    $analysisName.frame12.providedOrigin = user.sessions.providedOrigin
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame12.sessions = 1
                 }
              }
@@ -224,11 +224,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    mappedOrigin:verbatim[long]
                 }
              }
-            user.sessions ⇒ {
-                pre ⇒ {
+            user.sessions => {
+                pre => {
                    $analysisName.frame13.mappedOrigin = user.sessions.mappedOriginId
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame13.sessions = 1
                 }
              }
@@ -243,11 +243,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    originSourceType:verbatim[long]
                 }
              }
-            user.sessions ⇒ {
-                pre ⇒ {
+            user.sessions => {
+                pre => {
                    $analysisName.frame14.originSourceType = user.sessions.originSourceTypeId
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame14.sessions = 1
                 }
              }
@@ -262,11 +262,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    originMethodType:verbatim[long]
                 }
              }
-            user.sessions ⇒ {
-                pre ⇒ {
+            user.sessions => {
+                pre => {
                    $analysisName.frame15.originMethodType = user.sessions.originMethodTypeId
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame15.sessions = 1
                 }
             }
@@ -281,11 +281,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    eventId:verbatim[long]
                 }
              }
-            user.sessions.events ⇒ {
-                pre ⇒ {
+            user.sessions.events => {
+                pre => {
                    $analysisName.frame16.eventId = user.sessions.events.id
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame16.eventFrequency = 1
                 }
              }
@@ -300,11 +300,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    localeId:verbatim[long]
                 }
              }
-            user.sessions ⇒ {
-                pre ⇒ {
+            user.sessions => {
+                pre => {
                    $analysisName.frame17.localeId = user.sessions.localeId
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame17.localeIdFrequency = 1
                 }
              }
@@ -319,11 +319,11 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    variantId:verbatim[long]
                 }
              }
-            user.sessions.variants ⇒ {
-                pre ⇒ {
+            user.sessions.variants => {
+                pre => {
                    $analysisName.frame18.variantId = user.sessions.variants.id
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame18.variantIdFrequency = 1
                 }
              }
@@ -340,18 +340,18 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    }
                 }
              }
-            user ⇒ {
-                post ⇒ {
+            user => {
+                post => {
                    $analysisName.frame19.campaignIdFrequency = 1
                 }
              }
-             user.application.channels ⇒ {
-                pre ⇒ {
+             user.application.channels => {
+                pre => {
                    $analysisName.frame19.campaignId = user.application.channels.campaignId
                 }
              }
-             user.application ⇒ {
-                post ⇒ {
+             user.application => {
+                post => {
                    insert($analysisName.frame19)
                 }
              }
@@ -368,18 +368,18 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    }
                 }
              }
-            user ⇒ {
-                post ⇒ {
+            user => {
+                post => {
                    $analysisName.frame20.channelIdFrequency = 1
                 }
              }
-             user.application.channels ⇒ {
-                pre ⇒ {
+             user.application.channels => {
+                pre => {
                    $analysisName.frame20.channelId = user.application.channels.channelId
                 }
              }
-             user.application ⇒ {
-                post ⇒ {
+             user.application => {
+                post => {
                    insert($analysisName.frame20)
                 }
              }
@@ -396,14 +396,14 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    }
                 }
              }
-            user.sessions.parameters ⇒ {
-                situ ⇒ {
+            user.sessions.parameters => {
+                situ => {
                    $analysisName.frame21.sessionParameterKey = key(user.sessions.parameters)
                    insert($analysisName.frame21)
                 }
              }
-             user.sessions ⇒ {
-                post ⇒ {
+             user.sessions => {
+                post => {
                    $analysisName.frame21.sessionParameterFrequency = 1
                 }
              }
@@ -423,17 +423,17 @@ object HydraUnityCase22 extends HydraUseCase(200, 200, "unity") {
                    }
                 }
              }
-            user.sessions.events.parameters ⇒ {
-                situ ⇒ {
+            user.sessions.events.parameters => {
+                situ => {
                    $analysisName.frame22.eventParameterKey = key(user.sessions.events.parameters)
                    insert($analysisName.frame22)
                 }
              }
-             user.sessions.events ⇒ {
-                pre ⇒ {
+             user.sessions.events => {
+                pre => {
                    $analysisName.frame22.eventId = user.sessions.events.id
                 }
-                post ⇒ {
+                post => {
                    $analysisName.frame22.eventParameterFrequency = 1
                 }
              }

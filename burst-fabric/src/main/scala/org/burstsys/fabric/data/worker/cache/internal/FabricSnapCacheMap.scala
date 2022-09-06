@@ -7,7 +7,7 @@ import org.burstsys.fabric.data.model.slice.FabricSlice
 import org.burstsys.fabric.data.model.snap.{FabricSnap, _}
 import org.burstsys.fabric.data.worker.cache.FabricSnapCache
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**

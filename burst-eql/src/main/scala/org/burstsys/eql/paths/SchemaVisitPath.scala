@@ -6,8 +6,7 @@ import org.burstsys.motif.paths.schemas.SchemaPathBase
 import org.burstsys.motif.schema.model.{SchemaReference, SchemaValueMap, SchemaValueVector}
 import org.burstsys.vitals.errors.VitalsException
 
-import scala.collection.JavaConverters._
-import scala.jdk.CollectionConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters._
 
 class SchemaVisitPath(motifPath: SchemaPathBase) extends  VisitPath {
   override def getPathAsString: String = motifPath.getPathAsString

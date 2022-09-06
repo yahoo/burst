@@ -3,7 +3,7 @@ package org.burstsys.vitals.logging
 
 import org.apache.logging.log4j.Level
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 
 object VitalsLogHandler {

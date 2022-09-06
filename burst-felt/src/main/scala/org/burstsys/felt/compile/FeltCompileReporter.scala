@@ -6,23 +6,19 @@ import org.burstsys.vitals.errors.{VitalsException, _}
 import scala.collection.mutable
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
-import scala.tools.nsc.reporters.AbstractReporter
+import scala.tools.nsc.reporters.FilteringReporter
 
 /**
  * Error reporting for the in memory scala compiler implementation
- *
- * @param settings
- * @param lineOffset
  */
 final case
-class FeltCompileReporter(settings: Settings, lineOffset: Int) extends AbstractReporter {
+class FeltCompileReporter(settings: Settings, lineOffset: Int) extends FilteringReporter {
 
   private[this]
   val _messages = new mutable.ListBuffer[List[String]]
 
-  def display(pos: Position, message: String, severity: Severity): Unit = {
+  def doReport(pos: Position, message: String, severity: Severity): Unit = {
     _messages synchronized {
-      severity.count += 1
       val severityName = severity match {
         case ERROR =>
           " error: "

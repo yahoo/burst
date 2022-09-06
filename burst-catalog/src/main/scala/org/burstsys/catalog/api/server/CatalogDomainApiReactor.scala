@@ -17,7 +17,7 @@ trait CatalogDomainApiReactor extends CatalogApi {
   final override
   def allDomains(limit: Option[Int]): Future[BurstCatalogApiDomainResponse] = {
     mapResponse(service.allDomains(limit),
-      (domains: Array[CatalogDomain]) => DomainResponse(domains = Some(domains)),
+      (domains: Array[CatalogDomain]) => DomainResponse(domains = Some(domains.toIndexedSeq)),
       (f: BurstCatalogApiResult) => DomainResponse(f)
     )
   }
@@ -25,7 +25,7 @@ trait CatalogDomainApiReactor extends CatalogApi {
   final override
   def searchDomains(descriptor: String, limit: Option[Int]): Future[BurstCatalogApiDomainResponse] = {
     mapResponse(service.searchDomains(descriptor, limit),
-      (domains: Array[CatalogDomain]) => DomainResponse(domains = Some(domains)),
+      (domains: Array[CatalogDomain]) => DomainResponse(domains = Some(domains.toIndexedSeq)),
       (f: BurstCatalogApiResult) => DomainResponse(f)
     )
   }
@@ -33,7 +33,7 @@ trait CatalogDomainApiReactor extends CatalogApi {
   final override
   def searchDomainsByLabel(label: String, value: Option[String], limit: Option[Int]): Future[BurstCatalogApiDomainResponse] = {
     mapResponse(service.searchDomainsByLabel(label, value, limit),
-      (domains: Array[CatalogDomain]) => DomainResponse(domains = Some(domains)),
+      (domains: Array[CatalogDomain]) => DomainResponse(domains = Some(domains.toIndexedSeq)),
       (f: BurstCatalogApiResult) => DomainResponse(f)
     )
   }

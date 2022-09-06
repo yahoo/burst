@@ -23,11 +23,11 @@ package object strings {
 
   def spaces(width: Int): String = " " * width
 
-  implicit class VitalsGeneratingTraversable(strings: GenTraversable[String]) {
+  implicit class VitalsGeneratingTraversable(strings: Iterable[String]) {
 
     final def stringify: String = strings.foldRight("")(_ + _)
 
-    final def noNulls: GenTraversable[String] = strings.filter(_ != null)
+    final def noNulls: Iterable[String] = strings.filter(_ != null)
 
   }
 
@@ -135,9 +135,10 @@ package object strings {
     final def doubleLineEnd: String = string.trimAtEnd.withLineEnd.withLineEnd
 
     def initialCase: String = {
-      if (string.nonEmpty)
-        string.charAt(0).toUpper + string.substring(1)
-      else string
+      if (string.nonEmpty) {
+        string.substring(0,1).toUpperCase() + string.substring(1)
+      } else
+        string
     }
   }
 

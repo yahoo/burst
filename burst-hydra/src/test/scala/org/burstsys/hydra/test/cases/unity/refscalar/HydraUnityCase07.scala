@@ -21,8 +21,8 @@ object HydraUnityCase07 extends HydraUseCase(200, 200, "unity") {
               appVersion:verbatim[long]
             }
          }
-         user.sessions ⇒ {
-           pre ⇒ {
+         user.sessions => {
+           pre => {
               $analysisName.frame07.appVersion = user.sessions.appVersion.id
               $analysisName.frame07.frequency = 1
            }

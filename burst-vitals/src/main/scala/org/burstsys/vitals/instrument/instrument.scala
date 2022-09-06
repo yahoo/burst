@@ -142,6 +142,9 @@ package object instrument extends VitalsLogger {
 
   def prettyPercentage(top: Int, bottom: Int): String = prettyPercentage(top.toLong, bottom.toLong)
 
+  def prettyTimeFromNanos(nanos: Long): String =
+    prettyTimeFromNanos(nanos.toDouble)
+
   def prettyTimeFromNanos(nanos: Double): String = {
     if (nanos > 1e9 * 60 * 60 * 24) {
       f"${nanos / (1E9 * 60.0 * 60 * 24)}%.1fd"
@@ -158,6 +161,10 @@ package object instrument extends VitalsLogger {
     } else {
       f"$nanos%.1fns"
     }
+  }
+
+  def prettyTimeFromMillis(milliseconds: Long): String = {
+    prettyTimeFromMillis(milliseconds.toDouble)
   }
 
   def prettyTimeFromMillis(milliseconds: Double): String = {

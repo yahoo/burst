@@ -2,7 +2,6 @@
 package org.burstsys.hydra.test.cases.unity.mutables
 
 import org.burstsys.alloy.views.AlloySmallDatasets.smallDataset_2_users_5_sessions
-import org.burstsys.hydra.test.support.GeneratedUnitySchema.{UnityTraveler_lexicon, UnityTraveler_lexicon_runtime}
 import org.burstsys.hydra.test.support.HydraAlloyTestRunner
 import org.scalatest.Ignore
 

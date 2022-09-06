@@ -114,7 +114,7 @@ abstract class FabricCacheLifecycleSpec extends FabricMasterWorkerBaseSpec
   protected
   def loadGeneration(domainKey: FabricDomainKey, viewKey: FabricViewKey, generationClock: FabricGenerationClock): Unit = {
     val guid = newBurstUid
-    val promise = Promise[FabricGather]
+    val promise = Promise[FabricGather]()
     // get an appropriate datasource
     val datasource = FabricDatasource(
       FabricDomain(domainKey = domainKey),

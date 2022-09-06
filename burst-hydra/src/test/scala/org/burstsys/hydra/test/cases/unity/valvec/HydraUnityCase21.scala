@@ -23,11 +23,11 @@ object HydraUnityCase21 extends HydraUseCase(200, 200, "unity") {
 
         }
 
-        user.sessions.variants ⇒ {
-          pre ⇒ {
+        user.sessions.variants => {
+          pre => {
             $analysisName.$frameName.variantId = user.sessions.variants.id
           }
-          post ⇒ {
+          post => {
             $analysisName.$frameName.variantIdFrequency = 1
           }
         }

@@ -18,7 +18,7 @@ HydraUnityRoute08Query extends HydraUseCase(200, 200, "unity") {
     s"""
        |frame $cubeFrame1 {
        |  cube user { limit = 9999 aggregates { 'keys1':sum[long]  }  }
-       |  $analysisName.$routeFrame1.paths.steps user.sessions (4) ⇒ {
+       |  $analysisName.$routeFrame1.paths.steps user.sessions (4) => {
        |    before => {
        |      $analysisName.$cubeFrame1.'keys1' = routeVisitStepKey( $analysisName.$routeFrame1 )
        |    }
@@ -42,8 +42,8 @@ HydraUnityRoute08Query extends HydraUseCase(200, 200, "unity") {
        |    maxSteps = 1000
        |    graph {  enter 1 { to(2) } exit 2 { } }
        |  }
-       |  user.sessions (3) ⇒ {
-       |    pre ⇒ {
+       |  user.sessions (3) => {
+       |    pre => {
        |        routeScopeStart( $analysisName.$routeFrame1 )
        |        routeFsmStepAssert( $analysisName.$routeFrame1, 1, 101, 1111 )
        |        routeFsmStepAssert( $analysisName.$routeFrame1, 2, 101, 1111 )

@@ -22,8 +22,8 @@ object HydraQuoLongToDoubleCast extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
        |
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        $analysisName.$frameName.'cast' = cast( user.sessions.events.eventId as double )
        |        insert($analysisName.$frameName)
        |      }

@@ -29,7 +29,7 @@ HydraUnityRoute06Query extends HydraUseCase(200, 200, "unity") {
        |    }
        |  }
        |  // dynamic path visit
-       |  $analysisName.$routeFrame.paths user.sessions (1) ⇒ {
+       |  $analysisName.$routeFrame.paths user.sessions (1) => {
        |    before => {
        |      $analysisName.$cubeFrame.'keys' = routeVisitStepKey( $analysisName.$routeFrame )
        |      $analysisName.$cubeFrame.'times' = routeVisitStepTime( $analysisName.$routeFrame )
@@ -37,7 +37,7 @@ HydraUnityRoute06Query extends HydraUseCase(200, 200, "unity") {
        |    }
        |  }
        |  // dynamic path visit
-       |  $analysisName.$routeFrame.paths.steps user.sessions (2) ⇒ {
+       |  $analysisName.$routeFrame.paths.steps user.sessions (2) => {
        |    situ => {
        |      $analysisName.$cubeFrame.'keys' = routeVisitStepKey( $analysisName.$routeFrame )
        |      $analysisName.$cubeFrame.'times' = routeVisitStepTime( $analysisName.$routeFrame )
@@ -62,8 +62,8 @@ HydraUnityRoute06Query extends HydraUseCase(200, 200, "unity") {
        |    }
        |  }
        |  // static path visit
-       |  user.sessions ⇒ {
-       |    pre ⇒ {
+       |  user.sessions => {
+       |    pre => {
        |        routeScopeStart( $analysisName.$routeFrame )
        |        routeFsmStepAssert( $analysisName.$routeFrame, 1, 101, 1111 )
        |        routeFsmStepAssert( $analysisName.$routeFrame, 2, 103, 2222 )

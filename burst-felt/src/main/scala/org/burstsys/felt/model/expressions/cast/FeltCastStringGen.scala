@@ -60,7 +60,7 @@ trait FeltCastStringGen {
         |${I2}try {
         |$I3${cursor.callScope.scopeVal} = ${readCursor.callScope.scopeVal}.$function;
         |$I2} catch {
-        |${I3}case nfe:${classOf[NumberFormatException].getName} ⇒
+        |${I3}case nfe:${classOf[NumberFormatException].getName} =>
         |$I4${cursor.callScope.scopeNull} = true;
         |$I2}
         |$I}""".stripMargin
@@ -106,7 +106,7 @@ trait FeltCastStringGen {
         |${I4}${cursor.callScope.scopeVal} = tmpString.$function;
         |${I3}}
         |$I2} catch {
-        |${I3}case nfe:${classOf[NumberFormatException].getName} ⇒
+        |${I3}case nfe:${classOf[NumberFormatException].getName} =>
         |$I4${cursor.callScope.scopeNull} = true;
         |$I2}
         |$I}""".stripMargin

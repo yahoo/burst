@@ -4,7 +4,7 @@ package org.burstsys.alloy.alloy
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.reflection
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object usecase extends VitalsLogger {
 
@@ -12,7 +12,7 @@ package object usecase extends VitalsLogger {
   lazy val alloyUseCases: Array[AlloyUseCase] = {
     reflection.getSubTypesOf(
       classOf[AlloyUseCase]
-    ).asScala.map(_.getDeclaredConstructor().newInstance()).toArray
+    ).map(_.getDeclaredConstructor().newInstance()).toArray
   }
 
 }

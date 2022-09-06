@@ -59,23 +59,23 @@
         </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
-            <artifactId>finagle-thrift_2.12</artifactId>
+            <artifactId>finagle-thrift_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
-            <artifactId>finagle-core_2.12</artifactId>
+            <artifactId>finagle-core_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
-            <artifactId>scrooge-core_2.12</artifactId>
+            <artifactId>scrooge-core_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
-            <artifactId>util-core_2.12</artifactId>
+            <artifactId>util-core_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
-            <artifactId>util-stats_2.12</artifactId>
+            <artifactId>util-stats_${scala-major.version}</artifactId>
         </dependency>
 
 

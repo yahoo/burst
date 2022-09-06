@@ -29,8 +29,8 @@ final case class VitalsTextCodec() {
       builder += array(c)
       c += 1
     }
-    val r = builder.result
-    builder.clear
+    val r = builder.result()
+    builder.clear()
     encoder.reset
     r
   }

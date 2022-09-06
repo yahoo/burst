@@ -25,7 +25,7 @@ class HydraParser() extends AnyRef with HydraParsePoints with HydraParsePrinter 
     try {
       val global = FeltGlobal(brioSchema = defaultSchema, source = source, binding = HydraFeltBinding)
       val lexer = new HydraAnalysisGrammarLexer(CharStreams.fromString(source))
-      lexer removeErrorListeners()
+      lexer.removeErrorListeners()
       lexer addErrorListener errorListener
       val tokenStream = new CommonTokenStream(lexer)
       val parser = new HydraAnalysisGrammarParser(tokenStream)

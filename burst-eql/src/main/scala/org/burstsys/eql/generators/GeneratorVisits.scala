@@ -22,7 +22,7 @@ final case class GeneratorVisits(visits: Visits)(implicit context: GlobalContext
     CodeBlock { implicit cb =>
       hydraMap.foreach {
         case (_, hydraVisit) =>
-              hydraVisit.generateSource().source
+              hydraVisit.generateSource().source()
       }
     }
   }

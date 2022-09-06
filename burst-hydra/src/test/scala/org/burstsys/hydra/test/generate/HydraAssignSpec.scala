@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.generate
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraAssignSpec extends HydraSpecSupport {
 
@@ -24,8 +21,8 @@ class HydraAssignSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user.sessions ⇒ {
-         |      pre ⇒ {
+         |    user.sessions => {
+         |      pre => {
          |        $analysisName.$frameName.a1 = user.sessions.id
          |      } // end pre
          |

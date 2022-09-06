@@ -10,7 +10,7 @@ import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**
@@ -38,7 +38,7 @@ trait NexusClientPool extends AnyRef {
     final def grabClient: NexusClient = {
       lazy val tag = s"NexusClientPool.grabClient($name)"
       touch
-      clientQ poll() match {
+      clientQ.poll() match {
         case null =>
           val client = NexusClient(serverHost = serverHost, serverPort = serverPort).start
           log info s"NEXUS_GRAB_CLIENT -- new client id=${client.clientId} $tag"

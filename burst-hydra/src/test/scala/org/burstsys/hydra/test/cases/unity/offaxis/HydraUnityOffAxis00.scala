@@ -27,12 +27,12 @@ object HydraUnityOffAxis00 extends HydraUseCase(200, 200, "unity") {
        |				}
        |			}
        |		}
-       |		user ⇒ {
-       |			pre ⇒ 			{
+       |		user => {
+       |			pre => 			{
        |				T1 = (user.deviceModelId == 555666)
        |				T2_summary = false
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				if( T2_summary && T1 )
        |				{
        |					T1_summary = true
@@ -40,15 +40,15 @@ object HydraUnityOffAxis00 extends HydraUseCase(200, 200, "unity") {
        |				}
        |			}
        |		}
-       |		user.application.firstUse ⇒ {
-       |			pre ⇒ 			{
+       |		user.application.firstUse => {
+       |			pre => 			{
        |				T2 = T1
        |				if( T2 )
        |				{
        |					$analysisName.$frameName.id = user.application.firstUse.languageId
        |				}
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				if( T2 )
        |				{
        |					T2_summary = true

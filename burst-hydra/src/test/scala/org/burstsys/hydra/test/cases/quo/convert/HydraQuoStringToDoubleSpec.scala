@@ -20,8 +20,8 @@ class HydraQuoStringToDoubleSpec extends HydraAlloyTestRunner {
          |      }
          |    }
 
-         |    user.sessions.events.parameters ⇒ {
-         |      situ ⇒ {
+         |    user.sessions.events.parameters => {
+         |      situ => {
          |         MyFrame.'cast' = cast( value(user.sessions.events.parameters) as double )
          |        insert( MyFrame)
          |      }

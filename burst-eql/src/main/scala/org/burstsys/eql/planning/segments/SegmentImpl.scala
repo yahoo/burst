@@ -8,7 +8,7 @@ import org.burstsys.eql.planning.{ParameterMap, ParameterReference}
 import org.burstsys.eql.planning.lanes._
 import org.burstsys.eql.planning.visits.Visits
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 class SegmentImpl(tree: ParsedSegment)(implicit global: GlobalContext) extends Segment {

@@ -75,7 +75,7 @@ trait FeltMatchCase extends FeltExpression {
   final override
   def generateExpression(implicit cursor: FeltCodeCursor): FeltCode =
     s"""|
-        |${I}case ${expression.generateExpression} ⇒ ${expressionBlock.generateExpression.singleLineEnd}""".stripMargin
+        |${I}case ${expression.generateExpression} => ${expressionBlock.generateExpression.singleLineEnd}""".stripMargin
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // NORMALIZED SOURCE GEN
@@ -83,6 +83,6 @@ trait FeltMatchCase extends FeltExpression {
 
   final override
   def normalizedSource(implicit index: Int): String =
-    s"${S}case ${expression.normalizedSource} ⇒ ${expressionBlock.normalizedSource.singleLineEnd}"
+    s"${S}case ${expression.normalizedSource} => ${expressionBlock.normalizedSource.singleLineEnd}"
 
 }

@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.generate
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraAnalysisGenerateSpec extends HydraSpecSupport {
 
@@ -80,8 +77,8 @@ class HydraAnalysisGenerateSpec extends HydraSpecSupport {
                }
 
                // path visits go here...
-               user ⇒ {
-                 pre ⇒ {
+               user => {
+                 pre => {
                    val v4:integer = 0 + 0 * 1
 
                    if(true) {
@@ -90,24 +87,24 @@ class HydraAnalysisGenerateSpec extends HydraSpecSupport {
                    }
                        ???
                  }
-                 post ⇒ {
+                 post => {
                        ???
                  }
                }
 
-               user.sessions ⇒ {
+               user.sessions => {
 
-                 pre ⇒ {
+                 pre => {
                    val bar:double = (0.5 * 12.1) % 3
                    user.sessions.sessionId match {
-                     case "foo" ⇒ {
+                     case "foo" => {
                        val foo:string = "hello there"
                        ???
                      }
-                     case 5 ⇒ {
+                     case 5 => {
                        ???
                      }
-                     case _ ⇒ {
+                     case _ => {
                        ???
                      }
                    }
@@ -188,29 +185,29 @@ class HydraAnalysisGenerateSpec extends HydraSpecSupport {
                }
 
                // path visits go here...
-               user ⇒ {
-                 pre ⇒ {
+               user => {
+                 pre => {
                    val v4:integer = 0
                        ???
                  }
-                 post ⇒ {
+                 post => {
                        ???
                  }
                }
 
-               user.sessions ⇒ {
+               user.sessions => {
 
-                 pre ⇒ {
+                 pre => {
                    val bar:double = (0.5 * 12.1) % 3
                    user.sessions.sessionId match {
-                     case "foo" ⇒ {
+                     case "foo" => {
                        val foo:string = "hello there"
                        ???
                      }
-                     case 5 ⇒ {
+                     case 5 => {
                        ???
                      }
-                     case _ ⇒ {
+                     case _ => {
                        ???
                      }
                    }

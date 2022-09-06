@@ -55,8 +55,8 @@ abstract class HydraSpecSupport extends AnyFlatSpec with Suite with Matchers wit
         |        d0:verbatim[long]
         |      }
         |    }
-        |    user.sessions.events.parameters ⇒ {
-        |      situ ⇒ {
+        |    user.sessions.events.parameters => {
+        |      situ => {
         |        $source
         |      }
         |    }

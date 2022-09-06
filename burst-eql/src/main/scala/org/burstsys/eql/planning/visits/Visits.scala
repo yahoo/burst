@@ -49,11 +49,11 @@ final class Visits(val schema: MotifSchema) extends Iterable[(VisitPath, VisitLa
         Some(dvp.getAttachmentPath -> dvp.getLocalRoot)
       case _ => None
     }
-    val lookupMap = lookups.groupBy(_._1).mapValues(vpl => vpl.map(t => t._2).toList).mapValues(vpl => vpl.distinct)
+    val lookupMap = lookups.groupBy(_._1).view.mapValues(vpl => vpl.map(t => t._2).toList).mapValues(vpl => vpl.distinct)
     if (lookupMap.isEmpty)
       None
     else
-      Some(lookupMap)
+      Some(lookupMap.toMap)
   }
 
   /**

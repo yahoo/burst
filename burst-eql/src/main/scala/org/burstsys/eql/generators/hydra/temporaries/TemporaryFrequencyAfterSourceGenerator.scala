@@ -19,9 +19,9 @@ trait TemporaryFrequencyAfterSourceGenerator extends ActionSourceGenerator {
 
   override
   def generateSource()(implicit context: GlobalContext): CodeBlock = CodeBlock { implicit cb =>
-    val surround = surrounding.expression.generateSource.head
+    val surround = surrounding.expression.generateSource().head
     s"${qualifiedName(frequencyTargetName)} = $surround".source()
     s"${qualifiedName(dimensionTargetName)} = $name".source()
-    s"insert($qualifiedFrameName)".source
+    s"insert($qualifiedFrameName)".source()
   }
 }

@@ -23,8 +23,8 @@ object HydraQuoParameters04 extends HydraUseCase(1, 1, "quo" /*, executionCount 
        |        }
        |      }
        |    }
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        if( user.sessions.events.parameters["ul"] == "1") {
        |          $analysisName.$frameName.count = 1
        |        }

@@ -42,15 +42,15 @@ trait FeltLatValVecSwpGen {
         |${I}def valueVectorSplice($schemaRuntimeSym: $feltRuntimeClass, path: Int, placement: Int): Unit = {
         |${sweepRuntimeClassVal(global)(cursor indentRight 1)}
         |${I2}placement match {
-        |${I3}case ${FeltVectorAllocPlace.key} ⇒  // $FeltVectorAllocPlace
+        |${I3}case ${FeltVectorAllocPlace.key} =>  // $FeltVectorAllocPlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorAllocPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorBeforePlace.key} ⇒  // $FeltVectorBeforePlace
+        |${I3}case ${FeltVectorBeforePlace.key} =>  // $FeltVectorBeforePlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorBeforePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorAfterPlace.key} ⇒  // $FeltVectorAfterPlace
+        |${I3}case ${FeltVectorAfterPlace.key} =>  // $FeltVectorAfterPlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorAfterPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorFreePlace.key} ⇒  // $FeltVectorFreePlace
+        |${I3}case ${FeltVectorFreePlace.key} =>  // $FeltVectorFreePlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorFreePlace)(cursor indentRight 3)}
-        |${I3}case _ ⇒
+        |${I3}case _ =>
         |$I2}
         |$I}""".stripMargin
   }
@@ -62,15 +62,15 @@ trait FeltLatValVecSwpGen {
         |${I}def valueVectorMemberSplice($schemaRuntimeSym: $feltRuntimeClass, path: Int, placement: Int): Unit = {
         |${sweepRuntimeClassVal(global)(cursor indentRight 1)}
         |${I2}placement match {
-        |${I3}case ${FeltVectorMemberAllocPlace.key} ⇒  // $FeltVectorMemberAllocPlace
+        |${I3}case ${FeltVectorMemberAllocPlace.key} =>  // $FeltVectorMemberAllocPlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorMemberAllocPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorMemberSituPlace.key} ⇒  // $FeltVectorMemberSituPlace
+        |${I3}case ${FeltVectorMemberSituPlace.key} =>  // $FeltVectorMemberSituPlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorMemberSituPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorMemberMergePlace.key} ⇒  // $FeltVectorMemberMergePlace
+        |${I3}case ${FeltVectorMemberMergePlace.key} =>  // $FeltVectorMemberMergePlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorMemberMergePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorMemberFreePlace.key} ⇒  // $FeltVectorMemberFreePlace
+        |${I3}case ${FeltVectorMemberFreePlace.key} =>  // $FeltVectorMemberFreePlace
         |${generateSpliceCallForPlace(valueVectorNodes, FeltVectorMemberFreePlace)(cursor indentRight 3)}
-        |${I3}case _ ⇒
+        |${I3}case _ =>
         |$I2}
         |$I}""".stripMargin
   }

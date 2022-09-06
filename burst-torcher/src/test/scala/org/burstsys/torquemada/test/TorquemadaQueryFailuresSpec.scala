@@ -38,7 +38,7 @@ class TorquemadaQueryFailuresSpec extends TorquemadaHelper {
     failQuery(groupUid, source, over, call)
 
   def failQuery(groupUid: FabricGroupUid, query: String, over: FabricOver, call: Option[FabricCall]): Future[FabricExecuteResult] = {
-    val promise = Promise[FabricExecuteResult]
+    val promise = Promise[FabricExecuteResult]()
     if (c.incrementAndGet() % 3 == 0)
       promise.failure(new RuntimeException("test failure"))
     else {

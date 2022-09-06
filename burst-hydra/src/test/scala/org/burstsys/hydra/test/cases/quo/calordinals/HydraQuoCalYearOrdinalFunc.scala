@@ -25,8 +25,8 @@ object HydraQuoCalYearOrdinalFunc extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
        |
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        $analysisName.$frameName.grain = yearOrdinal(user.sessions.events.startTime)
        |        $analysisName.$frameName.count = 1
        |      }

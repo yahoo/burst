@@ -10,11 +10,11 @@ import com.esotericsoftware.kryo.{Kryo, KryoSerializable}
 trait VitalsKryoStatelessSerializable extends KryoSerializable {
 
   final override
-  def read(kryo: Kryo, input: Input) {
+  def read(kryo: Kryo, input: Input): Unit = {
   }
 
   final override
-  def write(kryo: Kryo, output: Output) {
+  def write(kryo: Kryo, output: Output): Unit = {
   }
 }
 
@@ -23,7 +23,7 @@ trait VitalsKryoStatelessSerializable extends KryoSerializable {
   * (be careful how you use this! Its not a real[[com.esotericsoftware.kryo.KryoSerializable]])
   */
 trait VitalsKryoPureSerializable extends Any {
-  def write(kryo: Kryo, output: Output)
+  def write(kryo: Kryo, output: Output): Unit
 
-  def read(kryo: Kryo, input: Input)
+  def read(kryo: Kryo, input: Input): Unit
 }

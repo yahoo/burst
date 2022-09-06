@@ -18,11 +18,11 @@ specify visit [variables](variables.md) that have a lifetime/visibility scope li
 
 ###### Examples
 
-    user ⇒ {
+    user => {
     
       val visit_variable:boolean = true
       
-      pre ⇒ {
+      pre => {
       
       } // end pre action
       

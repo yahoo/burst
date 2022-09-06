@@ -11,7 +11,7 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.file.extractTextFilesFromClasspath
 import org.burstsys.vitals.logging.VitalsLogger
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBuilder with BrioSchematicBuilder {
 
@@ -89,7 +89,7 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
     }
     if (sources.isEmpty)
       throw VitalsException(s"names='$schemata', path='$path' : no sources found!")
-    val schema = build(sources: _*)
+    val schema = build(sources.toIndexedSeq: _*)
     if(schemaMap.contains(schema.name))
       throw VitalsException(s"parsed schema name '${schema.name}' conflicts with existing name/alias found in set $schemaAliasSet")
     schemaMap.put(schema.name, schema)

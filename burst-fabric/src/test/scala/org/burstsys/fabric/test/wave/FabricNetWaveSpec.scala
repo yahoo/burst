@@ -103,28 +103,34 @@ class FabricNetWaveSpec extends FabricMasterWorkerBaseSpec
 
   }
 
-  override def onEvent: PartialFunction[FabricPipelineEvent, Unit] = {
+  override def onEvent: PartialFunction[FabricPipelineEvent, Boolean] = {
     case e: WaveBegan =>
       log info s"################## onWaveBegin(seqNum=${e.seqNum}, guid=${e.guid})"
       waveBeginGate.countDown()
+      true
 
     case e: ParticleDispatched =>
       log info s"################## onParticleBegin(seqNum=${e.seqNum}, guid=${e.guid}, ruid=${e.ruid})"
       particleBeginGate.countDown()
+      true
 
     case e: ParticleSucceeded =>
       log info s"################## onParticleSucceed(seqNum=${e.seqNum}, guid=${e.guid}, ruid=${e.ruid})"
       particleSucceedGate.countDown()
+      true
 
     case e: ParticleFailed =>
       log info s"################## onParticleFail(seqNum=${e.seqNum}, guid=${e.guid}, ruid=${e.ruid}, msg=${e.message})"
+      true
 
     case e: WaveFailed =>
       log info s"################## onWaveFail(seqNum=${e.seqNum}, guid=${e.guid}, msg=${e.message})"
+      true
 
     case e: WaveSucceeded =>
       log info s"################## onWaveSucceed(seqNum=${e.seqNum}, guid=${e.guid})"
       waveSucceedGate.countDown()
+      true
   }
 
   override

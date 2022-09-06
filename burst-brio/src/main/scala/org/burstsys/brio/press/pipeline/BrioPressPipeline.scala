@@ -148,7 +148,7 @@ trait BrioPressPipeline extends AnyRef {
    * @param maxItemSize
    */
   def pressToFuture(guid: VitalsUid, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[TeslaMutableBuffer] = {
-    val p = Promise[TeslaMutableBuffer]
+    val p = Promise[TeslaMutableBuffer]()
     pressJobQueue put BrioPressPipelineJobContext(jobId.getAndIncrement, guid, p, pressSource, schema, version, maxItemSize)
     p.future
   }

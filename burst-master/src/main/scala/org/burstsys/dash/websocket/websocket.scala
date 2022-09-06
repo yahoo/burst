@@ -20,7 +20,7 @@ import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.uid.VitalsUid
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 
 package object websocket extends VitalsLogger {

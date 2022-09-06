@@ -42,15 +42,15 @@ trait FeltLatRefVecSwpGen {
         |${I}def referenceVectorSplice($schemaRuntimeSym: $feltRuntimeClass, path: Int, placement: Int): Unit = {
         |${sweepRuntimeClassVal(global)(cursor indentRight 1)}
         |${I2}placement match {
-        |${I3}case ${FeltVectorAllocPlace.key} ⇒  // $FeltVectorMemberAllocPlace
+        |${I3}case ${FeltVectorAllocPlace.key} =>  // $FeltVectorMemberAllocPlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorAllocPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorBeforePlace.key} ⇒  // $FeltVectorBeforePlace
+        |${I3}case ${FeltVectorBeforePlace.key} =>  // $FeltVectorBeforePlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorBeforePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorAfterPlace.key} ⇒  // $FeltVectorAfterPlace
+        |${I3}case ${FeltVectorAfterPlace.key} =>  // $FeltVectorAfterPlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorAfterPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorFreePlace.key} ⇒  // $FeltVectorFreePlace
+        |${I3}case ${FeltVectorFreePlace.key} =>  // $FeltVectorFreePlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorFreePlace)(cursor indentRight 3)}
-        |${I3}case _ ⇒
+        |${I3}case _ =>
         |$I2}
         |$I}""".stripMargin
   }
@@ -62,13 +62,13 @@ trait FeltLatRefVecSwpGen {
         |${I}def referenceVectorMemberSplice($schemaRuntimeSym: $feltRuntimeClass, path: Int, placement: Int): Unit = {
         |${sweepRuntimeClassVal(global)(cursor indentRight 1)}
         |${I2}placement match {
-        |${I3}case ${FeltVectorMemberAllocPlace.key} ⇒  // $FeltVectorMemberAllocPlace
+        |${I3}case ${FeltVectorMemberAllocPlace.key} =>  // $FeltVectorMemberAllocPlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorMemberAllocPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorMemberMergePlace.key} ⇒ // $FeltVectorMemberMergePlace
+        |${I3}case ${FeltVectorMemberMergePlace.key} => // $FeltVectorMemberMergePlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorMemberMergePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltVectorMemberFreePlace.key} ⇒ // $FeltVectorMemberFreePlace
+        |${I3}case ${FeltVectorMemberFreePlace.key} => // $FeltVectorMemberFreePlace
         |${generateSpliceCallForPlace(referenceVectorNodes, FeltVectorMemberFreePlace)(cursor indentRight 3)}
-        |${I3}case _ ⇒
+        |${I3}case _ =>
         |$I2}
         |$I}""".stripMargin
   }

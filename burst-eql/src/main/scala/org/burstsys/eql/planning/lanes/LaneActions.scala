@@ -21,13 +21,13 @@ class LaneActions extends LaneActionsSourceGenerator {
   protected val actionQueue: mutable.Queue[ActionSourceGenerator] = mutable.Queue()
   protected var hasDimensionWrite: Boolean = false
 
-  def this(laneAction: LaneActions) {
+  def this(laneAction: LaneActions) = {
     this()
-    actionQueue.enqueue(laneAction.actions.toSeq: _*)
+    laneAction.actions.foreach(actionQueue.enqueue)
   }
 
   def transform(op: ActionSourceGenerator => ActionSourceGenerator): this.type = {
-    this.actionQueue.transform(op)
+    this.actionQueue.mapInPlace(op)
     this
   }
 

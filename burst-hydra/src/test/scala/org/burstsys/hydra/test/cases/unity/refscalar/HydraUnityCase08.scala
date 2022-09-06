@@ -21,8 +21,8 @@ object HydraUnityCase08 extends HydraUseCase(200, 200, "unity") {
             providedOrigin:verbatim[string]
           }
         }
-        user.sessions ⇒ {
-          post ⇒ {
+        user.sessions => {
+          post => {
             $analysisName.$frameName.providedOrigin = user.sessions.providedOrigin
             $analysisName.$frameName.frequency = 1
           }

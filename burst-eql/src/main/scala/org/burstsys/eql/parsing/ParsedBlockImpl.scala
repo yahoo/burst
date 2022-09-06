@@ -7,7 +7,7 @@ import org.burstsys.motif.motif.tree.eql.funnels.Funnel
 import org.burstsys.motif.motif.tree.eql.queries.Query
 import org.burstsys.motif.motif.tree.eql.segments.Segment
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ParsedBlockImpl(source: String)(implicit globalContext: GlobalContext) extends ParsedBlock {
   private val motif: Motif = Motif.build()

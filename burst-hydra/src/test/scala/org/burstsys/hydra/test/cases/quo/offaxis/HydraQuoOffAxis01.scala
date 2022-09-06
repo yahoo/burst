@@ -26,15 +26,15 @@ object HydraQuoOffAxis01 extends HydraUseCase(1, 1, "quo") {
             }
           }
 
-          user.personas ⇒ {
-             post ⇒ {
+          user.personas => {
+             post => {
                 $analysisName.$frameName.persona = user.personas.personaId
                 insert($analysisName.$frameName)
              }
           }
 
-          user.sessions.events ⇒ {
-            post ⇒ {
+          user.sessions.events => {
+            post => {
               $analysisName.$frameName.eventCount = 1
             }
           }

@@ -16,7 +16,7 @@ import org.burstsys.vitals.logging._
 
 
 private[agent] final case
-class AgentApiClient(service: AgentService, modality: VitalsServiceModality) extends BurstApiClient[BurstQueryApiService.FutureIface] with AgentApi {
+class AgentApiClient(service: AgentService, modality: VitalsServiceModality) extends BurstApiClient[BurstQueryApiService.MethodPerEndpoint] with AgentApi {
 
   override
   def groupExecute(
@@ -43,7 +43,7 @@ class AgentApiClient(service: AgentService, modality: VitalsServiceModality) ext
                       groupUid: Option[FabricGroupUid],
                       operation: BurstQueryCacheOperation,
                       generationKey: BurstQueryCacheGenerationKey,
-                      parameters: Option[Seq[BurstQueryCacheOperationParameter]]
+                      parameters: Option[scala.collection.Seq[BurstQueryCacheOperationParameter]]
                     ): Future[BurstQueryCacheGenerationResult] = {
     try {
       ensureRunning

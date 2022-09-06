@@ -8,7 +8,7 @@ import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.reflection
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * ==Felt Provider Bindings==
@@ -21,7 +21,7 @@ package object binding extends VitalsLogger {
   private
   lazy val _bindLookup: Map[String, FeltBinding] = {
     val map = new ConcurrentHashMap[String, FeltBinding]()
-    reflection.getSubTypesOf(classOf[FeltBinding]).forEach {
+    reflection.getSubTypesOf(classOf[FeltBinding]).foreach {
       bindClass =>
         try {
           val binding = bindClass.getDeclaredConstructor().newInstance()

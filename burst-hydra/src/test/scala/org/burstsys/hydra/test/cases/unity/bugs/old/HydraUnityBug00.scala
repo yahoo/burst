@@ -28,11 +28,11 @@ object HydraUnityBug00 extends HydraUseCase(200, 200, "unity") {
 				}
 			}
 		}
-		user ⇒ {
-			pre ⇒ 			{
+		user => {
+			pre => 			{
 				T1_summary = false
 			}
-			post ⇒ 			{
+			post => 			{
 				if( T1_summary )
 				{
 					T2_summary = true
@@ -40,15 +40,15 @@ object HydraUnityBug00 extends HydraUseCase(200, 200, "unity") {
 				}
 			}
 		}
-		user.sessions.events ⇒ {
-			pre ⇒ 			{
+		user.sessions.events => {
+			pre => 			{
 				T1 = (				notNull(user.sessions.events.parameters["one"]))
 				if( T1 )
 				{
 					$cubeName.pkey = user.sessions.events.parameters["one"]
 				}
 			}
-			post ⇒ 			{
+			post => 			{
 				if( T1 )
 				{
 					T1_summary = true

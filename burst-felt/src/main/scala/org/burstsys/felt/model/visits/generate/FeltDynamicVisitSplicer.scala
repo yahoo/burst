@@ -147,7 +147,7 @@ class FeltDynamicVisitSplicer(analysis: FeltAnalysisDecl) extends FeltSpliceStor
     def pathKeyAndOrdinalSplices(placement: FeltPlacement, pathKey: BrioPathKey, ordinal: SpliceOrdinal): Array[FeltSplice] = {
       _spliceCaptureMap.filter(
         k => k._1.pathKey == pathKey && k._1.placement == placement && k._1.ordinal == ordinal
-      ).values.flatMap(_.result).toArray
+      ).values.flatten.toArray
     }
 
     // splice calls at a particular path & ordinal
@@ -169,19 +169,19 @@ class FeltDynamicVisitSplicer(analysis: FeltAnalysisDecl) extends FeltSpliceStor
 
     def pathForPlacementMatch(placement: FeltPlacement)(implicit cursor: FeltCodeCursor): FeltCode = {
       s"""|${I1}path match { ${pathsForPlacement(placement).map(p => pathCase(placement, p._1, p._2)(cursor indentRight)).mkString}
-          |${I2}case _ ⇒
+          |${I2}case _ =>
           |${I1}} """.stripMargin
     }
 
     def placementCase(placement: FeltPlacement)(implicit cursor: FeltCodeCursor): FeltCode = {
       s"""|
-          |${I1}case ${placement.key} ⇒ // '${placement}'
+          |${I1}case ${placement.key} => // '${placement}'
           |${pathForPlacementMatch(placement)(cursor indentRight)} """.stripMargin
     }
 
     def placementMatch(implicit cursor: FeltCodeCursor): FeltCode = {
       s"""|${I1}placement match { ${placements.map(p => placementCase(p)(cursor indentRight)).mkString}
-          |${I2}case _ ⇒
+          |${I2}case _ =>
           |${I1}} """.stripMargin
     }
 

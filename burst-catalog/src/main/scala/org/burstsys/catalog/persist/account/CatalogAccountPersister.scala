@@ -55,10 +55,10 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
      VALUES
        ({labels}, {moniker}, {password}, {salt})
      """.bindByName(
-      'labels -> entity.labels,
-      'moniker -> entity.moniker,
-      'password -> entity.hashedPassword,
-      'salt -> entity.salt
+      Symbol("labels") -> entity.labels,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("password") -> entity.hashedPassword,
+      Symbol("salt") -> entity.salt
     )
   }
 
@@ -73,11 +73,11 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      'pk -> entity.pk,
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'password -> entity.hashedPassword,
-      'salt -> entity.salt
+      Symbol("pk") -> entity.pk,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("password") -> entity.hashedPassword,
+      Symbol("salt") -> entity.salt
     )
   }
 

@@ -25,7 +25,7 @@ class HydraParserErrorHandler(source: String) extends BaseErrorListener with Fel
     }
   }
 
-  def errors: Array[ErrorLocation] = _errors.result.toArray
+  def errors: Array[ErrorLocation] = _errors.toArray
 
   def errorString: String = this.errors.map(_.message).mkString("\n")
 

@@ -25,8 +25,8 @@ final class HydraQueriesCan extends CatalogCan {
                 languageId:verbatim[long]
               }
             }
-            user.application.firstUse ⇒ {
-              pre ⇒ {
+            user.application.firstUse => {
+              pre => {
                 languageIds.languageId = user.application.firstUse.languageId
                 insert(languageIds)
               }
@@ -42,8 +42,8 @@ final class HydraQueriesCan extends CatalogCan {
                 appVersion:verbatim[long]
               }
             }
-            user.sessions ⇒ {
-              pre ⇒ {
+            user.sessions => {
+              pre => {
                 appVersionIds.appVersion = user.sessions.appVersion.id
                 appVersionIds.frequency = 1
               }
@@ -59,8 +59,8 @@ final class HydraQueriesCan extends CatalogCan {
                 providedOrigin:verbatim[string]
               }
             }
-            user.sessions ⇒ {
-              post ⇒ {
+            user.sessions => {
+              post => {
                 providedOrigins.providedOrigin = user.sessions.providedOrigin
                 providedOrigins.frequency = 1
               }
@@ -76,8 +76,8 @@ final class HydraQueriesCan extends CatalogCan {
                 mappedOrigin:verbatim[long]
               }
             }
-            user.sessions ⇒ {
-              pre ⇒ {
+            user.sessions => {
+              pre => {
                 mappedOrigins.mappedOrigin = user.sessions.mappedOriginId
                 mappedOrigins.frequency = 1
               }
@@ -93,8 +93,8 @@ final class HydraQueriesCan extends CatalogCan {
                 originSourceTypeId:verbatim[long]
               }
             }
-            user.sessions ⇒ {
-              pre ⇒ {
+            user.sessions => {
+              pre => {
                 originSourceTypes.originSourceTypeId = user.sessions.originSourceTypeId
                 originSourceTypes.frequency = 1
               }
@@ -112,8 +112,8 @@ final class HydraQueriesCan extends CatalogCan {
                 }
               }
             }
-            user.sessions.parameters ⇒ {
-              situ ⇒ {
+            user.sessions.parameters => {
+              situ => {
                 sessionParameterKeys.parameterKey = key(user.sessions.parameters)
                 sessionParameterKeys.parameterFrequency = 1
               }
@@ -131,8 +131,8 @@ final class HydraQueriesCan extends CatalogCan {
                 }
               }
             }
-            user.sessions.events ⇒ {
-              pre ⇒ {
+            user.sessions.events => {
+              pre => {
                 unityEventIdFrequencies.eventId = user.sessions.events.id
                 unityEventIdFrequencies.eventFrequency = 1
               }
@@ -151,8 +151,8 @@ final class HydraQueriesCan extends CatalogCan {
                 }
               }
             }
-            user.sessions.events.parameters ⇒ {
-              situ ⇒ {
+            user.sessions.events.parameters => {
+              situ => {
                 parameterKeyEventFrequencies.parameterKey = key(user.sessions.events.parameters)
                 parameterKeyEventFrequencies.eventId = user.sessions.events.id
                 parameterKeyEventFrequencies.parameterKeyFrequency = 1
@@ -171,13 +171,13 @@ final class HydraQueriesCan extends CatalogCan {
                 }
               }
             }
-            user ⇒ {
-              pre ⇒ {
+            user => {
+              pre => {
                 localeCountryIds.userCount = 1
               }
             }
-            user.application ⇒ {
-              pre ⇒ {
+            user.application => {
+              pre => {
                 localeCountryIds.localeCountryId = user.application.firstUse.localeCountryId
                 insert(localeCountryIds)
               }
@@ -195,13 +195,13 @@ final class HydraQueriesCan extends CatalogCan {
                 }
               }
             }
-            user.sessions.events ⇒ {
-              pre ⇒ {
+            user.sessions.events => {
+              pre => {
                 eventParameterKeyFrequencies.eventFrequency = 1
               }
             }
-            user.sessions.events.parameters ⇒ {
-              situ ⇒ {
+            user.sessions.events.parameters => {
+              situ => {
                 eventParameterKeyFrequencies.parameterKey = key(user.sessions.events.parameters)
                 insert(eventParameterKeyFrequencies)
               }
@@ -228,8 +228,8 @@ final class HydraQueriesCan extends CatalogCan {
            |        }
            |      }
            |    }
-           |    user.sessions ⇒ {
-           |      pre ⇒ {
+           |    user.sessions => {
+           |      pre => {
            |        query1.appVersion = user.sessions.appVersionId
            |        query1.sessionCount = 1
            |      }
@@ -247,8 +247,8 @@ final class HydraQueriesCan extends CatalogCan {
            |        }
            |      }
            |    }
-           |    user ⇒ {
-           |      pre ⇒ {
+           |    user => {
+           |      pre => {
            |        query2.deviceModel = user.deviceModelId
            |        query2.userCount = 1
            |      }
@@ -266,8 +266,8 @@ final class HydraQueriesCan extends CatalogCan {
            |     }
            |   }
            | }
-           | user.sessions.events ⇒ {
-           |    pre ⇒ {
+           | user.sessions.events => {
+           |    pre => {
            |      query3.eventId = user.sessions.events.eventId
            |      query3.eventCount = 1
            |    }
@@ -287,8 +287,8 @@ final class HydraQueriesCan extends CatalogCan {
            |     }
            |   }
            | }
-           | user.sessions.events.parameters ⇒ {
-           |   situ ⇒ {
+           | user.sessions.events.parameters => {
+           |   situ => {
            |     query4.eventId = user.sessions.events.eventId
            |     query4.eventParameterKey = key(user.sessions.events.parameters)
            |     query4.eventParameterFrequency = 1
@@ -308,8 +308,8 @@ final class HydraQueriesCan extends CatalogCan {
            |     }
            |   }
            | }
-           | user ⇒ {
-           |   pre ⇒ {
+           | user => {
+           |   pre => {
            |     query5.deviceModel = user.deviceModelId
            |     query5.userCount = 1
            |   }
@@ -328,8 +328,8 @@ final class HydraQueriesCan extends CatalogCan {
            |     }
            |   }
            | }
-           | user.sessions ⇒ {
-           |   pre ⇒ {
+           | user.sessions => {
+           |   pre => {
            |     query6.originSourceType = user.sessions.originSourceType
            |     query6.sessionCount = 1
            |   }
@@ -348,8 +348,8 @@ final class HydraQueriesCan extends CatalogCan {
            |     }
            |   }
            | }
-           | user.sessions ⇒ {
-           |   pre ⇒ {
+           | user.sessions => {
+           |   pre => {
            |     query7.osVersion = user.sessions.osVersion
            |     query7.sessionCount = 1
            |   }
@@ -368,8 +368,8 @@ final class HydraQueriesCan extends CatalogCan {
            |     }
            |   }
            | }
-           | user.sessions ⇒ {
-           |   pre ⇒ {
+           | user.sessions => {
+           |   pre => {
            |     query8.providedOrigin = user.sessions.providedOrigin
            |     query8.sessions = 1
            |   }
@@ -385,18 +385,18 @@ final class HydraQueriesCan extends CatalogCan {
            |     eventCount:sum[long]
            |   }
            | }
-           | user ⇒ {
-           |   pre ⇒ {
+           | user => {
+           |   pre => {
            |     query9.userCount = 1
            |   }
            | }
-           |  user.sessions ⇒ {
-           |    pre ⇒ {
+           |  user.sessions => {
+           |    pre => {
            |      query9.sessionCount = 1
            |    }
            |  }
-           |            user.sessions.events ⇒ {
-           |              pre ⇒ {
+           |            user.sessions.events => {
+           |              pre => {
            |                query9.eventCount = 1
            |              }
            |            }
@@ -412,23 +412,23 @@ final class HydraQueriesCan extends CatalogCan {
            |                eventParameterCount:sum[long]
            |              }
            |            }
-           |            user ⇒ {
-           |              pre ⇒ {
+           |            user => {
+           |              pre => {
            |                query10.userCount = 1
            |              }
            |            }
-           |            user.sessions ⇒ {
-           |              pre ⇒ {
+           |            user.sessions => {
+           |              pre => {
            |                query10.sessionCount = 1
            |              }
            |            }
-           |            user.sessions.events ⇒ {
-           |              pre ⇒ {
+           |            user.sessions.events => {
+           |              pre => {
            |                query10.eventCount = 1
            |              }
            |            }
-           |            user.sessions.events.parameters ⇒ {
-           |              situ  ⇒ {
+           |            user.sessions.events.parameters => {
+           |              situ  => {
            |                query10.eventParameterCount = 1
            |              }
            |            }
@@ -444,23 +444,23 @@ final class HydraQueriesCan extends CatalogCan {
            |                eventParameterCount0:sum[long]
            |              }
            |            }
-           |            user ⇒ {
-           |              pre ⇒ {
+           |            user => {
+           |              pre => {
            |                query11.userCount0 = 1
            |              }
            |            }
-           |            user.sessions ⇒ {
-           |              pre ⇒ {
+           |            user.sessions => {
+           |              pre => {
            |                query11.sessionCount0 = 1
            |              }
            |            }
-           |            user.sessions.events ⇒ {
-           |              pre ⇒ {
+           |            user.sessions.events => {
+           |              pre => {
            |                query11.eventCount0 = 1
            |              }
            |            }
-           |            user.sessions.events.parameters ⇒ {
-           |              situ  ⇒ {
+           |            user.sessions.events.parameters => {
+           |              situ  => {
            |                query11.eventParameterCount0 = 1
            |              }
            |            }
@@ -478,8 +478,8 @@ final class HydraQueriesCan extends CatalogCan {
            |                }
            |              }
            |            }
-           |            user.sessions ⇒ {
-           |              pre ⇒ {
+           |            user.sessions => {
+           |              pre => {
            |                query12.dow = user.sessions.startTime
            |                query12.sessionCount = 1
            |              }
@@ -496,8 +496,8 @@ final class HydraQueriesCan extends CatalogCan {
            |                flurryId:verbatim[string]
            |              }
            |            }
-           |            user ⇒ {
-           |              pre ⇒ {
+           |            user => {
+           |              pre => {
            |                query13.flurryId = user.flurryId
            |                query13.sessionCount = size(user.sessions)
            |              }
@@ -519,14 +519,14 @@ final class HydraQueriesCan extends CatalogCan {
            |                }
            |              }
            |            }
-           |            user ⇒ {
-           |              pre ⇒ {
+           |            user => {
+           |              pre => {
            |                query14.gender = user.project.gender
            |                query14.userCount = 1
            |              }
            |            }
-           |            user.segments ⇒ {
-           |              pre ⇒ {
+           |            user.segments => {
+           |              pre => {
            |                query14.segmentId = user.segments.segmentId
            |                insert(query14)
            |              }
@@ -547,14 +547,14 @@ final class HydraQueriesCan extends CatalogCan {
            |                }
            |              }
            |            }
-           |            user.personas ⇒ {
-           |            post ⇒ {
+           |            user.personas => {
+           |            post => {
            |              query17.persona = user.personas.personaId
            |                insert(query17)
            |              }
            |            }
-           |            user.sessions.events ⇒ {
-           |              post ⇒ {
+           |            user.sessions.events => {
+           |              post => {
            |                query17.eventCount = 1
            |              }
            |            }

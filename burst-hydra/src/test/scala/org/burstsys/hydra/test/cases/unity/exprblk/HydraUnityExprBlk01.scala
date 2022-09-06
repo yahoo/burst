@@ -21,8 +21,8 @@ object HydraUnityExprBlk01 extends HydraUseCase(200, 200, "unity") {
        |      count:sum[long]
        |    }
        |  }
-       |  user.sessions.events ⇒ {
-       |    pre ⇒ {
+       |  user.sessions.events => {
+       |    pre => {
        |        if(true) {
        |          $analysisName.$frameName.count = 1
        |        }

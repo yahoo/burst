@@ -12,7 +12,7 @@ import org.burstsys.vitals.uid._
 import jakarta.ws.rs._
 import jakarta.ws.rs.core.{MediaType, Response}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.language.postfixOps
@@ -34,10 +34,10 @@ final class BurstDashCacheRest extends BurstDashEndpointBase {
                  ): Array[FabricGeneration] = {
     resultOrErrorResponse {
       val present = cacheParameters.asScala.collect { case param if param.value.isDefined => param.value.get }
-      val params = if (present.isEmpty) None else Some(present)
+      val params = if (present.isEmpty) None else Some(present.toSeq)
       val parameters = generationSpec.value.getOrElse(FabricGenerationKey())
       val guid = newBurstUid
-      val promise = Promise[Array[FabricGeneration]]
+      val promise = Promise[Array[FabricGeneration]]()
       master.data.cacheGenerationOp(guid, FabricCacheSearch, parameters, params) onComplete {
         case Failure(t) => promise.failure(t)
         case Success(r) => promise.success(r.map(g => g.toJsonLite).toArray)
@@ -52,7 +52,7 @@ final class BurstDashCacheRest extends BurstDashEndpointBase {
               @DefaultValue("") @PathParam("generationSpec") generationSpec: GenerationKeyParam
             ): FabricGeneration = {
     resultOrErrorResponse {
-      val promise = Promise[FabricGeneration]
+      val promise = Promise[FabricGeneration]()
       generationSpec.value match {
         case None =>
           val err = errorResponse(Response.Status.BAD_REQUEST, "error" -> "Generation not specified")
@@ -85,7 +85,7 @@ final class BurstDashCacheRest extends BurstDashEndpointBase {
                          @FormParam("generation") generationSpec: GenerationKeyParam
                        ): Array[FabricGeneration] = {
     resultOrErrorResponse {
-      val promise = Promise[Array[FabricGeneration]]
+      val promise = Promise[Array[FabricGeneration]]()
       val cacheOperation = action match {
         case "evict" => FabricCacheEvict
         case "flush" => FabricCacheFlush

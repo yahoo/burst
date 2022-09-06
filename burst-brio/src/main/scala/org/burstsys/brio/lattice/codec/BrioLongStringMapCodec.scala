@@ -18,7 +18,7 @@ object BrioLongStringMapCodec {
    * @return number of bytes written
    */
   @inline final
-  def writeLongStringMap(data: Map[Long, BrioDictionaryKey], writer: TeslaBufferWriter) {
+  def writeLongStringMap(data: Map[Long, BrioDictionaryKey], writer: TeslaBufferWriter): Unit = {
     val sorted = data.toList.sortBy(_._1) // sort by key
     val size = data.size.toShort
     writer.writeShort(size) // number of map entries

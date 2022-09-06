@@ -12,7 +12,7 @@ package object api {
   /**
     * base catalog THRIFT API
     */
-  trait CatalogApi extends VitalsService with BurstCatalogApiService.FutureIface with BurstApi  {
+  trait CatalogApi extends VitalsService with BurstCatalogApiService.MethodPerEndpoint with BurstApi  {
 
     def service: CatalogService
 

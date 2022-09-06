@@ -24,8 +24,8 @@ object HydraQuoInlineSetInclusionVar extends HydraUseCase(1, 1, "quo") {
        |        }
        |      }
        |    }
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        val lv1:boolean = user.sessions.events.eventId in (6049337, 4498119)
        |        if( lv1 ) {
        |          $analysisName.$frameName.count =  1

@@ -21,7 +21,7 @@ import org.burstsys.gen.thrift.api.client.query.BTResultSetMeta
 import org.burstsys.gen.thrift.api.client.query.BTViewGeneration
 
 import java.util
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object results {
 

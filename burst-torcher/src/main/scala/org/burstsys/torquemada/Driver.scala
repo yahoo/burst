@@ -129,7 +129,7 @@ class Driver(val torcherParameters: TorcherParameters, val agentClient: AgentSer
         (10E3 / jobSettings.concurrency).toLong
       }
       for (i <- 1 to jobSettings.concurrency) {
-        torcherThreadPool submit Executor(this)
+        torcherThreadPool.submit(org.burstsys.torquemada.Executor(this))
         if (i != jobSettings.concurrency)
           Thread.sleep(startDelay)
       }

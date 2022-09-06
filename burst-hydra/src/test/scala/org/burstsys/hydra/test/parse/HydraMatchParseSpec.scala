@@ -4,9 +4,6 @@ package org.burstsys.hydra.test.parse
 import org.burstsys.hydra.test.support.HydraSpecSupport
 import org.scalatest.Ignore
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraMatchParseSpec extends HydraSpecSupport {
 
@@ -15,11 +12,11 @@ class HydraMatchParseSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.id match {
-         |    case "foo" ⇒ {
+         |    case "foo" => {
          |    }
-         |    case 5 ⇒ {
+         |    case 5 => {
          |    }
-         |    case _ ⇒ {
+         |    case _ => {
          |    }
          |}
        """.stripMargin
@@ -30,13 +27,13 @@ class HydraMatchParseSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.id match {
-         |    case "foo" ⇒ {
+         |    case "foo" => {
          |      ???
          |    }
-         |    case user.id ⇒ {
+         |    case user.id => {
          |      ???
          |    }
-         |    case _ ⇒ {
+         |    case _ => {
          |      var i:double = 2.0
          |      ???
          |    }

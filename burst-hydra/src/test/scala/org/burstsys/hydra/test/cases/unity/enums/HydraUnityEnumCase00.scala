@@ -21,8 +21,8 @@ object HydraUnityEnumCase00 extends HydraUseCase(200, 200, "unity") {
        |      symbol:verbatim[long]
        |    }
        |  }
-       |  user ⇒ {
-       |    pre ⇒ {
+       |  user => {
+       |    pre => {
        |      $analysisName.$frameName.symbol = enum(4L, 6L, 8L, 4L)
        |      insert($analysisName.$frameName)
        |      $analysisName.$frameName.symbol = enum(4L, 6L, 8L, 6L)

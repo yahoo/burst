@@ -55,8 +55,8 @@ trait FeltAssignExpr extends FeltExpression with FeltReachValidator {
   override final
   def validateBrioReferences(traversePt: BrioNode): Unit = {
     val relations = Array(BrioValueScalarRelation, BrioValueMapRelation, BrioValueVectorRelation)
-    validateReach(traversePt, lhs, relations: _*)
-    validateReach(traversePt, rhs, relations: _*)
+    validateReach(traversePt, lhs, relations.toIndexedSeq: _*)
+    validateReach(traversePt, rhs, relations.toIndexedSeq: _*)
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////

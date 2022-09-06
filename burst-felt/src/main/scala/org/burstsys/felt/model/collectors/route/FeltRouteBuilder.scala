@@ -148,7 +148,7 @@ trait FeltRouteBuilder extends FeltCollectorBuilder {
             endSteps: Array[FeltRouteStepKey],
             completeSteps: Array[FeltRouteStepKey],
             transitions: Array[FeltRouteTransition]
-          )
+          ): Unit
 
 }
 

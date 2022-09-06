@@ -12,7 +12,7 @@ import org.burstsys.motif.motif.tree.values._
 import org.burstsys.motif.symbols.functions.FrequencyFunction.FrequencyContext
 import org.burstsys.motif.symbols.functions.Functions
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 final case class Select (name: String,

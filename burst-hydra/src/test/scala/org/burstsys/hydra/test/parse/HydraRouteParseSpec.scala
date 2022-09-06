@@ -4,9 +4,6 @@ package org.burstsys.hydra.test.parse
 import org.burstsys.hydra.test.support.HydraSpecSupport
 import org.scalatest.Ignore
 
-/**
-  * ← ⇒
-  */
 @Ignore
 class HydraRouteParseSpec extends HydraSpecSupport {
 
@@ -59,8 +56,8 @@ class HydraRouteParseSpec extends HydraSpecSupport {
   it should "parse route functions" in {
     implicit val source: String =
       s"""
-         |user ⇒ {
-         |  pre ⇒ {
+         |user => {
+         |  pre => {
          |    routeFsmStepAssert()
          |    routeFsmAssertTime()
          |    routeFsmEndPath()

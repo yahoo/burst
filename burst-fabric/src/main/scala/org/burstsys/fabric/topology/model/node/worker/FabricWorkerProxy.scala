@@ -49,7 +49,7 @@ trait FabricWorkerProxy extends FabricWorkerNode with VitalsJsonRepresentable[Js
    */
   def lastUpdateTime: Long
 
-  def lastUpdateTime_=(ts: Long)
+  def lastUpdateTime_=(ts: Long): Unit
 
   /**
    * Periodic assessment stats collected from the worker

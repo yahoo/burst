@@ -8,7 +8,7 @@ import org.burstsys.hydra.test.support.HydraSpecSupport
 import org.scalatest.Ignore
 
 /**
- * ← ⇒
+ * ← =>
  */
 @Ignore
 class HydraVisitValidationSpec extends HydraSpecSupport {
@@ -16,8 +16,8 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for inappropriate before in reference scalar" in {
     val text =
       s"""
-        user ⇒ {
-          before ⇒ {
+        user => {
+          before => {
             ???
           }
         }
@@ -31,8 +31,8 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for inappropriate after in reference scalar" in {
     val text =
       s"""
-        user ⇒ {
-          after ⇒ {
+        user => {
+          after => {
             ???
           }
         }
@@ -46,8 +46,8 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for inappropriate situ in reference scalar" in {
     val text =
       s"""
-        user ⇒ {
-          situ ⇒ {
+        user => {
+          situ => {
             ???
           }
         }
@@ -61,8 +61,8 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for inappropriate situ in reference vector" in {
     val text =
       s"""
-        user.sessions ⇒ {
-          situ ⇒ {
+        user.sessions => {
+          situ => {
             ???
           }
         }
@@ -76,11 +76,11 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for appropriate pre, post in reference scalar" in {
     val text =
       s"""
-        user ⇒ {
-             pre ⇒ {
+        user => {
+             pre => {
                ???
              }
-             post ⇒ {
+             post => {
                ???
              }
         }
@@ -91,17 +91,17 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for appropriate before, after, pre, post in reference vector" in {
     val text =
       s"""
-        user.sessions ⇒ {
-             before ⇒ {
+        user.sessions => {
+             before => {
                ???
              }
-             after ⇒ {
+             after => {
                ???
              }
-             pre ⇒ {
+             pre => {
                ???
              }
-             post ⇒ {
+             post => {
                ???
              }
         }
@@ -112,14 +112,14 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for appropriate before, after, situ in value map" in {
     val text =
       s"""
-        user.sessions.events.parameters ⇒ {
-             before ⇒ {
+        user.sessions.events.parameters => {
+             before => {
                ???
              }
-             after ⇒ {
+             after => {
                ???
              }
-             situ ⇒ {
+             situ => {
                ???
              }
         }
@@ -130,14 +130,14 @@ class HydraVisitValidationSpec extends HydraSpecSupport {
   it should "check for appropriate before, after, situ in value vector" in {
     val text =
       s"""
-        user.interests ⇒ {
-             before ⇒ {
+        user.interests => {
+             before => {
                ???
              }
-             after ⇒ {
+             after => {
                ???
              }
-             situ ⇒ {
+             situ => {
                ???
              }
         }

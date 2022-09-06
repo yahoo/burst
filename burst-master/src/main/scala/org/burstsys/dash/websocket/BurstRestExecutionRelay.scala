@@ -34,7 +34,7 @@ final case class BurstRestExecutionRelay(webSocketService: BurstWebSocketService
   // Listen for events
   ///////////////////////////////////////////////////////////////////////
 
-  override def onEvent: PartialFunction[FabricPipelineEvent, Unit] = {
+  override def onEvent: PartialFunction[FabricPipelineEvent, Boolean] = {
     val pf: PartialFunction[FabricPipelineEvent, VitalsUid] = {
       case e: AgentRequestStarted => requests.requestStarted(e.guid, e.source, e.over, e.call)
       case e: AgentRequestSucceeded => requests.requestSucceeded(e.guid)
@@ -53,7 +53,7 @@ final case class BurstRestExecutionRelay(webSocketService: BurstWebSocketService
         log info s"not handling event $other"
         "000000000000000000000000000000000_000000"
     }
-    pf andThen _updatedRequests.add
+    pf.andThen(_updatedRequests.add(_))
   }
 
   ///////////////////////////////////////////////////////////////////////

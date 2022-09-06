@@ -4,7 +4,7 @@ package org.burstsys.felt.compile
 import org.burstsys.vitals.errors.VitalsException
 
 import java.io.ByteArrayInputStream
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.tools.nsc.io._
 
 /**

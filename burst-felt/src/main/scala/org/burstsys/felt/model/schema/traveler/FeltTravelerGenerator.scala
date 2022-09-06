@@ -84,7 +84,7 @@ class FeltTravelerGeneratorContext(travelerClassName: String, runtimeClassName: 
         |${generateLatticeVarInitializations(brioSchema, runtimeClassName)(cursor indentRight 1)}
         |${_controls.generateControlSchema(cursor indentRight)}
         |${generateSearchMethods(cursor indentRight 1)}
-        |$I}""".stripMargin.replaceAllLiterally("OR", "|").stripEmptyLines
+        |$I}""".stripMargin.replace("OR", "|").stripEmptyLines
   }
 
   private

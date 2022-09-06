@@ -24,7 +24,7 @@ class Definition(val segmentName: String, val treeDefinition: SegmentDefinition)
     controls.map(_.getLowestVisitPath).reduce((l, r) => Path.lowest(l, r))
   }
 
-  def this(definition: Definition) {
+  def this(definition: Definition) = {
     this(definition.segmentName, definition.treeDefinition)
   }
 
@@ -33,7 +33,7 @@ class Definition(val segmentName: String, val treeDefinition: SegmentDefinition)
   }
 
   override def generateSource()(implicit context: GlobalContext): CodeBlock = CodeBlock { implicit cb =>
-    s"tabletMemberAdd($segmentName, $id)".source
+    s"tabletMemberAdd($segmentName, $id)".source()
   }
 }
 

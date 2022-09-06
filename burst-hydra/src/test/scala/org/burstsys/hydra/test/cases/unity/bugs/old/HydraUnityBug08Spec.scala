@@ -44,9 +44,9 @@ class HydraUnityBug08Spec extends HydraAlloyTestRunner {
          |				}
          |			}
          |		}
-         |		user.sessions  ⇒ {
+         |		user.sessions  => {
          |			var route_test_control:boolean = false
-         |			pre ⇒ 			{
+         |			pre => 			{
          |				routeScopeStart(test)
          |				T1 = true
          |				if( T1 )
@@ -74,9 +74,9 @@ class HydraUnityBug08Spec extends HydraAlloyTestRunner {
          |				routeScopeCommit(test)
          |			}
          |		}
-         |		user.sessions.events  ⇒ {
+         |		user.sessions.events  => {
          |			var route_test_control:boolean = false
-         |			pre ⇒ 			{
+         |			pre => 			{
          |				routeScopeStart(test)
          |				T4 = (user.sessions.events.id  in (5, 6))
          |				if( T4 )
@@ -121,11 +121,11 @@ class HydraUnityBug08Spec extends HydraAlloyTestRunner {
          |				'ids':verbatim[long]
          |			}
          |		}
-         |		test.paths.steps user  ⇒ {
-         |			pre ⇒ 			{
+         |		test.paths.steps user  => {
+         |			pre => 			{
          |				eqlGenerated.query_test.ids = 				routeVisitStepTag(test)
          |			}
-         |			post ⇒ 			{
+         |			post => 			{
          |				eqlGenerated.query_test.num = 1
          |			}
          |		}

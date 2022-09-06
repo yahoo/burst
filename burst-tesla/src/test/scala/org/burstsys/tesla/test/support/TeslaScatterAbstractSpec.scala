@@ -206,7 +206,7 @@ trait TeslaScatterAbstractSpec extends TeslaAbstractSpec with BeforeAndAfterAll 
     override def tardyAfter: Duration = tardyInterval
 
     override def execute: Future[_] = {
-      val promise = Promise[Unit]
+      val promise = Promise[Unit]()
       slot.slotBegin()
 
       if (updates) {

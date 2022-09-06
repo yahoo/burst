@@ -15,7 +15,7 @@ trait RelateService extends VitalsService {
     *
     * @param persister
     */
-  def registerPersister(persister: RelatePersister[_])
+  def registerPersister(persister: RelatePersister[_]): Unit
 
   /**
     * The dialect (the specific RDBMS) for this service

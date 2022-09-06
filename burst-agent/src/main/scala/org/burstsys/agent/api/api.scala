@@ -8,7 +8,7 @@ import org.burstsys.vitals.VitalsService.VitalsServiceModality
 
 package object api {
 
-  trait AgentApi extends VitalsService with BurstQueryApiService.FutureIface with BurstApi with AgentApiProperties {
+  trait AgentApi extends VitalsService with BurstQueryApiService.MethodPerEndpoint with BurstApi with AgentApiProperties {
 
     final override def apiName: String = s"agent($modality)"
 

@@ -95,7 +95,7 @@ package object cube2 {
     }
 
     private def randomPositiveLong = {
-      math.abs(Random.nextLong)
+      math.abs(Random.nextLong())
     }
 
     final

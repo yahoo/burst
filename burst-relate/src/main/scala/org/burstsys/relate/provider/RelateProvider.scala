@@ -60,7 +60,7 @@ abstract class RelateProvider extends AnyRef with RelateService with RelateScrip
           case RelateMySqlDialect => sql"CREATE SCHEMA IF NOT EXISTS $schema"
           case RelateDerbyDialect => sql"CREATE SCHEMA $schema"
         }
-        createStatement.executeUpdate().apply
+        createStatement.executeUpdate().apply()
       }
     } catch safely {
       case s: SQLException =>
@@ -118,7 +118,7 @@ abstract class RelateProvider extends AnyRef with RelateService with RelateScrip
         case e: SQLException =>
           log warn burstStdMsg(s"Catalog $dbName not found, creating it  $tag")
           connection localTx { implicit session =>
-            sql"CREATE DATABASE ${SQLSyntax.createUnsafely(dbName)}".execute.apply
+            sql"CREATE DATABASE ${SQLSyntax.createUnsafely(dbName)}".execute().apply()
 
           }
       }

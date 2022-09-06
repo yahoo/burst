@@ -50,7 +50,7 @@ trait ValueExpressionGenerators extends Any {
           replace("\t", "\\t").
           replace("\n", "\\n").
           replace("\r", "\\r")
-        '"' + cleanVal + '"'
+        s"\"$cleanVal\""
       } else
         s"${exp.getDataValue}"
     }
@@ -67,7 +67,7 @@ trait ValueExpressionGenerators extends Any {
           replace("\t", "\\t").
           replace("\n", "\\n").
           replace("\r", "\\r")
-        '"' + cleanVal + '"'
+        s"\"$cleanVal\""
       } else
         s"${lit.toString}"
     }

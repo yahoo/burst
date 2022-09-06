@@ -39,8 +39,8 @@ class NexusParcelSpraySpec extends NexusSpec {
 
         override
         def feedStream(stream: NexusStream): Unit = {
-          val parcels = new ArrayBuffer[TeslaParcel]
-          val itemCount: Int = math.abs(Random.nextInt % 10)
+          val parcels = new ArrayBuffer[TeslaParcel]()
+          val itemCount: Int = math.abs(Random.nextInt() % 10)
           parcels ++= BurstUnityMockData().pressToInflatedParcels.take(itemCount)
           log info s"spraying $itemCount parcel(s) to ${stream.guid}"
 
@@ -102,7 +102,7 @@ class NexusParcelSpraySpec extends NexusSpec {
       log info s"received ${results.size} parcels(s) from ${stream.guid}"
 
       Await.result(stream.receipt, 60 seconds)
-      results
+      results.toSeq
     } finally {
       releaseClientToPool(client)
     }

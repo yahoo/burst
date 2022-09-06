@@ -8,7 +8,7 @@ import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object eql {
   object EqlContext {

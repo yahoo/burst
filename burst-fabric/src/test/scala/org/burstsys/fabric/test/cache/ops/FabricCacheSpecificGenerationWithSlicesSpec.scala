@@ -33,7 +33,7 @@ class FabricCacheSpecificGenerationWithSlicesSpec extends FabricCacheOpsBaseSpec
   it should "fetch all generations that match a spec with slices" in {
 
     val queryId = newBurstUid
-    val promise1 = Promise[FabricGather]
+    val promise1 = Promise[FabricGather]()
 
     // first make sure the worker is connected
     newWorkerGate.await(30, TimeUnit.SECONDS) should equal(true)
@@ -82,7 +82,7 @@ class FabricCacheSpecificGenerationWithSlicesSpec extends FabricCacheOpsBaseSpec
     Await.result(promise1.future, 10 minutes)
 
     val searchId = newBurstUid
-    val promise = Promise[FabricGeneration]
+    val promise = Promise[FabricGeneration]()
 
     // specific generation
     val generationKey = FabricGenerationKey(

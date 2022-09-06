@@ -23,8 +23,8 @@ object HydraQuoNulls00 extends HydraUseCase(1, 1, "quo") {
         |      'notNullcount':sum[long]
         |   }
         | }
-        | user ⇒ {
-        |     pre ⇒ {
+        | user => {
+        |     pre => {
         |       if( user.flurryId == null ) {
         |         $analysisName.$frameName.'isNullcount' = 1
         |       }

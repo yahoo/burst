@@ -11,7 +11,7 @@ import org.burstsys.torquemada.Parameters.TorcherParameters
 import org.burstsys.torquemada.TorcherJob.JobListener
 import org.apache.logging.log4j.Level
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 

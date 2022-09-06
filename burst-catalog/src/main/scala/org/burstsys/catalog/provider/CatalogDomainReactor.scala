@@ -78,7 +78,7 @@ trait CatalogDomainReactor extends CatalogService {
     } else {
       resultOrFailure {
         mapDomainViewResponse(apiClient.findDomainWithViewsByUdk(udk),
-          response => (response.domain.get, response.views.get.map(_.asInstanceOf[CatalogView]))
+          response => (response.domain.get, response.views.get.map(_.asInstanceOf[CatalogView]).toSeq)
         )
       }
     }

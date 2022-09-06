@@ -23,13 +23,13 @@ object HydraUnityCase20 extends HydraUseCase(200, 200, "unity") {
                 }
               }
           }
-          user.sessions.events ⇒ {
-             pre ⇒ {
+          user.sessions.events => {
+             pre => {
                $analysisName.$frameName.eventFrequency = 1
              }
           }
-          user.sessions.events.parameters ⇒ {
-             situ ⇒ {
+          user.sessions.events.parameters => {
+             situ => {
                $analysisName.$frameName.parameterKey = key(user.sessions.events.parameters)
                insert($analysisName.$frameName)
              }

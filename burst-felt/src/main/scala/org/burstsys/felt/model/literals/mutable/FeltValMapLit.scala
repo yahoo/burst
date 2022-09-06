@@ -65,8 +65,8 @@ trait FeltValMapLit extends FeltMutableLit[FeltAssociation] {
   def resolveTypes: this.type = {
     members.foreach(_.resolveTypes)
 
-    val keyType = FeltType.combine(members.map(_.key.feltType): _*)
-    val valType = FeltType.combine(members.map(_.value.feltType): _*)
+    val keyType = FeltType.combine(members.map(_.key.feltType).toIndexedSeq: _*)
+    val valType = FeltType.combine(members.map(_.value.feltType).toIndexedSeq: _*)
 
     feltType = FeltType.valMap(valType.valueType, keyType.valueType)
     this

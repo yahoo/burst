@@ -13,7 +13,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties._
 import org.apache.commons.io.FileUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 /**

@@ -12,7 +12,7 @@ import org.burstsys.vitals.errors.safely
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object FabricParameterJson {
   private val mapper = (new ObjectMapper()).registerModule(DefaultScalaModule)

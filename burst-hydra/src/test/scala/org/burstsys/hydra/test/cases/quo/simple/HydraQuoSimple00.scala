@@ -26,8 +26,8 @@ object HydraQuoSimple00 extends HydraUseCase(10, 10, "quo") {
        |         }
        |      }
        |
-       |      user.sessions ⇒ {
-       |         post ⇒ {
+       |      user.sessions => {
+       |         post => {
        |            $analysisName.$frameName.sessionCount = 1
        |         }
        |      }

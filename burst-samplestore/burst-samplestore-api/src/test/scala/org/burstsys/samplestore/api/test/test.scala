@@ -42,7 +42,7 @@ package object test extends VitalsLogger {
     var storeServiceServer: SampleStoreApiService = _
 
     override protected
-    def beforeAll() {
+    def beforeAll(): Unit = {
       loadBrioSchemaProviders()
       VitalsPropertyRegistry.logReport
       storeServiceServer = SampleStoreApiService(VitalsStandaloneServer)
@@ -50,7 +50,7 @@ package object test extends VitalsLogger {
     }
 
     override protected
-    def afterAll() {
+    def afterAll(): Unit = {
       storeServiceClient.stop
       storeServiceServer.stop
     }

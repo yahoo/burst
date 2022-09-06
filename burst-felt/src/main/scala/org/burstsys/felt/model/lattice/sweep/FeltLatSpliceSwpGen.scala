@@ -67,7 +67,7 @@ trait FeltLatSpliceSwpGen extends FeltLatSwpGen with FeltSpliceStore {
         if (spliceCalls.isEmpty) FeltNoCode else {
           hasContent = true
           s"""|
-              |${I2}case  ${treeNode.pathKey} ⇒ // $pathName
+              |${I2}case  ${treeNode.pathKey} => // $pathName
               |${collectors.generateCollectorPreludesForPlace(pathName, placement)(cursor indentRight 2)}$spliceCalls
               |${collectors.generateCollectorPostludesForPlace(pathName, placement)(cursor indentRight 2)}""".stripMargin
         }
@@ -77,7 +77,7 @@ trait FeltLatSpliceSwpGen extends FeltLatSwpGen with FeltSpliceStore {
     s"""|
         |${I}path match {
         |$staticSpliceCalls
-        |${I2}case _ ⇒
+        |${I2}case _ =>
         |$I}""".stripMargin
   }
 

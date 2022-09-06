@@ -44,12 +44,18 @@ class FeltRouteBuilderGenerator(route: FeltRouteDecl) {
     routeSteps sortBy (_.stepKey) foreach {
       step =>
         step.traits foreach {
-          case BeginStepTrait => beginSteps += step.stepKey
-          case EndStepTrait => endSteps += step.stepKey
-          case EnterStepTrait => entranceSteps += step.stepKey
-          case ExitStepTrait => exitSteps += step.stepKey
-          case TacitStepTrait => tacitSteps += step.stepKey
-          case CompleteStepTrait => completeSteps += step.stepKey
+          case BeginStepTrait =>
+            beginSteps += step.stepKey
+          case EndStepTrait =>
+            endSteps += step.stepKey
+          case EnterStepTrait =>
+            entranceSteps += step.stepKey
+          case ExitStepTrait =>
+            exitSteps += step.stepKey
+          case TacitStepTrait =>
+            tacitSteps += step.stepKey
+          case CompleteStepTrait =>
+            completeSteps += step.stepKey
           case _ => ???
         }
 
@@ -72,12 +78,13 @@ class FeltRouteBuilderGenerator(route: FeltRouteDecl) {
 
     }
 
-    tacitSteps.result foreach {
+    val tSteps = tacitSteps.result()
+    tSteps foreach {
       step =>
-        if (beginSteps.result.contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_BEGIN_STEP step=$step")
-        if (entranceSteps.result.contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_ENTRANCE_STEP step=$step")
-        if (endSteps.result.contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_END_STEP step=$step")
-        if (completeSteps.result.contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_COMPLETE_STEP step=$step")
+        if (beginSteps.result().contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_BEGIN_STEP step=$step")
+        if (entranceSteps.result().contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_ENTRANCE_STEP step=$step")
+        if (endSteps.result().contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_END_STEP step=$step")
+        if (completeSteps.result().contains(step)) throw FeltException(graph, s"FELT_ROUTE_TACIT_OVERLAP_WITH_COMPLETE_STEP step=$step")
     }
 
     var key = 1
@@ -85,7 +92,7 @@ class FeltRouteBuilderGenerator(route: FeltRouteDecl) {
       val emit = if (k == null) key else -1
       key += 1
       emit
-    }).filter(_ != -1).filter(s => !exitSteps.result.contains(s) && !completeSteps.result.contains(s))
+    }).filter(_ != -1).filter(s => !exitSteps.result().contains(s) && !completeSteps.result().contains(s))
     if (missingTransitions.nonEmpty)
       throw FeltException(graph, s"FELT_ROUTE_MISSING_TRANSITIONS: step keys=${missingTransitions.mkString("{", ", ", "}")}")
 
@@ -100,13 +107,13 @@ class FeltRouteBuilderGenerator(route: FeltRouteDecl) {
       maxStepsPerPath = route.maxStepsValue,
       maxPathTime = route.maxPathTimeValue,
       minCourse = -1, maxCourse = -1, // no courses yet
-      entranceSteps = entranceSteps.result,
-      exitSteps = exitSteps.result,
-      beginSteps = beginSteps.result,
-      tacitSteps = tacitSteps.result,
+      entranceSteps = entranceSteps.result(),
+      exitSteps = exitSteps.result(),
+      beginSteps = beginSteps.result(),
+      tacitSteps = tSteps,
       emitCodes = emitCodes,
-      endSteps = endSteps.result,
-      completeSteps = completeSteps.result,
+      endSteps = endSteps.result(),
+      completeSteps = completeSteps.result(),
       transitions = transitions
     )
 

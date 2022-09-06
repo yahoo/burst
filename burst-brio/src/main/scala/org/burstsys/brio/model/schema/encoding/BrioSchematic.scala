@@ -8,7 +8,7 @@ import org.burstsys.brio.types.{BrioException, BrioInvalidRelationError, BrioNul
 import org.burstsys.tesla.TeslaTypes._
 import com.koloboke.collect.map.hash.{HashObjObjMap, HashObjObjMaps}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * high performance lookups used in runtime scans

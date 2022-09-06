@@ -21,8 +21,8 @@ object HydraQuoLocalVars01 extends HydraUseCase(1, 1, "quo") {
        |            count2:sum[long]
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |            val lv1:boolean = false
        |            val lv2:boolean = true
        |            if(lv1) { $analysisName.$frameName.count1 = 3 } else { $analysisName.$frameName.count1 = 30 }

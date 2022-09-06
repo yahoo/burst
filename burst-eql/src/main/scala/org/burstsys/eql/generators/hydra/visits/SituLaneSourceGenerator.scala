@@ -21,7 +21,7 @@ trait SituLaneSourceGenerator extends PhasedLaneSourceGenerator {
 
       val blockTest = if (visitControlTest.isDefined) {
         assert(controlTests.nonEmpty)
-        s"${visitControlTest.get.name} = $controlTests".source
+        s"${visitControlTest.get.name} = $controlTests".source()
         s"${visitControlTest.get.name}"
       } else {
         assert(controlTests.isEmpty)
@@ -35,13 +35,13 @@ trait SituLaneSourceGenerator extends PhasedLaneSourceGenerator {
         phasedControlledActions(ActionPhase.Pre) ++ phasedControlledActions(ActionPhase.Post))
 
       if (blockTest.nonEmpty) {
-        s"if ($blockTest) {".source
+        s"if ($blockTest) {".source()
         if (visitControlTest.get.needsSummary)
-          s"${visitControlTest.get.summaryVar.name} = true".indentSource
+          s"${visitControlTest.get.summaryVar.name} = true".indentSource()
         situCode.indent.source()
         s"}".source()
       } else
-        situCode.source
+        situCode.source()
 
       if (situCode.nonEmpty)
         situCode.prepend(s"// ${this.name}")

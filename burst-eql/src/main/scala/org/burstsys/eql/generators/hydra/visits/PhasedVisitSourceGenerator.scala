@@ -59,8 +59,8 @@ trait PhasedVisitSourceGenerator extends VisitSourceGenerator {
     if (work.nonEmpty)
       CodeBlock { implicit cb =>
         s"$visitLabel => {".source()
-        generateDeclarationsSource(DeclarationScope.Visit).foreach(_.indentSource)
-        work.indent.source
+        generateDeclarationsSource(DeclarationScope.Visit).foreach(_.indentSource())
+        work.indent.source()
         s"}".source()
       }
     else
@@ -77,10 +77,10 @@ trait PhasedVisitSourceGenerator extends VisitSourceGenerator {
     val work = traverseLanes.map(_ generateSource phase).filter(_.nonEmpty)
     if (work.nonEmpty || additionalWork.nonEmpty) {
       // build the phase hydra
-      s"${phase.toString.toLowerCase} => {".source
-      additionalWork.foreach(_.indent.source)
-      work.foreach(_.indent.source)
-      s"}".source
+      s"${phase.toString.toLowerCase} => {".source()
+      additionalWork.foreach(_.indent.source())
+      work.foreach(_.indent.source())
+      s"}".source()
     }
   }
 

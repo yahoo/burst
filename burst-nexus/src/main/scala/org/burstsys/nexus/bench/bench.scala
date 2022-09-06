@@ -9,7 +9,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostAddress
 import org.burstsys.vitals.time.nsToSec
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object bench extends VitalsLogger {
 

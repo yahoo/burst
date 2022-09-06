@@ -45,9 +45,10 @@ final class BurstDashInfoRest extends BurstDashEndpointBase {
   @Path("configInfo")
   def configInfo: Map[String, BurstSettingInfoJson] = {
     resultOrErrorResponse {
-      VitalsPropertyRegistry.allProperties.map(kv => {
-        kv._1 -> BurstSettingInfoJson(kv._2.get.orNull, kv._2.typeName, kv._2.description)
-      })
+      VitalsPropertyRegistry.allProperties.values.map(property => {
+        val value: Any = property.get.orNull
+        property.key -> BurstSettingInfoJson(if (property.sensitive) "REDACTED" else value, property.typeName, property.description, property.source)
+      }).toMap
     }
   }
 }

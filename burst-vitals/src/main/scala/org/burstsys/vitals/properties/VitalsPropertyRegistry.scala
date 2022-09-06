@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.properties
 
+import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reflection
 import org.burstsys.vitals.strings._
@@ -38,10 +39,8 @@ object VitalsPropertyRegistry extends VitalsLogger {
 
   private def printAllProperties: String = {
     val properties = registry.keys.toList.sorted
-      .map(property => {
-        s"${registry(property)} \n"
-      })
-      .mkString("").trimAtEnd
+      .map(propKey => s"${registry(propKey)}")
+      .mkString("\n").trimAtEnd
     s"""
        |$sep
        |$hdr
@@ -58,6 +57,6 @@ object VitalsPropertyRegistry extends VitalsLogger {
   }
 
   def allProperties: Map[String, VitalsPropertySpecification[_]] = {
-    _registry.filterNot(kv => kv._2.sensitive).toMap
+    _registry.toMap
   }
 }

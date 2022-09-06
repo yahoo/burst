@@ -42,7 +42,7 @@ trait FabricDataCacheOps extends FabricCacheOps {
                          parameters: Option[Seq[FabricCacheOpParameter]]
                        ): Future[Seq[FabricGeneration]] = {
     lazy val tag = s"FabricDataCacheOps.cacheGenerationOp"
-    val promise = Promise[Seq[FabricGeneration]]
+    val promise = Promise[Seq[FabricGeneration]]()
     TeslaRequestFuture {
       val scatter = tesla.scatter.pool.grabScatter(guid)
       try {
@@ -73,7 +73,7 @@ trait FabricDataCacheOps extends FabricCacheOps {
   final override
   def cacheSliceOp(guid: VitalsUid, generationKey: FabricGenerationKey): Future[Seq[FabricSliceMetadata]] = {
     lazy val tag = s"FabricDataCacheOps.cacheSliceOp"
-    val promise = Promise[Seq[FabricSliceMetadata]]
+    val promise = Promise[Seq[FabricSliceMetadata]]()
     TeslaRequestFuture {
       val scatter = tesla.scatter.pool.grabScatter(guid)
       try {
@@ -85,7 +85,7 @@ trait FabricDataCacheOps extends FabricCacheOps {
 
         scatter.execute()
         process(scatter, results)
-        promise.success(results)
+        promise.success(results.toSeq)
       } finally tesla.scatter.pool releaseScatter scatter
     }
     promise.future
@@ -231,7 +231,7 @@ class CacheManageOperation(
         w.connection.cacheManageOperation(guid, ruid, operation, generationKey) onComplete {
           case Success(r) =>
             promise.success((): Unit)
-            result = r
+            result = r.toIndexedSeq
             if (slot != null)
               slot.slotSuccess()
           case Failure(t) =>
@@ -267,7 +267,7 @@ class SliceFetchOperation(
         w.connection.cacheSliceFetchOperation(guid, ruid, generationKey) onComplete {
           case Success(r) =>
             promise.success((): Unit)
-            result = r
+            result = r.toIndexedSeq
             if (slot != null)
               slot.slotSuccess()
           case Failure(t) =>

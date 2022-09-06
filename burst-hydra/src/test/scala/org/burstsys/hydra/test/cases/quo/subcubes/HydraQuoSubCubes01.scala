@@ -28,17 +28,17 @@ object HydraQuoSubCubes01 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |     user.sessions.events.parameters ⇒ {
-       |         situ ⇒ {
+       |     user.sessions.events.parameters => {
+       |         situ => {
        |               $analysisName.$frameName.eventParameterKey = key(user.sessions.events.parameters)
        |               insert($analysisName.$frameName)
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |            $analysisName.$frameName.eventParameters = user.sessions.events.eventId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            $analysisName.$frameName.eventParameterFrequency = 1
        |         }
        |      }

@@ -18,7 +18,7 @@ package object test extends VitalsLogger {
   /**
     * TODO
     */
-  trait TestApi extends VitalsService with BurstTestApiService.FutureIface with BurstApi {
+  trait TestApi extends VitalsService with BurstTestApiService.MethodPerEndpoint with BurstApi {
 
     def service: TestApiService
 
@@ -54,12 +54,12 @@ package object test extends VitalsLogger {
     val testClient: TestApiService = TestApiService()
 
     override protected
-    def beforeAll() {
+    def beforeAll(): Unit = {
       VitalsPropertyRegistry.logReport
     }
 
     override protected
-    def afterAll() {
+    def afterAll(): Unit = {
     }
 
 

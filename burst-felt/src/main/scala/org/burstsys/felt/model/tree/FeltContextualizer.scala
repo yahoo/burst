@@ -12,8 +12,8 @@ trait FeltContextualizer {
   private case class Loc(prefix: String, line: String)
 
   private lazy val lines: Array[Loc] = {
-    val tmpl = s"[%${s"${(source: StringOps).lines.length}".length}d]"
-    (source: StringOps).lines.zipWithIndex.map(l => Loc(tmpl.format(l._2 + 1), l._1)).toArray
+    val tmpl = s"[%${s"${(source: StringOps).linesIterator.length}".length}d]"
+    (source: StringOps).linesIterator.zipWithIndex.map(l => Loc(tmpl.format(l._2 + 1), l._1)).toArray
   }
 
   /**

@@ -99,8 +99,8 @@ trait FabricNetClientAssessHandler {
   private
   def assessment: FabricAssessment = {
     FabricAssessment(
-      _pingCollector.export, _qpsCollector.export, _wlsCollector.export, _clsCollector.export,
-      _lavCollector.export, _memCollector.export, _diskCollector.export, _errorCollector.export
+      _pingCollector.exportMetric, _qpsCollector.exportMetric, _wlsCollector.exportMetric, _clsCollector.exportMetric,
+      _lavCollector.exportMetric, _memCollector.exportMetric, _diskCollector.exportMetric, _errorCollector.exportMetric
     )
   }
 

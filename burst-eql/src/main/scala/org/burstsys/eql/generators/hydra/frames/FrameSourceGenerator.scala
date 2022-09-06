@@ -91,12 +91,12 @@ abstract class FrameSourceGenerator(frameName: String)(implicit context: GlobalC
   override def generateSource()(implicit context: GlobalContext): CodeBlock = {
     CodeBlock { implicit cb =>
       context.addProperty(FramePropertyName, frameName)
-      s"frame ${context(FramePropertyName)} {".source
+      s"frame ${context(FramePropertyName)} {".source()
       CodeBlock { implicit cb =>
-        generateDeclarationsSource(DeclarationScope.Frame).foreach(_.source)
-        hydraVisits.generateSource.source
-      }.indent.source
-      s"}".source
+        generateDeclarationsSource(DeclarationScope.Frame).foreach(_.source())
+        hydraVisits.generateSource().source()
+      }.indent.source()
+      s"}".source()
       context.removeProperty(FramePropertyName)
     }
   }
@@ -108,8 +108,8 @@ abstract class FrameSourceGenerator(frameName: String)(implicit context: GlobalC
         case _: Collector => true
         case _ => false
       }
-      collectorPartition._2.groupBy(_.name).values.foreach(_.head.generateDeclarationSource().source)
-      collectorPartition._1.groupBy(_.name).values.foreach(_.head.generateDeclarationSource().source)
+      collectorPartition._2.groupBy(_.name).values.foreach(_.head.generateDeclarationSource().source())
+      collectorPartition._1.groupBy(_.name).values.foreach(_.head.generateDeclarationSource().source())
     }
 
   override def getDeclarations(scope: DeclarationScope)(implicit context: GlobalContext): Array[generators.Declaration] = {

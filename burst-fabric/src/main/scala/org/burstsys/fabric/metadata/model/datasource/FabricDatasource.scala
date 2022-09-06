@@ -102,7 +102,7 @@ class FabricDatasourceContext() extends KryoSerializable with FabricDatasource {
 
     val viewProperties = _view.viewProperties ++
       metrics.generationMetricsToProperties(generationMetrics) +
-      (ViewLastLoadStaleMsProperty -> loadStaleMs.toString)
+      Map(ViewLastLoadStaleMsProperty -> loadStaleMs.toString)
 
     viewProperties
   }

@@ -33,7 +33,7 @@ trait JsonSampleSourceMasterService extends SampleSourceMasterService {
 
   override
   def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, listenerProperties: VitalsPropertyMap): Future[SampleStoreGenerator] = {
-    val promise = Promise[SampleStoreGenerator]
+    val promise = Promise[SampleStoreGenerator]()
     try {
       val loci: Array[SampleStoreDataLocus] = fetchLoci(mergeProperties(guid, dataSource, listenerProperties))
       val generationMapping: String = loci.map(l => (l.hostAddress, l.partitionProperties(alloySkipIndexStreamPropertyKey)))

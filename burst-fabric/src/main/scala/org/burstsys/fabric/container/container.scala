@@ -7,7 +7,7 @@ import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.{VitalsService, reflection}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object container extends VitalsLogger {
 

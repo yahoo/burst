@@ -20,8 +20,8 @@ object HydraUnityNulls03 extends HydraUseCase(150, 150, "unity") {
         |      d1:verbatim[long]
         |    }
         | }
-        | user ⇒ {
-        |    pre ⇒ {
+        | user => {
+        |    pre => {
         |     if(user.id == null) {
         |       $analysisName.$frameName.d1 = 1
         |     } else {

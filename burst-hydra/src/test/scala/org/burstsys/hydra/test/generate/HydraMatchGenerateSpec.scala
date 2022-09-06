@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.generate
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraMatchGenerateSpec extends HydraSpecSupport {
 
@@ -13,7 +10,7 @@ class HydraMatchGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.startTime match {
-         |  case "hello" ⇒ {
+         |  case "hello" => {
          |    var i:integer = i + 1
          |    ???
          |  }
@@ -26,11 +23,11 @@ class HydraMatchGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.startTime match {
-         |  case "hello" ⇒ {
+         |  case "hello" => {
          |    var i:integer = i + 1
          |    ???
          |  }
-         |  case 4 + 5 ⇒ {
+         |  case 4 + 5 => {
          |    var money:double = 2.00
          |    ???
          |  }
@@ -43,15 +40,15 @@ class HydraMatchGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.startTime match {
-         |  case "hello" ⇒ {
+         |  case "hello" => {
          |    var i:integer = i + 1
          |    ???
          |  }
-         |  case 4 + 5 ⇒ {
+         |  case 4 + 5 => {
          |    var money:double = 2.00
          |    ???
          |  }
-         |  case _ ⇒ {
+         |  case _ => {
          |    var money:double = 2.00
          |      ???
          |  }
@@ -64,11 +61,11 @@ class HydraMatchGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.startTime match {
-         |  case "hello" ⇒ {
+         |  case "hello" => {
          |    var i:integer = i + 1
          |    ???
          |  }
-         |  case _ ⇒ {
+         |  case _ => {
          |    var money:double = 2.00
          |      ???
          |  }
@@ -81,10 +78,10 @@ class HydraMatchGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.startTime match {
-         |  case "hello" ⇒ {
+         |  case "hello" => {
          |    var i:integer = i + 1
          |  }
-         |  case 4 + 5 ⇒ {
+         |  case 4 + 5 => {
          |    var money:double = 2.00
          |  }
          |}
@@ -96,7 +93,7 @@ class HydraMatchGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |user.sessions.startTime match {
-         |  case "hello" ⇒ {
+         |  case "hello" => {
          |    var i:integer = i + 1
          |  }
          |}

@@ -36,7 +36,7 @@ package object api extends VitalsLogger {
   }
 
   implicit def twitterFutureToScalaFuture[T](twitterF: twitter.Future[T]): Future[T] = {
-    val promise = Promise[T]
+    val promise = Promise[T]()
     twitterF.respond(promise complete _)
     promise.future
   }

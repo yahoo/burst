@@ -14,7 +14,7 @@ import org.burstsys.vitals.metrics._
 import org.burstsys.vitals.net
 import org.burstsys.vitals.errors.safely
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 
@@ -138,8 +138,8 @@ class VitalsHttpReporterContext(
     timers.asScala.foreach({ kv =>
       val snapshot = kv._2.getSnapshot
       metrics += s"${kv._1}.count" -> kv._2.getCount
-      metrics += s"${kv._1}.min" -> convertDuration(snapshot.getMin)
-      metrics += s"${kv._1}.max" -> convertDuration(snapshot.getMax)
+      metrics += s"${kv._1}.min" -> convertDuration(snapshot.getMin.toDouble)
+      metrics += s"${kv._1}.max" -> convertDuration(snapshot.getMax.toDouble)
       metrics += s"${kv._1}.mean" -> convertDuration(snapshot.getMean)
       metrics += s"${kv._1}.stddev" -> convertDuration(snapshot.getStdDev)
       metrics += s"${kv._1}.median" -> convertDuration(snapshot.getMedian)

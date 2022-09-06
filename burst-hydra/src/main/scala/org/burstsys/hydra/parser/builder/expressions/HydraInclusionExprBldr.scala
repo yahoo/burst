@@ -10,7 +10,7 @@ import org.burstsys.hydra.parser.HydraLocation
 import org.burstsys.hydra.parser.builder.HydraParseAnalysisBldr
 import org.burstsys.hydra.parser.builder.data.HydraParseVarBldr
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * antlr parse driven builder for boolean expressions in AST

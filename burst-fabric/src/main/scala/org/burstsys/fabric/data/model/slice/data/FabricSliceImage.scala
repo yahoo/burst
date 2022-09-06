@@ -43,7 +43,7 @@ trait FabricSliceImage extends AnyRef with KryoSerializable {
    * The first region is randomized ordinal for round robin - don't always start at first region
    */
   private[this]
-  var _nextRegion: Int = math.abs(Random.nextInt) % regionFolders.length
+  var _nextRegion: Int = math.abs(Random.nextInt()) % regionFolders.length
 
   private[this]
   var _sliceOnDisk = false

@@ -3,7 +3,7 @@ package org.burstsys.felt.model.collectors.cube.decl.column.dimension.datetime.g
 
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.{FeltCubeDimColSem, FeltDimSemType}
 
-package object enum {
+package object `enum` {
 
   private[felt] final val EnumName = "enum"
 

@@ -280,7 +280,7 @@ class ZapCubeBuilderContext(
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override
-  def write(kryo: Kryo, output: Output) {
+  def write(kryo: Kryo, output: Output): Unit = {
     try {
       super.write(kryo, output)
       // global
@@ -308,7 +308,7 @@ class ZapCubeBuilderContext(
   }
 
   override
-  def read(kryo: Kryo, input: Input) {
+  def read(kryo: Kryo, input: Input): Unit = {
     try {
       super.read(kryo, input)
       rowLimit = input.readInt

@@ -62,7 +62,7 @@ trait BurstSystemTestSpecSupport extends BurstCoreSystemTestSupport
   override
   def getViewGenerator(guid: String,
                        dataSource: BurstSampleStoreDataSource): Future[SampleStoreGenerator] = {
-    val promise = Promise[SampleStoreGenerator]
+    val promise = Promise[SampleStoreGenerator]()
     dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceNameProperty) should equal("mocksource")
     dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceVersionProperty) should equal("0.1")
     val generator =

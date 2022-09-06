@@ -84,7 +84,7 @@ package object cell {
       })
       i += 1
     }
-    result
+    result.toSeq
   }
 
   implicit def fabricToAgentResultCell(cell: FabricResultCell): AgentResultCell = {

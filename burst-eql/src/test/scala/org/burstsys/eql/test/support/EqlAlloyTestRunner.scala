@@ -91,7 +91,7 @@ abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog
               iterations: Int
              ): Long =
   {
-    val parTests = (0 until parallelism).map{_ => Promise[Double]}
+    val parTests = (0 until parallelism).map{_ => Promise[Double]()}
     val parElapsedTime: AtomicLong = new AtomicLong(0)
     for (i <- 0 until parallelism) {
       val parTest = parTests(i)
@@ -108,7 +108,7 @@ abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog
             val source = r
             log debug s"Hydra source:\n $source"
             for (j <- 0 to iterations) {
-              val promise = Promise[Double]
+              val promise = Promise[Long]()
 
               val startTime = System.nanoTime()
               hydra.executeHydraAsWave(newBurstUid, source, FabricOver(domain = domainKey, view = viewKey), Some(FabricCall(parameters))) onComplete {
@@ -145,7 +145,7 @@ abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog
         }
         log info s"end test thread $i"
         parElapsedTime.addAndGet(totalElapsedTime.get())
-        parTest.success(totalElapsedTime.get())
+        parTest.success(totalElapsedTime.get().toDouble)
       }
     }
     Await.ready(Future.sequence(parTests.map(_.future)), 100 minutes).value.get match {

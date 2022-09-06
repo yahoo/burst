@@ -20,7 +20,7 @@ import org.burstsys.gen.thrift.api.client.{BTResultStatus => tStatus}
 import org.burstsys.vitals.logging.VitalsLogger
 
 import java.util
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.TimeoutException
 
 package object thrift extends VitalsLogger {

@@ -69,19 +69,19 @@ trait FeltCubeSweepRtGen extends Any {
         frame.collectorDecl match {
           case cube: FeltCubeDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${cubeRoot(cube.cubeName)} ;  // '${frame.frameName}' """.stripMargin
+                |${I}case ${frame.frameId} => ${cubeRoot(cube.cubeName)} ;  // '${frame.frameName}' """.stripMargin
           case route: FeltRouteDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${routeInstanceVariable(route.routeName)} ;  // '${frame.frameName}' """.stripMargin
+                |${I}case ${frame.frameId} => ${routeInstanceVariable(route.routeName)} ;  // '${frame.frameName}' """.stripMargin
           case tablet: FeltTabletDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${tabletInstanceVariable(tablet.tabletName)} ;  // '${frame.frameName}' """.stripMargin
+                |${I}case ${frame.frameId} => ${tabletInstanceVariable(tablet.tabletName)} ;  // '${frame.frameName}' """.stripMargin
           case shrub: FeltShrubDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${shrubInstanceVariable(shrub.shrubName)} ;  // '${frame.frameName}' """.stripMargin
+                |${I}case ${frame.frameId} => ${shrubInstanceVariable(shrub.shrubName)} ;  // '${frame.frameName}' """.stripMargin
           case _ =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ null; // '${frame.frameName}'""".stripMargin
+                |${I}case ${frame.frameId} => null; // '${frame.frameName}'""".stripMargin
         }
 
     }.mkString
@@ -92,7 +92,7 @@ trait FeltCubeSweepRtGen extends Any {
         |${I}def frameCollector(frameId: Int):$collectorClassName = {
         |${I2}frameId match {
         |${cases(cursor indentRight 2)}
-        |${I3}case _ ⇒ ??? ;
+        |${I3}case _ => ??? ;
         |$I2}
         |$I}""".stripMargin
   }
@@ -105,19 +105,19 @@ trait FeltCubeSweepRtGen extends Any {
         frame.collectorDecl match {
           case cube: FeltCubeDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${cubeRoot(cube.cubeName)} = collector.asInstanceOf[${binding.collectors.cubes.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
+                |${I}case ${frame.frameId} => ${cubeRoot(cube.cubeName)} = collector.asInstanceOf[${binding.collectors.cubes.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
           case route: FeltRouteDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${routeRootVariable(route.routeName)} = collector.asInstanceOf[${binding.collectors.routes.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
+                |${I}case ${frame.frameId} => ${routeRootVariable(route.routeName)} = collector.asInstanceOf[${binding.collectors.routes.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
           case tablet: FeltTabletDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${tabletRootVariable(tablet.tabletName)} = collector.asInstanceOf[${binding.collectors.tablets.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
+                |${I}case ${frame.frameId} => ${tabletRootVariable(tablet.tabletName)} = collector.asInstanceOf[${binding.collectors.tablets.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
           case shrub: FeltShrubDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${shrubRootVariable(shrub.shrubName)} = collector.asInstanceOf[${binding.collectors.shrubs.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
+                |${I}case ${frame.frameId} => ${shrubRootVariable(shrub.shrubName)} = collector.asInstanceOf[${binding.collectors.shrubs.collectorClassName}] ;  // ${frame.frameName}""".stripMargin
           case _ =>
             s"""|
-                |${I}case ${frame.frameId} ⇒  null ;  // '${frame.frameName}'""".stripMargin
+                |${I}case ${frame.frameId} =>  null ;  // '${frame.frameName}'""".stripMargin
         }
     }.mkString
 
@@ -127,7 +127,7 @@ trait FeltCubeSweepRtGen extends Any {
         |${I}def frameCollector(frameId: Int, collector:$collectorClassName):Unit = {
         |${I2}frameId match {
         |${cases(cursor indentRight 2)}
-        |${I3}case _ ⇒ ??? ;
+        |${I3}case _ => ??? ;
         |$I2}
         |$I}""".stripMargin
   }
@@ -140,10 +140,10 @@ trait FeltCubeSweepRtGen extends Any {
         frame.collectorDecl match {
           case cube: FeltCubeDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${cubeDictionary(cube.cubeName)};  // '${frame.frameName}'""".stripMargin
+                |${I}case ${frame.frameId} => ${cubeDictionary(cube.cubeName)};  // '${frame.frameName}'""".stripMargin
           case _ =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ null ;  // '${frame.frameName}' """.stripMargin
+                |${I}case ${frame.frameId} => null ;  // '${frame.frameName}' """.stripMargin
         }
     }.mkString
 
@@ -153,7 +153,7 @@ trait FeltCubeSweepRtGen extends Any {
         |${I}def frameDictionary(frameId: Int): $brioMutableDictionaryClass = {
         |${I2}frameId match {
         |${cases(cursor indentRight 2)}
-        |${I3}case _ ⇒ ??? ;
+        |${I3}case _ => ??? ;
         |$I2}
         |$I}""".stripMargin
   }
@@ -166,10 +166,10 @@ trait FeltCubeSweepRtGen extends Any {
         frame.collectorDecl match {
           case cube: FeltCubeDecl =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ${cubeDictionary(cube.cubeName)} = dictionary ;  // '${frame.frameName}'""".stripMargin
+                |${I}case ${frame.frameId} => ${cubeDictionary(cube.cubeName)} = dictionary ;  // '${frame.frameName}'""".stripMargin
           case _ =>
             s"""|
-                |${I}case ${frame.frameId} ⇒ ;  // '${frame.frameName}' """.stripMargin
+                |${I}case ${frame.frameId} => ;  // '${frame.frameName}' """.stripMargin
         }
 
     }.mkString
@@ -180,7 +180,7 @@ trait FeltCubeSweepRtGen extends Any {
         |${I}def frameDictionary(frameId: Int, dictionary: $brioMutableDictionaryClass): Unit = {
         |${I2}frameId match {
         |${cases(cursor indentRight 2)}
-        |${I3}case _ ⇒ ??? ;
+        |${I3}case _ => ??? ;
         |$I2}
         |$I}""".stripMargin
   }

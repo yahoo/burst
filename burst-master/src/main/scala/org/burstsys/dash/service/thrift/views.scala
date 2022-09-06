@@ -5,7 +5,7 @@ import org.burstsys.catalog.model.view.CatalogView
 import org.burstsys.gen.thrift.api.client.domain.BTDomain
 import org.burstsys.gen.thrift.api.client.view.BTView
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object views {
 

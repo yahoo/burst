@@ -53,7 +53,7 @@ class TorquemadaSpec extends TorquemadaHelper {
 
     implicit val (catalogClient, agentClient) = Driver.openClients(params.get)
     // tag the canned domains with a "project_id" tag so they can be found
-    catalogClient allDomains() match {
+    catalogClient.allDomains() match {
       case Success(domains) =>
         for ((d, n) <- domains.zipWithIndex) {
           val labels = mutable.Map[String, String]()

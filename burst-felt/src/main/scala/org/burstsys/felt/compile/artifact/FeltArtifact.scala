@@ -90,7 +90,8 @@ FeltArtifact[INPUT]() extends AnyRef with FeltArtifactLocker with Equals {
   final override
   def equals(obj: scala.Any): Boolean = {
     obj match {
-      case that: FeltArtifact[INPUT] => this.key == that.key
+      case that: FeltArtifact[INPUT] =>
+        this.key == that.key
     }
   }
 

@@ -126,14 +126,14 @@ trait ADD extends FeltBinMathOp {
 
   override def reduce(l: Long, r: Double): Option[Any] = Some(l + r)
 
-  override def reduce(l: Long, r: String): Option[Any] = Some(l + r)
+  override def reduce(l: Long, r: String): Option[Any] = Some(l + r.toDouble)
 
 
   override def reduce(l: Double, r: Long): Option[Any] = Some(l + r)
 
   override def reduce(l: Double, r: Double): Option[Any] = Some(l + r)
 
-  override def reduce(l: Double, r: String): Option[Any] = Some(l + r)
+  override def reduce(l: Double, r: String): Option[Any] = Some(l + r.toDouble)
 
 
   override def reduce(l: String, r: Long): Option[Any] = Some(l + r)

@@ -519,7 +519,6 @@ class ZapCubeRow(rowStartOffset: TeslaMemoryPtr = ZapCubeEmptyLink) extends AnyV
       }
     }
 
-    sb.stripSuffix(", ")
     sb ++= s") aggs("
 
     {
@@ -531,7 +530,7 @@ class ZapCubeRow(rowStartOffset: TeslaMemoryPtr = ZapCubeEmptyLink) extends AnyV
         if (builder.aggregationFieldTypes(a) == BrioStringKey) {
           val aggregationAsKey = aggregationValue.toShort
           val aggregationAsString = if (aggregationNull) "(NULL)" else s"'${thisDictionary.stringLookup(aggregationAsKey)}'"
-          sb ++= s"$aggregationName=[key=$aggregationAsKey]$aggregationAsString  "
+          sb ++= s"$aggregationName=[key=$aggregationAsKey]$aggregationAsString "
         } else {
           val aggregationAsString = if (aggregationNull) "(NULL)" else aggregationValue.toString
           sb ++= s"$aggregationName=$aggregationAsString "

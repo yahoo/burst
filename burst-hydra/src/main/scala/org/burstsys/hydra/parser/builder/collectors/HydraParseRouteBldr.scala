@@ -13,7 +13,7 @@ import org.burstsys.hydra.parser.HydraLocation
 import org.burstsys.hydra.parser.builder.HydraParseAnalysisBldr
 
 import java.util
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * antlr parse driven builder for route collectors in AST

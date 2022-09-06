@@ -24,8 +24,8 @@ object HydraUnityVariablesCase00 extends HydraUseCase(200, 200, "unity") {
        |      }
        |    }
        |
-       |    user ⇒ {
-       |      post ⇒ {
+       |    user => {
+       |      post => {
        |        $analysisName.$frameName.count = 1
        |        insert($analysisName.$frameName)
        |      }

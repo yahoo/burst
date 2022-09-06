@@ -7,7 +7,6 @@ import org.burstsys.vitals.logging._
 
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
-import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -25,10 +24,11 @@ package object kryo extends VitalsLogger {
   type VitalsKryoClassPair = (VitalsKryoKey, VitalsKryoClass)
 
   private
-  lazy val kryoClasses: Array[VitalsKryoClassPair] =
+  lazy val kryoClasses: Array[VitalsKryoClassPair] = {
     reflection.getSubTypesOf(
       classOf[VitalsKryoCatalogProvider]
-    ).asScala.toList.flatMap(_.getDeclaredConstructor().newInstance().kryoClasses).sortBy(_._1).toArray
+    ).flatMap(_.getDeclaredConstructor().newInstance().kryoClasses).toArray.sortBy(_._1)
+  }
 
   private val codecQueue: LinkedBlockingQueue[Kryo] = new LinkedBlockingQueue[Kryo]()
 

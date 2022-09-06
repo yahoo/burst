@@ -27,15 +27,15 @@ object HydraQuoSubCubes02 extends HydraUseCase(1, 1, "quo") {
           }
         }
 
-        user ⇒ {
-          pre ⇒ {
+        user => {
+          pre => {
             $analysisName.$frameName.gender = user.'project'.gender
             $analysisName.$frameName.userCount = 1
           }
         }
 
-        user.segments ⇒ {
-          pre ⇒ {
+        user.segments => {
+          pre => {
             $analysisName.$frameName.segmentId = user.segments.segmentId
             insert($analysisName.$frameName)
           }

@@ -190,30 +190,30 @@ final class Cube(frameName: String, analysis: PlannedSelect)(implicit context: G
   }
 
   private def generateCubeDeclarationSource(c: CubeScope, withLimit: Boolean = false): CodeBlock = CodeBlock { implicit cb =>
-    s"cube ${c.cubeLabel} {".source
+    s"cube ${c.cubeLabel} {".source()
     CodeBlock { implicit cb =>
       if (withLimit)
-        s"limit = $collectorLimit".source
+        s"limit = $collectorLimit".source()
 
       if (c.aggregates.nonEmpty) {
-        s"aggregates {".source
+        s"aggregates {".source()
         // aggregate declarations
         CodeBlock { implicit cb =>
-          c.aggregates.foreach{a => a.generateCubeDeclarationSource().source}}.indent.source
-        s"}".source
+          c.aggregates.foreach{a => a.generateCubeDeclarationSource().source()}}.indent.source()
+        s"}".source()
       }
 
       if (c.dimensions.nonEmpty) {
-        s"dimensions {".source
+        s"dimensions {".source()
         // dimension declarations
         CodeBlock { implicit cb =>
-          c.dimensions.foreach{a => a.generateCubeDeclarationSource().source}}.indent.source
-        s"}".source
+          c.dimensions.foreach{a => a.generateCubeDeclarationSource().source()}}.indent.source()
+        s"}".source()
       }
 
       // sub cubes
       c.children.foreach { cc =>
-        generateCubeDeclarationSource(cc).source
+        generateCubeDeclarationSource(cc).source()
       }
     }.indent.source()
     s"}".source()

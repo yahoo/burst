@@ -83,10 +83,10 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
         WHERE
          ${this.column.pk} = {pk}
         """.bindByName(
-      'pk -> entity.pk,
-      'udk -> entity.udk.orNull,
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels)
+      Symbol("pk") -> entity.pk,
+      Symbol("udk") -> entity.udk.orNull,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels)
     )
   }
 
@@ -99,9 +99,9 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
         WHERE
          ${this.column.udk} = {udk}
         """.bindByName(
-      'udk -> entity.udk.orNull,
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels)
+      Symbol("udk") -> entity.udk.orNull,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels)
     )
   }
 
@@ -119,9 +119,9 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
         VALUES
          ({udk}, {moniker}, {labels})
         """.bindByName(
-      'udk -> entity.udk.orNull,
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels)
+      Symbol("udk") -> entity.udk.orNull,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels)
     )
   }
 }

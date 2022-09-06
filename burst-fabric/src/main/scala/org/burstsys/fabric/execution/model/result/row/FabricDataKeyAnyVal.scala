@@ -60,13 +60,13 @@ class FabricDataKeyAnyVal(data: Array[Long] = null) extends AnyVal {
     data(dimension + 1)
   }
 
-  @inline def writeKeyDimensionPrimitive(dimension: Int, value: BrioPrimitive) {
+  @inline def writeKeyDimensionPrimitive(dimension: Int, value: BrioPrimitive): Unit = {
     writeKeyDimensionNotNull(dimension)
     data(dimension + 1) = value.toLong
   }
 
   @inline
-  def writeKeyDimensionNull(dimension: Int) {
+  def writeKeyDimensionNull(dimension: Int): Unit = {
     val bit: Long = 1L << dimension.toLong
     val oldNulls = data(0)
     val newNulls = oldNulls & ~bit
@@ -75,7 +75,7 @@ class FabricDataKeyAnyVal(data: Array[Long] = null) extends AnyVal {
   }
 
   @inline
-  def writeKeyDimensionNotNull(dimension: Int) {
+  def writeKeyDimensionNotNull(dimension: Int): Unit = {
     val bit: Long = 1L << dimension.toLong
     val oldNulls = data(0)
     val newNulls = oldNulls | bit

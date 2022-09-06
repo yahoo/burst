@@ -29,12 +29,12 @@
 
         <dependency>
             <groupId>com.github.scopt</groupId>
-            <artifactId>scopt_2.12</artifactId>
+            <artifactId>scopt_${scala-major.version}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.12</artifactId>
+            <artifactId>jackson-module-scala_${scala-major.version}</artifactId>
         </dependency>
 
         <dependency>

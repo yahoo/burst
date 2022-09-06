@@ -27,7 +27,7 @@ import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.uid._
 import io.netty.channel.Channel
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.Future
 

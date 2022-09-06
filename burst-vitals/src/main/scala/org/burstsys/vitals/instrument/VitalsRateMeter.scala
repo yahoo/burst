@@ -31,7 +31,7 @@ final case class VitalsRateMeter(name: String) {
 
   def read(count: Long): String = {
     val now: Long = System.nanoTime
-    val elapsed: Double = now - startTime
+    val elapsed: Long = now - startTime
     val rate: Double = (count / elapsed) * 1e9
     "%,d %s(s) in %s (%,.2f per second)".format(count, name, prettyTimeFromNanos(elapsed), rate)
   }

@@ -7,8 +7,6 @@ import org.burstsys.catalog.model.domain.CatalogCannedDomain
 import org.burstsys.catalog.model.view.CatalogCannedView
 import org.burstsys.catalog.model.view.CatalogView.ViewLoadTimeoutMsProperty
 import org.burstsys.fabric
-import org.burstsys.fabric.topology.model.node.UnknownFabricNodePort
-import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties._
 
 import scala.concurrent.duration._
@@ -26,18 +24,16 @@ final class CatalogDefaultBaseTypesCan extends CatalogCan {
   override def domains: Array[CatalogCannedDomain] = {
     Array(
       CatalogCannedDomain("Domain1",
-        """
-          |domain1_k3=domain1_v3;
-          |domain1_k1=domain1_v1;
-          |domain1_k2=domain1_v2;
-        """.stripMargin, Some("udk01")
+        Map( "domain1_k3" -> "domain1_v3",
+          "domain1_k1"->"domain1_v1",
+          "domain1_k2"->"domain1_v2"
+        ) , Some("udk01")
       ),
       CatalogCannedDomain("Domain2",
-        """
-          |domain2_k3=domain2_v3;
-          |domain2_k1=domain2_v1;
-          |domain2_k2=domain2_v2;
-        """.stripMargin, Some("udk02")
+        Map( "domain2_k3" -> "domain2_v3",
+          "domain2_k1"->"domain2_v1",
+          "domain2_k2"->"domain2_v2"
+        ), Some("udk02")
       ),
       CatalogCannedDomain(exceptionDomain, domainProperties = "", udk = Some("udk03"), labels = Some(Map.empty))
     )
@@ -73,18 +69,20 @@ final class CatalogDefaultBaseTypesCan extends CatalogCan {
 //        viewProperties = AlloyJsonUseCaseViews.quoSpecialView.view.viewProperties ++ timingProperties,
         schemaName = "quo"
       )
-    ) ++
+    ) ++ {
       Array("Worker", "Master").flatMap(errorLocation =>
-        Array("RuntimeException", "FabricException", "Timeout", "NoData").map(errorType =>
-          CatalogCannedView(s"${exceptionDomain}_${errorLocation}_$errorType", exceptionDomain, 1,
-            exceptionalStoreProperties + (
+        Array("RuntimeException", "FabricException", "Timeout", "NoData").map(errorType => {
+          val storeProps: VitalsPropertyMap = exceptionalStoreProperties + Map(
               "burst.store.exception.FailureMode" -> errorType,
               "burst.store.exception.FailureLocation" -> s"FailOn$errorLocation",
               "burst.store.exception.FailureRate" -> "1.0"
-            ),
+            )
+          CatalogCannedView(s"${exceptionDomain}_${errorLocation}_$errorType", exceptionDomain, 1, storeProps,
             defaultMotif, viewProperties = Map.empty, labels = Some(Map.empty), schemaName = "quo", udk = Some(s"${errorLocation}_$errorType")
           )
-        )
+        })
       )
+
+    }
   }
 }

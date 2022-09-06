@@ -72,7 +72,7 @@ class FabricPlaneScannerContext extends FabricScannerContext with FabricPlaneSca
    *
    */
   override
-  def write(kryo: Kryo, output: Output) {
+  def write(kryo: Kryo, output: Output): Unit = {
     try {
       super.write(kryo, output)
       output writeInt _activePlanes
@@ -88,7 +88,7 @@ class FabricPlaneScannerContext extends FabricScannerContext with FabricPlaneSca
    * @param input
    */
   override
-  def read(kryo: Kryo, input: Input) {
+  def read(kryo: Kryo, input: Input): Unit = {
     try {
       super.read(kryo, input)
       _activePlanes = input.readInt

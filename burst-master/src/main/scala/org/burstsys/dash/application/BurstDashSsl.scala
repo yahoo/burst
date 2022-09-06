@@ -1,17 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.application
 
-import java.io.{File, FileInputStream, InputStream}
-import org.burstsys.dash.{BurstDashService, configuration}
-import com.google.common.io.ByteStreams
 import org.apache.commons.io.IOUtils
+import org.burstsys.dash.{BurstDashService, configuration}
 import org.burstsys.vitals.errors.safely
-
-import javax.net.ssl.SSLContext
 import org.glassfish.jersey.SslConfigurator
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, File, FileInputStream, InputStream}
 import java.security.KeyStore
+import javax.net.ssl.SSLContext
 
 /**
  * You don't need to specify a truststore, because there's a default value for it (it's bundled with the JRE),

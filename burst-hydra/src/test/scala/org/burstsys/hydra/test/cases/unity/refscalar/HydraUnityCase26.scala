@@ -23,8 +23,8 @@ object HydraUnityCase26 extends HydraUseCase(150, 150, "unity") {
         |      d5:verbatim[long]
         |    }
         |  }
-        |  user.sessions ⇒ {
-        |    pre ⇒ {
+        |  user.sessions => {
+        |    pre => {
         |      $analysisName.$frameName.d1 = user.application.id
         |      $analysisName.$frameName.d2 = user.application.firstUse.appVersion.id
         |      $analysisName.$frameName.d3 = user.application.mostUse.appVersion.id

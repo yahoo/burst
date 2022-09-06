@@ -24,16 +24,16 @@ object HydraQuoTop00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user.sessions.events.parameters ⇒ {
-       |         situ ⇒ {
+       |      user.sessions.events.parameters => {
+       |         situ => {
        |            $analysisName.$frameName.'keys' = key(user.sessions.events.parameters)
        |            insert($analysisName.$frameName)
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |         }
-       |         post ⇒ {
+       |         post => {
        |            $analysisName.$frameName.events = 1
        |         }
        |      }

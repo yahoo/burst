@@ -38,8 +38,8 @@ object HydraQuoAllControls extends HydraUseCase(1, 1, "quo") {
        |        }
        |      }
        |    }
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        commitRelation(user.sessions.events)
        |        abortRelation(user.sessions.events)
        |        commitMember(user)

@@ -24,14 +24,14 @@ object HydraUnityCase18 extends HydraUseCase(200, 200, "unity") {
           }
         }
 
-        user ⇒ {
-           pre ⇒ {
+        user => {
+           pre => {
               $analysisName.$frameName.userCount = 1
            }
         }
 
-        user.application.channels ⇒ {
-           pre ⇒ {
+        user.application.channels => {
+           pre => {
               $analysisName.$frameName.localeCountryId = user.application.lastUse.localeCountryId
               insert($analysisName.$frameName)
            }

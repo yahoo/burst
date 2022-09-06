@@ -24,8 +24,8 @@ object HydraUnityCase12 extends HydraUseCase(200, 200, "unity") {
             }
           }
 
-          user.sessions.parameters ⇒ {
-            situ ⇒ {
+          user.sessions.parameters => {
+            situ => {
               $analysisName.$frameName.parameterKey = key(user.sessions.parameters)
               $analysisName.$frameName.parameterFrequency = 1
             }

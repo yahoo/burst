@@ -22,7 +22,7 @@ package object code {
   implicit
   def cleanClassName[C](clazz: Class[C]): String = {
     val name = clazz.getName
-    val clean = name.replaceAllLiterally(".package$", ".")
+    val clean = name.replace(".package$", ".")
     clean
   }
 

@@ -48,7 +48,8 @@ package object view {
      * @param props the viewProperties of a catalog view
      * @return the properties of a view that are not owned by Burst
      */
-    def withoutLoadProps(props: VitalsPropertyMap): VitalsPropertyMap = props.filterKeys(key => !loadProps.contains(key))
+    def withoutLoadProps(props: VitalsPropertyMap): VitalsPropertyMap =
+      props.view.filterKeys(key => !loadProps.contains(key)).toMap
 
     // TODO remove this, it's only used in canned data
     final val ViewLoadTimeoutMsProperty: VitalsPropertyKey = "burst.load.timeout.ms"

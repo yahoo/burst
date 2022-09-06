@@ -71,7 +71,7 @@ trait FeltValArrLit extends FeltMutableLit[FeltExpression] {
   final override
   def resolveTypes: this.type = {
     members.foreach(_.resolveTypes)
-    val vectorMemberType = FeltType.combine(members.map(_.feltType): _*)
+    val vectorMemberType = FeltType.combine(members.map(_.feltType).toIndexedSeq: _*)
     feltType = FeltType.valArray(vectorMemberType.valueType)
     this
   }
@@ -102,8 +102,6 @@ trait FeltValArrLit extends FeltMutableLit[FeltExpression] {
       val valueCursor = valuesCursors(i)
 
       val valueExpr = members(i)
-
-      val valueCode = valueExpr.generateExpression
 
       s"""|
           |${T(this)}

@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.parse
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraAnalysisParseSpec extends HydraSpecSupport {
 
@@ -56,31 +53,31 @@ class HydraAnalysisParseSpec extends HydraSpecSupport {
          |      }
          |
          |      // path visits go here...
-         |      user ⇒ {
-         |        pre ⇒ {
+         |      user => {
+         |        pre => {
          |          val val2:integer = 0
          |              ???
          |        }
-         |        post ⇒ {
+         |        post => {
          |          val val2:integer = 0
          |              ???
          |        }
          |      }
          |
-         |      user.sessions ⇒ {
+         |      user.sessions => {
          |
-         |        pre ⇒ {
+         |        pre => {
          |          val val1:double = (0.5 * 12.1) % 3
          |          user.sessions.sessionId match {
-         |            case "foo" ⇒ {
+         |            case "foo" => {
          |              val val1:string = "hello there"
          |              ???
          |            }
-         |            case 5 ⇒ {
+         |            case 5 => {
          |              val val2:integer = 0
          |              ???
          |            }
-         |            case _ ⇒ {
+         |            case _ => {
          |              ???
          |            }
          |          }

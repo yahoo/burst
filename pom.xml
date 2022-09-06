@@ -25,17 +25,6 @@
         </profile>
 
         <profile>
-            <id>java8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <java-short.version>1.8</java-short.version>
-                <java-exports/>
-            </properties>
-        </profile>
-
-        <profile>
             <id>includeTests</id>
             <activation>
                 <property>
@@ -197,7 +186,7 @@
         <findbugs.version>3.0.2</findbugs.version>
         <grizzly.version>3.0.1</grizzly.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.13.2</jackson.version>
+        <jackson.version>2.13.3</jackson.version>
         <jakarta-inject.version>2.6.1</jakarta-inject.version>
         <jakarta-servlet-api.version>5.0.0</jakarta-servlet-api.version>
         <jakarta-websocket-api.version>2.0</jakarta-websocket-api.version>
@@ -220,8 +209,8 @@
         <oshi.version>6.1.5</oshi.version><!-- hardware information -->
         <owasp-html-sanitizer.version>20211018.2</owasp-html-sanitizer.version>
         <reflections.version>0.10.2</reflections.version>
-        <scala-major.version>2.12</scala-major.version>
-        <scala-minor.version>12</scala-minor.version>
+        <scala-major.version>2.13</scala-major.version>
+        <scala-minor.version>8</scala-minor.version>
         <scala.version>${scala-major.version}.${scala-minor.version}</scala.version>
         <scalacompat.version>2.6.0</scalacompat.version>
         <scalatest.version>3.2.11</scalatest.version>
@@ -429,22 +418,17 @@
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
-                <version>2.12.12</version>
+                <version>${scala.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-reflect</artifactId>
-                <version>2.12.12</version>
+                <version>${scala.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-compiler</artifactId>
-                <version>2.12.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.scala-lang.modules</groupId>
-                <artifactId>scala-collection-compat_2.12</artifactId>
-                <version>${scalacompat.version}</version>
+                <version>${scala.version}</version>
             </dependency>
 
             <!-- Logging -->
@@ -880,7 +864,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.scala-lang.modules</groupId>
-                        <artifactId>scala-parser-combinators_2.12</artifactId>
+                        <artifactId>scala-parser-combinators_${scala-major.version}</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1074,6 +1058,11 @@
                 <artifactId>sourcecode_2.12</artifactId>
                 <version>${sourcecode.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.lihaoyi</groupId>
+                <artifactId>sourcecode_2.13</artifactId>
+                <version>${sourcecode.version}</version>
+            </dependency>
 
             <!-- testing -->
             <dependency>
@@ -1104,6 +1093,19 @@
                 <version>${scalatest.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.lihaoyi</groupId>
+                <artifactId>requests_2.12</artifactId>
+                <version>0.7.1</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.lihaoyi</groupId>
+                <artifactId>requests_2.13</artifactId>
+                <version>0.7.1</version>
+                <scope>test</scope>
+            </dependency>
             <!-- scalatest html reporter -->
             <dependency>
                 <groupId>com.vladsch.flexmark</groupId>
@@ -1132,12 +1134,12 @@
              since a test-scoped dependency doesn't become a transitive dependency -->
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.12</artifactId>
+            <artifactId>scalatest_${scala-major.version}</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.scalactic</groupId>
-            <artifactId>scalactic_2.12</artifactId>
+            <artifactId>scalactic_${scala-major.version}</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

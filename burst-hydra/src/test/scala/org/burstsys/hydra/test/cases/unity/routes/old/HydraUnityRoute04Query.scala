@@ -30,7 +30,7 @@ HydraUnityRoute04Query extends HydraUseCase(200, 200, "unity") {
        |    }
        |  }
        |
-       |  myRoute.user.one.paths.steps ⇒ {
+       |  myRoute.user.one.paths.steps => {
        |    situ => {
        |      // for each step
        |      $analysisName.$frameName.'keys' = event.??? // routeVisitStepKey(myRoute)
@@ -55,8 +55,8 @@ HydraUnityRoute04Query extends HydraUseCase(200, 200, "unity") {
        |      }
        |    }
        |  }
-       |  user.sessions ⇒ {
-       |    pre ⇒ {
+       |  user.sessions => {
+       |    pre => {
        |        routeScopeStart(r1)
        |        routeFsmStepAssert( r1, 1, 101, 1111 )
        |        routeFsmStepAssert( r1, 2, 103, 2222 )

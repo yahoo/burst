@@ -5,9 +5,6 @@ import org.burstsys.felt.model.tree.code.FeltCodeCursor
 import org.burstsys.felt.model.tree.FeltGlobal
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraActionGenerateSpec extends HydraSpecSupport {
 
@@ -36,10 +33,10 @@ class HydraActionGenerateSpec extends HydraSpecSupport {
          |      }
          |    } // end cube user
          |
-         |    user.sessions ⇒ {
+         |    user.sessions => {
          |      // visit level variables!!
          |      val u1:boolean = true
-         |      pre ⇒ {
+         |      pre => {
          |        // action level variables!!
          |        val foo:string = "hello there"
          |        if(user.sessions.id != 34) {
@@ -75,8 +72,8 @@ class HydraActionGenerateSpec extends HydraSpecSupport {
          |      }
          |    } // end cube user
          |
-         |    user.sessions ⇒ {
-         |      pre ⇒ {
+         |    user.sessions => {
+         |      pre => {
          |        val foo:string = "hello there"
          |        if( user.sessions.id == null ) {
          |          $analysisName.$frameName.a1 = dayGrain(user.sessions.id)
@@ -85,7 +82,7 @@ class HydraActionGenerateSpec extends HydraSpecSupport {
          |          // exit
          |        }
          |      } // end pre action
-         |      post ⇒ {
+         |      post => {
          |        // all ginsu functions
          |        dayGrain(user.sessions.startTime) - dayGrain(user.sessions.startTime)
          |        hourGrain(user.sessions.startTime)- halfGrain(user.sessions.startTime)
@@ -98,16 +95,16 @@ class HydraActionGenerateSpec extends HydraSpecSupport {
          |        weekOfYearOrdinal(user.sessions.startTime)- yearOfEraOrdinal(user.sessions.startTime)
          |      }
          |    } // end user visit
-         |    user.sessions ⇒ {
-         |      before ⇒ {
+         |    user.sessions => {
+         |      before => {
          |        val i:long = (4*5)
          |      }
-         |      after ⇒ {
+         |      after => {
          |        cast(user.sessions.startTime as string)
          |      }
          |    }
-         |    user.sessions.parameters ⇒ {
-         |      situ ⇒ {
+         |    user.sessions.parameters => {
+         |      situ => {
          |        val i:long = (4*5)
          |      }
          |    }

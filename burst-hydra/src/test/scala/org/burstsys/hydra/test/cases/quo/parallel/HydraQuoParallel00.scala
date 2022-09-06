@@ -19,9 +19,9 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            userCount:sum[long]
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |           $analysisName.I00000.userCount = 1
        |         }
        |      }
@@ -33,9 +33,9 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            sessionCount:sum[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |            $analysisName.I00001.sessionCount = 1
        |         }
        |      }
@@ -47,9 +47,9 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            eventCount:sum[long]
        |         }
        |      }
-       |      user.sessions.events ⇒ {
+       |      user.sessions.events => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |            $analysisName.I00002.eventCount = 1
        |         }
        |      }
@@ -61,9 +61,9 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            minSessionTime:min[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00003.minSessionTime = user.sessions.startTime
        |         }
        |      }
@@ -75,9 +75,9 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            maxSessionTime:max[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |                        I00004.maxSessionTime = user.sessions.startTime
        |         }
        |      }
@@ -92,12 +92,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            deviceModelIds:verbatim[long]
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00005.deviceModelIds = user.deviceModelId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00005.users = 1
        |         }
        |      }
@@ -112,12 +112,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            osVersionIds:verbatim[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00006.osVersionIds = user.sessions.osVersion
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00006.sessions = 1
        |         }
        |      }
@@ -134,18 +134,18 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user.project ⇒ {
+       |      user.project => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00007.languageIds = user.project.languageId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        insert($analysisName.I00007)
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00007.projects = 1
        |         }
        |      }
@@ -162,18 +162,18 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00008.users = 1
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00008.appVersionIds = user.sessions.appVersionId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        insert($analysisName.I00008)
        |         }
        |      }
@@ -188,12 +188,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            providedOrigins:verbatim[string]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00009.providedOrigins = user.sessions.providedOrigin
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00009.sessions = 1
        |         }
        |      }
@@ -208,12 +208,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            mappedOrigin:verbatim[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00010.mappedOrigin = user.sessions.mappedOrigin
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00010.sessions = 1
        |         }
        |      }
@@ -228,12 +228,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            originSourceType:verbatim[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |          $analysisName.I00011.originSourceType = user.sessions.originSourceType
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00011.sessions = 1
        |         }
        |      }
@@ -248,12 +248,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            originMethodType:verbatim[long]
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |            $analysisName.I00012.originMethodType = user.sessions.originMethodType
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |            $analysisName.I00012.sessions = 1
        |         }
        |      }
@@ -268,12 +268,12 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            events:verbatim[long]
        |         }
        |      }
-       |      user.sessions.events ⇒ {
+       |      user.sessions.events => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |            $analysisName.I00013.events = user.sessions.events.eventId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |            $analysisName.I00013.eventFrequency = 1
        |         }
        |      }
@@ -293,19 +293,19 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user.sessions.events.parameters ⇒ {
+       |      user.sessions.events.parameters => {
        |
-       |         situ ⇒          {
+       |         situ =>          {
        |            $analysisName.I00014.eventParameterKey = key(user.sessions.events.parameters)
        |            insert($analysisName.I00014)
        |         }
        |      }
-       |      user.sessions.events ⇒ {
+       |      user.sessions.events => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |            $analysisName.I00014.eventParameters = user.sessions.events.eventId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |            $analysisName.I00014.eventParameterFrequency = 1
        |         }
        |      }
@@ -322,18 +322,18 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user.channels ⇒ {
+       |      user.channels => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00015.campaignId = user.channels.channelId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |                        insert($analysisName.I00015)
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |                        $analysisName.I00015.campaignIdFrequency = 1
        |         }
        |      }
@@ -350,18 +350,18 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user.channels ⇒ {
+       |      user.channels => {
        |
-       |         pre ⇒          {
+       |         pre =>          {
        |                        $analysisName.I00016.channelId = user.channels.networkId
        |         }
-       |         post ⇒          {
+       |         post =>          {
        |            insert($analysisName.I00016)
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |            $analysisName.I00016.channelIdFrequency = 1
        |         }
        |      }
@@ -378,16 +378,16 @@ object HydraQuoParallel00 extends HydraUseCase(1, 1, "quo") {
        |            }
        |         }
        |      }
-       |      user.sessions.parameters ⇒ {
+       |      user.sessions.parameters => {
        |
-       |         situ ⇒          {
+       |         situ =>          {
        |            $analysisName.I00017.sessionParameterKeys =               key(user.sessions.parameters)
        |            insert($analysisName.I00017)
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         post ⇒          {
+       |         post =>          {
        |          $analysisName.I00017.sessionParameterFrequency = 1
        |         }
        |      }

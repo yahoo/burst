@@ -94,10 +94,6 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-collection-compat_2.12</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -212,7 +208,7 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.12</artifactId>
+            <artifactId>jackson-module-scala_${scala-major.version}</artifactId>
         </dependency>
         <!-- ******************************************************************** -->
 
@@ -231,7 +227,7 @@
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
-            <artifactId>sourcecode_2.12</artifactId>
+            <artifactId>sourcecode_${scala-major.version}</artifactId>
         </dependency>
 
         <dependency>
@@ -263,8 +259,7 @@
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
-            <artifactId>requests_2.12</artifactId>
-            <version>0.1.9</version>
+            <artifactId>requests_${scala-major.version}</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

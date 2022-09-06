@@ -12,7 +12,7 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.uid._
 import org.jctools.queues.MpmcArrayQueue
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.language.postfixOps

@@ -4,9 +4,6 @@ package org.burstsys.hydra.test.generate
 import org.burstsys.hydra.test.support.HydraSpecSupport
 import org.scalatest.Ignore
 
-/**
-  * ← ⇒
-  */
 @Ignore
 class HydraZapFuncGenerateSpec extends HydraSpecSupport {
 

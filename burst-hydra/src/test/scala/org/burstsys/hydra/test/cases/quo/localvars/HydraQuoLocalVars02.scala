@@ -21,8 +21,8 @@ object HydraQuoLocalVars02 extends HydraUseCase(1, 1, "quo") {
        |            event2:sum[long]
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |        pre ⇒ {
+       |      user.sessions.events => {
+       |        pre => {
        |            val lv1:long = user.sessions.events.eventId - 1
        |            if( lv1 == (6049337 - 1) ) { $analysisName.$frameName.event1 = 1 }
        |            if( lv1 == (4498119 - 1) ) { $analysisName.$frameName.event2 = 1 }

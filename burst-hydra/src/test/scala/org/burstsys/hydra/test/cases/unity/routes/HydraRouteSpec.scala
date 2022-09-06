@@ -1,13 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra.test.cases.unity.routes
 
-import org.burstsys.alloy.views.AlloySmallDatasets.smallDataset_2_users_5_sessions
-import org.burstsys.alloy.views.AlloySmallDatasets.smallDataset_one_user_one_session
-import org.burstsys.alloy.views.AlloySmallDatasets.smallDataset_one_user_two_sessions
+import org.burstsys.alloy.views.AlloySmallDatasets.{smallDataset_2_users_5_sessions, smallDataset_one_user_one_session, smallDataset_one_user_two_sessions}
 import org.burstsys.alloy.views.unity.UnityUseCaseViews.over_200_200
-import org.burstsys.hydra.test.support.GeneratedUnitySchema.{UnityTraveler_lexicon, UnityTraveler_lexicon_runtime}
 import org.burstsys.hydra.test.support.HydraAlloyTestRunner
-import org.scalatest.Ignore
 
 import scala.language.postfixOps
 
@@ -33,7 +29,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'stepTime':verbatim[long]
           |    }
           |  }
-          |  $RouteFrame.paths.steps user.ext1 (4) ⇒ {
+          |  $RouteFrame.paths.steps user.ext1 (4) => {
           |    situ => {
           |      $CubeFrame.'pathOrdinal' = routeVisitPathOrdinal( $RouteFrame )
           |      $CubeFrame.'stepOrdinal' = routeVisitStepOrdinal( $RouteFrame )
@@ -50,8 +46,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |    maxSteps = 1000
           |    graph {  enter 1 { to(2) } exit 2 { } }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( $RouteFrame )
           |        routeFsmStepAssert( $RouteFrame, 1, 101, 1111 )
           |        routeFsmStepAssert( $RouteFrame, 2, 101, 1111 )
@@ -104,7 +100,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'sessionId':verbatim[long]
           |    }
           |  }
-          |  $RouteFrame.paths.steps user.sessions.ext1 (4) ⇒ {
+          |  $RouteFrame.paths.steps user.sessions.ext1 (4) => {
           |    situ => {
           |      $CubeFrame.'stepKey' = routeVisitStepKey( $RouteFrame )
           |      $CubeFrame.'isFirstStep' = routeVisitStepIsFirst( $RouteFrame )
@@ -122,8 +118,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |    maxSteps = 1000
           |    graph {  enter 1 { to(2) }  2 { to(3) }  3 { to(4)  } exit 4 { } }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( $RouteFrame )
           |        routeFsmStepAssert( $RouteFrame, 1, 101, 1001 )
           |        routeFsmStepAssert( $RouteFrame, 2, 102, 1002 )
@@ -193,7 +189,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'stepTime':verbatim[long]
           |    }
           |  }
-          |  $RouteFrame.paths.steps user.ext1 (4) ⇒ {
+          |  $RouteFrame.paths.steps user.ext1 (4) => {
           |    situ => {
           |      $CubeFrame.'pathOrdinal' = routeVisitPathOrdinal( $RouteFrame )
           |      $CubeFrame.'stepKey' = routeVisitStepKey( $RouteFrame )
@@ -209,8 +205,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |    maxSteps = 1000
           |    graph {  enter 1 { to(2) } exit 2 { } }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( $RouteFrame )
           |        routeFsmStepAssert( $RouteFrame, 1, 101, 1111 )
           |        routeFsmStepAssert( $RouteFrame, 2, 101, 1111 )
@@ -260,7 +256,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'pathOrdinal':verbatim[long]
           |    }
           |  }
-          |  $RouteFrame.paths.steps user.ext1 (4) ⇒ {
+          |  $RouteFrame.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
           |      myCube.'stepKey' = routeVisitStepKey( myRoute )
@@ -275,8 +271,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |    maxSteps = 1000
           |    graph {  enter 1 { to(2) } 2 { to(3) } complete, exit 3 { } }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -331,7 +327,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'completePaths':verbatim[long]
           |    }
           |  }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
           |      myCube.'stepOrdinal' = routeVisitStepOrdinal( myRoute )
@@ -353,8 +349,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 4 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -417,7 +413,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'completePaths':verbatim[long]
           |   }
           | }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'userId' = user.id
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
@@ -440,8 +436,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 4 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -507,7 +503,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'completePaths':verbatim[long]
           |     }
           | }
-          | myRoute.paths.steps user.ext1 (4) ⇒ {
+          | myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'userId' = user.id
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
@@ -530,8 +526,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 4 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -597,7 +593,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'completePaths':verbatim[long]
           |   }
           | }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'userId' = user.id
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
@@ -620,8 +616,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 4 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -687,7 +683,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'completePaths':verbatim[long]
           |   }
           | }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'userId' = user.id
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
@@ -707,8 +703,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       enter, complete 1 {   }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmEndPath( myRoute )
@@ -764,7 +760,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'completePaths':verbatim[long]
           |    }
           |  }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'pathOrdinal' = routeVisitPathOrdinal( myRoute )
           |      myCube.'stepOrdinal' = routeVisitStepOrdinal( myRoute )
@@ -787,8 +783,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 4 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -842,7 +838,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'stepKey':verbatim[long]
           |    }
           |  }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'lastStepInPath' = routeVisitStepIsLastInPath( myRoute )
           |      myCube.'stepKey' = routeVisitStepKey( myRoute )
@@ -858,8 +854,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       exit 3 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -910,7 +906,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'stepKey':verbatim[long]
           |    }
           |  }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |      myCube.'lastStepInPath' = routeVisitStepIsLastInPath( myRoute )
           |      myCube.'stepKey' = routeVisitStepKey( myRoute )
@@ -926,8 +922,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 3 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -979,14 +975,14 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      flag:verbatim[boolean]
           |    }
           |  }
-          |  user ⇒ {
-          |     post ⇒ {
+          |  user => {
+          |     post => {
           |       myCube.order = 1
           |       myCube.flag = foo
           |       insert( myCube )
           |     }
           |  }
-          |  myRoute.paths.steps user.ext1 (4) ⇒ {
+          |  myRoute.paths.steps user.ext1 (4) => {
           |    situ => {
           |       myCube.order = 0
           |       myCube.flag = false
@@ -1003,8 +999,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 3 { }
           |    }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( myRoute )
           |        routeFsmStepAssert( myRoute, 1, 101, 1111 )
           |        routeFsmStepAssert( myRoute, 2, 101, 1111 )
@@ -1058,7 +1054,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       flag:verbatim[boolean]
           |     }
           |  }
-          |  myRoute.paths.steps user.ext1  ⇒ {
+          |  myRoute.paths.steps user.ext1  => {
           |    situ => {
           |       myCube.count = 0
           |       myCube.flag = true
@@ -1076,8 +1072,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |       complete 3 { }
           |     }
           |   }
-          |   user.sessions  ⇒ {
-          |     pre ⇒ {
+          |   user.sessions  => {
+          |     pre => {
           |       routeScopeStart( myRoute )
           |       routeFsmStepAssert( myRoute, 1, 101, 0 )
           |       routeFsmStepAssert( myRoute, 2, 101, 1000 )
@@ -1132,7 +1128,7 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |      'stepTime':verbatim[long]
           |    }
           |  }
-          |  $RouteFrame.paths.steps user.ext1 (4) ⇒ {
+          |  $RouteFrame.paths.steps user.ext1 (4) => {
           |    situ => {
           |      $CubeFrame.'pathOrdinal' = routeVisitPathOrdinal( $RouteFrame )
           |      $CubeFrame.'stepKey' = routeVisitStepKey( $RouteFrame )
@@ -1148,8 +1144,8 @@ class HydraRouteSpec extends HydraAlloyTestRunner {
           |    maxSteps = 1000
           |    graph {  enter 1 { to(2, 2592000000L, 0) } exit 2 { } }
           |  }
-          |  user.sessions (3) ⇒ {
-          |    pre ⇒ {
+          |  user.sessions (3) => {
+          |    pre => {
           |        routeScopeStart( $RouteFrame )
           |        routeFsmStepAssert( $RouteFrame, 1, 101, 1111 )
           |        routeFsmStepAssert( $RouteFrame, 2, 101, 1111 )

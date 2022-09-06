@@ -82,7 +82,7 @@ abstract class HydraAlloyTestRunner extends AlloyJsonUseCaseRunner with VitalsLo
   }
 
   private def execute(hydra: String, parameters: String, over: FabricOver, validate: (String, FabricResultSet) => Unit): Unit = {
-    val promise = Promise[FabricResultGroup]
+    val promise = Promise[FabricResultGroup]()
     TeslaRequestCoupler {
       val source = hydra
       //        log info s"Hydra $over source:\n $source"

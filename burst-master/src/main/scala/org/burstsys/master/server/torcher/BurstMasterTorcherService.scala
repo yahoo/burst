@@ -13,7 +13,7 @@ import org.burstsys.torquemada.Parameters.TorcherParameters
 import org.burstsys.vitals.logging._
 import org.apache.logging.log4j.Level
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success}
 
@@ -102,12 +102,12 @@ class BurstMasterTorcherProvider(agent: AgentService, catalog: CatalogService) e
       stats.summaryStatistics.coldLoadTimer.getFifteenMinuteRate,
       stats.summaryStatistics.coldLoadTimer.getMeanRate,
       stats.summaryStatistics.coldLoadTimer.getSnapshot.get99thPercentile,
-      stats.summaryStatistics.coldLoadTimer.getSnapshot.getMax,
+      stats.summaryStatistics.coldLoadTimer.getSnapshot.getMax.toDouble,
       stats.summaryStatistics.firstQueryTimer.getFiveMinuteRate,
       stats.summaryStatistics.firstQueryTimer.getFifteenMinuteRate,
       stats.summaryStatistics.firstQueryTimer.getMeanRate,
       stats.summaryStatistics.firstQueryTimer.getSnapshot.get99thPercentile,
-      stats.summaryStatistics.firstQueryTimer.getSnapshot.getMax,
+      stats.summaryStatistics.firstQueryTimer.getSnapshot.getMax.toDouble,
       stats.summaryStatistics.firstQueryFailures.getCount,
       stats.summaryStatistics.firstQueryNoDataFailures.getCount,
       stats.summaryStatistics.queryFailures.getCount,

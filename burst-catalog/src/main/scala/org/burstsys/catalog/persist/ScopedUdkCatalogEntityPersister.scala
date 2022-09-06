@@ -26,8 +26,8 @@ abstract class ScopedUdkCatalogEntityPersister[E <: ScopedUdkCatalogEntity] exte
     FROM ${this.table} JOIN $scopeTable s ON ${this.table}.$scopeField = s.pk
     WHERE ${this.table}.${this.column.udk} = {udk} AND s.udk = {scope}
     ${service.dialect.lockClause(lockLevel)}""".bindByName(
-      'udk -> udk,
-      'scope -> scope
+      Symbol("udk") -> udk,
+      Symbol("scope") -> scope
     ).map(resultToEntity).single().apply()
   }
 

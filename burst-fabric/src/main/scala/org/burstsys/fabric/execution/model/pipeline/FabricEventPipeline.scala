@@ -24,7 +24,7 @@ trait PipelineEvent {
 }
 
 trait PipelineListener[EventType <: PipelineEvent] {
-  def onEvent: PartialFunction[EventType, Unit]
+  def onEvent: PartialFunction[EventType, Boolean]
 }
 
 /**

@@ -75,7 +75,7 @@ trait CatalogSearchReactor extends CatalogService {
 
           log info s"executing search:\n$query\nparams: $params"
           Success(
-            session.list(query, params: _*)({ rs =>
+            session.list(query, {params.toSeq}: _*)({ rs =>
               Map(
                 "domain_pk" -> rs.string("domain_pk"),
                 "domain_moniker" -> rs.string("domain_moniker"),

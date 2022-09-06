@@ -5,7 +5,7 @@ import org.burstsys.brio.model.schema._
 import org.burstsys.brio.model.schema.types.{BrioReferenceScalarRelation, BrioReferenceVectorRelation, BrioRelationContext, BrioStructure}
 import org.burstsys.brio.types.BrioPath._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Assemble and process all brio 'paths' between root and any

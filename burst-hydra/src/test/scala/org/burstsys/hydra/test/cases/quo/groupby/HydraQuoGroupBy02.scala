@@ -35,8 +35,8 @@ object HydraQuoGroupBy02 extends HydraUseCase(11, 11, "quo") {
             }
           }
         }
-        user ⇒ {
-          pre ⇒ {
+        user => {
+          pre => {
             $analysisName.$frameName.deviceModel = user.deviceModelId
             $analysisName.$frameName.userCount = 1
           }

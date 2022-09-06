@@ -76,7 +76,7 @@ class AnalysisGeneratorImpl(analysis: Query) extends BlockGenerator {
 
     // now generate the hydra source text
     val frameSource = CodeBlock { implicit cb =>
-      cubeFrames.foreach(_.generateSource().indent.source)
+      cubeFrames.foreach(_.generateSource().indent.source())
       additionalFrames.foreach(_.generateSource().indent.source())
     }
 
@@ -85,20 +85,20 @@ class AnalysisGeneratorImpl(analysis: Query) extends BlockGenerator {
       .groupBy(_.name).values.map(_.head).filter(d => d.isInstanceOf[Var])
 
     val hydraSource = CodeBlock { implicit cb =>
-      s"hydra ${context(AnalysisPropertyName)}(${parametersList.mkString(",")}) {".source
+      s"hydra ${context(AnalysisPropertyName)}(${parametersList.mkString(",")}) {".source()
       CodeBlock { implicit cb =>
-        s"schema '${analysis.getSchemaName.toLowerCase()}'".source
+        s"schema '${analysis.getSchemaName.toLowerCase()}'".source()
         if (context.getAttachments.nonEmpty) {
-          s"{".source
+          s"{".source()
           CodeBlock { implicit cb =>
-            context.getAttachments.foreach(e => s"${e._1.getAttachmentPath} <- ${e._2}".source)
-          }.indent.source
-          s"}".source
+            context.getAttachments.foreach(e => s"${e._1.getAttachmentPath} <- ${e._2}".source())
+          }.indent.source()
+          s"}".source()
         }
-      }.indent.source
-      variableDeclarations.foreach(_.generateDeclarationSource().indent.source)
-      frameSource.source
-      s"}".source
+      }.indent.source()
+      variableDeclarations.foreach(_.generateDeclarationSource().indent.source())
+      frameSource.source()
+      s"}".source()
     }
 
 

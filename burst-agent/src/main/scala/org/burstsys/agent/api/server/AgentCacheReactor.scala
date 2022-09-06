@@ -28,14 +28,16 @@ trait AgentCacheReactor extends AgentApi {
                       guid: Option[VitalsUid],
                       operation: BurstQueryCacheOperation,
                       generationKey: BurstQueryCacheGenerationKey,
-                      parameters: Option[Seq[BurstQueryCacheOperationParameter]]
+                      parameters: Option[scala.collection.Seq[BurstQueryCacheOperationParameter]]
                     ): TwitterFuture[BurstQueryCacheGenerationResult] = {
     ensureRunning
-    val promise = Promise[BurstQueryCacheGenerationResult]
-    val params = parameters.map(_.map(p => p: FabricCacheOpParameter))
+    val promise = Promise[BurstQueryCacheGenerationResult]()
+    val params = parameters.map(_.toSeq.map(p => p: FabricCacheOpParameter))
     service.cacheGenerationOp(guid.getOrElse(newBurstUid), operation, generationKey, params) onComplete {
-      case Failure(t) => promise.success(AgentGenerationResult(BurstQueryApiExceptionStatus, burstStdMsg(t)))
-      case Success(s) => promise.success(AgentGenerationResult(generations = Some(s.map(g => g: BurstQueryCacheGeneration))))
+      case Failure(t) =>
+        promise.success(AgentGenerationResult(BurstQueryApiExceptionStatus, burstStdMsg(t)))
+      case Success(s) =>
+        promise.success(AgentGenerationResult(generations = Some(s.map(g => g: BurstQueryCacheGeneration))))
     }
     promise.future
   }
@@ -43,7 +45,7 @@ trait AgentCacheReactor extends AgentApi {
   final override
   def sliceFetch(guid: Option[VitalsUid], generation: BurstQueryApiGenerationKey): TwitterFuture[BurstQuerySliceGenerationResult] = {
     ensureRunning
-    val promise = Promise[BurstQuerySliceGenerationResult]
+    val promise = Promise[BurstQuerySliceGenerationResult]()
     service.cacheSliceOp(guid.getOrElse(newBurstUid), generation) onComplete {
       case Failure(t) => promise.success(AgentSlicesResult(burstStdMsg(t)))
       case Success(s) => promise.success(AgentSlicesResult(s.map(slice => slice: BurstQueryCacheSlice)))

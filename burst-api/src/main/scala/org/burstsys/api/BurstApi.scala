@@ -113,7 +113,7 @@ trait BurstApi extends VitalsService {
 
   // force TLS 1.2 because we're not in 1999
   protected final def enabledProtocols: Protocols = {
-    Protocols.Enabled(Array("TLSv1.2"))
+    Protocols.Enabled(Array("TLSv1.2").toIndexedSeq)
   }
 
   // use any cipher available, you should disable cipher suites at a JVM level if you have specific requirements

@@ -23,22 +23,22 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            userCount:sum[long]
        |         }
        |      }
-       |     user ⇒ {
+       |     user => {
        |
-       |         post ⇒ {
+       |         post => {
        |            I00000.userCount = 1
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         post ⇒ {
+       |         post => {
        |            I00000.sessionCount = 1
        |            I00000.maxSessionTime = user.sessions.startTime
        |         }
        |      }
-       |      user.sessions.events ⇒ {
+       |      user.sessions.events => {
        |
-       |         post ⇒ {
+       |         post => {
        |            I00000.eventCount = 1
        |         }
        |      }
@@ -53,11 +53,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            deviceModelIds:verbatim[long]
        |         }
        |      }
-       |     user ⇒ {
-       |         pre ⇒ {
+       |     user => {
+       |         pre => {
        |            I00001.deviceModelIds = user.deviceModelId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00001.users = 1
        |         }
        |      }
@@ -72,11 +72,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            osVersionIds:verbatim[long]
        |         }
        |      }
-       |     user.sessions ⇒ {
-       |         pre ⇒ {
+       |     user.sessions => {
+       |         pre => {
        |            I00002.osVersionIds = user.sessions.osVersion
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00002.sessions = 1
        |         }
        |      }
@@ -93,17 +93,17 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            }
        |         }
        |      }
-       |     user.project ⇒ {
-       |         pre ⇒ {
+       |     user.project => {
+       |         pre => {
        |            I00003.languageIds = user.project.languageId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            insert(I00003)
        |         }
        |      }
-       |      user ⇒ {
+       |      user => {
        |
-       |         post ⇒ {
+       |         post => {
        |            I00003.projects = 1
        |         }
        |      }
@@ -120,16 +120,16 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            }
        |         }
        |      }
-       |     user ⇒ {
-       |         post ⇒ {
+       |     user => {
+       |         post => {
        |            I00004.users = 1
        |         }
        |      }
-       |      user.sessions ⇒ {
-       |         pre ⇒ {
+       |      user.sessions => {
+       |         pre => {
        |            I00004.appVersionIds = user.sessions.appVersionId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            insert(I00004)
        |         }
        |      }
@@ -144,11 +144,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            providedOrigins:verbatim[string]
        |         }
        |      }
-       |     user.sessions ⇒ {
-       |         pre ⇒ {
+       |     user.sessions => {
+       |         pre => {
        |            I00005.providedOrigins = user.sessions.providedOrigin
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00005.sessions = 1
        |         }
        |      }
@@ -163,11 +163,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            mappedOrigin:verbatim[long]
        |         }
        |      }
-       |     user.sessions ⇒ {
-       |         pre ⇒ {
+       |     user.sessions => {
+       |         pre => {
        |            I00006.mappedOrigin = user.sessions.mappedOrigin
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00006.sessions = 1
        |         }
        |      }
@@ -182,11 +182,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            originSourceType:verbatim[long]
        |         }
        |      }
-       |     user.sessions ⇒ {
-       |         pre ⇒ {
+       |     user.sessions => {
+       |         pre => {
        |            I00007.originSourceType = user.sessions.originSourceType
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00007.sessions = 1
        |         }
        |      }
@@ -201,11 +201,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            originMethodType:verbatim[long]
        |         }
        |      }
-       |     user.sessions ⇒ {
-       |         pre ⇒ {
+       |     user.sessions => {
+       |         pre => {
        |            I00008.originMethodType = user.sessions.originMethodType
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00008.sessions = 1
        |         }
        |      }
@@ -220,11 +220,11 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            events:verbatim[long]
        |         }
        |      }
-       |     user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |     user.sessions.events => {
+       |         pre => {
        |            I00009.events = user.sessions.events.eventId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00009.eventFrequency = 1
        |         }
        |      }
@@ -244,17 +244,17 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            }
        |         }
        |      }
-       |     user.sessions.events.parameters ⇒ {
-       |         situ ⇒ {
+       |     user.sessions.events.parameters => {
+       |         situ => {
        |               I00010.eventParameterKey = key(user.sessions.events.parameters)
        |               insert(I00010)
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |            I00010.eventParameters = user.sessions.events.eventId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            I00010.eventParameterFrequency = 1
        |         }
        |      }
@@ -271,16 +271,16 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            }
        |         }
        |      }
-       |     user.channels ⇒ {
-       |         pre ⇒ {
+       |     user.channels => {
+       |         pre => {
        |            I00011.campaignId = user.channels.channelId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            insert(I00011)
        |         }
        |      }
-       |      user ⇒ {
-       |         post ⇒ {
+       |      user => {
+       |         post => {
        |            I00011.campaignIdFrequency = 1
        |         }
        |      }
@@ -297,16 +297,16 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            }
        |         }
        |      }
-       |     user.channels ⇒ {
-       |         pre ⇒ {
+       |     user.channels => {
+       |         pre => {
        |            I00012.channelId = user.channels.networkId
        |         }
-       |         post ⇒ {
+       |         post => {
        |            insert(I00012)
        |         }
        |      }
-       |      user ⇒ {
-       |         post ⇒ {
+       |      user => {
+       |         post => {
        |            I00012.channelIdFrequency = 1
        |         }
        |      }
@@ -323,15 +323,15 @@ object HydraQuoParallel01 extends HydraUseCase(1, 2, "quo") {
        |            }
        |         }
        |      }
-       |     user.sessions.parameters ⇒ {
-       |         situ ⇒ {
+       |     user.sessions.parameters => {
+       |         situ => {
        |               I00013.sessionParameterKeys = key(user.sessions.parameters)
        |               insert(I00013)
        |         }
        |      }
-       |      user.sessions ⇒ {
+       |      user.sessions => {
        |
-       |         post ⇒ {
+       |         post => {
        |            I00013.sessionParameterFrequency = 1
        |         }
        |      }

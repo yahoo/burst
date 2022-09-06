@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 import org.burstsys.fabric.data.worker.cache.{FabricSnapCache, FabricSnapCacheListener}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**

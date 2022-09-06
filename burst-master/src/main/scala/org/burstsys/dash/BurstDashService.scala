@@ -29,7 +29,7 @@ import org.glassfish.grizzly.websockets.WebSocketAddOn
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory
 
 import jakarta.ws.rs.core.UriBuilder
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * The REST ui/api service
@@ -113,6 +113,7 @@ class RestServiceContext(
 
   def start: this.type = {
     ensureNotRunning
+    log info startingMessage
     val uri = UriBuilder.fromPath(url).build()
     val config = new BurstDashApplication(agent, catalog, master, profiler, torcher)
     val sslConfig = new SSLEngineConfigurator(restSslContext).setClientMode(false)

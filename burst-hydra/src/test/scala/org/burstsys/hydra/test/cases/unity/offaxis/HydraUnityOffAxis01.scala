@@ -19,17 +19,17 @@ object HydraUnityOffAxis01 extends HydraUseCase(200, 200, "unity") {
        |				id:verbatim[long]
        |			}
        |		}
-       |		user.sessions.events.parameters ⇒ {
-       |			situ ⇒ 			{
+       |		user.sessions.events.parameters => {
+       |			situ => 			{
        |				$analysisName.$frameName.ky = 				key(user.sessions.events.parameters)
        |				insert($analysisName.$frameName)
        |			}
        |		}
-       |		user.sessions.events ⇒ {
-       |			pre ⇒ 			{
+       |		user.sessions.events => {
+       |			pre => 			{
        |				$analysisName.$frameName.id = user.sessions.events.id
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |			}
        |		}
        |	}

@@ -23,7 +23,7 @@ package object test extends VitalsLogger {
     lazy val catalogServer: CatalogService = CatalogService(CatalogUnitTestServerConfig)
 
     override protected
-    def beforeAll() {
+    def beforeAll(): Unit = {
       VitalsLog.configureLogging("catalog", consoleOnly = true)
       log info s"------------STARTING------------"
       VitalsPropertyRegistry.logReport
@@ -34,7 +34,7 @@ package object test extends VitalsLogger {
     }
 
     override protected
-    def afterAll() {
+    def afterAll(): Unit = {
       log info s"------------STOPPING-----------"
 //      catalogServer.stop
       catalogServer.stop

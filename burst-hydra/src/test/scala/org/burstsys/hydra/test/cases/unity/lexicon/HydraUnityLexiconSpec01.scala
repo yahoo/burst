@@ -19,8 +19,8 @@ object HydraUnityLexiconSpec01 extends HydraUseCase(200, 200, "unity") {
        |        pKeys:verbatim[string]
        |      }
        |    }
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        $analysisName.$frameName.pKeys =  value(user.sessions.events.parameters)
        |        insert($analysisName.$frameName)
        |      }

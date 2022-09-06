@@ -6,16 +6,13 @@ import org.apache.logging.log4j.Level
 import org.burstsys.catalog
 import org.burstsys.catalog.model.domain._
 import org.burstsys.catalog.model.view._
-import org.burstsys.motif.schema.model.MotifSchema
 import org.burstsys.motif.Motif
-import org.burstsys.motif.flurry.providers.MotifSchemaProviders
 import org.burstsys.torquemada.Parameters.TorcherParameters
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.metrics.VitalsMetricsAgent
 
 import java.util.concurrent.TimeUnit
-import scala.collection.JavaConverters._
-import scala.collection.convert.ImplicitConversions.`map AsJavaMap`
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.{Duration, _}
 import scala.language.postfixOps
@@ -272,7 +269,7 @@ trait TorcherJobBuilder extends VitalsMetricsAgent {
     // stop if we hit a limit
     if (this.datasetCountLimit > 0 && datasets.length >= this.datasetCountLimit)
       return
-    val otherId: String = domain.domainProperties.getOrDefault(CatalogDomain.DomainProjectIdProperty, null)
+    val otherId: String = domain.domainProperties.getOrElse(CatalogDomain.DomainProjectIdProperty, null)
     // check for fuse or not
     val viewPk: Long = if (storeType.isDefined) {
       // search for fuse views

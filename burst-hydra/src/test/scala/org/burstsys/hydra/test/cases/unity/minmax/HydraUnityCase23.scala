@@ -26,20 +26,20 @@ object HydraUnityCase23 extends HydraUseCase(100, 200, "unity") {
        |            maxSessionTime:max[long]
        |         }
        |      }
-       |      user ⇒ {
-       |         post ⇒ {
+       |      user => {
+       |         post => {
        |            $analysisName.$frameName.userCount = 1
        |         }
        |      }
-       |      user.sessions ⇒ {
-       |         post ⇒ {
+       |      user.sessions => {
+       |         post => {
        |            $analysisName.$frameName.sessionCount = 1
        |            $analysisName.$frameName.minSessionTime = user.sessions.startTime
        |            $analysisName.$frameName.maxSessionTime = user.sessions.startTime
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         post ⇒ {
+       |      user.sessions.events => {
+       |         post => {
        |            $analysisName.$frameName.eventCount = 1
        |         }
        |      }

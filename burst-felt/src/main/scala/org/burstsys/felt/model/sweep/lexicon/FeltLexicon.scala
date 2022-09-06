@@ -8,7 +8,7 @@ import org.burstsys.vitals.strings._
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * a manager for runtime string->key mappings as used by the Felt system to

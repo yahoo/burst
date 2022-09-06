@@ -2,25 +2,22 @@
 package org.burstsys.vitals.properties
 
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.properties.VitalsPropertyRegistry.descriptionPadding
-import org.burstsys.vitals.properties.VitalsPropertyRegistry.keyPadding
 import org.burstsys.vitals.properties.VitalsPropertyRegistry.sourcePadding
-import org.burstsys.vitals.properties.VitalsPropertyRegistry.typeNamePadding
 import org.burstsys.vitals.strings._
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
 /**
  * centralized Burst management of configuration properties
  *
- * @param key         the java property that can be set to change the value of this property
- * @param description an explaination of what this property configures
- * @param sensitive   does this property value contain a potentially sensitive value with which care should be taken
- * @param default     the default value to use if none is provided
+ * @param key
+ * @param description
+ * @param default
+ * @tparam C
  */
 final case
 class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
@@ -57,10 +54,8 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
   }
 
   /**
-   * try for this in the process environment, then the java properties, then either an optional default
-   * or an exception...
-   *
-   * @return
+   * @return the value of this property
+   * @throws VitalsException if the property is not set and has a default of `None`
    */
   def getOrThrow: C = {
     get match {
@@ -111,6 +106,11 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
         value.asInstanceOf[C]
     }
   }
+
+  val keyPadding = 41
+  val envVarPadding = 41
+  val typeNamePadding = 10
+  val descriptionPadding = 40
 
   override
   def toString: String = {

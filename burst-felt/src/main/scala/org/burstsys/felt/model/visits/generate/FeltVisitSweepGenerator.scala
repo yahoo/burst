@@ -73,7 +73,7 @@ class FeltVisitSweepGeneratorContext(analysis: FeltAnalysisDecl) extends FeltVis
       node.staticVisits.map {
         branch =>
           s"""|
-              |${I}case ${branch.pathKey} ⇒ false  // '${branch.pathName}'""".stripMargin
+              |${I}case ${branch.pathKey} => false  // '${branch.pathName}'""".stripMargin
       }.stringify
     }
 
@@ -82,7 +82,7 @@ class FeltVisitSweepGeneratorContext(analysis: FeltAnalysisDecl) extends FeltVis
         |$I@inline override
         |${I}def $skipVisitPathSym(pathKey: Int): Boolean = {
         |${I2}pathKey match {${cases(cursor indentRight 2)}
-        |${I3}case _ ⇒ true
+        |${I3}case _ => true
         |$I2}
         |$I}""".stripMargin
   }

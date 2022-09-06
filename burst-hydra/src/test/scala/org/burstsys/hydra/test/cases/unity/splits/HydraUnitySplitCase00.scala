@@ -21,8 +21,8 @@ object HydraUnitySplitCase00 extends HydraUseCase(200, 200, "unity") {
        |      symbol:verbatim[long]
        |    }
        |  }
-       |  user ⇒ {
-       |    pre ⇒ {
+       |  user => {
+       |    pre => {
        |      $analysisName.$frameName.symbol = split(1L, 10L, 100L, 2)
        |      insert($analysisName.$frameName)
        |      $analysisName.$frameName.symbol = split(1L, 10L, 100L, 11)

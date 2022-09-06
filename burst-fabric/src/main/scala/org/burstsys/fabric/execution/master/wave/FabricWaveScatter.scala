@@ -38,7 +38,7 @@ trait FabricWaveScatter extends Any {
   def executionWaveOp(wave: FabricWave): Future[FabricGather] = {
     val tag = s"FabricWaveScatter.executionWaveOp($wave)"
     val start = System.nanoTime
-    val promise = Promise[FabricGather]
+    val promise = Promise[FabricGather]()
 
     def FAIL(t: Throwable): Unit = {
       t match {

@@ -25,7 +25,7 @@ trait FabricSnapCacheOps extends Any {
   def cacheGenerationOp(guid: VitalsUid, operation: FabricCacheManageOp, generationKey: FabricGenerationKey,
                         parameters: Option[Seq[FabricCacheOpParameter]]): Future[Seq[FabricGeneration]] = {
     lazy val tag = s"FabricSnapCacheOpApi.cacheGenerationOp(guid=$guid, operation=$operation, generationKey=$generationKey)"
-    val promise = Promise[Seq[FabricGeneration]]
+    val promise = Promise[Seq[FabricGeneration]]()
     try {
       val generations = new ArrayBuffer[FabricGeneration]
       val iterator = allSnaps()
@@ -46,7 +46,7 @@ trait FabricSnapCacheOps extends Any {
           }
         }
       }
-      promise.success(generations)
+      promise.success(generations.toSeq)
     } catch safely {
       case t: Throwable =>
         log warn burstStdMsg(s"CACHE_FAIL $t $tag", t)
@@ -58,7 +58,7 @@ trait FabricSnapCacheOps extends Any {
   final override
   def cacheSliceOp(guid: VitalsUid, generationKey: FabricGenerationKey): Future[Seq[FabricSliceMetadata]] = {
     lazy val tag = s"FabricSnapCacheOpApi.cacheSliceOp(guid=$guid, generationKey=$generationKey)"
-    val promise = Promise[Seq[FabricSliceMetadata]]
+    val promise = Promise[Seq[FabricSliceMetadata]]()
     try {
       val sliceMetadata = new ArrayBuffer[FabricSliceMetadata]
       val iterator = allSnaps()
@@ -69,7 +69,7 @@ trait FabricSnapCacheOps extends Any {
         }
       }
       log info s"CACHE_SLICE_OP generationCount=${sliceMetadata.size} $tag"
-      promise.success(sliceMetadata)
+      promise.success(sliceMetadata.toSeq)
     } catch safely {
       case t: Throwable =>
         log warn burstStdMsg(s"CACHE_FAIL $t $tag", t)

@@ -75,7 +75,7 @@ class NexusNetBenchContext(byteSize: Long) extends NexusNetBench with NexusStrea
     val suid = newNexusUid
     val tag = s"NexusNetBench.benchmark(guid=$guid, suid=$suid)"
 
-    val promise = Promise[NexusNetBenchmark]
+    val promise = Promise[NexusNetBenchmark]()
     TeslaRequestFuture {
       val pipe = TeslaParcelPipe(name = loopback, guid = guid, suid = suid, depth = 10e3.toInt).start
       val properties: VitalsPropertyMap = Map(

@@ -23,7 +23,7 @@ trait FabricRegionInflator extends Any {
     lazy val tag = s"FabricRegionInflator.inflate(blockPtr=${parcel.blockPtr})"
     if (parcel.isInflated)
       throw VitalsException(s"ALREADY_INFLATED $tag")
-    val promise = Promise[TeslaDirector]
+    val promise = Promise[TeslaDirector]()
     TeslaWorkerFuture {
       val director = tesla.director.factory.grabDirector(parcel.inflatedSize)
       try {

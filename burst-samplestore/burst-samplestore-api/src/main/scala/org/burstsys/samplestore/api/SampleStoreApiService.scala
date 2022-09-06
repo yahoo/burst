@@ -114,7 +114,7 @@ class SampleStoreApiServiceContext(modality: VitalsServiceModality) extends Samp
                         guid: String,
                         dataSource: BurstSampleStoreDataSource
                       ): Future[BurstSampleStoreApiViewGenerator] = {
-    val promise = Promise[BurstSampleStoreApiViewGenerator]
+    val promise = Promise[BurstSampleStoreApiViewGenerator]()
     try {
      val result = if (modality.isServer) {
         _apiServer.getViewGenerator(

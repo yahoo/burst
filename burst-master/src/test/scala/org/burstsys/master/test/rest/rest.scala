@@ -7,12 +7,12 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.burstsys.dash.configuration
 import org.burstsys.vitals.logging.VitalsLogger
 import org.scalatest.matchers.should.Matchers
-import requests.RequestBlob.SizedBlob
-import requests.{RequestAuth, RequestBlob}
+import requests.{RequestAuth, RequestBlob, Response}
 
 import java.io.OutputStream
 import jakarta.ws.rs.core.MediaType
-import scala.collection.JavaConverters._
+
+import scala.jdk.CollectionConverters._
 
 package object rest extends Matchers with VitalsLogger {
 
@@ -42,7 +42,7 @@ package object rest extends Matchers with VitalsLogger {
     }
     response.statusCode shouldBe 200
 
-    jsonMapper.readTree(response.text)
+    jsonMapper.readTree(response.text())
   }
 
   def sendFormDataTo(endpoint: String, data: Map[String, Any]): JsonNode = {
@@ -50,22 +50,18 @@ package object rest extends Matchers with VitalsLogger {
     val response = requests.post(urlFor(endpoint), data = formData, auth = basicAuth, verifySslCerts = false)
     response.statusCode shouldBe 200
 
-    jsonMapper.readTree(response.text)
+    jsonMapper.readTree(response.text())
   }
 
   def sendJsonDataTo(endpoint: String, data: Map[String, Any]): JsonNode = {
-    val response = requests.post(urlFor(endpoint), data = JsonRequestBlob(data), auth = basicAuth, verifySslCerts = false)
+    val response: Response = requests.post(urlFor(endpoint), data = JsonRequestBlob(data), auth = basicAuth, verifySslCerts = false)
     response.statusCode shouldBe 200
 
-    jsonMapper.readTree(response.text)
+    jsonMapper.readTree(response.text())
   }
 
-  implicit class JsonRequestBlob(data: Map[String, Any]) extends SizedBlob {
-    override def inMemory: Boolean = true
-
+  implicit class JsonRequestBlob(data: Map[String, Any]) extends RequestBlob {
     val serialized: Array[Byte] = jsonMapper.writeValueAsString(data).getBytes
-
-    override def length: Long = serialized.length
 
     override def write(out: OutputStream): Unit = out.write(serialized)
 

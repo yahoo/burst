@@ -3,7 +3,7 @@
 
 # Felt/Hydra Extensions
 
-* user defined functions `f(value expr parameter list) ⇒ (value or NULL)`
+* user defined functions `f(value expr parameter list) => (value or NULL)`
 * visit entrance predicate ifFalse skip to next visit iteration
 * visit exit predicate ifFalse discard all mutations that level and below
 * reference vector member abort (all mutations that level and below are discarded)
@@ -29,12 +29,12 @@ Each domain value expression can be ___null___ and the return can be null.
 These are defined within visits
 
 ###### entrance conditions
-    pre ⇒ {
+    pre => {
         entrance function(...) // user defined function that returns a boolean value
     }
 
 ###### exit conditions
-    post ⇒ {
+    post => {
         exit function(...) // user defined function that returns a boolean value
     }
 

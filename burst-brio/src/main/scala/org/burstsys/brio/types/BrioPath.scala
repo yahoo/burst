@@ -191,11 +191,11 @@ class BrioPath(var fullForm: String) extends KryoSerializable {
   // KRYO SERIALIZATION
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  def write(k: Kryo, out: Output) {
+  def write(k: Kryo, out: Output): Unit = {
     out writeString fullForm
   }
 
-  def read(k: Kryo, in: Input) {
+  def read(k: Kryo, in: Input): Unit = {
     fullForm = in.readString
   }
 

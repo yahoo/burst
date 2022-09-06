@@ -13,7 +13,7 @@ import org.burstsys.motif.motif.tree.values.ValueExpression
 class TriggerStep (val funnelName: String, val treeStep: TriggeredStepDefinition)
   extends Step(treeStep)  with QueryAction
 {
-  def this(triggerStep: TriggerStep) {
+  def this(triggerStep: TriggerStep) = {
     this(triggerStep.funnelName, triggerStep.treeStep)
   }
 

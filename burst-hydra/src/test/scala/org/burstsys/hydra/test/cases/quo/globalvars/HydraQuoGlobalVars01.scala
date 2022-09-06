@@ -30,8 +30,8 @@ object HydraQuoGlobalVars01 extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
        |
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        $analysisName.$frameName.num = gv1
        |        if( key(user.sessions.events.parameters) == p1) {
        |          $analysisName.$frameName.count = 1

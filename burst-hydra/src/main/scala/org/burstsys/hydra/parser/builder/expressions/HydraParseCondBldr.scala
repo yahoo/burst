@@ -9,7 +9,7 @@ import org.burstsys.hydra.grammar.{HydraAnalysisGrammarBaseVisitor, HydraAnalysi
 import org.burstsys.hydra.parser._
 import org.burstsys.hydra.parser.builder.HydraParseAnalysisBldr
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * antlr parse driven builder for conditional expressions in AST

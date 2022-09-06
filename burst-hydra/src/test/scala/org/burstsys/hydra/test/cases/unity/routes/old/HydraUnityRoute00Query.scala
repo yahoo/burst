@@ -22,41 +22,41 @@ object HydraUnityRoute00Query extends HydraUseCase(200, 200, "unity") {
        |      d0:verbatim[long]
        |    }
        |  }
-       |    user.sessions.r1.paths ⇒ {
-       |    before ⇒ {
+       |    user.sessions.r1.paths => {
+       |    before => {
        |      // before all paths
        |    }
-       |    pre ⇒ {
+       |    pre => {
        |      // before each path's children
        |    }
-       |    post ⇒ {
+       |    post => {
        |      // after each path's children
        |    }
-       |    after ⇒ {
+       |    after => {
        |      // after all paths
        |    }
        |  }
        |
-       |  user.sessions.r1.paths.steps ⇒ {
-       |    before ⇒ {
+       |  user.sessions.r1.paths.steps => {
+       |    before => {
        |      // before all steps
        |    }
-       |    situ ⇒ {
+       |    situ => {
        |      // for each step
        |    }
-       |    after ⇒ {
+       |    after => {
        |      // after all steps
        |    }
        |  }
        |
-       |  user.sessions.r1.courses ⇒ {
-       |    before ⇒ {
+       |  user.sessions.r1.courses => {
+       |    before => {
        |      // before all courses
        |    }
-       |    situ ⇒ {
+       |    situ => {
        |      // for each course
        |    }
-       |    after ⇒ {
+       |    after => {
        |      // after all courses
        |    }
        |  }
@@ -79,7 +79,7 @@ object HydraUnityRoute00Query extends HydraUseCase(200, 200, "unity") {
        |    }
        |  }
        |
-       |  user.sessions ⇒ {
+       |  user.sessions => {
        |  }
        |}
        """.stripMargin

@@ -30,7 +30,7 @@ trait NexusParcelTransmitter {
     lazy val tag = s"NexusParcelTransmitter.transmitDataStream(id=$id, $link, stream=$stream  ${remoteAddress}:${remotePort})"
     TeslaRequestFuture {
       try {
-        var dataFuture: Future[Unit] = Promise[Unit].success((): Unit).future
+        var dataFuture: Future[Unit] = Promise[Unit]().success((): Unit).future
 
         NexusServerStreamTrekMark.begin(stream.guid)
         var moreToGo = true

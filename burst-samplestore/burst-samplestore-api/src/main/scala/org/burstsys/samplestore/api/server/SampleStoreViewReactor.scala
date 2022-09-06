@@ -37,7 +37,7 @@ trait SampleStoreViewReactor extends SampleStoreApi {
   final override
   def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[BurstSampleStoreApiViewGenerator] = {
     ensureRunning
-    val promise = Promise[BurstSampleStoreApiViewGenerator]
+    val promise = Promise[BurstSampleStoreApiViewGenerator]()
     _listener.getViewGenerator(guid, dataSource) onComplete {
       case Failure(t) =>
         val result = t match {

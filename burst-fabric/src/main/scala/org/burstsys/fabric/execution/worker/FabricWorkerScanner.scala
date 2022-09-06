@@ -101,7 +101,7 @@ trait FabricWorkerScanner extends Any {
     while (region.hasNext) {
 
       // grab the next blob in the region
-      val currentItem = region.next
+      val currentItem = region.next()
 
       // an empty region returns a marker blob with .isEmpty == true
       // this is not truly an item and should not be counted as an item scanned

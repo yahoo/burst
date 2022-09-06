@@ -32,10 +32,10 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
     CodeBlock { implicit cb =>
       // before phase code
       val controlledBeforeCode = CodeBlock { implicit cb =>
-        phasedControlledActions(ActionPhase.Before).foreach(a => a.generateSource().source)
+        phasedControlledActions(ActionPhase.Before).foreach(a => a.generateSource().source())
       }
 
-        controlledBeforeCode.source
+        controlledBeforeCode.source()
 
       if (cb.nonEmpty)
         cb.prepend(s"// ${this.name}")
@@ -51,7 +51,7 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
 
       val preBlockTest = if (visitControlTest.isDefined) {
         if (earlyControlTests.nonEmpty) {
-          s"${visitControlTest.get.name} = $earlyControlTests".source
+          s"${visitControlTest.get.name} = $earlyControlTests".source()
           s"${visitControlTest.get.name}"
         } else
           ""
@@ -63,7 +63,7 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
           ""
       }
 
-      control.tests(ActionPhase.Post).foreach(c => s"${c.summaryVar.name}=false".source)
+      control.tests(ActionPhase.Post).foreach(c => s"${c.summaryVar.name}=false".source())
 
       val controlledPreCode = blockSourceGenerator.generateSource(ActionPhase.Pre, phasedControlledActions(ActionPhase.Pre))
 
@@ -71,15 +71,15 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
       if (preBlockTest.nonEmpty && (control.isAbortable || controlledPreCode.nonEmpty)) {
         s"if ($preBlockTest) {".source()
         if (controlledPreCode.nonEmpty) {
-          controlledPreCode.indent.source
+          controlledPreCode.indent.source()
         }
         if (control.isAbortable) {
-          s"} else {".source
-          s"abortRelation($path)".indentSource
+          s"} else {".source()
+          s"abortRelation($path)".indentSource()
         }
         s"}".source()
       } else {
-        controlledPreCode.source
+        controlledPreCode.source()
       }
 
       if (cb.nonEmpty)
@@ -96,7 +96,7 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
         val postTests = control.controls(ActionPhase.Post).flatMap(c => c.generateSource().map(b => s"($b)")).mkString(" && ")
         val postControl = if (hasEarlyControlTests || postTests.nonEmpty) {
           if (postTests.nonEmpty)
-            s"${visitControlTest.get.name} = $postTests".source
+            s"${visitControlTest.get.name} = $postTests".source()
           Array(visitControlTest.get.name)
         } else
           Array.empty[String]
@@ -111,23 +111,23 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
       // post phase actions code
       val controlledPostCode = CodeBlock { implicit cb =>
         if (postBlockTest.nonEmpty && visitControlTest.get.needsSummary) {
-          s"${visitControlTest.get.summaryVar.name} = true".source
+          s"${visitControlTest.get.summaryVar.name} = true".source()
         }
-        blockSourceGenerator.generateSource(ActionPhase.Post, phasedControlledActions(ActionPhase.Post)).source
+        blockSourceGenerator.generateSource(ActionPhase.Post, phasedControlledActions(ActionPhase.Post)).source()
       }
 
       if (postBlockTest.nonEmpty && (control.isAbortable || controlledPostCode.nonEmpty)) {
-        s"if ($postBlockTest) {".source
+        s"if ($postBlockTest) {".source()
         if (controlledPostCode.nonEmpty) {
-          controlledPostCode.indent.source
+          controlledPostCode.indent.source()
         }
         if (control.isAbortable) {
-          s"} else {".source
-          s"abortRelation($path)".indentSource
+          s"} else {".source()
+          s"abortRelation($path)".indentSource()
         }
         s"}".source()
       } else
-        controlledPostCode.source
+        controlledPostCode.source()
 
       if (cb.nonEmpty)
         cb.prepend(s"// ${this.name}")
@@ -144,15 +144,15 @@ trait PhasedLaneSourceGenerator extends LaneSourceGenerator {
 
       // after phase code
       val controlledAfterCode = CodeBlock { implicit cb =>
-        phasedControlledActions(ActionPhase.After).foreach(a => a.generateSource().source)
+        phasedControlledActions(ActionPhase.After).foreach(a => a.generateSource().source())
       }
 
       if (afterBlockTest.nonEmpty && controlledAfterCode.nonEmpty) {
-        s"if ($afterBlockTest) {".source
+        s"if ($afterBlockTest) {".source()
         controlledAfterCode.indent.source()
         s"}".source()
       } else
-        controlledAfterCode.source
+        controlledAfterCode.source()
 
       if (cb.nonEmpty)
         cb.prepend(s"// ${this.name}")

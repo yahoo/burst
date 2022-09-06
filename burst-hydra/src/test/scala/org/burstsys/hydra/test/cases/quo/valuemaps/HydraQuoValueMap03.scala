@@ -27,8 +27,8 @@ object HydraQuoValueMap03 extends HydraUseCase(1, 1, "quo") {
                   }
                 }
 
-                user.sessions.events.parameters ⇒ {
-                  situ ⇒ {
+                user.sessions.events.parameters => {
+                  situ => {
                     $analysisName.$frameName.eventKey = key(user.sessions.events.parameters)
                     $analysisName.$frameName.eventValue = value(user.sessions.events.parameters)
                     $analysisName.$frameName.eventValueCount = 1

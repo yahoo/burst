@@ -8,6 +8,7 @@ import org.burstsys.catalog.test.BurstCatalogSpecSupport
 import org.burstsys.fabric
 import org.joda.time.DateTime
 
+import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.Failure
@@ -83,7 +84,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
     }
 
     // update the view
-    val changedView = originalView.copy(storeProperties = originalView.storeProperties + ("test" -> "value"))
+    val changedView = originalView.copy(storeProperties = originalView.storeProperties.concat(Array("test" -> "value")))
     catalogServer.ensureView(changedView) match {
       case Failure(t) => throw t
       case Success(_) =>
@@ -131,7 +132,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
     }
 
     // update the domain
-    val changedDomain = originalDomain.copy(domainProperties = originalDomain.domainProperties + ("test" -> "value"))
+    val changedDomain = originalDomain.copy(domainProperties = originalDomain.domainProperties.concat(Array("test" -> "value")))
     catalogServer.ensureDomain(changedDomain) match {
       case Failure(t) => throw t
       case Success(_) =>
@@ -156,7 +157,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
         case Success(entity) => entity
       }
 
-    var updatedProperties = view.viewProperties + ("view_update" -> "1")
+    var updatedProperties = view.viewProperties.concat(Array("view_update" -> "1"))
     catalogServer.recordViewLoad(view.pk, updatedProperties) match {
       case Failure(t) => throw t
       case Success(_) =>
@@ -173,7 +174,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
     // Make damn sure that the new access time will be later than accessTs
     Thread.sleep(250)
 
-    updatedProperties += "view_update" -> "2"
+    updatedProperties = updatedProperties.concat(Array("view_update" -> "2"))
     catalogServer.recordViewLoad(view.pk, updatedProperties) match {
       case Failure(t) => throw t
       case Success(_) =>

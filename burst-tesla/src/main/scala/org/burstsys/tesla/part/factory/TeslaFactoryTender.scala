@@ -8,6 +8,7 @@ import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.host
 import org.burstsys.vitals.instrument.prettyByteSizeString
 
+import scala.collection.mutable
 import scala.concurrent.Future
 
 /**
@@ -46,7 +47,7 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
         }
         if (debugTending) {
           builder ++= s"*****************************************\n"
-          log info builder.result
+          log info builder.result()
         }
       }
     }
@@ -108,13 +109,13 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
    * @param builder
    */
   private[part]
-  def freePartsNotBeingUsed(implicit builder: StringBuilder): Unit = {
+  def freePartsNotBeingUsed(implicit builder: mutable.StringBuilder): Unit = {
     var freedBytes: Long = 0L
     var freedParts: Long = 0L
     pools.filter(_ != null) foreach {
       pool =>
         pool synchronized {
-          if (pool.nanosSinceLastPartGrab > teslaPartsTtlInterval.toNanos) {
+          if (pool.nanosSinceLastPartGrab() > teslaPartsTtlInterval.toNanos) {
             val freed = pool.freeAllUnusedParts
             freedParts += freed._1
             freedBytes += freed._2

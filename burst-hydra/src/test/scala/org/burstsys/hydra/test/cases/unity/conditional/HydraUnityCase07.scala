@@ -19,8 +19,8 @@ object HydraUnityCase07 extends HydraUseCase(100, 100, "unity") {
        |				frequency:sum[long]
        |			}
        |		}
-       |		user ⇒ {
-       |			post ⇒ 	{
+       |		user => {
+       |			post => 	{
        |				if( (T1 == 0) )	{
        |					$analysisName.$frameName.frequency = 1
        |				}

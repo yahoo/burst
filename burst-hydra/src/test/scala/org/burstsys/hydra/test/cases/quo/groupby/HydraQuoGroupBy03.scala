@@ -24,8 +24,8 @@ object HydraQuoGroupBy03 extends HydraUseCase(1, 1, "quo") {
        |              eventId:verbatim[long]
        |            }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |            $analysisName.$frameName.eventId = user.sessions.events.eventId
        |            $analysisName.$frameName.eventCount = 1
        |         }

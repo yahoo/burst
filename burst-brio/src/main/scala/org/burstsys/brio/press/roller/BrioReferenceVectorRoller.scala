@@ -41,7 +41,7 @@ trait BrioReferenceVectorRoller extends Any {
       while (iterator.hasNext) {
 
         // get the next vector member
-        val memberInstance = iterator.next
+        val memberInstance = iterator.next()
 
         // we need to record the byte size of each vector member once we have it
         val byteSizeOffset = rollOffset

@@ -8,6 +8,12 @@ import org.burstsys.vitals.{git, host}
 import org.burstsys.vitals.json.VitalsJsonRepresentable
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
+import org.burstsys.vitals.properties
+import org.burstsys.vitals.properties.VitalsPropertyAtomicDataType
+import org.burstsys.vitals.properties.VitalsPropertySpecification
+import org.checkerframework.checker.units.qual.C
+
+import scala.reflect.ClassTag
 
 package object info extends VitalsLogger {
 
@@ -41,7 +47,8 @@ package object info extends VitalsLogger {
   class BurstSettingInfoJson(
                               value: Any,
                               dataType: String,
-                              description: String
+                              description: String,
+                              source: String
                             ) extends VitalsJsonObject
 
 }

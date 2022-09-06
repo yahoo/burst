@@ -21,8 +21,8 @@ object HydraQuoDateTime00 extends HydraUseCase(1, 1, "quo") {
        |       }
        |     }
        |   }
-       |   user ⇒ {
-       |     pre ⇒ {
+       |   user => {
+       |     pre => {
        |       $analysisName.$frameName.'datetime' = datetime("2012-01-19T19:00:00-05:00")
        |       insert($analysisName.$frameName)
        |     }

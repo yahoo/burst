@@ -27,11 +27,11 @@ object HydraUnityStringWithCallParameterCase extends HydraUseCase(
        |				one:verbatim[string]
        |			}
        |		}
-       |		user ⇒ {
-       |			pre ⇒ 			{
+       |		user => {
+       |			pre => 			{
        |				$analysisName.$frameName.one = $analysisName.one
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				insert($analysisName.$frameName)
        |			}
        |		}

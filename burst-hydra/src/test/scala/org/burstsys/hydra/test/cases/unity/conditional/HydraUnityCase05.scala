@@ -20,8 +20,8 @@ object HydraUnityCase05 extends HydraUseCase(100, 100, "unity") {
             }
           }
 
-          user ⇒ {
-            pre ⇒ {
+          user => {
+            pre => {
               $analysisName.$frameName.userCount = if(true) {
                 1
               } else {

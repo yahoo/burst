@@ -27,15 +27,15 @@ object HydraUnityExprBlk02 extends HydraUseCase(100, 100, "unity") {
           }
         }
 
-        user.application ⇒ {
-          pre ⇒ {
+        user.application => {
+          pre => {
             $analysisName.$frameName.appId = user.application.id * 2
             insert($analysisName.$frameName)
           }
         }
 
-        user.sessions ⇒ {
-          pre ⇒ {
+        user.sessions => {
+          pre => {
             $analysisName.$frameName.sessionCount = 1
           }
         }

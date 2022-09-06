@@ -16,7 +16,7 @@ trait CatalogQueryApiReactor extends CatalogApi {
   final override
   def allQueries(limit: Option[Int]): Future[BurstCatalogApiQueryResponse] = {
     mapResponse(service.allQueries(limit),
-      (queries: Array[CatalogQuery]) => QueryResponse(queries = Some(queries)),
+      (queries: Array[CatalogQuery]) => QueryResponse(queries = Some(queries.toIndexedSeq)),
       (f: BurstCatalogApiResult) => QueryResponse(f)
     )
   }
@@ -24,7 +24,7 @@ trait CatalogQueryApiReactor extends CatalogApi {
   final override
   def searchQueries(descriptor: String, limit: Option[Int]): Future[BurstCatalogApiQueryResponse] = {
     mapResponse(service.searchQueries(descriptor, limit),
-      (queries: Array[CatalogQuery]) => QueryResponse(queries = Some(queries)),
+      (queries: Array[CatalogQuery]) => QueryResponse(queries = Some(queries.toIndexedSeq)),
       (f: BurstCatalogApiResult) => QueryResponse(f)
     )
   }
@@ -32,7 +32,7 @@ trait CatalogQueryApiReactor extends CatalogApi {
   final override
   def searchQueriesByLabel(label: String, value: Option[String], limit: Option[Int]): Future[BurstCatalogApiQueryResponse] = {
     mapResponse(service.searchQueriesByLabel(label, value, limit),
-      (queries: Array[CatalogQuery]) => QueryResponse(queries = Some(queries)),
+      (queries: Array[CatalogQuery]) => QueryResponse(queries = Some(queries.toIndexedSeq)),
       (f: BurstCatalogApiResult) => QueryResponse(f)
     )
   }

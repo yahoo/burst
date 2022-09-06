@@ -25,7 +25,7 @@ import org.burstsys.motif.paths.funnels.FunnelPathBase
 import org.burstsys.motif.paths.segments.SegmentPathBase
 import org.burstsys.motif.schema.model.MotifSchema
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -57,13 +57,13 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
 
   override def generateDeclarationSource(): CodeBlock = CodeBlock { implicit cb =>
     val startStates = dfa.startState.transitions.values.map(_.id).toArray // mutable.ArrayBuffer(: _*)
-    s"route  {".source
+    s"route  {".source()
     CodeBlock { implicit cb =>
-      s"maxCompletePaths = ${funnel.getPathLimit}".source
-      s"maxSteps = ${funnel.getStepLimit}".source
+      s"maxCompletePaths = ${funnel.getPathLimit}".source()
+      s"maxSteps = ${funnel.getStepLimit}".source()
       if (funnel.getWithin > 0)
-        s"maxPathTime = ${funnel.getWithin}".source
-      s"graph {".source
+        s"maxPathTime = ${funnel.getWithin}".source()
+      s"graph {".source()
       CodeBlock { implicit cb =>
         def makeStepDeclarationSource(state: DFAState): Unit = {
           if (state == dfa.startState) {
@@ -80,7 +80,7 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
           if (state.tacit) {
             modifiers += "tacit"
           }
-          s"${modifiers.mkString("",","," ")}${state.id} {".source
+          s"${modifiers.mkString("",","," ")}${state.id} {".source()
           CodeBlock { implicit cb =>
             for ((key, toState) <- state.transitions) {
               funnel.getSteps.find{ case ts: TriggerStep => ts.id == key } match {
@@ -88,19 +88,19 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
                   val triggeredStep = ts.asInstanceOf[TriggerStep]
                   val afterVal = triggeredStep.getAfterValue
                   val withinVal = triggeredStep.getWithinValue
-                  s"to (${toState.id}, $afterVal, $withinVal)".source
+                  s"to (${toState.id}, $afterVal, $withinVal)".source()
                 case None =>
                   throw new IllegalStateException(s"no step $key found in route")
               }
             }
-          }.indent.source
-          s"}".source
+          }.indent.source()
+          s"}".source()
         }
         dfa.walkStates(s => makeStepDeclarationSource(s))
-      }.indent.source
-      s"}".source
-    }.indent.source
-    s"}".source
+      }.indent.source()
+      s"}".source()
+    }.indent.source()
+    s"}".source()
   }
 
   def addRouteVisitControls(visits: Visits)(implicit global: GlobalContext): Unit = {
@@ -165,35 +165,35 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
 
     override def generateSource()(implicit context: GlobalContext): CodeBlock = CodeBlock { implicit cb =>
       s"${controlProcessedTemporary.name}=true".source()
-      s"if (!${tempVar.name}) {".source
+      s"if (!${tempVar.name}) {".source()
       CodeBlock { implicit cb =>
         val controls = laneControls.filter(_.controls(phase).nonEmpty)
         if (!funnel.getTags.contains(Tags.LOOSE_MATCH.name)) {
-          s"if (${controls.map{laneControl => laneControl.getVisitControlTest.get.tempVar.name}.mkString(" || ")}) {".source
+          s"if (${controls.map{laneControl => laneControl.getVisitControlTest.get.tempVar.name}.mkString(" || ")}) {".source()
           CodeBlock { implicit cb =>
             s"routeFsmEndPath(${funnel.getName})".source()
-            s"routeScopeCommit(${funnel.getName})".source
-            s"routeScopeStart(${funnel.getName})".source
-          }.indent.source
-          s"}".source
+            s"routeScopeCommit(${funnel.getName})".source()
+            s"routeScopeStart(${funnel.getName})".source()
+          }.indent.source()
+          s"}".source()
         }
         if (startTagMap.nonEmpty) {
           {
             val (control, state) = startTagMap.values.head
-            s"if (${control.getVisitControlTest.get.tempVar.name}) {".source
-            state.generateSource().indent.source
-            s"}".source
+            s"if (${control.getVisitControlTest.get.tempVar.name}) {".source()
+            state.generateSource().indent.source()
+            s"}".source()
           }
           for (e <- startTagMap.values.tail) {
             val (control, state) = e
-            s"else if (${control.getVisitControlTest.get.tempVar.name}) {".source
-            state.generateSource().indent.source
-            s"}".source
+            s"else if (${control.getVisitControlTest.get.tempVar.name}) {".source()
+            state.generateSource().indent.source()
+            s"}".source()
           }
         }
-      }.indent.source
-      s"}".source
-      s"routeScopeCommit(${funnel.getName})".source
+      }.indent.source()
+      s"}".source()
+      s"routeScopeCommit(${funnel.getName})".source()
     }
   }
 
@@ -203,9 +203,9 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
     override def phase(): ActionPhase = phase
 
     override def generateSource()(implicit context: GlobalContext): CodeBlock =  CodeBlock { implicit cb =>
-      s"${controlTestTemporary.name}=false".source
-      s"${controlProcessedTemporary.name}=false".source
-      s"routeScopeStart(${funnel.getName})".source
+      s"${controlTestTemporary.name}=false".source()
+      s"${controlProcessedTemporary.name}=false".source()
+      s"routeScopeStart(${funnel.getName})".source()
     }
   }
 
@@ -218,13 +218,13 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
     override def phase(): ActionPhase = phase
 
     override def generateSource()(implicit context: GlobalContext): CodeBlock =  CodeBlock { implicit cb =>
-      s"if ((!${this.name}) && ${controlTestTemporary.name}) {".source
+      s"if ((!${this.name}) && ${controlTestTemporary.name}) {".source()
       CodeBlock { implicit cb =>
-        s"routeScopeAbort(${funnel.getName})".source
+        s"routeScopeAbort(${funnel.getName})".source()
       }.indent.source()
-      s"} else {".source
+      s"} else {".source()
       CodeBlock { implicit cb =>
-        s"routeScopeCommit(${funnel.getName})".source
+        s"routeScopeCommit(${funnel.getName})".source()
       }.indent.source()
       s"}".source()
     }
@@ -236,9 +236,9 @@ final class Route(funnel: Funnel)(implicit context: GlobalContext) extends Frame
       val timingExpression = plannedStep.treeStep.getTimingExpression.generateSource().head
       if (transitionKeys.nonEmpty) {
         for (k <- transitionKeys) {
-          s"if (!$routeControlVarName) {".source
-          s"$routeControlVarName=routeFsmStepAssert(${plannedStep.funnelName}, $k, ${plannedStep.id}, $timingExpression)".indentSource
-          s"}".source
+          s"if (!$routeControlVarName) {".source()
+          s"$routeControlVarName=routeFsmStepAssert(${plannedStep.funnelName}, $k, ${plannedStep.id}, $timingExpression)".indentSource()
+          s"}".source()
         }
       }
     }

@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.{LengthFieldBasedFrameDecoder, LengthFieldPrepender}
 
 import java.util
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object message extends VitalsLogger {
 

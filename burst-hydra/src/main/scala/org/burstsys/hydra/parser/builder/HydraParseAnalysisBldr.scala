@@ -23,7 +23,7 @@ import org.burstsys.vitals.time.VitalsTimeZones
 import org.antlr.v4.runtime.tree.TerminalNode
 import org.joda.time.DateTimeZone
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**

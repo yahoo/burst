@@ -6,10 +6,13 @@ import org.burstsys.fabric.container.MasterLog4JPropertiesFileName
 import org.burstsys.json.samplestore.JsonSampleStoreContainer
 import org.burstsys.json.samplestore.configuration.{JsonSamplestoreDefaultConfiguration, JsonSamplestoreDistributedConfiguration}
 import org.burstsys.master.configuration.burstMasterPropertiesFileProperty
+import org.burstsys.tesla.thread.worker.TeslaWorkerFuture
 import org.burstsys.vitals.VitalsService.{VitalsStandaloneServer, VitalsStandardServer}
 import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
+
+import scala.concurrent.Future
 
 object BurstMasterMain {
 
@@ -68,7 +71,7 @@ object BurstMasterMain {
         .text("toggle the local json sample store on")
         .maxOccurs(1)
         .action {
-          case (_, arguments) ⇒ arguments.copy(jsonSampleStore = true)
+          case (_, arguments) => arguments.copy(jsonSampleStore = true)
         }
       help("help")
     }
@@ -132,10 +135,13 @@ object BurstMasterMain {
     }
 
     log info s"Starting ${args.cellWorkers} workers"
-    val workers = (1 to args.cellWorkers).par.map(id => {
+    val workers = (1 to args.cellWorkers).map(id => {
       Thread.sleep(id * 100)
       val worker = fabric.container.getWorkerContainer(id, 0)
-      worker.start
+      TeslaWorkerFuture {
+        worker.start
+      }
+      worker
     }).toArray
 
     VitalsMetricsRegistry.disable()

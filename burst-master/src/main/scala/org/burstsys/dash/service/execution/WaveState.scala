@@ -11,7 +11,7 @@ import org.burstsys.fabric.execution.master.wave.FabricWaveSeqNum
 import org.burstsys.fabric.execution.model.gather.metrics.FabricGatherMetrics
 import org.burstsys.vitals.uid.VitalsUid
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object WaveState {
   private[execution] val accumulate: function.BiFunction[ExecutionState, Long, Long] = new function.BiFunction[ExecutionState, Long, Long] {

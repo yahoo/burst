@@ -144,7 +144,7 @@ trait FeltLatRefScalTravGen extends Any {
       generator += method
 
       s"""|
-          |${I2}case $version ⇒ { // schema version $version
+          |${I2}case $version => { // schema version $version
           |$I3${method.methodCall};
           |$I2}""".stripMargin
 

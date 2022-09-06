@@ -7,7 +7,7 @@ import org.burstsys.eql.generators._
 import org.burstsys.eql.generators.hydra.utils.CodeBlock
 import org.burstsys.motif.motif.tree.logical._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait BooleanExpressionGenerators extends Any {
   class BinaryBooleanSourceGenerator(exp: BinaryBooleanExpression) extends ActionSourceGenerator {

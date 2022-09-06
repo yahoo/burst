@@ -26,15 +26,15 @@
 
         <dependency>
             <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc_2.12</artifactId>
+            <artifactId>scalikejdbc_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc-core_2.12</artifactId>
+            <artifactId>scalikejdbc-core_${scala-major.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc-interpolation_2.12</artifactId>
+            <artifactId>scalikejdbc-interpolation_${scala-major.version}</artifactId>
         </dependency>
 
         <dependency>

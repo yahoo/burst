@@ -26,14 +26,14 @@ object HydraUnityCase03 extends HydraUseCase(100, 100, "unity") {
             }
           }
         }
-        user.application ⇒ {
-          pre ⇒ {
+        user.application => {
+          pre => {
             $analysisName.$frameName.appVersion = user.application.id
             insert($analysisName.$frameName)
           }
         }
-        user.sessions ⇒ {
-          pre ⇒ {
+        user.sessions => {
+          pre => {
             $analysisName.$frameName.sessionCount = 1
           }
         }

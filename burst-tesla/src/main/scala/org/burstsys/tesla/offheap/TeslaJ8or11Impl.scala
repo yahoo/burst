@@ -6,7 +6,7 @@ import org.burstsys.vitals.errors._
 import sun.misc.Unsafe
 
 import java.lang.management.{BufferPoolMXBean, ManagementFactory}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import sun.nio.ch.DirectBuffer
 
 import java.lang.reflect.Field

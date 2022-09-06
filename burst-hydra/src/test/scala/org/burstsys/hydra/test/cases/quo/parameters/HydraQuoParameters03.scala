@@ -24,8 +24,8 @@ object HydraQuoParameters03 extends HydraUseCase(1, 1, "quo") {
        |      }
        |    } // cube end
        |
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        if( key(user.sessions.events.parameters) == "cg") {
        |          $analysisName.$frameName.a1 = 1
        |        } // if end

@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.generate
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraExprBlockGenerateSpec extends HydraSpecSupport {
 
@@ -26,14 +23,14 @@ class HydraExprBlockGenerateSpec extends HydraSpecSupport {
            val bar:double = (0.5 * 12.1) % 3
 
            user.sessions.id match {
-             case "foo" ⇒ {
+             case "foo" => {
                val foo:string = "hello there"
                size(user.sessions)
              }
-             case 5 ⇒ {
+             case 5 => {
                ???
              }
-             case _ ⇒ {
+             case _ => {
                ???
              }
            }
@@ -47,11 +44,11 @@ class HydraExprBlockGenerateSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
            val foo:double = user.sessions.id match {
-             case "foo" ⇒ {
+             case "foo" => {
                val foo:string = "hello there"
                size(user.sessions)
              }
-             case 5 ⇒ {
+             case 5 => {
                ???
              }
            }

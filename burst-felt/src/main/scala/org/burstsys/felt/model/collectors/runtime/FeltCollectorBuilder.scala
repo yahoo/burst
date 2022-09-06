@@ -108,7 +108,7 @@ class FeltCollectorBuilderContext extends AnyRef with FeltCollectorBuilder {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override
-  def write(kryo: Kryo, output: Output) {
+  def write(kryo: Kryo, output: Output): Unit = {
     try {
       output writeInt _frameId
       output writeString _frameName
@@ -120,7 +120,7 @@ class FeltCollectorBuilderContext extends AnyRef with FeltCollectorBuilder {
   }
 
   override
-  def read(kryo: Kryo, input: Input) {
+  def read(kryo: Kryo, input: Input): Unit = {
     try {
       _frameId = input.readInt
       _frameName = input.readString

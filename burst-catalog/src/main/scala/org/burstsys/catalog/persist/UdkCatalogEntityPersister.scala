@@ -15,7 +15,7 @@ abstract class UdkCatalogEntityPersister[E <: UdkCatalogEntity] extends NamedCat
 
   final def findEntityByUdk(udk: String, lockLevel: SelectLockLevel = NoLock)(implicit session: DBSession): Option[E] = {
     sql"SELECT * FROM ${this.table} WHERE ${this.column.udk} = {udk} ${service.dialect.lockClause(lockLevel)}".bindByName(
-      'udk -> udk
+      Symbol("udk") -> udk
     ).map(resultToEntity).single().apply()
   }
 

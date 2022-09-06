@@ -33,7 +33,7 @@ class FabricCacheGenerationsNoSlicesSpec extends FabricCacheOpsBaseSpec with Fab
   it should "fetch all generations in lite JSON form" in {
 
     val guid1 = newBurstUid
-    val promise1 = Promise[FabricGather]
+    val promise1 = Promise[FabricGather]()
 
     // first make sure the worker is connected
     newWorkerGate.await(10, TimeUnit.SECONDS) should equal(true)
@@ -82,7 +82,7 @@ class FabricCacheGenerationsNoSlicesSpec extends FabricCacheOpsBaseSpec with Fab
     Await.result(promise1.future, 10 minutes)
 
     val guid = newBurstUid
-    val promise = Promise[Array[FabricGeneration]]
+    val promise = Promise[Array[FabricGeneration]]()
     masterContainer.data.cacheGenerationOp(guid, FabricCacheSearch,  FabricGenerationKey(), None) onComplete {
       case Failure(t) => promise.failure(t)
       case Success(r) =>

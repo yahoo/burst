@@ -3,9 +3,6 @@ package org.burstsys.hydra.test.parse
 
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraStatScopeParseSpec extends HydraSpecSupport {
 
@@ -50,11 +47,11 @@ class HydraStatScopeParseSpec extends HydraSpecSupport {
     implicit val source: String =
       s"""
          |   user.sessions.id  match {
-         |      case "foo" ⇒ {
+         |      case "foo" => {
          |         // statements...
          |      }
          |
-         |      case 1 ⇒ {
+         |      case 1 => {
          |          if ( true ) { ??? }
          |      }
          |   }

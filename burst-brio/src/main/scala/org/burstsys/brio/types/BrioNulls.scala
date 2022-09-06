@@ -108,7 +108,7 @@ object BrioNulls {
   }
 
   @inline final
-  def setBit(i: BrioRelationOrdinal, map: Array[Long]) {
+  def setBit(i: BrioRelationOrdinal, map: Array[Long]): Unit = {
     checkRelationKey(i)
     val offset = getWordOffset(i)
     val index = getIndexOffset(i)
@@ -117,7 +117,7 @@ object BrioNulls {
   }
 
   @inline final
-  def clearBit(i: BrioRelationOrdinal, map: Array[Long]) {
+  def clearBit(i: BrioRelationOrdinal, map: Array[Long]): Unit = {
     checkRelationKey(i)
     val offset = getWordOffset(i)
     val index = getIndexOffset(i)
@@ -145,14 +145,14 @@ object BrioNulls {
   }
 
   @inline final
-  def checkRelationCount(i: Int) {
+  def checkRelationCount(i: Int): Unit = {
     if (i < 1 || i > 127) {
       throw VitalsException(s"checkRelationCount($i) out of range")
     }
   }
 
   @inline final
-  def checkRelationKey(i: Int) {
+  def checkRelationKey(i: Int): Unit = {
     if (i < 0 || i > 127) {
       throw VitalsException(s"checkRelationKey($i) out of range")
     }

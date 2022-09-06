@@ -32,8 +32,8 @@ object HydraUnityFramesCase00 extends HydraUseCase(100, 100, "unity") {
        |      }
        |    } // end cube
        |
-       |    user.sessions  ⇒ {
-       |      post ⇒ {
+       |    user.sessions  => {
+       |      post => {
        |        $analysisName.$frameName.tally1 = 1 // cube aggregation reference (absolute)
        |        $analysisName.$frameName.tally2 = 1 // cube aggregation reference (absolute)
        |        $analysisName.$frameName.keys1 = 1 // cube dimension reference (relative)

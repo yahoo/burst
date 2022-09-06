@@ -16,7 +16,7 @@ trait CatalogViewApiReactor extends CatalogApi {
   final override
   def allViews(limit: Option[Int]): Future[BurstCatalogApiViewResponse] = {
     mapResponse(service.allViews(limit),
-      (views: Array[CatalogView]) => ViewResponse(views = Some(views)),
+      (views: Array[CatalogView]) => ViewResponse(views = Some(views.toIndexedSeq)),
       (f: BurstCatalogApiResult) => ViewResponse(f)
     )
   }
@@ -24,7 +24,7 @@ trait CatalogViewApiReactor extends CatalogApi {
   final override
   def searchViews(descriptor: String, limit: Option[Int]): Future[BurstCatalogApiViewResponse] = {
     mapResponse(service.searchViews(descriptor, limit),
-      (views: Array[CatalogView]) => ViewResponse(views = Some(views)),
+      (views: Array[CatalogView]) => ViewResponse(views = Some(views.toIndexedSeq)),
       (f: BurstCatalogApiResult) => ViewResponse(f)
     )
   }
@@ -32,7 +32,7 @@ trait CatalogViewApiReactor extends CatalogApi {
   final override
   def searchViewsByLabel(label: String, value: Option[String], limit: Option[Int]): Future[BurstCatalogApiViewResponse] = {
     mapResponse(service.searchViewsByLabel(label, value, limit),
-      (views: Array[CatalogView]) => ViewResponse(views = Some(views)),
+      (views: Array[CatalogView]) => ViewResponse(views = Some(views.toIndexedSeq)),
       (f: BurstCatalogApiResult) => ViewResponse(f)
     )
   }
@@ -101,7 +101,7 @@ trait CatalogViewApiReactor extends CatalogApi {
   final override
   def allViewsForDomain(domainPk: Long, limit: Option[Int]): Future[BurstCatalogApiViewResponse] = {
     mapResponse(service.allViewsForDomain(domainPk, limit),
-      (views: Array[CatalogView]) => ViewResponse(views = Some(views)),
+      (views: Array[CatalogView]) => ViewResponse(views = Some(views.toIndexedSeq)),
       (f: BurstCatalogApiResult) => ViewResponse(f)
     )
   }

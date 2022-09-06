@@ -4,9 +4,6 @@ package org.burstsys.hydra.test.generate
 import org.burstsys.felt.model.FeltException
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraParameterSpec extends HydraSpecSupport {
 
@@ -26,9 +23,9 @@ class HydraParameterSpec extends HydraSpecSupport {
          |      } // end aggregate
          |    } // end cube
          |
-         |    user ⇒ {
+         |    user => {
          |
-         |      pre ⇒ {
+         |      pre => {
          |        var lv4:long = p1
          |        lv4 = p1
          |      } // end pre
@@ -55,8 +52,8 @@ class HydraParameterSpec extends HydraSpecSupport {
          |        a1:sum[integer]
          |      } // end aggregate
          |    } // end cube
-         |    user ⇒ {
-         |      pre ⇒ {
+         |    user => {
+         |      pre => {
          |        val lv4:long = p1
          |        p1 = 34
          |      } // end pre

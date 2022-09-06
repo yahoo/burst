@@ -4,9 +4,6 @@ import "./settings-tab.scss"
 import request from "../../utility/api-requests"
 import {Button} from "react-bootstrap";
 
-/**
- *
- */
 class SettingsTab extends React.Component {
     state = {
         filter: "",
@@ -46,12 +43,6 @@ class SettingsTab extends React.Component {
             .catch(e => console.error(e))
     }
 
-    copyYamlFor(setting) {
-        const {key = "", value} = setting
-        const envKey = this.envKeyFor(key)
-        navigator.clipboard.writeText(`${envKey}: '${value}'`)
-            .catch(e => console.error(e))
-    }
     render() {
         const {settings, filter} = this.state;
         return (
@@ -77,12 +68,12 @@ class SettingsTab extends React.Component {
                             .filter(s => !filter || s.key.includes(filter) || `${s.value}`.includes(filter) || s.description.includes(filter))
                             .map(s => (
                             <tr key={s.key}>
-                                <td style={{width: '25%'}}>{s.key}</td>
-                                <td style={{width: '25%'}}>{s.description}</td>
-                                <td style={{width: '25%'}}><span className="mono">{s.value === '' ? `''` : `${s.value}`}</span></td>
-                                <td style={{width: '25%', textAlign: 'right'}}>
+                                <td style={{width: '20%'}}>{s.key}</td>
+                                <td style={{width: '20%'}}>{s.source}</td>
+                                <td style={{width: '20%'}}>{s.description}</td>
+                                <td style={{width: '20%'}}><span className="mono">{s.value === '' ? `''` : `${s.value}`}</span></td>
+                                <td style={{width: '20%', textAlign: 'right'}}>
                                     <Button variant="link" onClick={() => this.copyEnvFor(s)}>Copy Env</Button>
-                                    <Button variant="link" onClick={() => this.copyYamlFor(s)}>Copy Yaml</Button>
                                 </td>
                             </tr>
                         ))}

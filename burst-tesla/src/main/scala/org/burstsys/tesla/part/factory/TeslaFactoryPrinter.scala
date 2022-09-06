@@ -96,7 +96,7 @@ trait TeslaFactoryPrinter[Part, PartPool <: TeslaPartPool[Part]] {
       implicit val builder: StringBuilder = new StringBuilder
       summarizePoolStats(collectPoolStats)
       builder ++= s"*****************************************\n"
-      builder.result
+      builder.result()
     }
   }
 

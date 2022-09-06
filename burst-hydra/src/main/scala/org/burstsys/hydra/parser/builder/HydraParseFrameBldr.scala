@@ -15,7 +15,7 @@ import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.time.VitalsTimeZones
 import org.joda.time.DateTimeZone
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * antlr parse driven builder for FELT frames in AST

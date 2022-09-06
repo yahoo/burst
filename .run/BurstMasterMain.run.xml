@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="org.burstsys.master.server.container.BurstMasterMain" />
     <module name="burst-master" />
     <option name="PROGRAM_PARAMETERS" value="-s -w 1 --jsonSampleStore" />
-    <option name="VM_PARAMETERS" value="-Dburst.master.jsonfilemanager.watchdirectory=./doc/playground/json" />
+    <option name="VM_PARAMETERS" value="-Dburst.master.jsonfilemanager.watchdirectory=./documentation/playground/json" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.burstsys.master.server.container.*" />

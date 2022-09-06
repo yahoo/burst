@@ -30,7 +30,7 @@ class FabricMetricsSpec extends FabricMetricsBaseSpec with FabricTopologyListene
   it should "do a wave execution and collect metrics" in {
 
     val guid = newBurstUid
-    val promise = Promise[FabricGather]
+    val promise = Promise[FabricGather]()
 
 
     // first make sure the worker is connected

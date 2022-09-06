@@ -23,8 +23,8 @@ object HydraQuoNow00 extends HydraUseCase(1, 1, "quo") {
        |      'now':verbatim[long]
        |    }
        |  }
-       |  user.sessions ⇒ {
-       |    pre ⇒ {
+       |  user.sessions => {
+       |    pre => {
        |      $analysisName.$frameName.'now' = now()
        |      insert($analysisName.$frameName)
        |    }

@@ -21,11 +21,11 @@ object HydraUnityLexiconCase02 extends HydraUseCase(200, 200, "unity") {
        |      id:verbatim[string]
        |    }
        |  }
-       |  user ⇒ {
-       |    pre ⇒ 			{
+       |  user => {
+       |    pre => 			{
        |      $analysisName.$frameName.id = "foo"
        |    }
-       |    post ⇒ 			{
+       |    post => 			{
        |      insert($analysisName.$frameName)
        |    }
        |  }

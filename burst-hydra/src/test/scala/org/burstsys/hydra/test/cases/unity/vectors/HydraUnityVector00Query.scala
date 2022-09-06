@@ -23,7 +23,7 @@ object HydraUnityVector00Query extends HydraUseCase(200, 200, "unity") {
         |      'isLast':sum[long]
         |    }
         |  }
-        |  user.sessions ⇒ {
+        |  user.sessions => {
         |    pre => {
         |       $analysisName.$frameName.'isOther' = 1
         |       if( isFirst(user.sessions) ) {

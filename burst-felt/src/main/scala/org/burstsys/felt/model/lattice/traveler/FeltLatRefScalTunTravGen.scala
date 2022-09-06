@@ -47,7 +47,7 @@ trait FeltLatRefScalTunTravGen extends Any {
       val tunnelVersion = tunnelReferenceScalarRelationVersion(treeNode, version)(cursor indentRight)
       if (tunnelVersion.isEmpty) return FeltNoCode
       s"""|
-          |${I}case $version ⇒ { // schema version $version
+          |${I}case $version => { // schema version $version
           |$tunnelVersion
           |$I}""".stripMargin
     }).mkString

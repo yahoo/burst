@@ -22,8 +22,8 @@ object HydraQuoRangeInclusion extends HydraUseCase(1, 1, "quo") {
        |        }
        |      }
        |    }
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        if( user.sessions.events.eventId between (6049337 - 1, 6049337 + 1) ) {
        |          $analysisName.$frameName.count =  1
        |          insert($analysisName.$frameName)

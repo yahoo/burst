@@ -19,8 +19,8 @@ object HydraUnityBug04 extends HydraUseCase(200, 200, "unity") {
         |				id:verbatim[string]
         |			}
         |		}
-        |		user.sessions.events.parameters ⇒ {
-        |			situ ⇒ 			{
+        |		user.sessions.events.parameters => {
+        |			situ => 			{
         |				I00000.id = key(user.sessions.events.parameters)
         |				insert(I00000)
         |			}
@@ -45,27 +45,27 @@ object HydraUnityBug04 extends HydraUseCase(200, 200, "unity") {
         |				}
         |			}
         |		}
-        |		user ⇒ {
-        |			post ⇒ 			{
+        |		user => {
+        |			post => 			{
         |				I00001.count = 1
         |
         |			}
         |		}
-        |		user.application.firstUse ⇒ {
-        |			pre ⇒ 			{
+        |		user.application.firstUse => {
+        |			pre => 			{
         |				I00001.start = user.application.firstUse.sessionTime
         |
         |			}
-        |			post ⇒ 			{
+        |			post => 			{
         |				insert(I00001)
         |
         |			}
         |		}
-        |		user.application.lastUse ⇒ {
-        |			pre ⇒ 			{
+        |		user.application.lastUse => {
+        |			pre => 			{
         |				I00001.end = user.application.lastUse.sessionTime
         |			}
-        |			post ⇒ 			{
+        |			post => 			{
         |				insert(I00001)
         |			}
         |		}

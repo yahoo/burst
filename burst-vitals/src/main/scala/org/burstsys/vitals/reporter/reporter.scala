@@ -7,7 +7,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.strings._
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -97,9 +97,10 @@ package object reporter extends VitalsLogger {
     _samplePeriod = samplePeriod
     _stalePeriod = stalePeriod
 
-    reflection.getPackageSubTypesOf(classOf[VitalsReporterSource]).asScala foreach { source =>
-      log info(s"Loading reporters from ${source.getClass.getName.stripSuffix(".package$")}")
-      source.reporters.foreach(register)
+    reflection.getPackageSubTypesOf(classOf[VitalsReporterSource]).asScala.foreach{
+      source =>
+        log info(s"Loading reporters from ${source.getClass.getName.stripSuffix(".package$")}")
+        source.reporters.foreach(register)
     }
 
     _reporterFunction.startIfNotAlreadyStarted
@@ -177,7 +178,7 @@ package object reporter extends VitalsLogger {
         if (buffer.size > maxCharsPerPublish) {
           publishReport(part, buffer.toString)
           part += 1
-          buffer.clear
+          buffer.clear()
         }
     }
     if (buffer.nonEmpty) publishReport(part, buffer.toString)

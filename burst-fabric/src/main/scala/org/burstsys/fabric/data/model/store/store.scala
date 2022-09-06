@@ -8,7 +8,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties.VitalsPropertyKey
 import org.burstsys.vitals.{VitalsService, reflection}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object store extends VitalsLogger {
 
@@ -61,7 +61,7 @@ package object store extends VitalsLogger {
 
   private[fabric]
   lazy val storeProviders: Array[FabricStoreProvider[_, _]] = {
-    reflection.getSubTypesOf(classOf[FabricStoreProvider[_, _]]).asScala.map(_.getDeclaredConstructor().newInstance()).toArray
+    reflection.getSubTypesOf(classOf[FabricStoreProvider[_, _]]).map(_.getDeclaredConstructor().newInstance()).toArray
   }
 
 }

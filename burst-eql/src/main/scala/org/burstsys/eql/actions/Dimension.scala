@@ -15,7 +15,7 @@ import org.burstsys.motif.symbols.PathSymbols
 
 import java.util.Collections
 import java.{lang, util}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait DimensionSource {
   def getDimensions: Array[Dimension]

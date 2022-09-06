@@ -37,15 +37,15 @@ object HydraQuoParameters02 extends HydraUseCase(1, 1, "quo") {
        |        }
        |      }
        |    }
-       |    user.sessions ⇒ {
-       |      pre ⇒ {
+       |    user.sessions => {
+       |      pre => {
        |        if( key(user.sessions.events.parameters) == p1) {
        |          $analysisName.$frameName.count = 1
        |        }
        |      }
        |    }
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        if( key(user.sessions.events.parameters) == p1) {
        |          $analysisName.$frameName.count = 1
        |        }

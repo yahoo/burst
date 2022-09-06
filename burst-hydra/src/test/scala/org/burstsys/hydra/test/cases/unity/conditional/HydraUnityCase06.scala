@@ -25,11 +25,11 @@ object HydraUnityCase06 extends HydraUseCase(100, 100, "unity") {
        |			}
        |		}
        |	}
-       |	user ⇒ {
-       |		pre ⇒ 			{
+       |	user => {
+       |		pre => 			{
        |			T1 = (user.deviceModelId == 555666)
        |		}
-       |		post ⇒ 			{
+       |		post => 			{
        |			if( T1 )
        |			{
        |				T1_summary = true
@@ -37,15 +37,15 @@ object HydraUnityCase06 extends HydraUseCase(100, 100, "unity") {
        |			}
        |		}
        |	}
-       |	user.sessions.events ⇒ {
-       |		pre ⇒ 			{
+       |	user.sessions.events => {
+       |		pre => 			{
        |			T2 = T1
        |			if( T2 )
        |			{
        |				$analysisName.$frameName.id = user.sessions.events.id
        |			}
        |		}
-       |		post ⇒ 			{
+       |		post => 			{
        |			if( T2 )
        |			{
        |				insert($analysisName.$frameName)

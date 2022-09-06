@@ -6,7 +6,7 @@ import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import com.codahale.metrics.{Counter, Timer}
 import org.burstsys.fabric.execution.model.result.group.FabricResultGroupMetrics
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 object FunctionConverter {

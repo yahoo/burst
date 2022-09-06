@@ -15,7 +15,7 @@ class FabricMetricsSpec extends AnyFlatSpec with Suite with Matchers with Before
   "Fabric Metrics" should "do a single sample correctly" in {
     val collector = FabricLastHourMetricCollector().initialize
     collector.sample(1, 0)
-    collector.export.history.map(t => (t.value, t.time)) should equal(Array(
+    collector.exportMetric.history.map(t => (t.value, t.time)) should equal(Array(
       (1, 0))
     )
   }
@@ -24,7 +24,7 @@ class FabricMetricsSpec extends AnyFlatSpec with Suite with Matchers with Before
     val collector = FabricLastHourMetricCollector().initialize
     collector.sample(1, 0)
     collector.sample(4, 0)
-    collector.export.history.map(t => (t.value, t.time)) should equal(Array(
+    collector.exportMetric.history.map(t => (t.value, t.time)) should equal(Array(
       (2.5, 0)
     ))
   }
@@ -33,7 +33,7 @@ class FabricMetricsSpec extends AnyFlatSpec with Suite with Matchers with Before
     val collector = FabricLastHourMetricCollector().initialize
     collector.sample(1.1, 0)
     collector.sample(23.5, (5 minutes).toMillis)
-    collector.export.history.map(t => (t.value, t.time)) should equal(Array(
+    collector.exportMetric.history.map(t => (t.value, t.time)) should equal(Array(
       (1.1, 0),
       (23.5, (5 minutes).toMillis)
     ))
@@ -45,7 +45,7 @@ class FabricMetricsSpec extends AnyFlatSpec with Suite with Matchers with Before
     collector.sample(4.6000, (1 minute).toMillis)
     collector.sample(23.5, (5 minutes).toMillis)
     collector.sample(23.5, (5 minutes).toMillis + (1 minute).toMillis)
-    collector.export.history.map(t => (t.value, t.time)) should equal(Array(
+    collector.exportMetric.history.map(t => (t.value, t.time)) should equal(Array(
       (2.8499999999999996, 0),
       (23.5, (5 minutes).toMillis)
     ))
@@ -61,7 +61,7 @@ class FabricMetricsSpec extends AnyFlatSpec with Suite with Matchers with Before
       nowTime = nowTime + 10
       value += 1.0
     }
-    collector.export.history.map(t => (t.value, t.time)) should equal(Array(
+    collector.exportMetric.history.map(t => (t.value, t.time)) should equal(Array(
       (1.0, 10), (2.0, 20), (3.0, 30), (4.0, 40)
     ))
   }

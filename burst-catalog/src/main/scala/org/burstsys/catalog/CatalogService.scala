@@ -448,10 +448,10 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
         singleLineMode = false,
         printUnprocessedStackTrace = false,
         stackTraceDepth = 15,
-        logLevel = 'debug,
+        logLevel = Symbol("debug"),
         warningEnabled = false,
         warningThresholdMillis = 3000L,
-        warningLogLevel = 'warn
+        warningLogLevel = Symbol("warn")
       )
       _sql.start
       _apiServer.start

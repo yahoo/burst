@@ -25,18 +25,18 @@ class HydraUnityCountSpec extends HydraAlloyTestRunner {
          |      }
          |    }
          |
-         |    user ⇒ {
-         |      pre ⇒ {
+         |    user => {
+         |      pre => {
          |        $CubeFrame.userCount = 1
          |      }
          |    }
-         |    user.sessions ⇒ {
-         |      pre ⇒ {
+         |    user.sessions => {
+         |      pre => {
          |        $CubeFrame.sessionCount = 1
          |      }
          |    }
-         |    user.sessions.events ⇒ {
-         |      pre ⇒ {
+         |    user.sessions.events => {
+         |      pre => {
          |        $CubeFrame.eventCount = 1
          |      }
          |    }

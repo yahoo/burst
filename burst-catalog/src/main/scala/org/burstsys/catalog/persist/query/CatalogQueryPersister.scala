@@ -47,10 +47,10 @@ class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPe
           {source}
         )
      """.bindByName(
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'moniker -> entity.moniker,
-      'languageType -> entity.languageType.name,
-      'source -> entity.source
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("moniker") -> entity.moniker,
+      Symbol("languageType") -> entity.languageType.name,
+      Symbol("source") -> entity.source
     )
   }
 
@@ -65,11 +65,11 @@ class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPe
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      'pk -> entity.pk,
-      'moniker -> entity.moniker,
-      'labels -> optionalPropertyMapToString(entity.labels),
-      'languageType -> entity.languageType.name,
-      'source -> entity.source
+      Symbol("pk") -> entity.pk,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("languageType") -> entity.languageType.name,
+      Symbol("source") -> entity.source
     )
   }
 

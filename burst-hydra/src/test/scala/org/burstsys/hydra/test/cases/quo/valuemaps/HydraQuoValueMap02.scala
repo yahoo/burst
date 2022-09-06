@@ -31,15 +31,15 @@ object HydraQuoValueMap02 extends HydraUseCase(10, 10, "quo") {
        |         }
        |      }
        |
-       |     user.sessions.events.parameters ⇒ {
-       |         situ ⇒ {
+       |     user.sessions.events.parameters => {
+       |         situ => {
        |            $analysisName.$frameName.eventParameterKey = key(user.sessions.events.parameters)
        |            insert($analysisName.$frameName)
        |         }
        |      }
        |
-       |      user.sessions.events ⇒ {
-       |         post ⇒ {
+       |      user.sessions.events => {
+       |         post => {
        |            $analysisName.$frameName.eventParameterFrequency = 1
        |         }
        |      }

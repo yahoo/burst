@@ -23,8 +23,6 @@ trait TeslaBufferWriter extends Any with TeslaBuffer {
     * set the value of the end of the buffer as an offset from the beginning of the
     * data field. It is not the total memory used by the buffer because it does not 
     * include any header info.
-    *
-    * @param offset
     */
   def currentUsedMemory(offset: TeslaMemoryOffset): Unit
 
@@ -34,156 +32,107 @@ trait TeslaBufferWriter extends Any with TeslaBuffer {
     * It is not the total memory used by the buffer because it does not 
     * include any header info.
     * .
-    *
-    * @param increment
     */
-  def incrementUsedMemory(increment: TeslaMemorySize)
+  def incrementUsedMemory(increment: TeslaMemorySize): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeBoolean(data: Boolean)
+  def writeBoolean(data: Boolean): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeBoolean(data: Boolean, absolutePosition: TeslaMemoryOffset)
+  def writeBoolean(data: Boolean, absolutePosition: TeslaMemoryOffset): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeBooleans(data: Array[Boolean])
+  def writeBooleans(data: Array[Boolean]): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeByte(data: Byte)
+  def writeByte(data: Byte): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeByte(data: Byte, absolutePosition: TeslaMemoryOffset)
+  def writeByte(data: Byte, absolutePosition: TeslaMemoryOffset): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeBytes(data: Array[Byte])
+  def writeBytes(data: Array[Byte]): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeShort(data: Short)
+  def writeShort(data: Short): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeShort(data: Short, absolutePosition: TeslaMemoryOffset)
+  def writeShort(data: Short, absolutePosition: TeslaMemoryOffset): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeShorts(data: Array[Short])
+  def writeShorts(data: Array[Short]): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeInt(data: Int)
+  def writeInt(data: Int): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeInt(data: Int, absolutePosition: TeslaMemoryOffset)
+  def writeInt(data: Int, absolutePosition: TeslaMemoryOffset): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeInts(data: Array[Int])
+  def writeInts(data: Array[Int]): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeLong(data: Long)
+  def writeLong(data: Long): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeLong(data: Long, absolutePosition: TeslaMemoryOffset)
+  def writeLong(data: Long, absolutePosition: TeslaMemoryOffset): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeLongs(data: Array[Long])
+  def writeLongs(data: Array[Long]): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeDouble(data: Double)
+  def writeDouble(data: Double): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeDouble(data: Double, absolutePosition: TeslaMemoryOffset)
+  def writeDouble(data: Double, absolutePosition: TeslaMemoryOffset): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeDoubles(data: Array[Double])
+  def writeDoubles(data: Array[Double]): Unit
 
   /**
     * write data using relative positioning (write to end and increment the current used memory pointer)
-    *
-    * @param data
     */
-  def writeOffset(data: TeslaMemoryOffset)
+  def writeOffset(data: TeslaMemoryOffset): Unit
 
   /**
     * write data using absolute positioning (does not increment current used memory pointer)
-    *
-    * @param data
-    * @param absolutePosition
     */
-  def writeOffset(data: TeslaMemoryOffset, absolutePosition: TeslaMemoryOffset)
+  def writeOffset(data: TeslaMemoryOffset, absolutePosition: TeslaMemoryOffset): Unit
 
 }

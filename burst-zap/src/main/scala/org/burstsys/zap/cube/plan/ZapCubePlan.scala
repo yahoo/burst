@@ -3,7 +3,7 @@ package org.burstsys.zap.cube.plan
 
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.model.schema.tree.BrioNode
-import org.burstsys.brio.model.schema.types.{BrioRelation, BrioValueScalarRelation}
+import org.burstsys.brio.model.schema.types.BrioValueScalarRelation
 import org.burstsys.brio.types.BrioPath.BrioPathKey
 import org.burstsys.brio.types.BrioTypes._
 import org.burstsys.felt.model.collectors.cube.decl.FeltCubeDecl
@@ -11,16 +11,14 @@ import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.{FeltCube
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.{FeltCubeDimDecl, FeltCubeDimSemRt}
 import org.burstsys.felt.model.collectors.cube.runtime.{FeltCubeOrdinalMap, FeltCubeTreeMask}
 import org.burstsys.felt.model.collectors.cube.{FeltCubeId, FeltCubePlan, FeltCubeProvider}
-import org.burstsys.felt.model.schema.FeltSchemaNode
-import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.zap.cube._
 
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 /**
  *
@@ -51,7 +49,7 @@ trait ZapCubePlan extends FeltCubePlan {
    * @param dimensionKey
    * @param d
    */
-  def addCubeDimension(dimensionKey: ZapCubeDimensionKey, d: FeltCubeDimDecl)
+  def addCubeDimension(dimensionKey: ZapCubeDimensionKey, d: FeltCubeDimDecl): Unit
 
   /**
    *

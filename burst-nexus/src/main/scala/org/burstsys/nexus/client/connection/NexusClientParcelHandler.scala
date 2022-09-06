@@ -40,7 +40,7 @@ trait NexusClientParcelHandler extends NexusClientConnection {
     )
     _gate.lock()
     try {
-      _promise = Promise[NexusStream]
+      _promise = Promise[NexusStream]()
       _stream = NexusStream(connection = this, guid, suid, properties, schema, filter, pipe, sliceKey, clientHostname, serverHostname, _promise.future)
       val stream = _stream
       waitForStreamStart(stream)

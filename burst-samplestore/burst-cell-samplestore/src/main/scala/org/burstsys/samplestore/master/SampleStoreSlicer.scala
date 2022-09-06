@@ -36,7 +36,7 @@ trait SampleStoreSlicer extends Any {
   def slices(guid: VitalsUid, workers: Array[FabricWorkerNode], datasource: FabricDatasource): Future[Array[FabricSlice]] = {
     val tag = s"SampleStoreSlicer.slices(guid=$guid, datasource=$datasource)"
     val start = System.nanoTime
-    val promise = Promise[Array[FabricSlice]]
+    val promise = Promise[Array[FabricSlice]]()
     val workerMap = new mutable.HashMap[FabricWorkerNode, LocusBuffer]
 
     // generalized failure routine
@@ -97,7 +97,7 @@ trait SampleStoreSlicer extends Any {
   private
   def getViewGenerator(guid: String, datasource: BurstSampleStoreDataSource): Future[SampleStoreGenerator] = {
     val tag = s"SampleStoreSlicer.getViewGenerator(guid=$guid, datasource=$datasource)"
-    val promise = Promise[SampleStoreGenerator]
+    val promise = Promise[SampleStoreGenerator]()
 
     def FAIL(t: Throwable): Unit = {
       log error burstStdMsg(s"SAMPLE_STORE_GET_GEN_FAIL $t $tag", t)

@@ -230,7 +230,7 @@ class FabricRegionHoseContext(var snap: FabricSnap, region: FabricRegion, region
     TeslaRequestFuture {
       _moreParcelsComing.set(true)
       try { // first one is ready to go
-        var lastWrite = Promise[Unit].success((): Unit).future
+        var lastWrite = Promise[Unit]().success((): Unit).future
         while (_moreParcelsComing.get()) {
           val parcel = _queue.take()
           if (parcel == TeslaEndMarkerParcel) {

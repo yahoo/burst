@@ -12,7 +12,7 @@ object Main {
   val footer = "\n---------------------------------------------------------------------"
 
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Thread.currentThread setName "BurstTorcherMain"
 
     VitalsLog.configureLogging("torcher")
@@ -41,7 +41,7 @@ object Main {
       val reporterTask = new java.util.TimerTask {
         def run(): Unit = {
           // report intermediary results
-          log info driver.intermediaryStats
+          log info driver.intermediaryStats()
         }
       }
       reporterTimer.schedule(reporterTask, TimeUnit.MINUTES.toMillis(1), torcherParameters.reportingInterval.toMillis)

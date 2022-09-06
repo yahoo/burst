@@ -9,7 +9,7 @@ import oshi.SystemInfo
 import java.lang.management.ManagementFactory._
 import java.lang.management.{BufferPoolMXBean, GarbageCollectorMXBean, ManagementFactory}
 import java.net.InetAddress
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object host extends VitalsLogger {
 

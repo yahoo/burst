@@ -6,7 +6,7 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press._
 import org.burstsys.brio.types.BrioTypes
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final case
 class JsonPressSource(schema: BrioSchema, root: BrioPressInstance) extends BrioPressSourceBase with BrioPressSource {

@@ -109,14 +109,19 @@ class BurstKeyManagerSpi(privateKey: File, certificate: File) extends KeyManager
 class BurstKeyManagerProxy(var keyManagers: Array[X509ExtendedKeyManager]) extends X509ExtendedKeyManager {
 
   private def mergeResults[T: ClassTag](fn: X509ExtendedKeyManager => Array[T]): Array[T] = {
-    keyManagers.flatMap({ km =>
+    val fm: Array[T] = keyManagers.flatMap({ km =>
       fn(km) match {
-        case value if value == null => List.empty
-        case value => value
+        case value:Array[T] if value == null =>
+          Array.empty
+        case value: Array[T]=>
+          value
       }
-    }) match {
-      case result if result.isEmpty => null
-      case result => result
+    })
+    fm match {
+      case result if result.isEmpty =>
+        null
+      case result =>
+        result
     }
   }
 

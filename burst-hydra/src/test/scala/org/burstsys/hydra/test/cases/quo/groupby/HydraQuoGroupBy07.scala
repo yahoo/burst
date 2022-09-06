@@ -33,8 +33,8 @@ object HydraQuoGroupBy07 extends HydraUseCase(1, 1, "quo") {
               }
             }
           }
-          user.sessions.events ⇒ {
-            pre ⇒ {
+          user.sessions.events => {
+            pre => {
               $analysisName.$frameName.eventId = user.sessions.events.eventId
               $analysisName.$frameName.eventCount = 1
             }

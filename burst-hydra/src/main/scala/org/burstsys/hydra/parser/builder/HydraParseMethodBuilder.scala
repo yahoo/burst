@@ -9,7 +9,7 @@ import org.burstsys.felt.model.tree.FeltNode
 import org.burstsys.hydra.grammar.{HydraAnalysisGrammarBaseVisitor, HydraAnalysisGrammarParser}
 import org.burstsys.hydra.parser.HydraLocation
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * antlr parse driven builder for method expressions in AST

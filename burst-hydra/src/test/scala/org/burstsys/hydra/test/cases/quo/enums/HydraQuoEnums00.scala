@@ -25,8 +25,8 @@ object HydraQuoEnums00 extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
        |
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        $analysisName.$frameName.d1 = key(user.sessions.events.parameters)
        |        $analysisName.$frameName.a1 = 1
        |      }

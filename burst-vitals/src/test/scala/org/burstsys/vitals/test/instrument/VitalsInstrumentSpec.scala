@@ -14,12 +14,12 @@ class VitalsInstrumentSpec extends VitalsAbstractSpec {
     ByteSizeCase(0, "0.0B"),
     ByteSizeCase(2.4 * KB, "2.4KB"),
     ByteSizeCase(56.2 * MB, "56.2MB"),
-    ByteSizeCase(MB, "1.0MB"),
-    ByteSizeCase(GB, "1.0GB"),
+    ByteSizeCase(1.0 * MB, "1.0MB"),
+    ByteSizeCase(1.0 * GB, "1.0GB"),
     ByteSizeCase(2.7 * GB, "2.7GB"),
-    ByteSizeCase(1 * TB, "1.0TB"),
+    ByteSizeCase(1.0 * TB, "1.0TB"),
     ByteSizeCase(127.5 * TB, "127.5TB"),
-    ByteSizeCase(6658 * TB, "6,658.0TB")
+    ByteSizeCase(6658.0 * TB, "6,658.0TB")
   ) foreach { c =>
     it should s"format ${c.bytes}" in {
       prettyByteSizeString(c.bytes.toLong) should equal(c.prettied)

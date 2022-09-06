@@ -21,11 +21,11 @@ class TeslaMemoryReportSpec extends AnyFlatSpec with Suite with Matchers with Be
     reporter.startReporterSystem(samplePeriod = 1 second, reportPeriod = 1 second, waitPeriod = 1 second)
 
     for (j <- 0 until 10) {
-      val reportCount = Math.abs(Random.nextDouble * 30).toInt
+      val reportCount = Math.abs(Random.nextDouble() * 30).toInt
       for (i <- 0 until reportCount) {
-        val alloc = Math.abs(Random.nextDouble * 1e6).toInt
-        val free = Math.abs(Random.nextDouble * 1e6).toInt
-        if (Random.nextBoolean)
+        val alloc = Math.abs(Random.nextDouble() * 1e6).toInt
+        val free = Math.abs(Random.nextDouble() * 1e6).toInt
+        if (Random.nextBoolean())
           TeslaBlockReporter.grab()
         else
           TeslaBlockReporter.free(free)

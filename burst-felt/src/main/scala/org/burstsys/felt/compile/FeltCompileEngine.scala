@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Try}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Manage a queue of versioned scala 'compiler' instances. This allows us to perform concurrent code
@@ -47,11 +47,23 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
   private[compile]
   val _versionClock = new AtomicInteger(1)
 
+  private[compile]
+  val generatedAllBindings: Boolean = {
+    (System.getProperty("burst.compile.jar.tmpdir") != null) &&
+      System.getProperty("burst.compile.jar.tmpdir").trim.nonEmpty
+  }
+
   /**
    * The folder where we place code generated types (jars) that we want to import into subsequent code generations
    */
   private[compile]
-  val generatedBindingsJarFolder = Paths.get(System.getProperty("java.io.tmpdir"), "burst-felt-code")
+  val generatedBindingsJarFolder = {
+    if (generatedAllBindings) {
+      Paths.get(System.getProperty("burst.compile.jar.tmpdir"), "burst-felt-code")
+    } else {
+      Paths.get(System.getProperty("java.io.tmpdir"), "burst-felt-code")
+    }
+  }
 
   /**
    * we store the set of code generations to classpath jar URLs here...

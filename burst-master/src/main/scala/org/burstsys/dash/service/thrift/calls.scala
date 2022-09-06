@@ -14,7 +14,7 @@ import org.burstsys.gen.thrift.api.client.BTDataType.ShortType
 import org.burstsys.gen.thrift.api.client.query.BTParameter
 
 import java.util
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object calls {
 

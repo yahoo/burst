@@ -44,7 +44,7 @@ trait FeltUnaryMathExpr extends FeltMathExpr with FeltUnOpExpr  {
   override final
   def validateBrioReferences(traversePt: BrioNode): Unit = {
     val relations = Array(BrioValueScalarRelation, BrioValueMapRelation, BrioValueVectorRelation)
-    validateReach(traversePt, rhs, relations: _*)
+    validateReach(traversePt, rhs, relations.toIndexedSeq: _*)
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////

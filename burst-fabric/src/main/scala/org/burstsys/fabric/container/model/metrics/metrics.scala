@@ -113,7 +113,7 @@ package object metrics extends VitalsLogger {
      *
      * @return
      */
-    def export: FabricLastHourMetric = {
+    def exportMetric: FabricLastHourMetric = {
       val collection = new ArrayBuffer[FabricMetricTuple]
       var i = 0
       var index = beginIndex.get

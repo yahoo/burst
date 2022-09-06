@@ -14,7 +14,7 @@ import scala.language.postfixOps
   * Catalog thrift repeater
   */
 final case
-class CatalogApiClient(service: CatalogService) extends BurstApiClient[BurstCatalogApiService.FutureIface]
+class CatalogApiClient(service: CatalogService) extends BurstApiClient[BurstCatalogApiService.MethodPerEndpoint]
   with CatalogApi {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////

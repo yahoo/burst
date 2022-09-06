@@ -17,7 +17,7 @@ import org.burstsys.hydra.grammar.HydraAnalysisGrammarParser
 import org.burstsys.hydra.parser.HydraLocation
 import org.burstsys.hydra.parser.builder.HydraParseAnalysisBldr
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * antlr parse driven builder for data (path, literals, etc) in AST

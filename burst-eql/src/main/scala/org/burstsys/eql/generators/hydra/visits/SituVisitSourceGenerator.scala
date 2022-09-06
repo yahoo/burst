@@ -12,11 +12,11 @@ trait SituVisitSourceGenerator extends PhasedVisitSourceGenerator {
     val preWork = traverseLanes.map(_ generateSource ActionPhase.Pre).filter(_.nonEmpty)
     val postWork = traverseLanes.map(_ generateSource ActionPhase.Post).filter(_.nonEmpty)
     if (preWork.nonEmpty || postWork.nonEmpty) {
-      s"situ => {".source
+      s"situ => {".source()
       // pre and post are combined into one for situ
-      preWork.foreach(_.indent.source)
-      postWork.foreach(_.indent.source)
-      s"}".source
+      preWork.foreach(_.indent.source())
+      postWork.foreach(_.indent.source())
+      s"}".source()
     }
   }
 }

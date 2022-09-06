@@ -23,7 +23,7 @@ import org.burstsys.motif.paths.schemas.RelationType
 import org.burstsys.motif.schema.model.MotifSchema
 
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 package object generators extends BooleanExpressionGenerators with ValueExpressionGenerators with
@@ -45,7 +45,7 @@ package object generators extends BooleanExpressionGenerators with ValueExpressi
 
     def generateDeclarationsSource(scope: DeclarationScope)(implicit context: GlobalContext): CodeBlock =
       CodeBlock { implicit cb =>
-        getDeclarations(scope).groupBy(_.name).values.foreach(_.head.generateDeclarationSource().source)
+        getDeclarations(scope).groupBy(_.name).values.foreach(_.head.generateDeclarationSource().source())
       }
   }
 
@@ -87,7 +87,7 @@ package object generators extends BooleanExpressionGenerators with ValueExpressi
     // Generate the action block once the control code has allowed it
     def generateSource(actionPhase: ActionPhase, actions: Iterable[ActionSourceGenerator])(implicit context: GlobalContext): CodeBlock = {
       CodeBlock { implicit cb =>
-        actions.foreach(a => a.generateSource().source)
+        actions.foreach(a => a.generateSource().source())
       }
     }
   }
@@ -222,13 +222,18 @@ package object generators extends BooleanExpressionGenerators with ValueExpressi
     val Analysis, Lane, Visit, Frame = Value
   }
 
-  abstract class Declaration(val name: String, val scope: DeclarationScope) {
+  trait Declaration {
+    // val name: String, val scope: DeclarationScope
+    def name: String
+
+    def scope: DeclarationScope
+
     def generateDeclarationSource(): CodeBlock
   }
 
   trait Collector extends Declaration
 
-  abstract class NavigatingDeclaration(name: String, scope: DeclarationScope) extends Declaration(name, scope) {
+  abstract class NavigatingDeclaration(val name: String, val scope: DeclarationScope) extends Declaration {
     def selectHydraVisitLaneType(path: VisitPath)(implicit schema: MotifSchema): VisitType
   }
 
@@ -261,8 +266,8 @@ package object generators extends BooleanExpressionGenerators with ValueExpressi
     override def generateDeclarationSource(): CodeBlock = ???
   }
 
-  case class Var(override val name: String, override val scope: DeclarationScope, varType: DataType, nulled: Boolean = false)
-    extends Declaration(name, scope) {
+  case class Var(val name: String, val scope: DeclarationScope, varType: DataType, nulled: Boolean = false)
+    extends Declaration {
     def generateDeclarationSource(): CodeBlock = varType match {
       case DataType.BOOLEAN =>
         s"var $name:${typeToHydraTypeDecl(varType)}=${if (nulled) "null" else "false"}"

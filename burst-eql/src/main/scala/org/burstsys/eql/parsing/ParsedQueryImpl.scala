@@ -7,7 +7,7 @@ import org.burstsys.motif.motif.tree.eql.queries.Query
 import org.burstsys.motif.motif.tree.expression.ParameterDefinition
 import org.burstsys.motif.schema.model.MotifSchema
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ParsedQueryImpl(val query: Query)(implicit globalContext: GlobalContext) extends ParsedQuery {
 

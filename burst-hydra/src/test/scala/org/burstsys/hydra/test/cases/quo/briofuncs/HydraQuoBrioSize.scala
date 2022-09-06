@@ -19,8 +19,8 @@ object HydraQuoBrioSize extends HydraUseCase(1, 1, "quo") {
           }
         }
 
-        user.sessions ⇒ {
-          pre ⇒ {
+        user.sessions => {
+          pre => {
             $analysisName.$frameName.eventsSize = size(user.sessions.events)
             insert($analysisName.$frameName)
           }

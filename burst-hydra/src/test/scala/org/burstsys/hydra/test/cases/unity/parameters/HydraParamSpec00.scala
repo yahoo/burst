@@ -25,8 +25,8 @@ class HydraParamSpec00 extends HydraAlloyTestRunner {
          |        }
          |      }
          |    }
-         |    user.sessions.events ⇒ {
-         |      pre ⇒ {
+         |    user.sessions.events => {
+         |      pre => {
          |        if(  user.sessions.events.id == p1 ) {
          |          myCube.count1 = 1
          |          insert( myCube )

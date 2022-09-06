@@ -12,7 +12,7 @@ import org.burstsys.vitals.instrument._
 import org.burstsys.vitals.logging._
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * This is where workers are collected, ranked, organized, and distributed to interested parties

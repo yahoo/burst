@@ -70,7 +70,7 @@ trait FeltValSetLit extends FeltMutableLit[FeltExpression] {
   final override
   def resolveTypes: this.type = {
     members.foreach(_.resolveTypes)
-    val vectorMemberType = FeltType.combine(members.map(_.feltType): _*)
+    val vectorMemberType = FeltType.combine(members.map(_.feltType).toIndexedSeq: _*)
     feltType = FeltType.valSet(vectorMemberType.valueType)
     this
   }

@@ -28,26 +28,26 @@ object HydraUnityCaseEql01 extends HydraUseCase(200, 200, "unity") {
        |				}
        |			}
        |		}
-       |		user ⇒ {
-       |			pre ⇒ 			{
+       |		user => {
+       |			pre => 			{
        |				T1 = (user.application.firstUse.languageId != 555666L)
        |				T2_summary = false
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				if( T2_summary && T1 ) {
        |					T1_summary = true
        |					$analysisName.$frameName.frequency = 1L
        |				}
        |			}
        |		}
-       |		user.sessions.events ⇒ {
-       |			pre ⇒ 			{
+       |		user.sessions.events => {
+       |			pre => 			{
        |				T2 = T1
        |				if( T2 ) {
        |					$analysisName.$frameName.id = user.sessions.events.id
        |				}
        |			}
-       |			post ⇒ 			{
+       |			post => 			{
        |				if( T2 ) {
        |					T2_summary = true
        |					insert($analysisName.$frameName)

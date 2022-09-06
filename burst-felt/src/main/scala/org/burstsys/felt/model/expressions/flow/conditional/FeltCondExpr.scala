@@ -95,13 +95,12 @@ trait FeltCondExpr extends FeltFlowExpr with FeltCondGen {
     elseNullExpressionBlock.foreach(_.resolveTypes)
     elseExpressionBlock.foreach(_.resolveTypes)
     feltType = FeltType.combine(
-      Array(
-        ifExpressionBlock.feltType) ++
+      (Array( ifExpressionBlock.feltType) ++
         elseIfConditionTest.map(_.feltType) ++
         elseIfExpressionBlock.map(_.feltType) ++
         elseNullExpressionBlock.map(_.feltType) ++
-        elseExpressionBlock.map(_.feltType
-        ): _*
+        elseExpressionBlock.map(_.feltType)).toIndexedSeq
+        : _*
     )
     this
   }

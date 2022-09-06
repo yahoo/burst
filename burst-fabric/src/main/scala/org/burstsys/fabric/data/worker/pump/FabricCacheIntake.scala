@@ -9,7 +9,7 @@ import org.burstsys.fabric.data.model.slice.region.FabricRegionTag
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsSingleton}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import org.burstsys.vitals.logging._
@@ -43,7 +43,7 @@ object FabricCacheIntake extends VitalsService {
   final
   def assignImpeller(regionTag: String): FabricCacheImpeller = {
     val regionImpellers = _impellerMap(regionTag)
-    regionImpellers(math.abs(Random.nextInt) % regionImpellers.length)
+    regionImpellers(math.abs(Random.nextInt()) % regionImpellers.length)
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

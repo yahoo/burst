@@ -9,7 +9,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.{VitalsService, reflection}
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object SampleSourceHandler extends VitalsService {
 
@@ -82,7 +82,7 @@ object SampleSourceHandler extends VitalsService {
     // use reflection to find sample source implementations
     val scannedClasses = reflection.getSubTypesOf(classOf[SampleSourceService])
     log info burstStdMsg(f"found ${scannedClasses.size}%,d sources(s)")
-    scannedClasses.forEach {
+    scannedClasses.foreach {
       klass =>
         val i = klass.getDeclaredConstructor().newInstance()
         log info burstStdMsg(s"loading handler for schema '${i.id}'")

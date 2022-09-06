@@ -16,7 +16,7 @@ import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait VitalsHealthCheckService extends VitalsService {
 

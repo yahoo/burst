@@ -21,8 +21,8 @@ object HydraQuoConditionals04 extends HydraUseCase(1, 1, "quo") {
        |            event2:sum[long]
        |         }
        |      }
-       |      user.sessions.events ⇒ {
-       |         pre ⇒ {
+       |      user.sessions.events => {
+       |         pre => {
        |            if( user.sessions.events.eventId == 6049337 ) { $analysisName.$frameName.event1 = 1 }
        |            if( user.sessions.events.eventId == 4498119 ) { $analysisName.$frameName.event2 = 1 }
        |            insert($analysisName.$frameName)

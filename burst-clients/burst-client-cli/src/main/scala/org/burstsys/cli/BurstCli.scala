@@ -7,7 +7,7 @@ import org.burstsys.gen.thrift.api.client.BTResultStatus
 
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BurstCli {
 
@@ -78,9 +78,9 @@ class BurstCli {
     }
   }
 
-  private def csvRow(row: TraversableOnce[_]): String =
+  private def csvRow(row: IterableOnce[_]): String =
     row
-      .map(col => col.toString.replace(",", "\\,"))
-      .mkString("", ",", "\n")
+      .iterator.map(col => col.toString.replace(",", "\\,"))
+      .iterator.mkString("", ",", "\n")
 
 }

@@ -32,7 +32,7 @@ object HydraReporter extends VitalsReporter {
   final
   def recordParse(elapsedNs: Long, source: String): Unit = {
     newSample()
-    _parseMetric.recordOpWithTimeAndSize(ns = elapsedNs, units = Predef.augmentString(source).lines.size)
+    _parseMetric.recordOpWithTimeAndSize(ns = elapsedNs, units = Predef.augmentString(source).linesIterator.size)
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////

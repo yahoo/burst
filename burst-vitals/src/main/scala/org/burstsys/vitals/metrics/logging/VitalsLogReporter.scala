@@ -60,8 +60,8 @@ class VitalsLogReporterContext(
     val nm = prefix(name)
     val msgs = Array(
       (s"$nm.count", s"${timer.getCount}"),
-      (s"$nm.min", s"${convertDuration(snapshot.getMin)}"),
-      (s"$nm.max", s"${convertDuration(snapshot.getMax)}"),
+      (s"$nm.min", s"${convertDuration(snapshot.getMin.toDouble)}"),
+      (s"$nm.max", s"${convertDuration(snapshot.getMax.toDouble)}"),
       (s"$nm.mean", s"${convertDuration(snapshot.getMean)}"),
       (s"$nm.stddev", s"${convertDuration(snapshot.getStdDev)}"),
       (s"$nm.median", s"${convertDuration(snapshot.getMedian)}"),

@@ -54,7 +54,7 @@ trait FeltStaticVisitDecl extends FeltVisitDecl {
   final override
   def normalizedSource(implicit index: Int): String = {
     val ordinalCode = if (ordinalExpression.isEmpty) FeltNoCode else s"($ordinal)"
-    s"""|$S${traverseTarget.normalizedSource} $ordinalCode ⇒ {${SL(variables)}${SL(actions)}
+    s"""|$S${traverseTarget.normalizedSource} $ordinalCode => {${SL(variables)}${SL(actions)}
         |$S}""".stripMargin
   }
 

@@ -4,7 +4,7 @@ package org.burstsys.hydra.test.parse
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
 /**
- * ← ⇒
+ * ← =>
  */
 //@Ignore
 class HydraCubeParseSpec extends HydraSpecSupport {

@@ -60,7 +60,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
               promise.failure(future.cause())
             } else {
               NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
-              promise.success(Unit)
+              promise.success(())
             }
           }
         })
@@ -94,7 +94,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
               promise.failure(future.cause())
             } else {
               NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
-              promise.success(Unit)
+              promise.success(())
             }
           }
         })

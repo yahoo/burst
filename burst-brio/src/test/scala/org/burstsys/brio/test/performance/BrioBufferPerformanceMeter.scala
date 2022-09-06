@@ -8,7 +8,7 @@ import org.burstsys.brio.test.{BrioAbstractSpec, performance}
 import org.burstsys.tesla
 import org.burstsys.vitals.threading.burstThreadGroupGlobal
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 object BrioBufferPerformanceMeter extends BrioAbstractSpec {

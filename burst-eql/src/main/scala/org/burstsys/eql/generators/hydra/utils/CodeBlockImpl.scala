@@ -11,7 +11,7 @@ class CodeBlockImpl extends CodeBlock {
 
   def indent: CodeBlock = {
     I.inc
-    this.transform(l => s"$I$l").
+    this.mapInPlace(l => s"$I$l").
       I.dec
     this
   }

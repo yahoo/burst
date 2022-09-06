@@ -10,7 +10,7 @@ import org.burstsys.eql.planning.visits.Visits
 import org.burstsys.motif.motif.tree.expression.ParameterDefinition
 import org.burstsys.motif.motif.tree.logical.BooleanExpression
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 class QueryImpl(tree: ParsedQuery)(implicit global: GlobalContext) extends Query {

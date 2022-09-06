@@ -18,8 +18,8 @@ object HydraUnityCase06 extends HydraUseCase(200, 200, "unity") {
                languageId:verbatim[long]
            }
          }
-         user.application.firstUse ⇒ {
-           pre ⇒ {
+         user.application.firstUse => {
+           pre => {
               $analysisName.frame06.languageId = user.application.firstUse.languageId
               insert($analysisName.frame06)
            }

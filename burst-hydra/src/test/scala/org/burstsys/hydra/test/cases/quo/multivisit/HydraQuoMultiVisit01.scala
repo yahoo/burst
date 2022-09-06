@@ -21,26 +21,26 @@ object HydraQuoMultiVisit01 extends HydraUseCase(1, 1, "quo") {
           }
         }
 
-        user ⇒ {
-          pre ⇒ {
+        user => {
+          pre => {
             $analysisName.$frameName.userCount0 = 1
           }
         }
 
-        user.sessions ⇒ {
-          pre ⇒ {
+        user.sessions => {
+          pre => {
             $analysisName.$frameName.sessionCount0 = 1
           }
         }
 
-        user.sessions.events ⇒ {
-          pre ⇒ {
+        user.sessions.events => {
+          pre => {
             $analysisName.$frameName.eventCount0 = 1
           }
         }
 
-        user.sessions.events.parameters ⇒ {
-          situ  ⇒ {
+        user.sessions.events.parameters => {
+          situ  => {
             $analysisName.$frameName.eventParameterCount0 = 1
           }
         }

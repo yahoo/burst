@@ -6,7 +6,7 @@ import org.burstsys.vitals.reporter.metric.VitalsReporterByteValueMetric
 
 import java.lang.management.{BufferPoolMXBean, ManagementFactory}
 import javax.management.{MBeanServer, ObjectName}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.language.postfixOps
 

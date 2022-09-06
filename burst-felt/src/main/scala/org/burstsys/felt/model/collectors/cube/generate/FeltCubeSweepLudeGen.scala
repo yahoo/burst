@@ -31,7 +31,7 @@ trait FeltCubeSweepLudeGen extends FeltCubeSweepGenerator {
 
   private final
   def tmpVar(pathName: BrioPathName, placement: FeltPlacement): String =
-    s"cube_ptr_swap_${pathName.replaceAllLiterally(".", "_")}_$placement"
+    s"cube_ptr_swap_${pathName.replace(".", "_")}_$placement"
 
   private final
   def generateCollectorPreludesForPlace(cube: FeltCubeDecl, pathName: BrioPathName, placement: FeltPlacement)(implicit cursor: FeltCodeCursor): FeltCode = {

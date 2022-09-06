@@ -13,7 +13,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reflection._
 import scalikejdbc.DBSession
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**
@@ -41,7 +41,7 @@ class CatalogCannedProvider(modality: VitalsServiceModality) extends CatalogCann
   override
   def start: this.type = {
     log info startingMessage
-    cans = getSubTypesOf(classOf[CatalogCan]).asScala.toList.sortBy(clazz => clazz.getCanonicalName)
+    cans = getSubTypesOf(classOf[CatalogCan]).toList.sortBy(clazz => clazz.getCanonicalName)
       .map(_.getDeclaredConstructor().newInstance()).toArray
     markRunning
     this

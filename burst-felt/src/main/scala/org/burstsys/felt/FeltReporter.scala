@@ -69,13 +69,13 @@ object FeltReporter extends VitalsReporter {
   final
   def recordTravelerCompile(elapsedNs: Long, source: String): Unit = {
     newSample()
-    _travelerCompileMetric.recordOpWithTimeAndSize(elapsedNs, augmentString(source).lines.size)
+    _travelerCompileMetric.recordOpWithTimeAndSize(elapsedNs, augmentString(source).linesIterator.size)
   }
 
   final
   def recordSweepCompile(elapsedNs: Long, source: String): Unit = {
     newSample()
-    _sweepCompileMetric.recordOpWithTimeAndSize(elapsedNs, augmentString(source).lines.size)
+    _sweepCompileMetric.recordOpWithTimeAndSize(elapsedNs, augmentString(source).linesIterator.size)
   }
 
   final

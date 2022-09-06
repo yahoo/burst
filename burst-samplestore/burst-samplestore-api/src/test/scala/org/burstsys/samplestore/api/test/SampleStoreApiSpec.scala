@@ -19,7 +19,7 @@ class SampleStoreApiSpec extends SampleStoreMasterSpec {
     storeServiceServer talksTo new SampleStoreApiListener {
       override
       def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[SampleStoreGenerator] = {
-        val promise = Promise[SampleStoreGenerator]
+        val promise = Promise[SampleStoreGenerator]()
         promise.success(
           SampleStoreGenerator(
             guid,

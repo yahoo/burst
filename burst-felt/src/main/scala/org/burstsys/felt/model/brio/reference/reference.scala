@@ -34,7 +34,7 @@ package object reference {
       node.accessedRefScalars.map {
         n =>
           s"""|
-              |${I}case ${n.pathKey} ⇒ false  // '${n.pathName}'""".stripMargin
+              |${I}case ${n.pathKey} => false  // '${n.pathName}'""".stripMargin
       }.stringify
     }
     s"""|
@@ -42,7 +42,7 @@ package object reference {
         |$I@inline override
         |${I}def $skipTunnelPathSym(pathKey: Int): Boolean = {
         |${I2}pathKey match {${tunneledPaths(cursor indentRight 2)}
-        |${I3}case _ ⇒ true
+        |${I3}case _ => true
         |$I2}
         |$I}""".stripMargin
   }

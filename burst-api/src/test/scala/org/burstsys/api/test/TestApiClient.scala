@@ -10,7 +10,7 @@ import org.burstsys.vitals.logging._
 
 
 final case
-class TestApiClient(service: TestApiService) extends BurstApiClient[BurstTestApiService.FutureIface] with TestApi {
+class TestApiClient(service: TestApiService) extends BurstApiClient[BurstTestApiService.MethodPerEndpoint] with TestApi {
 
   override def testEndPoint(testMessage: String): Future[String] = {
     try {

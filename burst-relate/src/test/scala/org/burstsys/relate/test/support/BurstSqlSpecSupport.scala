@@ -10,7 +10,7 @@ trait BurstSqlSpecSupport extends BurstSqlSpecLog {
 
   VitalsMetricsRegistry.disable()
 
-  def sqlTest(body: RelateTestPersister => Unit) {
+  def sqlTest(body: RelateTestPersister => Unit): Unit = {
     val sql = RelateMockProvider().start
     val persister = RelateTestPersister()
     sql.registerPersister(persister)

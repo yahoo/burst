@@ -12,7 +12,7 @@ import org.burstsys.motif.symbols.functions.Functions
 import org.burstsys.motif.symbols.functions.LastPathIsCompleteFunction.LastPathIsCompleteContext
 import org.burstsys.motif.symbols.functions.LastPathStepTimeFunction.LastPathStepTimeContext
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait SymbolAccessorGenerators extends Any {
   class ParameterAccessorSourceGenerator(exp: ParameterAccessor) extends ActionSourceGenerator {
@@ -29,7 +29,7 @@ trait SymbolAccessorGenerators extends Any {
     }
 
     override def phase(): ActionPhase = {
-      exp.getParms.asScala.map(_.phase).reduce { (o, t) => if (o > t) o else t }
+      exp.getParms.asScala.map(_.phase()).reduce { (o, t) => if (o > t) o else t }
     }
   }
 
@@ -84,7 +84,7 @@ trait SymbolAccessorGenerators extends Any {
     override def generateSource()(implicit context: GlobalContext): CodeBlock = {
       val parms = exp.getParms.asScala
       val e = parms.head.generateSource()
-      val b = parms.drop(1).flatMap(_.generateSource).mkString(",")
+      val b = parms.drop(1).flatMap(_.generateSource()).mkString(",")
       assert(e.length == 1)
       s"split(${e.head}, $b)"
     }
@@ -94,7 +94,7 @@ trait SymbolAccessorGenerators extends Any {
     override def generateSource()(implicit context: GlobalContext): CodeBlock = {
       val parms = exp.getParms.asScala
       val e = parms.head.generateSource()
-      val b = parms.drop(1).flatMap(_.generateSource).mkString(",")
+      val b = parms.drop(1).flatMap(_.generateSource()).mkString(",")
       assert(e.length == 1)
       s"enum(${e.head}, $b)"
     }

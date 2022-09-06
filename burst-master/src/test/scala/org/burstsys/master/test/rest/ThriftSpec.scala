@@ -9,7 +9,7 @@ import org.burstsys.dash.configuration
 import org.burstsys.master.test.support.BurstMasterSpecSupport
 import org.burstsys.vitals.uid.newBurstUid
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ThriftSpec extends BurstMasterSpecSupport {
 

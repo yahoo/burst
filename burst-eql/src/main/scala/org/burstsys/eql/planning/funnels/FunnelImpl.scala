@@ -11,7 +11,7 @@ import org.burstsys.motif.motif.tree.eql.funnels.{FunnelMatchDefinition, Trigger
 import org.burstsys.motif.paths.Path
 import org.burstsys.motif.paths.funnels.FunnelPathBase
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 class FunnelImpl(tree: ParsedFunnel)(implicit global: GlobalContext) extends Funnel {

@@ -12,6 +12,6 @@ trait TemporaryFrequencySourceGenerator extends ActionSourceGenerator {
 
   override
   def generateSource()(implicit context: GlobalContext): CodeBlock = CodeBlock { implicit cb =>
-    s"$name = $name + 1".source
+    s"$name = $name + 1".source()
   }
 }

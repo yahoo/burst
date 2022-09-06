@@ -258,7 +258,7 @@ trait FeltCubeDecl extends FeltCollectorDecl[FeltCubeRef, FeltCubeBuilder] {
     s"\n${S}cube ${
       refTarget.fullPathNoQuotes
     } {" +
-      s"$printLimit${
+      s"${printLimit()}${
         if (aggregations == null) FeltNoCode else aggregations.normalizedSource(index + 1)
       }${
         if (dimensions == null) FeltNoCode else dimensions.normalizedSource(index + 1)

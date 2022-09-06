@@ -14,13 +14,13 @@ package object test extends VitalsLogger {
 
     VitalsLog.configureLogging("agent", consoleOnly = true)
 
-    override def languagePrefixes(): Array[String] = Array("mock")
+    override def languagePrefixes: Array[String] = Array("mock")
 
     val agentService: AgentService = AgentService(VitalsStandaloneServer)
     val agentClient: AgentService = AgentService()
 
     override protected
-    def beforeAll() {
+    def beforeAll(): Unit = {
       log info VitalsPropertyRegistry.logReport
       agentService.start
       agentService.registerLanguage(this)
@@ -28,7 +28,7 @@ package object test extends VitalsLogger {
     }
 
     override protected
-    def afterAll() {
+    def afterAll(): Unit = {
       agentService.stop
       agentClient.stop
     }

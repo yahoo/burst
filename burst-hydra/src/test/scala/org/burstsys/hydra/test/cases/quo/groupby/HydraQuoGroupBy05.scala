@@ -33,8 +33,8 @@ object HydraQuoGroupBy05 extends HydraUseCase(10, 10, "quo") {
               }
             }
           }
-          user.sessions ⇒ {
-            pre ⇒ {
+          user.sessions => {
+            pre => {
               $analysisName.$frameName.osVersion = user.sessions.osVersion
               $analysisName.$frameName.sessionCount = 1
             }

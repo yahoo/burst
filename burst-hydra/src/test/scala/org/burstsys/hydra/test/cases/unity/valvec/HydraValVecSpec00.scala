@@ -25,14 +25,14 @@ class HydraValVecSpec00 extends HydraAlloyTestRunner {
          |				}
          |			}
          |		}
-         |		user.interests ⇒ {
-         |			situ ⇒ 			{
+         |		user.interests => {
+         |			situ => 			{
          |				myCube.interests = value(user.interests)
          |				insert( myCube )
          |			}
          |		}
-         |		user ⇒ {
-         |			post ⇒ 			{
+         |		user => {
+         |			post => 			{
          |				myCube.userCount = 1
          |			}
          |		}

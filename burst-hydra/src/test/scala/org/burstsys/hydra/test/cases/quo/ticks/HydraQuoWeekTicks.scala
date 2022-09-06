@@ -21,8 +21,8 @@ object HydraQuoWeekTicks extends HydraUseCase(1, 1, "quo") {
      |       }
      |     }
      |   }
-     |   user.sessions ⇒ {
-     |     pre ⇒ {
+     |   user.sessions => {
+     |     pre => {
      |       $analysisName.$frameName.'weekTicks' = weekTicks(3)
      |       insert($analysisName.$frameName)
      |     }

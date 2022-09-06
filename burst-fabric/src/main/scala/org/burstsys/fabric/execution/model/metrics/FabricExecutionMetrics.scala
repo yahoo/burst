@@ -231,8 +231,8 @@ class FabricExecutionMetricsContext() extends FabricExecutionMetrics with KryoSe
                     limited: Long, overflowed: Long, compileTime: Long, cacheHits: Long): FabricExecutionMetrics = {
     this._scanTime = scanTime
     this._scanWork = scanWork
-    this._scanTimeSkew = scanTimeSkew
-    this._scanWorkSkew = scanWorkSkew
+    this._scanTimeSkew = scanTimeSkew.toDouble
+    this._scanWorkSkew = scanWorkSkew.toDouble
 
     this._queryCount = queryCount
     this._rowCount = rowCount

@@ -34,8 +34,8 @@ object HydraUnityRoute02Query extends HydraUseCase(200, 200, "unity") {
        |      }
        |    }
        |  }
-       |  user.sessions ⇒ {
-       |    pre ⇒ {
+       |  user.sessions => {
+       |    pre => {
        |       if(routeFsmAssertTime( $analysisName.frame2, 1, now() ) ){
        |         insert($analysisName.$frameName)
        |       }

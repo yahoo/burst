@@ -26,8 +26,8 @@ object HydraQuoParameters01 extends HydraUseCase(1, 1, "quo", executionCount = 1
        |        }
        |      }
        |    }
-       |    user.sessions.events.parameters ⇒ {
-       |      situ ⇒ {
+       |    user.sessions.events.parameters => {
+       |      situ => {
        |        if( key(user.sessions.events.parameters) == p1) {
        |          $analysisName.$frameName.hitCount = 1
        |        } else {

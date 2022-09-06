@@ -10,7 +10,7 @@ import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.{ClassTag, _}
 
 /**

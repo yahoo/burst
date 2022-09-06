@@ -24,8 +24,8 @@ object HydraUnityCase13 extends HydraUseCase(domain = 200, view = 200, schemaNam
             }
           }
 
-          user.sessions.events ⇒ {
-            pre ⇒ {
+          user.sessions.events => {
+            pre => {
               $analysisName.$frameName.eventId = user.sessions.events.id
               $analysisName.$frameName.eventFrequency = 1
             }

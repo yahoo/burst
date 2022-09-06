@@ -57,7 +57,7 @@ trait AgentCacheOps extends FabricCacheOps with AgentService {
       TeslaRequestFuture(parameters.map(_.map(fabricToThriftCacheParameter))) chainWithFuture { params =>
         apiClient.cacheOperation(Some(guid), operation, generationKey, params)
       } map { result =>
-        result.generations.map(_.map(thriftToFabricCacheGeneration))
+        result.generations.map(_.toSeq.map(thriftToFabricCacheGeneration))
           .getOrElse(Seq.empty[FabricGeneration])
       }
     }

@@ -38,17 +38,17 @@ object HydraUnityBug07 extends HydraUseCase(100, 200, "unity") {
         |				'dashboard':verbatim[byte]
         |			}
         |		}
-        |		user ⇒ {
-        |			pre ⇒ 			{
+        |		user => {
+        |			pre => 			{
         |				$analysisName.$frameName.day = 1
         |				$analysisName.$frameName.dashboard = 1
         |			}
-        |			post ⇒ 			{
+        |			post => 			{
         |				$analysisName.$frameName.userCount = 1
         |			}
         |		}
-        |		user.sessions.events ⇒ {
-        |			post ⇒ 			{
+        |		user.sessions.events => {
+        |			post => 			{
         |				$analysisName.$frameName.eventCount = 1
         |			}
         |		}

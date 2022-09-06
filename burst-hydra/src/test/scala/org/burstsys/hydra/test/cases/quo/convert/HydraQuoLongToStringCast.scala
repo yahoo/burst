@@ -19,8 +19,8 @@ object HydraQuoLongToStringCast extends HydraUseCase(1, 1, "quo") {
        |        'cast':verbatim[string]
        |      }
        |    }
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        $analysisName.$frameName.'cast' = cast( user.sessions.events.eventId as string )
        |        insert( $analysisName.$frameName )
        |      }

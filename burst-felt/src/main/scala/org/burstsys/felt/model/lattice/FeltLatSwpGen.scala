@@ -124,11 +124,11 @@ class FeltLatticeSweepGeneratorContext(
         |${I}def rootSplice($schemaRuntimeSym: $feltRuntimeClass, path:Int, placement: Int): Unit = {
         |${sweepRuntimeClassVal(global)(cursor indentRight 1)}
         |${I2}placement match {
-        |${I3}case ${FeltTraverseCommencePlace.key} ⇒ // $FeltTraverseCommencePlace
+        |${I3}case ${FeltTraverseCommencePlace.key} => // $FeltTraverseCommencePlace
         |${generateSpliceCallForPlace(Array(brioSchema.rootNode), FeltTraverseCommencePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltTraverseCompletePlace.key} ⇒ // $FeltTraverseCompletePlace
+        |${I3}case ${FeltTraverseCompletePlace.key} => // $FeltTraverseCompletePlace
         |${generateSpliceCallForPlace(Array(brioSchema.rootNode), FeltTraverseCompletePlace)(cursor indentRight 3)}
-        |${I3}case _ ⇒
+        |${I3}case _ =>
         |$I2}
         |$I}""".stripMargin
 

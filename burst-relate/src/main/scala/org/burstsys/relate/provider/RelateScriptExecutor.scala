@@ -17,7 +17,7 @@ trait RelateScriptExecutor extends AnyRef with RelateService {
     connection localTx {
       implicit session =>
         val builder = new StringBuilder
-        Predef.augmentString(source).lines foreach (executeLine(builder, _, translateEscapes))
+        Predef.augmentString(source).linesIterator foreach (executeLine(builder, _, translateEscapes))
         val remainder = builder.result().trim
         if (!remainder.isEmpty)
           throw new RuntimeException(s"SQL: script not terminated by semicolon - remainder '$remainder'")

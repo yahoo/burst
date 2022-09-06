@@ -12,7 +12,7 @@ import scala.language.postfixOps
   */
 private[samplestore] final case
 class SampleStoreApiClient(service: SampleStoreApiService)
-  extends BurstApiClient[BurstSampleStoreApiService.FutureIface] with SampleStoreApi {
+  extends BurstApiClient[BurstSampleStoreApiService.MethodPerEndpoint] with SampleStoreApi {
 
   override
   def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[BurstSampleStoreApiViewGenerator] = {

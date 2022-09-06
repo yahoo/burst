@@ -22,8 +22,8 @@ object HydraQuoNulls01 extends HydraUseCase(1, 1, "quo") {
         |      'notNullcount':sum[long]
         |   }
         | }
-        | user ⇒ {
-        |     pre ⇒ {
+        | user => {
+        |     pre => {
         |       val lv1:boolean = user.flurryId == null
         |       val lv2:boolean = user.flurryId != null
         |       if( lv1) {

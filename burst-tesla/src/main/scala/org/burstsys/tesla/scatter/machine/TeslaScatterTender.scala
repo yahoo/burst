@@ -52,7 +52,7 @@ trait TeslaScatterTender extends AnyRef {
 
   private def cleanupOverdueZombies(): Unit = {
     val now = System.nanoTime
-    _zombieSlots.retain((_, slot) => {
+    _zombieSlots.filterInPlace((_, slot) => {
       val request = slot.request
       val elapsed = now - slot.lastUpdateNanos
       var stillWaiting = false

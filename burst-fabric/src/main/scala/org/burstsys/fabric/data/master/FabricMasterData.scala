@@ -19,7 +19,7 @@ import org.burstsys.vitals.uid._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import org.burstsys.vitals.logging._
 
 import scala.concurrent.Future

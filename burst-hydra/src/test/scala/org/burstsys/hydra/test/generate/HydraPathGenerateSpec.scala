@@ -5,9 +5,6 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.hydra.test.support.HydraSpecSupport
 import org.scalatest.Ignore
 
-/**
-  * ← ⇒
-  */
 //@Ignore
 class HydraPathGenerateSpec extends HydraSpecSupport {
 

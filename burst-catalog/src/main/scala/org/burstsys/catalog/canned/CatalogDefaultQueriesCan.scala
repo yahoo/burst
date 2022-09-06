@@ -34,26 +34,26 @@ final class CatalogDefaultQueriesCan extends CatalogCan {
            |      }
            |    }
            |
-           |    user ⇒ {
-           |        pre ⇒ {
+           |    user => {
+           |        pre => {
            |          default.userCount = 1
            |        }
            |    }
            |
-           |    user.sessions ⇒ {
-           |       pre ⇒ {
+           |    user.sessions => {
+           |       pre => {
            |          default.sessionCount = 1
            |        }
            |    }
            |
-           |    user.sessions.events ⇒ {
-           |      pre ⇒ {
+           |    user.sessions.events => {
+           |      pre => {
            |          default.eventCount = 1
            |      }
            |    }
            |
-           |    user.sessions.events.parameters ⇒ {
-           |      situ  ⇒ {
+           |    user.sessions.events.parameters => {
+           |      situ  => {
            |          default.eventParameterCount = 1
            |        }
            |      }

@@ -37,8 +37,8 @@ object HydraQuoSubCubes00 extends HydraUseCase(10, 10, "quo") {
             }
           }
         }
-        user.sessions.events.parameters ⇒ {
-          situ ⇒ {
+        user.sessions.events.parameters => {
+          situ => {
             $analysisName.$frameName.eventId = user.sessions.events.eventId
             $analysisName.$frameName.eventParameterKey = key(user.sessions.events.parameters)
             $analysisName.$frameName.eventParameterFrequency = 1

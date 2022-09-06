@@ -23,8 +23,8 @@ object HydraQuoSplits01 extends HydraUseCase(1, 1, "quo") {
        |      }
        |    }
        |
-       |    user.sessions.events ⇒ {
-       |      pre ⇒ {
+       |    user.sessions.events => {
+       |      pre => {
        |        $analysisName.$frameName.d1 = split(1, 2, 3, 5)
        |      }
        |    }

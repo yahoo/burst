@@ -4,7 +4,7 @@ package org.burstsys.vitals.test
 import org.burstsys.vitals.instrument.prettyTimeFromNanos
 import org.scalatest.Ignore
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Ignore
 class VitalsAsScalaVsStreamToArrayTest extends VitalsAbstractSpec {

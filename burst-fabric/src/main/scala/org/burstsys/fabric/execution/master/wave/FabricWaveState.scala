@@ -74,7 +74,7 @@ class FabricWaveStateContext(scatter: TeslaScatter) extends FabricWaveState {
   val _sliceMetrics: ArrayBuffer[FabricGatherMetrics] = new ArrayBuffer[FabricGatherMetrics]
 
   private[this]
-  val _promise = Promise[FabricGather]
+  val _promise = Promise[FabricGather]()
 
   // this variable is ever accessed, but that's ok
   private[this]

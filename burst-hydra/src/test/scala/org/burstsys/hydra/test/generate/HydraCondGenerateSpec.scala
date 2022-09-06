@@ -4,9 +4,6 @@ package org.burstsys.hydra.test.generate
 import org.burstsys.felt.model.FeltException
 import org.burstsys.hydra.test.support.HydraSpecSupport
 
-/**
-  * ← ⇒
-  */
 //@it
 class HydraCondGenerateSpec extends HydraSpecSupport {
 

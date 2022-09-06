@@ -69,7 +69,11 @@ package object hose extends VitalsLogger with FabricRegionInflator {
     /**
      * @return the ratio of inflated to deflated bytes processed
      */
-    final def compressionRatio: Double = if(deflatedByteCount==0) 0 else inflatedByteCount / deflatedByteCount
+    final def compressionRatio: Double =
+      if(deflatedByteCount==0)
+        0.0
+      else
+        inflatedByteCount.toDouble / deflatedByteCount
 
     def sprayMetrics: String =
       s"""|   parcelCount=$parcelCount (${prettySizeString(parcelCount)})

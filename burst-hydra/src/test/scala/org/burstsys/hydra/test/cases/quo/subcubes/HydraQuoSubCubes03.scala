@@ -33,8 +33,8 @@ object HydraQuoSubCubes03 extends HydraUseCase(1, 1, "quo") {
                 }
               }
             }
-            user ⇒ {
-              pre ⇒ {
+            user => {
+              pre => {
                 $analysisName.$frameName.deviceModel = user.deviceModelId
                 $analysisName.$frameName.userCount = 1
               }

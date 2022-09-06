@@ -7,8 +7,6 @@ import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging.{VitalsLogger, _}
 import org.burstsys.vitals.reflection
 
-import scala.collection.JavaConverters._
-
 package object provider extends VitalsLogger {
 
   /**
@@ -51,7 +49,7 @@ package object provider extends VitalsLogger {
   private
   lazy val schemaProviders: Array[BrioSchemaProvider[_]] = {
     val scannedClasses = reflection.getSubTypesOf(classOf[BrioSchemaProvider[_]])
-    scannedClasses.asScala.map(_.getDeclaredConstructor().newInstance()).toArray
+    scannedClasses.map(_.getDeclaredConstructor().newInstance()).toArray
   }
 
   private[this]
@@ -68,7 +66,7 @@ package object provider extends VitalsLogger {
         provider =>
           try {
             log info s"BRIO_SCHEMA_PROVIDER_LOAD: $provider"
-            registerBrioSchema(this.getClass, provider.schemaResourcePath, provider.names: _*)
+            registerBrioSchema(this.getClass, provider.schemaResourcePath, provider.names.toIndexedSeq: _*)
           } catch safely {
             case t: Throwable =>
               log error burstStdMsg(s"BRIO_SCHEMA_PROVIDER_LOAD_FAIL provider='$provider' $t", t)

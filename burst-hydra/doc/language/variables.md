@@ -38,11 +38,11 @@ the beginning of the query.
     
 ###### Visit Scope Variables
 
-    user ⇒ {
+    user => {
     
       var visit_variable1:string = "hello"
       
-      pre ⇒ {
+      pre => {
         ...
 
 
@@ -50,7 +50,7 @@ These variables are visible anywhere within an individual `visit`. They are init
 the beginning of __each scalar or vector member iteration__ in the visit.
     
 ###### Action Scope Variables
-          pre ⇒ {
+          pre => {
           
             val action_variable1:byte = 0x5
             

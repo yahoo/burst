@@ -34,16 +34,16 @@ type conversions are supported.
 ###### Examples
 
     user.sessions.startTime match {
-      case "hello" ⇒ {
+      case "hello" => {
         ... // expression block
       }
-      case 4 + 5 ⇒ {
+      case 4 + 5 => {
         ... // expression block
       }
-      case null ⇒ {
+      case null => {
         ... // expression block
       }
-      case _ ⇒ {
+      case _ => {
         ... // expression block
       }
     }

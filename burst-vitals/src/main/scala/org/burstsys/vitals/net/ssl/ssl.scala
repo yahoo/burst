@@ -8,7 +8,7 @@ import java.security.{DigestInputStream, MessageDigest}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.errors._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object ssl extends VitalsLogger {
 

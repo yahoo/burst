@@ -41,19 +41,19 @@ trait FeltLatRefScalSwpGen {
         |${I}def referenceScalarSplice($schemaRuntimeSym: $feltRuntimeClass, path: Int, placement: Int): Unit = {
         |${sweepRuntimeClassVal(global)(cursor indentRight 1)}
         |${I2}placement match {
-        |${I3}case ${FeltInstanceAllocPlace.key} ⇒ // $FeltInstanceAllocPlace
+        |${I3}case ${FeltInstanceAllocPlace.key} => // $FeltInstanceAllocPlace
         |${generateSpliceCallForPlace(referenceScalarNodes, FeltInstanceAllocPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltInstancePrePlace.key} ⇒ // $FeltInstancePrePlace
+        |${I3}case ${FeltInstancePrePlace.key} => // $FeltInstancePrePlace
         |${generateSpliceCallForPlace(referenceScalarNodes, FeltInstancePrePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltChildMergePlace.key} ⇒ // $FeltChildMergePlace
+        |${I3}case ${FeltChildMergePlace.key} => // $FeltChildMergePlace
         |${generateSpliceCallForPlace(referenceScalarNodes, FeltChildMergePlace)(cursor indentRight 3)}
-        |${I3}case ${FeltInstancePostPlace.key} ⇒ // $FeltInstancePostPlace
+        |${I3}case ${FeltInstancePostPlace.key} => // $FeltInstancePostPlace
         |${generateSpliceCallForPlace(referenceScalarNodes, FeltInstancePostPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltChildJoinPlace.key} ⇒ // $FeltChildJoinPlace
+        |${I3}case ${FeltChildJoinPlace.key} => // $FeltChildJoinPlace
         |${generateSpliceCallForPlace(referenceScalarNodes, FeltChildJoinPlace)(cursor indentRight 3)}
-        |${I3}case ${FeltInstanceFreePlace.key} ⇒ // $FeltInstanceFreePlace
+        |${I3}case ${FeltInstanceFreePlace.key} => // $FeltInstanceFreePlace
         |${generateSpliceCallForPlace(referenceScalarNodes, FeltInstanceFreePlace)(cursor indentRight 3)}
-        |${I3}case _ ⇒
+        |${I3}case _ =>
         |$I2}
         |$I}""".stripMargin
   }
