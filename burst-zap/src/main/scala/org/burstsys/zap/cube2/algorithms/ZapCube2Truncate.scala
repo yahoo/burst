@@ -44,11 +44,6 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
   @inline final override
   def truncateToBottomKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: Int, aggregation: Int): Unit = {
 
-    // zero out the bucket list
-    resetBuckets()
-
-    initializeLinks()
-
     // reverse sort the entire row set
     sortRowsAscending(aggregation, 0, rowsCount - 1)
 
@@ -56,7 +51,7 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
     truncateRows(k)
 
     // now set up the buckets correctly for these rows.
-    wireSubsetRowsIntoBuckets()
+    rebuildBuckets()
 
     // we do not need to worry about row resizing here since we only make things smaller...
 
@@ -65,11 +60,6 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
   @inline final override
   def truncateToTopKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: Int, aggregation: Int): Unit = {
 
-    // zero out the bucket list
-    resetBuckets()
-
-    initializeLinks()
-
     // reverse sort the entire row set
     sortRowsDescending(aggregation, 0, rowsCount - 1)
 
@@ -77,69 +67,11 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
     truncateRows(k)
 
     // now set up the buckets correctly for these rows.
-    wireSubsetRowsIntoBuckets()
+    rebuildBuckets()
 
     // we do not need to worry about row resizing here since we only make things smaller...
 
   }
-
-  /**
-   * Take the existing rows and wire them up into the correct buckets
-   * and bucket lists.
-   *
-   */
-  @inline private
-  def wireSubsetRowsIntoBuckets(): Unit = {
-    // link the first K rows into the bucket lists.
-    var i = 0
-    while (i < rowsCount) {
-      val r = row(i)
-      // start out with this the end of any list
-      r.link = EmptyLink
-
-      // get a key to use
-      val key = pivot
-      resetPivot()
-
-      // and set its dimensions
-      var d = 0
-      while (d < dimCount) {
-        if (!r.dimIsNull(d)) key.dimWrite(d, r.dimRead(d))
-        d += 1
-      }
-
-      // now using that key, find the correct bucket and add our row in
-      val index = key.bucketIndex(bucketsCount)
-      bucketRead(index) match {
-
-        // no rows in bucket yet - we put ours into the bucket and we are done
-        case EmptyBucket =>
-          bucketWrite(index = index, offset = rowOffset(r))
-
-        // we have at least one row in bucket list - scan through to the end and links ours there...
-        case headOffset =>
-          var currentRow = ZapCube2Row(this, headOffset)
-          while (!currentRow.isListEnd) currentRow = ZapCube2Row(this, currentRow.link)
-          // no match in bucket list, create a new matching one and link at end of currentRow
-          currentRow.link = rowOffset(r)
-      }
-      i += 1
-    }
-  }
-
-  /**
-   * we want to clear out any previous row linkages since we are about to
-   * invalidate the whole bucket list reference system.
-   */
-  @inline private
-  def initializeLinks(): Unit = {
-    var i = 0
-    while (i < rowsCount) {
-      row(i).link = EmptyLink
-      i += 1
-    }
-  }
-
 
   /**
    * forward quicksort a cubes rows
@@ -181,23 +113,30 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
 
     while (true) {
       do i += 1 while (
-        if (ascending) row(i).aggRead(aggIndex) < pivotValue
-        else row(i).aggRead(aggIndex) > pivotValue
+        if (ascending)
+          row(i).aggRead(aggIndex) < pivotValue
+        else
+          row(i).aggRead(aggIndex) > pivotValue
       )
       do j -= 1 while (
-        if (ascending) row(j).aggRead(aggIndex) > pivotValue
-        else row(j).aggRead(aggIndex) < pivotValue
+        if (ascending)
+          row(j).aggRead(aggIndex) > pivotValue
+        else
+          row(j).aggRead(aggIndex) < pivotValue
       )
 
-      if (i >= j) return j
-      else swap(i, j)
+      if (i >= j)
+        return j
+      else
+        swap(i, j)
     }
     throw new IllegalStateException("Cube partition failed!")
   }
 
   // swap two rows field by field
   private def swap(left: Int, right: Int): Unit = {
-    if (left == right) return
+    if (left == right)
+      return
 
     // swap one by one each field in the left row with the same field in the right row
     val leftRow = row(left)
@@ -213,8 +152,15 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
       val leftValue = leftRow.dimRead(d)
       val rightValue = rightRow.dimRead(d)
 
-      if (rightIsNull) leftRow.dimSetNull(d) else leftRow.dimWrite(d, rightValue)
-      if (leftIsNull) rightRow.dimSetNull(d) else rightRow.dimWrite(d, leftValue)
+      if (rightIsNull)
+        leftRow.dimSetNull(d)
+      else
+        leftRow.dimWrite(d, rightValue)
+
+      if (leftIsNull)
+        rightRow.dimSetNull(d)
+      else
+        rightRow.dimWrite(d, leftValue)
 
       d += 1
     }
@@ -222,15 +168,20 @@ trait ZapCube2Truncate extends Any with ZapCube2State {
     // swap aggregations
     var a = 0
     while (a < aggCount) {
-
       val leftIsNull = leftRow.aggIsNull(a)
       val rightIsNull = rightRow.aggIsNull(a)
 
       val leftValue = leftRow.aggRead(a)
       val rightValue = rightRow.aggRead(a)
 
-      if (rightIsNull) leftRow.aggSetNull(a) else leftRow.aggWrite(a, rightValue)
-      if (leftIsNull) rightRow.aggSetNull(a) else rightRow.aggWrite(a, leftValue)
+      if (rightIsNull)
+        leftRow.aggSetNull(a)
+      else
+        leftRow.aggWrite(a, rightValue)
+      if (leftIsNull)
+        rightRow.aggSetNull(a)
+      else
+        rightRow.aggWrite(a, leftValue)
 
       a += 1
     }

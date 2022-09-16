@@ -28,9 +28,9 @@ class EqlDimensionOnlyCubeQuerySpec extends EqlAlloyTestRunner {
       val names = result.resultSets(0).columnNames.zipWithIndex.toMap
       val r = result.resultSets(0).rowSet.map {
         row => row(names("id")).asString
-      }
+      }.sorted
 
-      r should equal(Array("EK1", "EK2", "EK3", "EK4", "EK5", "EK6", "EK7") )
+       r should equal(Array("EK1", "EK2", "EK3", "EK4", "EK5", "EK6", "EK7") )
     })
   }
 
@@ -151,5 +151,4 @@ class EqlDimensionOnlyCubeQuerySpec extends EqlAlloyTestRunner {
         (9,"SK7","EK7")))
     })
   }
-
 }

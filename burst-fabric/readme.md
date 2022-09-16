@@ -12,7 +12,7 @@ ecosystem.
 * [Metadata](src/main/scala/org/burstsys/fabric/metadata/readme.md) -- Data about Data
 * [Data](src/main/scala/org/burstsys/fabric/data/readme.md)        -- Data
 * [Execution](src/main/scala/org/burstsys/fabric/execution/readme.md)   -- the execution pipeline
-* [Network](src/main/scala/org/burstsys/fabric/network/readme.md)      -- fabric's master/worker network protocol
+* [Network](src/main/scala/org/burstsys/fabric/net/readme.md)      -- fabric's master/worker network protocol
 * [Configuration](src/main/scala/org/burstsys/fabric/configuration/readme.md)     -- customizing/optimizing
 * [Container](src/main/scala/org/burstsys/fabric/container/readme.md)
 

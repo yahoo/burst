@@ -20,6 +20,7 @@ derby.log
 !/burst-motif/src/test/java/com/flurry/burst/motif/test/MotifJsonSpec.java
 # stack dump logs
 hs_err_pid*.log
+replay_pid*.log
 
 **/*/dependency-reduced-pom.xml
 */dependency-reduced-pom.xml

@@ -13,6 +13,10 @@ trait TeslaPartBuilder extends Any {
 
   def multiplier: Double = 2
 
-  final def chooseSize(size: TeslaMemorySize): TeslaMemorySize =
-    if (size == teslaBuilderUseDefaultSize) defaultStartSize else size
+  final def chooseSize(size: TeslaMemorySize): TeslaMemorySize = {
+    if (size == teslaBuilderUseDefaultSize)
+      defaultStartSize
+    else
+      size
+  }
 }

@@ -6,17 +6,15 @@ import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.block.factory.TeslaBlockSizes
 import org.burstsys.tesla.part.factory.TeslaPartFactory
 import org.burstsys.tesla.pool._
-import org.burstsys.vitals.errors.{VitalsException, _}
-import org.burstsys.vitals.logging._
 
 package object factory extends TeslaPartFactory[ZapTablet, ZapTabletPool] with ZapTabletShop {
 
   startPartTender
 
   final override
-  def grabZapTablet(builder: FeltTabletBuilder): ZapTablet = {
-    val bs = TeslaBlockSizes findBlockSize builder.requiredMemorySize
-    val tablet = perThreadPartPool(bs) grabZapTablet builder
+  def grabZapTablet(builder: FeltTabletBuilder, startSize: TeslaMemorySize): ZapTablet = {
+    val bs = TeslaBlockSizes findBlockSize startSize
+    val tablet = perThreadPartPool(bs).grabZapTablet(builder, startSize)
     tablet.validateAndIncrementReferenceCount()
     tablet
   }

@@ -4,6 +4,7 @@ package org.burstsys.felt.model.collectors.cube.runtime
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorBuilder
 import org.burstsys.felt.model.sweep.FeltSweepComponent
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 
 /**
  * The per blob traversal runtime data passed to the top level apply
@@ -18,8 +19,8 @@ trait FeltCubeSweep extends Any with FeltSweepComponent with FeltCubeFactory {
    */
   def collectorBuilders: Array[_ <: FeltCollectorBuilder]
 
-  final override def grabCollector(builder: FeltCubeBuilder): FeltCubeCollector =
-    feltBinding.collectors.cubes.grabCollector(builder)
+  final override def grabCollector(builder: FeltCubeBuilder, desiredSize: TeslaMemorySize): FeltCubeCollector =
+    feltBinding.collectors.cubes.grabCollector(builder, desiredSize)
 
   final override def releaseCollector(collector: FeltCubeCollector): Unit =
     feltBinding.collectors.cubes.releaseCollector(collector)

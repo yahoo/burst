@@ -37,6 +37,7 @@ class FeltRouteStepsVisitableSplicer(refName: FeltPathExpr) extends FeltVisitabl
       s"""|
           |${C("START of route steps iteration")}
           |${I1}$routeInstance.$backFillCall ;
+          |${I1}$routeInstance.startIteration ;
           |${I1}var i = 0;
           |${I1}val entryCount = $routeInstance.routeStepCount;
           |${I1}while ($routeInstance.firstOrNextIterable) {
@@ -71,9 +72,7 @@ class FeltRouteStepsVisitableSplicer(refName: FeltPathExpr) extends FeltVisitabl
     implicit cursor => {
       val routeInstance = s"$sweepRuntimeSym.${routeDecl.reference.instanceVariable}"
       s"""|
-          |${C("make ready for another use on this route")}
-          |$I//$routeInstance.reset ; // Reset shouldn't happen here, but on entry of route scope""".stripMargin
-      //TODO this requires major rethinking of scoping of routes
+          |${C("make ready for another use on this route")}""".stripMargin
     }
   }
 

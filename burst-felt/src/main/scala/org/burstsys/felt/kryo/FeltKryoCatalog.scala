@@ -14,7 +14,7 @@ import org.burstsys.felt.model.collectors.cube.decl.column.dimension.datetime.gr
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.datetime.ordinal._
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.verbatim.{FeltCubeDimVerbatimSemRt, VERBATIM_DIMENSION_SEMANTIC}
 import org.burstsys.felt.model.collectors.cube.plane.FeltCubePlaneContext
-import org.burstsys.felt.model.collectors.cube.runtime.FeltCubeOrdinalMap
+import org.burstsys.felt.model.collectors.cube.runtime.{FeltCubeOrdinalMap, FeltCubeTreeMask}
 import org.burstsys.felt.model.collectors.route.decl.graph.{FeltRouteEdge, FeltRouteTransition}
 import org.burstsys.felt.model.collectors.route.plane.FeltRoutePlaneContext
 import org.burstsys.felt.model.collectors.shrub.plane.FeltShrubPlaneContext

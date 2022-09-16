@@ -3,6 +3,7 @@ package org.burstsys.zap.tablet
 
 import org.burstsys.felt.model.collectors.tablet.decl.FeltTabletDecl
 import org.burstsys.felt.model.collectors.tablet.{FeltTabletBuilder, FeltTabletCollector, FeltTabletPlan, FeltTabletProvider}
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.zap.tablet
 
 final case
@@ -15,7 +16,7 @@ class ZapTabletProvider() extends FeltTabletProvider {
 
   override def collectorPlan(decl: FeltTabletDecl): FeltTabletPlan = ZapTabletPlan(decl)
 
-  override def grabCollector(builder: FeltTabletBuilder): FeltTabletCollector =
+  override def grabCollector(builder: FeltTabletBuilder, desiredSize: TeslaMemorySize): FeltTabletCollector =
     tablet.factory.grabZapTablet(builder.asInstanceOf[ZapTabletBuilder])
 
   override def releaseCollector(collector: FeltTabletCollector): Unit =

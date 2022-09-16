@@ -3,6 +3,7 @@ package org.burstsys.hydra.test.cases.quo.valuemaps
 
 import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
 import org.burstsys.hydra.test.cases.quo.parameters.HydraQuoParameters01.{analysisName, frameName}
+import org.burstsys.hydra.test.cases.quo.valuemaps.HydraQuoValueMap04.{assertLimits, frameName}
 import org.burstsys.hydra.test.cases.support.HydraUseCase
 
 /**
@@ -22,11 +23,11 @@ object HydraQuoValueMap02 extends HydraUseCase(10, 10, "quo") {
        |     cube user {
        |         limit = 100
        |         aggregates {
-       |            eventParameterFrequency:sum[long]
+       |            'eventParameterFrequency':sum[long]
        |         }
        |         cube user.sessions.events.parameters {
        |            dimensions {
-       |               eventParameterKey:verbatim[string]
+       |               'eventParameterKey':verbatim[string]
        |            }
        |         }
        |      }
@@ -47,6 +48,19 @@ object HydraQuoValueMap02 extends HydraUseCase(10, 10, "quo") {
        """.stripMargin
 
   override def validate(implicit result: FabricResultGroup): Unit = {
+    val r = result.resultSets(result.resultSetNames(frameName))
+    assertLimits(r)
+
+    result.resultSets.keys.size should be > 0
+
+    /*
+    val names = result.resultSets(0).columnNames.zipWithIndex.toMap
+    val found = result.resultSets(0).rowSet.map {
+      row => (row(names("eventParameterFrequency")).asLong, row(names("eventParameterKey")).asString)
+    }.sortBy(_._2)
+
+    found should equal(Array())
+    */
 
   }
 

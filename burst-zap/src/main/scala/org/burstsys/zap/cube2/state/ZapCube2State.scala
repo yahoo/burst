@@ -2,14 +2,17 @@
 package org.burstsys.zap.cube2.state
 
 import org.burstsys.brio.dictionary.flex.{BrioFlexDictionary, BrioFlexDictionaryAnyVal}
+import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.tesla
-import org.burstsys.tesla.TeslaTypes.{SizeOfLong, TeslaMemoryOffset, TeslaMemorySize}
+import org.burstsys.tesla.TeslaTypes.{SizeOfLong, TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
+import org.burstsys.tesla.block.TeslaBlockAnyVal
 import org.burstsys.tesla.offheap
 import org.burstsys.tesla.pool.{TeslaPoolId, TeslaPooledResource}
 import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.io.log
 import org.burstsys.zap.cube2.key.{ZapCube2Key, ZapCube2KeyAnyVal}
 import org.burstsys.zap.cube2.row.{ZapCube2Row, ZapCube2RowAnyVal, limitExceededMarkerRow}
-import org.burstsys.zap.cube2.{ZapCube2, ZapCube2Builder}
+import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AnyVal, ZapCube2Builder}
 
 /**
  * ==Off Heap G2 Cube State==
@@ -119,7 +122,13 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   def cursorUpdated: Boolean = offheap.getInt(basePtr + cursorUpdatedFieldOffset) != 0
 
   @inline final
-  def cursorUpdated_=(w: Boolean): Unit = offheap.putInt(basePtr + cursorUpdatedFieldOffset, if (w) 1 else 0)
+  def cursorUpdated_=(w: Boolean): Unit =
+    offheap.putInt(basePtr + cursorUpdatedFieldOffset,
+      if (w)
+        1
+      else
+        0
+    )
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // pivot start offset
@@ -186,10 +195,19 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def rowsLimited: Boolean = offheap.getInt(basePtr + rowsLimitedFieldOffset) != 0
+  def rowsLimited: Boolean =
+    offheap.getInt(basePtr + rowsLimitedFieldOffset) != 0
 
   @inline final
-  def rowsLimited_=(w: Boolean): Unit = offheap.putInt(basePtr + rowsLimitedFieldOffset, if (w) 1 else 0)
+  def rowsLimited_=(w: Boolean): Unit = {
+    offheap.putInt(
+      basePtr + rowsLimitedFieldOffset, {
+        if (w)
+          1
+        else
+          0
+      })
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // cursor row start field
@@ -244,7 +262,37 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
     offheap.putInt(basePtr + bucketsStart + (index * SizeOfLong), offset)
 
   @inline final
-  def resetBuckets(): Unit = tesla.offheap.setMemory(basePtr + bucketsStart, bucketsCount * SizeOfLong, 0)
+  def resetBuckets(): Unit =
+    tesla.offheap.setMemory(basePtr + bucketsStart, bucketsCount * SizeOfLong, 0)
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Cursor
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @inline final
+  def inheritCursorFrom(thatCube: ZapCube2): Unit =
+    cursor.importFrom(thatCube.cursor)
+
+  @inline final
+  def setCursorFrom(row: ZapCube2Row): Unit = {
+    // make sure we start with an unsullied cursor
+    resetCursor()
+    var d = 0
+    while (d < dimCount) {
+      if (!row.dimIsNull(d)) {
+        this.dimWrite(d, row.dimRead(d))
+      } else
+        this.dimSetNull(d)
+      d += 1
+    }
+  }
+
+  @inline final
+  def initCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = {
+    cursorUpdated = true
+    cursor.initialize(dimCount)
+    cursorRow = -1
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Row Management
@@ -264,7 +312,8 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
 
   @inline final override
   def row(index: Int): ZapCube2Row = {
-    if (index >= rowsCount) throw VitalsException(s"Row index out of bounds. index=$index rowCount=$rowCount")
+    if (index >= rowsCount)
+      throw VitalsException(s"Row index out of bounds. index=$index rowCount=$itemCount")
     ZapCube2RowAnyVal(basePtr + rowOffset(index))
   }
 
@@ -285,16 +334,43 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
 
   /**
    * import a too small ''source'' cube into the ''local'' cube as a destination
+   * This cube probably has more buckets then the source so we need to not just blindly block copy
+   * the source cube structure over to the target, but we do want to preserve as much relevant state as
+   * possible such as cursors, privots, row count,  rows etc.
    *
    * @param source
    * @param rows
    */
   @inline final
-  def importCube(source: ZapCube2, rows: Int): Unit = {
+  def importCube(source: ZapCube2AnyVal, rows: Int): Unit = {
+    assert(source.bucketsCount <= this.bucketsCount)
     val localPoolId = this.poolId
+    val localBucketStart = this.bucketsStart
+    val localBucketCount = this.bucketsCount
+    val localRowsStart = this.rowsStart
+    val localCursorStart = this.cursorStart
+    val localPivotStart = this.pivotStart
+
+    // shift everything over to new cube
     tesla.offheap.copyMemory(source.basePtr, this.basePtr, source.currentMemorySize)
     this.poolId = localPoolId
     this.rowsCount = rows
+
+    // make sure the same amount of space for buckets is allocated as before
+    if (source.cursorStart != localCursorStart) {
+      if (localBucketStart != this.bucketsStart)
+        assert(localBucketStart == this.bucketsStart)
+      val moveSize = this.rowsEnd -  this.cursorStart
+      tesla.offheap.copyMemory(this.basePtr+this.cursorStart, this.basePtr+localCursorStart, moveSize)
+      this.bucketsCount = localBucketCount
+      this.cursorStart = localCursorStart
+      this.pivotStart = localPivotStart
+      this.rowsStart = localRowsStart
+      this.rowsEnd = localCursorStart + moveSize
+      rebuildBuckets()
+      // rebuild buckets clobbers the cursor
+      this.cursor.importFrom(source.cursor)
+    }
     this.resizeCount = source.resizeCount + 1
     this.rowsLimited = false
   }
@@ -312,25 +388,25 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   @inline final
   def createNewRowFromKey(key: ZapCube2Key): ZapCube2Row = {
     val row = newRow
-    if (row == limitExceededMarkerRow) row else {
+    if (row != limitExceededMarkerRow) {
       row.initializeFromKey(key)
-      row
     }
+    row
   }
 
   @inline final
   def cloneRowFromRow(thatRow: ZapCube2Row): ZapCube2Row = {
     val row = newRow
-    if (row == limitExceededMarkerRow) row else {
+    if (row != limitExceededMarkerRow) {
       row.initializeFromRow(thatRow)
-      row
     }
+    row
   }
 
   @inline final private
   def newRow: ZapCube2Row = {
     val offset = rowOffset(rowsCount)
-    if (offset + rowSize > availableMemorySize) {
+    if (offset + rowSize >= availableMemorySize) {
       rowsLimited = true
       limitExceededMarkerRow
     } else {
@@ -349,6 +425,34 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
       r += 1
     }
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  // misc state
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Here is where we allocate both the bucket and row memory at the same time. This is __relocatable__ so we
+   * can export and import the compressed/inflated memory block over the network and still have all the
+   * wiring work.
+   */
+  final
+  def cubeDataStart: TeslaMemoryPtr = TeslaBlockAnyVal(blockPtr).dataStart
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Memory Read/Write -- all reads and writes go through here to manage relative address re-allocation of memory
+  // everything else is offsets from the start of the memory block
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @inline private[zap] final
+  def putLong(offset: TeslaMemoryPtr, value: Long): Unit = {
+    tesla.offheap.putLong(cubeDataStart + offset, value)
+  }
+
+  @inline private[zap] final
+  def getLong(offset: TeslaMemoryPtr): Long = {
+    tesla.offheap.getLong(cubeDataStart + offset)
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -371,21 +475,14 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
     val keySize = byteSize(builder.dimensionCount)
     dimCount = builder.dimensionCount
     aggCount = builder.aggregationCount
-    rowsLimited = false
-    rowsCount = 0
-    resizeCount = 0
     rowSize = ZapCube2Row.byteSize(builder.dimensionCount, builder.aggregationCount)
-    bucketsCount = builder.bucketCount
+    bucketsCount = builder.bucketCount((availableMemorySize - endOfFixedSizeHeader)/rowSize)
     bucketsStart = endOfFixedSizeHeader
-    resetBuckets()
-    cursorUpdated = true
     cursorStart = bucketsStart + (bucketsCount * SizeOfLong)
-    resetCursor()
     pivotStart = cursorStart + keySize
-    resetPivot()
     rowsStart = pivotStart + keySize
-    rowsEnd = rowsStart
-    resetDirtyRows()
+
+    clear()
   }
 
   @inline final override
@@ -399,6 +496,100 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
     resetPivot()
     rowsEnd = rowsStart
     resetDirtyRows()
+    dictionary = org.burstsys.brio.dictionary.flex.NullFlexDictionary
+  }
+
+  ////////////////// Bucket Maintenance /////////////////////////
+  /**
+   * Take the existing rows and wire them up into the correct buckets
+   * and bucket lists.
+   *
+   */
+  @inline
+  def rebuildBuckets(): Unit = {
+    // zero out the bucket list
+    resetBuckets()
+
+    // link the rows into the bucket lists.
+    var rc = 0
+    while (rc < rowsCount) {
+      val currentRow = row(rc)
+      // start out with this the end of any list
+      currentRow.link = EmptyLink
+
+      // put the row in the bucket
+      setCursorFrom(currentRow)
+      val index = cursor.bucketIndex(bucketsCount)
+
+      // and see whats in the associated bucket list
+      bucketRead(index) match {
+        // no rows in bucket yet - we create new matching one, add to bucket and return
+        case EmptyBucket =>
+          // update bucket with a valid first row in list
+          bucketWrite(index, rowOffset(rc))
+        case firstRowOffset =>
+          currentRow.link = firstRowOffset
+          bucketWrite(index, rowOffset(rc))
+      }
+      rc += 1
+    }
+  }
+
+  /////// Validation /////
+  override
+  def validate(): Boolean = {
+    var valid: Boolean = true
+
+    // does the allocated row count fit in the cube
+    if (rowOffset(rowsCount) >= availableMemorySize) {
+      log warn s"validation cube $basePtr rows exceed available memory size"
+      valid = false
+    }
+
+    // check the buckets and count the reachable rows
+    var validatedRowCount = 0
+    for (i <- 0 until this.bucketsCount) {
+      var bucketPtr = this.bucketRead(i)
+      while (bucketPtr != EmptyBucket) {
+         validatedRowCount += 1
+        val b = ZapCube2RowAnyVal(basePtr+bucketPtr)
+        if (b.link != EmptyLink) {
+          if (b.link < rowsStart || b.link > (rowsStart + (rowSize * rowsCount))) {
+            log warn s"validation cube $basePtr bad link at bucket $i and row $bucketPtr"
+            valid = false
+          }
+        }
+
+        if (b.isListEnd)
+          bucketPtr = EmptyBucket
+        else
+          bucketPtr = b.link
+      }
+    }
+
+    // do the reachable rows agree with the total rows
+    if (this.rowsCount != validatedRowCount) {
+      log warn s"validation cube $basePtr declared row count ${this.rowsCount} doesn't match validated block accessible row count ${validatedRowCount}"
+      valid = false
+    }
+    // do the start and end markers agree with the count
+    if ((this.rowsEnd-this.rowsStart)/this.rowSize != this.rowsCount) {
+      val allocCount = (this.rowsEnd-this.rowsStart)/this.rowSize
+      log warn s"validation cube $basePtr allocated row block count ${allocCount} doesn't match declared row count ${this.rowsCount}"
+      valid = false
+    }
+
+    if (!valid)
+      log warn s"validation fails for cube $basePtr"
+    valid
+  }
+
+  def validateRow(row: ZapCube2Row): Boolean = {
+    val valid = ((this.basePtr + this.availableMemorySize) > row.basePtr) && (row.basePtr > this.basePtr)
+    if (!valid) {
+      log warn s"invalid row ${row.basePtr} for cube ${this.basePtr} "
+    }
+    valid
   }
 
 }

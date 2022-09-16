@@ -2,7 +2,6 @@
 package org.burstsys.fabric.execution.worker
 
 import java.util.concurrent.ArrayBlockingQueue
-
 import org.burstsys.brio.blob.BrioBlob.BrioRegionIterator
 import org.burstsys.fabric.execution.model.gather.FabricGather
 import org.burstsys.fabric.execution.model.gather.control.FabricFaultGather
@@ -172,7 +171,8 @@ trait FabricWorkerScanner extends Any {
       regionIndex += 1
     }
     // return appropriate type of gather
-    if (finalRegionsInSliceResult == null) finalRegionsInSliceResult = FabricEmptyGather(self)
+    if (finalRegionsInSliceResult == null)
+      finalRegionsInSliceResult = FabricEmptyGather(self)
 
     finalRegionsInSliceResult
   }

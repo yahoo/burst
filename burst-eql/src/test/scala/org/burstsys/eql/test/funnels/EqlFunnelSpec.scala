@@ -5,9 +5,9 @@ import org.burstsys.alloy.alloy.store.AlloyView
 import org.burstsys.alloy.alloy.views.AlloyJsonUseCaseViews.miniToAlloy
 import org.burstsys.alloy.views.UnitMiniView
 import org.burstsys.alloy.views.unity.UnityUseCaseViews.unitySchema
+import org.burstsys.brio.flurry.provider.unity._
 import org.burstsys.eql.test.support.EqlAlloyTestRunner
 import org.burstsys.hydra.runtime.StaticSweep
-import org.burstsys.brio.flurry.provider.unity._
 
 final
 class EqlFunnelSpec extends EqlAlloyTestRunner {
@@ -508,7 +508,16 @@ class EqlFunnelSpec extends EqlAlloyTestRunner {
     })
   }
 
-  ignore should "do funnel with cubed paths and steps" in {
+  /**
+   * This is disabled because
+   * 1) it's not clear that route.path iteration is working and
+   * 2) the route cursor isn't cleared so we can't really iterate two times through the route
+   * Some Solutions to try:
+   * 1) move EQL path iteration into a step iteration with special tests
+   * 2) reset the route cursor when we are done iterating it so we could iterate it again
+   */
+
+   it should "do funnel with cubed paths and steps" in {
     StaticSweep = null
     val source =
       """
@@ -532,7 +541,7 @@ class EqlFunnelSpec extends EqlAlloyTestRunner {
       val r = resultSet.rowSet.map {
         row => (row(names("number")).asLong, row(names("paths")).asLong, row(names("ids")).asLong)
       }.sortBy(_._3).sortBy(_._2)
-      r should equal(Array((2,2,0)))
+      r should equal(Array((2,6,1), (2,6,2), (2,6,3), (2,6,4)))
     })
   }
 

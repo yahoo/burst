@@ -40,6 +40,8 @@ package object flex extends VitalsLogger {
     coupler.grabFlexCollectorProxy(builder, startSize)
 
   final
+  val NullFlexDictionary = BrioFlexDictionaryAnyVal(org.burstsys.tesla.flex.emptySlotIndex)
+  final
   def releaseFlexDictionary(dictionary: BrioFlexDictionary): Unit = coupler.freeFlexCollectorProxy(dictionary)
 
 }

@@ -6,10 +6,12 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.felt.model.collectors.route.FeltRouteCollector
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
+import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.tesla.pool.TeslaPoolId
+import org.burstsys.zap.cube2.{ZapCube2, ZapCube2Builder}
 import org.burstsys.zap.route.course.ZapRouteCourseReader
 import org.burstsys.zap.route.machine.{ZapRouteMachine, ZapRouteRewriter}
-import org.burstsys.zap.route.state.ZapRouteState
+import org.burstsys.zap.route.state.{ZapRouteHeaderSize, ZapRouteJournalEntrySize, ZapRouteState}
 
 /**
  * ==memory layout==
@@ -30,7 +32,7 @@ import org.burstsys.zap.route.state.ZapRouteState
  * )
  * }}}
  */
-trait ZapRoute extends Any with FeltRouteCollector with TeslaBlockPart {
+trait ZapRoute extends Any with FeltRouteCollector with TeslaBlockPart with TeslaFlexCollector[ZapRouteBuilder, ZapRoute] {
 
   /**
    * This is for unit tests...
@@ -47,13 +49,7 @@ trait ZapRoute extends Any with FeltRouteCollector with TeslaBlockPart {
    */
   def initialize(id: TeslaPoolId): ZapRoute
 
-  /**
-   * initialize the route for reuse
-   *
-   * @return
-   */
-  def reset: ZapRoute
-
+  def printEntries: String
 }
 
 final case
@@ -62,20 +58,27 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
   with ZapRouteRewriter with Comparable[ZapRouteContext] {
 
   @inline override
-  def compareTo(o: ZapRouteContext): Int = blockBasePtr.compareTo(o.blockBasePtr)
+  def compareTo(o: ZapRouteContext): Int =
+    blockBasePtr.compareTo(o.blockBasePtr)
 
-  override def currentMemorySize: TeslaMemoryOffset = ??? // TODO
-
-  override def rowCount: TeslaPoolId = 0 // TODO what to do with these?
-
-  override def rowCount_=(count: TeslaPoolId): Unit = {
-    // TODO what to do with these?
+  override def currentMemorySize: TeslaMemoryOffset = {
+    // get the header and all the entries including the dirty
+    ZapRouteHeaderSize + dirtyCursor + ZapRouteJournalEntrySize
   }
 
-  override def rowLimited: Boolean = false // TODO what to do with these?
+  override def itemCount: Int = {
+    // the dirty cursor offset 0 from end of header
+    commitCursor/ZapRouteJournalEntrySize + 1
+  }
 
-  override def rowLimited_=(s: Boolean): Unit = {
-    // TODO what to do with these?
+  override def itemCount_=(count: TeslaPoolId): Unit = ???
+
+  override def itemLimited: Boolean = {
+    routeLimited
+  }
+
+  override def itemLimited_=(s: Boolean): Unit = {
+    routeLimited = s
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -90,4 +93,13 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
     // we do not serialize route results from worker to masters yet
   }
 
+
+  override def initialize(pId: TeslaPoolId, builder: ZapRouteBuilder): Unit =
+    initialize(pId)
+
+  override def defaultBuilder: ZapRouteBuilder =
+    ZapRouteBuilderContext()
+
+  override def builder: ZapRouteBuilder =
+    ZapRouteBuilder()
 }

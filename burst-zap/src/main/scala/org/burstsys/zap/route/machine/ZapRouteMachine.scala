@@ -57,6 +57,9 @@ trait ZapRouteMachine extends Any with ZapRoute with ZapRouteState {
     // RULE #2
     if (!inPath && builder.isEntranceStep(candidateStepKey)) {
       recordNewStep(builder, cp + 1, candidateStepKey, stepTag, candidateStepTime)
+      if (itemLimited) {
+        return false
+      }
       dirtyEntry.stepOrdinal = 0
       rule4(builder, candidateStepKey)
       return true
@@ -80,6 +83,9 @@ trait ZapRouteMachine extends Any with ZapRoute with ZapRouteState {
           if (transition.stepKey == candidateStepKey) {
             foundValidStepTransition = true
             recordNewStep(builder, cp, candidateStepKey, stepTag, candidateStepTime)
+            if (itemLimited) {
+              return false
+            }
 
             // RULE #4
             rule4(builder, candidateStepKey)
@@ -163,18 +169,22 @@ trait ZapRouteMachine extends Any with ZapRoute with ZapRouteState {
     val iPath = inPath
 
     // if already in a path, continue
-    if (iPath) return false
+    if (iPath)
+      return false
 
     // if no limits specified return false (keep processing assertion)
-    if (builder.maxCompletePaths == -1 && builder.maxPartialPaths == -1) return false
+    if (builder.maxCompletePaths == -1 && builder.maxPartialPaths == -1)
+      return false
 
     // if there are too many partial paths return true (stop processing assertion)
-    if (builder.maxPartialPaths != -1 && currentPath >= builder.maxPartialPaths) return true
+    if (builder.maxPartialPaths != -1 && currentPath >= builder.maxPartialPaths)
+      return true
 
     routeFsmBackFill(builder) // make sure we are up to date so we can test count of complete paths
 
     // if there are too many complete paths return true (stop processing assertion)
-    if (builder.maxCompletePaths != -1 && routeCompletePaths >= builder.maxCompletePaths) return true
+    if (builder.maxCompletePaths != -1 && routeCompletePaths >= builder.maxCompletePaths)
+      return true
 
     false // return false (keep processing assertion)
   }
@@ -184,7 +194,8 @@ trait ZapRouteMachine extends Any with ZapRoute with ZapRouteState {
                     stepTag: FeltRouteStepTag, stepTime: FeltRouteStepTime): Unit = {
 
     // if this is the first step in the path, then record that step as the path start time
-    if (!inPath) routePathStartTime = stepTime
+    if (!inPath)
+      routePathStartTime = stepTime
 
     // handle tacit steps
     val isTacit = builder.tacitSteps.contains(stepKey)
@@ -194,6 +205,9 @@ trait ZapRouteMachine extends Any with ZapRoute with ZapRouteState {
       rewriteNeeded = true
 
     createNewJournalEntry(isTacit)
+    if (itemLimited) {
+      return
+    }
     currentPathOrdinal = pathOrdinal
     currentStepKey = stepKey
     currentTime = stepTime

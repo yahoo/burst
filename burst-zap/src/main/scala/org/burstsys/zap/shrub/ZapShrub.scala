@@ -47,13 +47,13 @@ class ZapShrubAnyVal(blockPtr: TeslaMemoryPtr) extends AnyVal with ZapShrub with
 
   override def read(kryo: Kryo, input: Input): Unit = ???
 
-  override def rowCount: TeslaPoolId = ???
+  override def itemCount: TeslaPoolId = ???
 
-  override def rowCount_=(count: TeslaPoolId): Unit = ???
+  override def itemCount_=(count: TeslaPoolId): Unit = ???
 
-  override def rowLimited: Boolean = ???
+  override def itemLimited: Boolean = ???
 
-  override def rowLimited_=(s: Boolean): Unit = ???
+  override def itemLimited_=(s: Boolean): Unit = ???
 
   override def clear(): Unit = ???
 

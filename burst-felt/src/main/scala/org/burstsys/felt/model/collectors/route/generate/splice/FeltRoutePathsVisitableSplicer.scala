@@ -8,7 +8,7 @@ import org.burstsys.felt.model.reference.path.FeltPathExpr
 import org.burstsys.felt.model.sweep.splice.{FeltEmptySpliceGenerator, FeltSpliceGenerator}
 import org.burstsys.felt.model.sweep.symbols.sweepRuntimeSym
 import org.burstsys.felt.model.tree.FeltGlobal
-import org.burstsys.felt.model.tree.code.{C, FeltCode, I, I2}
+import org.burstsys.felt.model.tree.code.{C, FeltCode, I, I2, I3}
 import org.burstsys.felt.model.visits.decl.FeltVisitableSplicer
 
 /**
@@ -41,8 +41,13 @@ class FeltRoutePathsVisitableSplicer(refName: FeltPathExpr) extends FeltVisitabl
       val backFillCall = FeltRouteFsmBackFillFunc.call(reference)
       s"""|
           |${C("START of route paths.steps iteration")}
+          |${I}$routeInstance.startIteration ;
+          |${I}var lastPathOrdinal = -1
           |${I}while ($routeInstance.firstOrNextIterable) {
-          |${I2}$routeInstance.$backFillCall ;""".stripMargin
+          |${I2}$routeInstance.$backFillCall ;
+          |${I2}if ($routeInstance.currentIteration.pathOrdinal != lastPathOrdinal) {
+          |${I3}lastPathOrdinal = $routeInstance.currentIteration.pathOrdinal
+          |""".stripMargin
     }
   }
 
@@ -55,7 +60,7 @@ class FeltRoutePathsVisitableSplicer(refName: FeltPathExpr) extends FeltVisitabl
   override def visitableEndLoop(visitTag: String): FeltSpliceGenerator = {
     implicit cursor => {
       s"""|
-          |${I}}
+          |${I}}}
           |${C("END of route steps iteration")}""".stripMargin
     }
   }

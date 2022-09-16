@@ -11,6 +11,7 @@ import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.cube.runtime.FeltCubeFactory
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorBuilder, FeltCollectorPlane, FeltCollectorPlaneContext}
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.vitals.errors.{VitalsException, safely}
 
 /**
@@ -77,10 +78,10 @@ class FeltCubePlaneContext()
   def dictionaryOverflow: Boolean = if (planeCollector == null) _dictionaryOverflow else _planeDictionary.overflowed
 
   @inline override
-  def rowLimitExceeded: Boolean = if (planeCollector == null) _rowLimitExceeded else planeCollector.rowLimited
+  def rowLimitExceeded: Boolean = if (planeCollector == null) _rowLimitExceeded else planeCollector.itemLimited
 
   @inline override
-  def rowCount: Int = if (planeCollector == null) _rowCount else planeCollector.rowCount
+  def rowCount: Int = if (planeCollector == null) _rowCount else planeCollector.itemCount
 
   @inline override
   def clearCollector(): Unit = {
@@ -102,8 +103,8 @@ class FeltCubePlaneContext()
     _planeDictionary.flagOverflow()
   }
 
-  override def grabCollector(builder: FeltCubeBuilder): FeltCubeCollector =
-    planeBinding.collectors.cubes.grabCollector(builder)
+  override def grabCollector(builder: FeltCubeBuilder, desiredSize: TeslaMemorySize): FeltCubeCollector =
+    planeBinding.collectors.cubes.grabCollector(builder, desiredSize)
 
   override def releaseCollector(collector: FeltCubeCollector): Unit =
     planeBinding.collectors.cubes.releaseCollector(collector)
@@ -116,7 +117,8 @@ class FeltCubePlaneContext()
 
   override def init(builder: FeltCollectorBuilder): this.type = {
     super.init(builder)
-    _planeDictionary = brio.dictionary.factory.grabMutableDictionary()
+    // _planeDictionary = brio.dictionary.factory.grabMutableDictionary()
+    _planeDictionary = brio.dictionary.flex.grabFlexDictionary()
     this
   }
 
@@ -124,14 +126,14 @@ class FeltCubePlaneContext()
   def releaseResourcesOnMaster(): Unit = {
     super.releaseResourcesOnMaster()
     brio.dictionary.flex.releaseFlexDictionary(_planeDictionary.asInstanceOf[BrioFlexDictionary])
-    _planeDictionary = BrioMutableDictionaryAnyVal()
+    _planeDictionary = BrioMutableDictionaryAnyVal() // set to null
   }
 
   @inline override
   def releaseResourcesOnWorker(): Unit = {
     super.releaseResourcesOnWorker()
-    brio.dictionary.factory.releaseMutableDictionary(_planeDictionary)
-    _planeDictionary = BrioMutableDictionaryAnyVal()
+    brio.dictionary.flex.releaseFlexDictionary(_planeDictionary.asInstanceOf[BrioFlexDictionary])
+    _planeDictionary = BrioMutableDictionaryAnyVal() // set to null
   }
 
   @inline override protected
@@ -146,13 +148,21 @@ class FeltCubePlaneContext()
   def transferTallies(): Unit = {
     super.transferTallies()
     _dictionaryOverflow = _planeDictionary.overflowed
-    _rowLimitExceeded = planeCollector.rowLimited
-    _rowCount = planeCollector.rowCount
+    _rowLimitExceeded = planeCollector.itemLimited
+    _rowCount = planeCollector.itemCount
+  }
+
+  override def toString: String = {
+    s"""FeltPlane
+       |${planeCollector}
+       |${planeDictionary}
+       |""".stripMargin
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // KRYO SERDE
   ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
   override
   def write(kryo: Kryo, output: Output): Unit = {

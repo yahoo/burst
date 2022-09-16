@@ -2,8 +2,6 @@
 package org.burstsys.zap.cube2.state
 
 import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
-import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
-import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.key.ZapCube2Key
 import org.burstsys.zap.cube2.row.{ZapCube2Row, ZapCube2RowAnyVal, limitExceededMarkerRow}
 import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AggregationAxis, ZapCube2DimensionAxis}
@@ -13,20 +11,6 @@ import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AggregationAxis, ZapCube2Dimens
  * aggregation operations, cursor management, and row creation.
  */
 trait ZapCube2Nav extends Any with ZapCube2State with ZapCube2DimensionAxis with ZapCube2AggregationAxis {
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  // Cursor
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
-  @inline final
-  def inheritCursorFrom(thatCube: ZapCube2): Unit = cursor.importFrom(thatCube.cursor)
-
-  @inline final
-  def initCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = {
-    cursorUpdated = true
-    cursor.initialize(dimCount)
-    cursorRow = -1
-  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Dimensions
@@ -48,7 +32,9 @@ trait ZapCube2Nav extends Any with ZapCube2State with ZapCube2DimensionAxis with
   }
 
   @inline final override
-  def dimRead(dimension: Int): BrioPrimitive = cursor.dimRead(dimension)
+  def dimRead(dimension: Int): BrioPrimitive = {
+    cursor.dimRead(dimension)
+  }
 
   @inline final override
   def dimWrite(dimension: Int, value: BrioPrimitive): Unit = {
@@ -57,7 +43,9 @@ trait ZapCube2Nav extends Any with ZapCube2State with ZapCube2DimensionAxis with
   }
 
   @inline final override
-  def dimWrite(): Unit = navigate()
+  def dimWrite(): Unit = {
+    navigate()
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Aggregations
@@ -130,12 +118,12 @@ trait ZapCube2Nav extends Any with ZapCube2State with ZapCube2DimensionAxis with
 
     // and see whats in the associated bucket list
     bucketRead(index) match {
-
       // no rows in bucket yet - we create new matching one, add to bucket and return
       case EmptyBucket =>
         val newRow = createNewRowFromKey(key)
         // as always, check for a out of room condition
-        if (newRow == limitExceededMarkerRow) return newRow
+        if (newRow == limitExceededMarkerRow)
+          return newRow
         // update bucket with a valid first row in list
         bucketWrite(index, rowOffset(newRow))
         newRow

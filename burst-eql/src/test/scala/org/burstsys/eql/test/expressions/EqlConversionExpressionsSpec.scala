@@ -167,7 +167,7 @@ class EqlConversionExpressionsSpec extends EqlAlloyTestRunner {
         row => row(names("id")).asDouble
       }
 
-      r should equal(Array(1.0, 5.0, 11.0, 7.0, 2.0, 10.0, 3.0, 4.0, 9.0, 6.0, 8.0))
+      r.sorted should equal(Array(1.0, 5.0, 11.0, 7.0, 2.0, 10.0, 3.0, 4.0, 9.0, 6.0, 8.0).sorted)
     })
   }
 
@@ -194,7 +194,7 @@ class EqlConversionExpressionsSpec extends EqlAlloyTestRunner {
         row => row(names("id")).asByte
       }
 
-      r should equal(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
+      r.sorted should equal(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
     })
   }
 }

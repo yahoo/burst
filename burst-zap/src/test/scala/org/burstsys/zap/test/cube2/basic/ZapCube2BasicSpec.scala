@@ -1,17 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.zap.test.cube2.basic
 
-import com.esotericsoftware.kryo.io.Input
-import com.esotericsoftware.kryo.io.Output
+import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.brio.types.BrioTypes.BrioLongKey
-import org.burstsys.fabric.execution.model.result.row.FabricAggregationCell
-import org.burstsys.fabric.execution.model.result.row.FabricDimensionCell
-import org.burstsys.fabric.execution.model.result.row.FabricResultCell
+import org.burstsys.fabric.execution.model.result.row.{FabricAggregationCell, FabricDimensionCell}
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
-import org.burstsys.vitals.kryo.acquireKryo
-import org.burstsys.vitals.kryo.releaseKryo
+import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
 import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.ZapCube2Builder
 import org.burstsys.zap.test.cube2.ZapCube2Spec
@@ -33,7 +28,6 @@ class ZapCube2BasicSpec extends ZapCube2Spec {
         cube.rowsCount should equal(0)
         cube.dimCount should equal(builder.dimensionCount)
         cube.aggCount should equal(builder.aggregationCount)
-        cube.bucketsCount should equal(builder.bucketCount)
       } finally cube2.factory.releaseCube2(cube)
     }
   }

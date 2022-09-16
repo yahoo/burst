@@ -47,13 +47,16 @@ class FeltCubeResultSetContext(resultName: FabricResultSetName, plane: FeltCubeP
   //////////////////////////////////////////////////////////////////////
 
   override
-  val columnNames: Array[BrioRelationName] = plane.planeBuilder.fieldNames
+  val columnNames: Array[BrioRelationName] =
+    plane.planeBuilder.fieldNames
 
   override
-  def columnTypeNames: Array[BrioTypeName] = columnTypeKeys.map(BrioTypes.brioDataTypeNameFromKey)
+  def columnTypeNames: Array[BrioTypeName] =
+    columnTypeKeys.map(BrioTypes.brioDataTypeNameFromKey)
 
   override
-  def columnTypeKeys: Array[BrioTypeKey] = plane.planeBuilder.dimensionFieldTypes ++ plane.planeBuilder.aggregationFieldTypes
+  def columnTypeKeys: Array[BrioTypeKey] =
+    plane.planeBuilder.dimensionFieldTypes ++ plane.planeBuilder.aggregationFieldTypes
 
   override
   val dimensionCount: Int = plane.planeBuilder.dimensionCount
@@ -88,8 +91,10 @@ class FeltCubeResultSetContext(resultName: FabricResultSetName, plane: FeltCubeP
   override
   def extractRows: FeltCubeResultSet = {
     try {
-      plane.planeCollector.extractRows(plane.planeBuilder, plane.planeCollector, plane.planeDictionary) foreach {
-        row: FeltCubeRowData => _rows += FeltCubeResultRow(plane, row).extractCells
+      val rows = plane.planeCollector.extractRows(plane.planeBuilder, plane.planeCollector, plane.planeDictionary)
+      rows foreach {
+        row: FeltCubeRowData =>
+          _rows += FeltCubeResultRow(plane, row).extractCells
       }
       super.extractRows
       this

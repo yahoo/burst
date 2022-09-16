@@ -5,7 +5,6 @@ import org.burstsys.brio.types.BrioTypes
 import org.burstsys.felt.model.tree.code.{CC, FeltCode, FeltCodeCursor, I, I2, generateIntArrayCode, generateStringArrayCode}
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.FeltCubeAggSemRt
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.FeltCubeDimSemRt
-import org.burstsys.zap.cube.ZapCubeBuilder
 
 import scala.language.postfixOps
 

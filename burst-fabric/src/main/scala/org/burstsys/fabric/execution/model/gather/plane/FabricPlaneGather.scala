@@ -165,16 +165,20 @@ trait FabricPlaneGather extends FabricDataGatherContext {
   private def merge(gather: FabricMerge, level: FabricMergeLevel): Unit = {
     try {
       level match {
-        case FabricRegionMergeLevel => super.regionMerge(gather)
-        case FabricSliceMergeLevel => super.sliceMerge(gather)
-        case FabricWaveMergeLevel => super.waveMerge(gather)
+        case FabricRegionMergeLevel =>
+          super.regionMerge(gather)
+        case FabricSliceMergeLevel =>
+          super.sliceMerge(gather)
+        case FabricWaveMergeLevel =>
+          super.waveMerge(gather)
         case _ => ???
       }
       if (hadException) return
 
       gather match {
         case thatGather: FabricPlaneGather =>
-          if (thisOutcomeOrThatOutcomeInvalid(thatGather)) return
+          if (thisOutcomeOrThatOutcomeInvalid(thatGather))
+            return
 
           var i = 0
           var continue = true
@@ -187,9 +191,12 @@ trait FabricPlaneGather extends FabricDataGatherContext {
               this.markException(thisPlane.exception)
               continue = false
             } else level match {
-              case FabricRegionMergeLevel => thisPlane.regionMerge(thatPlane)
-              case FabricSliceMergeLevel => thisPlane.sliceMerge(thatPlane)
-              case FabricWaveMergeLevel => thisPlane.waveMerge(thatPlane)
+              case FabricRegionMergeLevel =>
+                thisPlane.regionMerge(thatPlane)
+              case FabricSliceMergeLevel =>
+                thisPlane.sliceMerge(thatPlane)
+              case FabricWaveMergeLevel =>
+                thisPlane.waveMerge(thatPlane)
               case _ => ???
             }
 
@@ -197,8 +204,10 @@ trait FabricPlaneGather extends FabricDataGatherContext {
           }
 
         case _: FabricEmptyGather => // do nothing
-        case faultGather: FabricFaultGather => this.markException(faultGather.fault)
-        case g => this.markException(VitalsException(s"unknown gather ${g.getClass}").fillInStackTrace())
+        case faultGather: FabricFaultGather =>
+          this.markException(faultGather.fault)
+        case g =>
+          this.markException(VitalsException(s"unknown gather ${g.getClass}").fillInStackTrace())
       }
 
     } catch safely {

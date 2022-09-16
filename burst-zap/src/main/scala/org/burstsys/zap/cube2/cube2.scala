@@ -8,8 +8,10 @@ package object cube2 {
 
   final val partName: String = "cube2"
 
+  private[cube2] final
+  val ZapCube2EmptyLink: TeslaMemoryPtr = 0L
 
-  final
+  private[cube2] final
   val ZapCube2EmptyBucket: TeslaMemoryPtr = 0L
 
   /**

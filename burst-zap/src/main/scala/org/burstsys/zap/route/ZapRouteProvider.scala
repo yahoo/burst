@@ -3,6 +3,7 @@ package org.burstsys.zap.route
 
 import org.burstsys.felt.model.collectors.route.decl.FeltRouteDecl
 import org.burstsys.felt.model.collectors.route.{FeltRouteBuilder, FeltRouteCollector, FeltRoutePlan, FeltRouteProvider}
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.zap.route
 
 final case
@@ -15,10 +16,11 @@ class ZapRouteProvider() extends FeltRouteProvider {
 
   override def collectorPlan(decl: FeltRouteDecl): FeltRoutePlan = ZapRoutePlan(decl)
 
-  override def grabCollector(builder: FeltRouteBuilder): FeltRouteCollector =
-    route.factory.grabZapRoute(builder.asInstanceOf[ZapRouteBuilder])
+  override def grabCollector(builder: FeltRouteBuilder, desiredSize: TeslaMemorySize): FeltRouteCollector = {
+    route.flex.grabFlexRoute(builder.asInstanceOf[ZapRouteBuilder], desiredSize)
+  }
 
   override def releaseCollector(collector: FeltRouteCollector): Unit =
-    route.factory.releaseZapRoute(collector.asInstanceOf[ZapRoute])
+    route.flex.releaseFlexRoute(collector.asInstanceOf[ZapRoute])
 
 }

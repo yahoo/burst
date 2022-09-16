@@ -21,7 +21,6 @@
             <groupId>org.burstsys</groupId>
             <artifactId>burst-tesla</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>

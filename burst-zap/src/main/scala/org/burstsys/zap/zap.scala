@@ -9,18 +9,15 @@ import org.burstsys.felt.model.mutables.FeltMutableProviders
 import org.burstsys.felt.model.mutables.valarr.FeltMutableValArrProv
 import org.burstsys.felt.model.mutables.valmap.FeltMutableValMapProv
 import org.burstsys.felt.model.mutables.valset.FeltMutableValSetProv
-import org.burstsys.vitals.reporter.VitalsReporter
-import org.burstsys.vitals.reporter.VitalsReporterSource
-import org.burstsys.zap.cube.ZapCubeProvider
+import org.burstsys.vitals.reporter.{VitalsReporter, VitalsReporterSource}
 import org.burstsys.zap.cube.ZapCubeReporter
+import org.burstsys.zap.cube2.ZapCube2Provider
 import org.burstsys.zap.mutable.valarray.ZapValArrProvider
 import org.burstsys.zap.mutable.valmap.ZapValMapProvider
 import org.burstsys.zap.mutable.valset.ZapValSetProvider
-import org.burstsys.zap.route.ZapRouteProvider
-import org.burstsys.zap.route.ZapRouteReporter
+import org.burstsys.zap.route.{ZapRouteProvider, ZapRouteReporter}
 import org.burstsys.zap.shrub.ZapShrubProvider
-import org.burstsys.zap.tablet.ZapTabletProvider
-import org.burstsys.zap.tablet.ZapTabletReporter
+import org.burstsys.zap.tablet.{ZapTabletProvider, ZapTabletReporter}
 
 package object zap extends VitalsReporterSource {
 
@@ -36,7 +33,7 @@ package object zap extends VitalsReporterSource {
    */
   object ZapCollectorProviders extends FeltCollectorProviders {
 
-    override def cubes: FeltCubeProvider = ZapCubeProvider() // TODO ZapCube2Provider()
+    override def cubes: FeltCubeProvider = ZapCube2Provider()
 
     override def routes: ZapRouteProvider = ZapRouteProvider()
 

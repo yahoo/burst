@@ -7,7 +7,7 @@ trait ZapCube2Iterator extends Any with ZapCube2State {
 
   @inline final def foreachRow(body: ZapCube2Row => Unit): Unit = {
     var i = 0
-    while (i < rowCount) {
+    while (i < itemCount) {
       body(row(i))
       i += 1
     }

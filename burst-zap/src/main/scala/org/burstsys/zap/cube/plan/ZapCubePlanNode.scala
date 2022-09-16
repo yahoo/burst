@@ -10,12 +10,6 @@ import org.burstsys.zap.cube.{ZapCubeAggregationKey, ZapCubeDimensionKey}
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * TODO
- *
- * @param cubeDecl
- * @param parentNode
- */
 final case
 class ZapCubePlanNode(cubeDecl: FeltCubeDecl, plan: ZapCubePlan, parentNode: ZapCubePlanNode) {
 

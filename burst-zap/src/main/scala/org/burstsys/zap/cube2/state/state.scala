@@ -106,7 +106,7 @@ package object state {
   private[state] final val resizeCountFieldOffset: TeslaMemoryOffset = rowsCountFieldOffset + SizeOfInteger // Int
 
   /**
-   * store the start of the row block next
+   * has the cube bumped up against the available memory
    */
   private[state] final val rowsLimitedFieldOffset: TeslaMemoryOffset = resizeCountFieldOffset + SizeOfInteger // Int
 
@@ -124,5 +124,7 @@ package object state {
    * size of the fixed size header / start of variable size data
    */
   private[state] final val endOfFixedSizeHeader: TeslaMemoryOffset = dictionaryFieldOffset + SizeOfInteger
+
+  final val SizeofFixedSizeHeader = endOfFixedSizeHeader
 
 }

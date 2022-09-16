@@ -3,6 +3,7 @@ package org.burstsys.felt.model.collectors.runtime
 
 import org.burstsys.felt.kryo.FeltKryoSerializable
 import org.burstsys.felt.model.visits.decl.FeltStaticVisitDecl
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.pool.TeslaPooledResource
 
 /**
@@ -40,23 +41,25 @@ trait FeltCollector extends Any with TeslaPooledResource with FeltKryoSerializab
    *
    * @return
    */
-  def rowCount: Int
+  def itemCount: Int
 
   /**
    * set the number of rows in the cube
    *
    * @param count
    */
-  def rowCount_=(count: Int): Unit
+  def itemCount_=(count: Int): Unit
+
+  def size(): TeslaMemorySize = 0
 
   /**
    * true is a fixed row limit was exceeded
    *
    * @return
    */
-  def rowLimited: Boolean
+  def itemLimited: Boolean
 
-  def rowLimited_=(s: Boolean): Unit
+  def itemLimited_=(s: Boolean): Unit
 
   /**
    * empty out the collector
@@ -74,5 +77,7 @@ trait FeltCollector extends Any with TeslaPooledResource with FeltKryoSerializab
    * @return
    */
   final def notEmpty: Boolean = !isEmpty
+
+  def validate(): Boolean = true
 
 }

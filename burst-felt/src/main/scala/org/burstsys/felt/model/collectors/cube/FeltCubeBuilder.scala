@@ -5,7 +5,7 @@ import org.burstsys.brio.types.BrioTypes.{BrioRelationName, BrioTypeKey}
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.FeltCubeAggSemRt
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.FeltCubeDimSemRt
 import org.burstsys.felt.model.collectors.cube.plane.FeltCubePlaneContext
-import org.burstsys.felt.model.collectors.cube.runtime.{FeltCubeOrdinalMap, FeltCubeTreeMask}
+import org.burstsys.felt.model.collectors.cube.runtime.FeltCubeTreeMask
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorBuilder, FeltCollectorBuilderContext, FeltCollectorPlane}
 import org.burstsys.tesla.TeslaTypes.TeslaMemoryOffset
 
@@ -28,7 +28,7 @@ trait FeltCubeBuilder extends FeltCollectorBuilder {
    *
    * @return
    */
-  def bucketCount: Int
+  def bucketCount(maxRowCount: Int): Int
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // FIELDS
@@ -84,14 +84,6 @@ trait FeltCubeBuilder extends FeltCollectorBuilder {
   def hasStringDimensions: Boolean
 
   /**
-   * dimension name to index map (GIST ONLY)
-   *
-   * @return
-   * @deprecated GIST ONLY
-   */
-  def dimensionOrdinalMap: FeltCubeOrdinalMap
-
-  /**
    *
    * @return
    */
@@ -132,13 +124,6 @@ trait FeltCubeBuilder extends FeltCollectorBuilder {
    * @return
    */
   def hasStringAggregations: Boolean
-
-  /**
-   *
-   * @return
-   * @deprecated GIST ONLY
-   */
-  def aggregationOrdinalMap: FeltCubeOrdinalMap
 
   /**
    *

@@ -37,7 +37,7 @@ trait TeslaFlexProxy[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollecto
 trait TeslaFlexProxyContext[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollector[Builder, Collector], Proxy <: TeslaFlexProxy[Builder, Collector]]
   extends Any with TeslaFlexProxy[Builder, Collector] {
 
-  @inline private[this]
+  @inline
   def _internalCollector: Collector = coupler.lookupInternalCollector(this.index)
 
   @inline final override

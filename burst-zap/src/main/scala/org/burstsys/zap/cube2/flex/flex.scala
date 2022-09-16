@@ -19,29 +19,24 @@ package object flex extends VitalsLogger {
 
       val collectorName: String = "flex-cube2"
 
-      final override val powersOf2SlotCount: TeslaMemorySize = 16 // 64K max dictionaries
+      final override val powersOf2SlotCount: TeslaMemorySize = 16 // 64K max cubes
 
-      final override def instantiateCollector(ptr: TeslaMemoryPtr): ZapCube2 = ZapCube2AnyVal(ptr)
+      final override def instantiateCollector(ptr: TeslaMemoryPtr): ZapCube2 =
+        ZapCube2AnyVal(ptr)
 
-      final override def instantiateProxy(index: TeslaFlexSlotIndex): ZapFlexCube2 = ZapFlexCube2AnyVal(index)
+      final override def instantiateProxy(index: TeslaFlexSlotIndex): ZapFlexCube2 =
+        ZapFlexCube2AnyVal(index)
 
       final override def allocateInternalCollector(builder: ZapCube2Builder, size: TeslaMemorySize): ZapCube2 = {
         val cube = cube2.factory.grabCube2(builder, size)
         val newSize = cube.currentMemorySize
         val blkSize = cube.availableMemorySize
-        log info
-          s"""|
-              |--------------------------------------
-              |ALLOC(basePtr=${cube.basePtr} Cube2
-              | size=$size (${prettyByteSizeString(size)}))
-              | newSize=$newSize (${prettyByteSizeString(newSize)}))
-              | blkSize=$blkSize (${prettyByteSizeString(blkSize)}))
-              |--------------------------------------""".stripMargin
+        log debug s"ALLOC(basePtr=${cube.basePtr} Cube2 newSize=$newSize blkSize=$blkSize"
         cube
       }
 
       final override def releaseInternalCollector(collector: ZapCube2): Unit = {
-        log info s"FREE(basePtr=${collector.basePtr}) Cube2"
+        log debug s"FREE(basePtr=${collector.basePtr}) Cube2"
         cube2.factory.releaseCube2(collector)
       }
 
@@ -50,6 +45,11 @@ package object flex extends VitalsLogger {
   final def grabFlexCube(dictionary: BrioFlexDictionary, builder: ZapCube2Builder, startSize: TeslaMemorySize = teslaBuilderUseDefaultSize): ZapCube2 = {
     val proxy = coupler.grabFlexCollectorProxy(builder, startSize)
     proxy.dictionary = dictionary
+    proxy
+  }
+
+  final def grabFlexCube(builder: ZapCube2Builder, startSize: TeslaMemorySize): ZapCube2 = {
+    val proxy = coupler.grabFlexCollectorProxy(builder, startSize)
     proxy
   }
 

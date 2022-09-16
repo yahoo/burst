@@ -2,12 +2,11 @@
 package org.burstsys.zap.test.cube2.flex
 
 import org.burstsys.brio.dictionary.flex
-import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
+import org.burstsys.vitals.io.log
 import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.ZapCube2Builder
 import org.burstsys.zap.test.cube2.ZapCube2Spec
-import org.scalatest.Ignore
 
 import scala.collection.mutable
 
@@ -36,7 +35,9 @@ class ZapFlexCube2GrowSpec extends ZapCube2Spec {
           cube.dimWrite(1, d1)
           cube.aggWrite(0, a0)
           cube.aggWrite(1, a1)
-          //          log info s"ADD ROW($d0,$d1)($a0,$a1)"
+          log info s"ADD ROW($d0,$d1)($a0,$a1) valid=${cube.validate()}"
+          cube.rowsCount should be(i+1)
+          cube.validate() should be(true)
           d0 += 1
           d1 += 1
           a0 += 1
@@ -45,8 +46,6 @@ class ZapFlexCube2GrowSpec extends ZapCube2Spec {
         cube.rowsCount should be(rowCount)
 
         map.size should equal(rowCount)
-
-        //        log info cube.toString
 
         var r = 0
         while (r < cube.rowsCount) {
@@ -60,6 +59,10 @@ class ZapFlexCube2GrowSpec extends ZapCube2Spec {
 
         map.size should equal(0)
 
+      } catch {
+        case e: Throwable =>
+          log error e
+          throw e
       } finally {
         cube2.flex.releaseFlexCube(cube)
         flex.releaseFlexDictionary(dictionary)

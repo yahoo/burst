@@ -7,6 +7,7 @@ import org.burstsys.hydra.test.cases.quo.calordinals.HydraQuoCalDayOfYearOrdinal
 import org.burstsys.hydra.test.cases.support.HydraUseCase
 
 object HydraQuoCalHourGrain extends HydraUseCase(1, 1, "quo") {
+  // override val serializeTraversal = true
 
   override def analysisSource: String =
     s"""

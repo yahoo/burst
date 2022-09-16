@@ -6,6 +6,7 @@ import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorPlane, FeltCollectorPlaneContext}
 import org.burstsys.felt.model.collectors.shrub.runtime.FeltShrubFactory
 import org.burstsys.felt.model.collectors.shrub.{FeltShrubBuilder, FeltShrubCollector}
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 
 /**
  * A [[FabricPlane]] for shrubs
@@ -20,8 +21,8 @@ class FeltShrubPlaneContext
   extends FeltCollectorPlaneContext[FeltShrubBuilder, FeltShrubCollector]
     with FeltShrubPlane with FeltShrubPlaneMerge with FeltShrubFactory {
 
-  override def grabCollector(builder: FeltShrubBuilder): FeltShrubCollector =
-    planeBinding.collectors.shrubs.grabCollector(builder)
+  override def grabCollector(builder: FeltShrubBuilder, desiredSize: TeslaMemorySize): FeltShrubCollector =
+    planeBinding.collectors.shrubs.grabCollector(builder, desiredSize)
 
   override def releaseCollector(collector: FeltShrubCollector): Unit =
     planeBinding.collectors.shrubs.releaseCollector(collector)

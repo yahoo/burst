@@ -71,6 +71,11 @@ class BrioMutableDictionaryAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr)
   override def importCollector(sourceCollector: BrioMutableDictionary, sourceItems: TeslaPoolId, builder: BrioDictionaryBuilder): Unit =
     importDictionary(sourceCollector, sourceItems)
 
-  override def toString: String = this.dump(VitalsTextCodec())
+  override def toString: String = {
+    if (blockPtr == TeslaNullMemoryPtr)
+      s"NULL"
+    else
+      this.dump(VitalsTextCodec())
+  }
 
 }

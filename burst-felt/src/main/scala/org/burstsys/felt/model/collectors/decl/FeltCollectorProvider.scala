@@ -4,6 +4,7 @@ package org.burstsys.felt.model.collectors.decl
 import org.burstsys.felt.model.collectors.FeltCollectorRef
 import org.burstsys.felt.model.collectors.runtime.{FeltCollector, FeltCollectorBuilder}
 import org.burstsys.felt.model.tree.code.cleanClassName
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 
 /**
  * each collector has to implement this in order to provide collector functions
@@ -32,7 +33,8 @@ trait FeltCollectorProvider[C <: FeltCollector, B <: FeltCollectorBuilder, R <: 
    * @param builder
    * @return
    */
-  def grabCollector(builder: B): C
+
+  def grabCollector(builder: B, desiredSize: TeslaMemorySize = 0): C
 
   /**
    *

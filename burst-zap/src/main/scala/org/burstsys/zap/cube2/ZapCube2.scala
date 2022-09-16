@@ -6,9 +6,8 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.brio.dictionary.flex.BrioFlexDictionary
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
-import org.burstsys.fabric.execution.model.result.row.FeltCubeResultData
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.vitals.bitmap.VitalsBitMapAnyVal
@@ -18,15 +17,13 @@ import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.algorithms.{ZapCube2Join, ZapCube2Merge, ZapCube2Normalize, ZapCube2Truncate}
 import org.burstsys.zap.cube2.key.ZapCube2Key
 import org.burstsys.zap.cube2.row.ZapCube2Row
-import org.burstsys.zap.cube2.state.ZapCube2Iterator
-import org.burstsys.zap.cube2.state.{ZapCube2Codec, ZapCube2Extract, ZapCube2Nav, ZapCube2Print, ZapCube2State}
+import org.burstsys.zap.cube2.state._
 
 /**
  * =Gen-2 Zap Cubes=
- * '''RIP:''' [[org.burstsys.zap.cube.ZapCube]]
  * <hr/>
  * <ol>
- * <li>Cubes are a special [[FeltCollector]] that is used to
+ * <li>Cubes are a special FeltCollector that is used to
  * capture results during analysis scans and uniquely return them as tabular ''result-sets'' to the
  * the analysis API. Currently this is the only way that result sets are returned though
  * it is intended to add object-tree results sets as an alternative using
@@ -88,15 +85,11 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
 
   /**
    * access the internal flex dictionary
-   *
-   * @return
    */
   def dictionary: BrioFlexDictionary
 
   /**
    * set the internal flex dictionary
-   *
-   * @param d
    */
   def dictionary_=(d: BrioFlexDictionary): Unit
 
@@ -107,18 +100,14 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
   /**
    * number of buckets in this cube. This value is fixed at cube allocation time in the [[ZapCube2Builder]]
    * object.
-   *
-   * @return
    */
   def bucketsCount: Int
+
 
   /**
    * the offset of the first row in the indexed bucket list or EmptyBucket is this indexed bucket is empty.
    * This value is the offset of the first row in the bucket list from the cube's '''basePtr'''. This value
    * is [[ZapCube2EmptyBucket]] if the bucket is empty.
-   *
-   * @param index
-   * @return
    */
   def bucketRead(index: Int): TeslaMemoryOffset
 
@@ -158,66 +147,42 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
 
   /**
    * number of rows in this cube
-   *
-   * @return
    */
   def rowsCount: Int
 
   /**
    * did we reach the current row limit?
-   *
-   * @return
    */
   def rowsLimited: Boolean
 
   /**
    * return a row by index
-   *
-   * @param index
-   * @return
    */
   def row(index: Int): ZapCube2Row
 
   /**
    * are there no rows?
-   *
-   * @return
    */
   def isEmpty: Boolean
-
-  /**
-   * is there at least one row?
-   *
-   * @return
-   */
-  def notEmpty: Boolean
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Cursor
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /*
-    /**
-     * set the cursor to match the cursor from another cube
-     *
-     * @param thatCube
-     */
-    def inheritCursorFrom(thatCube: ZapCube2): Unit
-  */
-
   /**
    * the cursor for this cube
-   *
-   * @return
    */
   def cursor: ZapCube2Key
 
   /**
    * return the offset of the row the cursor points at
-   *
-   * @return
    */
   def cursorRow: TeslaMemoryOffset
+
+  /**
+   * set the cursor from the dimensions of a row
+   */
+  def setCursorFrom(row: ZapCube2Row): Unit
 
   /**
    * clear the cursor for re-use
@@ -230,9 +195,6 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
 
   /**
    * navigate to an new key coordinate
-   *
-   * @param key
-   * @return
    */
   def navigate(key: ZapCube2Key): ZapCube2Row
 
@@ -247,8 +209,6 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
 
   /**
    * get the cube's join pivot key - used as a tmp for join operaitons
-   *
-   * @return
    */
   def pivot: ZapCube2Key
 
@@ -270,38 +230,11 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * * Create a row where there is no parent row to join with i.e. no ''join'' needed
-   *
-   * @param parentCube
-   * @param childCube
-   * @param childRow
-   * @param resultCube
-   * @param parentDimensionMask
-   * @param parentAggregationMask
-   * @param childDimensionMask
-   * @param childAggregationMask
-   * @return
-   */
-  def createCopyRow(parentCube: ZapCube2, childCube: ZapCube2, childRow: ZapCube2Row, resultCube: ZapCube2,
-                    parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
-                    childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal): ZapCube2Row
-
-  /**
    * * create a row in the result cube that has  the active dimension and aggregation columns from the from
    * * the parent and the active dimension/aggregations from the child mask.
-   *
-   * @param parentRow
-   * @param childCube
-   * @param childRow
-   * @param resultCube
-   * @param parentDimensionMask
-   * @param parentAggregationMask
-   * @param childDimensionMask
-   * @param childAggregationMask
-   * @return
    */
   def createJoinRow(parentRow: ZapCube2Row,
-                    childCube: ZapCube2, childRow: ZapCube2Row,
+                    childRow: ZapCube2Row,
                     resultCube: ZapCube2,
                     parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
                     childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal
@@ -316,54 +249,57 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
   /**
    * normalize that cube to share the same dictionary that this cube has
    * <br/>'''NOTE:'''  ''thatCube'' is free'ed as part of this algorithm.
-   *
-   * @param thatCube a newly allocated cube that is ''thatCube'' normalized to '''this''' cube's dictionary
-   * @param builder  cube metadata
-   * @param text     UTF8 codec to use for this operation
-   * @return newly allocated cube that has the same dictionary as this one
    */
   def normalizeThatCubeToThis(thatCube: ZapCube2, builder: ZapCube2Builder, text: VitalsTextCodec): ZapCube2
 
-  ////////////////////////////////////////// top/bottom K //////////////////////////////////////////////////////////
+  private [cube2]
+  def rowNormalize(thatBuilder: ZapCube2Builder, thatDictionary: BrioFlexDictionary, text: VitalsTextCodec): Unit
 
+  def validateRow(row: ZapCube2Row): Boolean
 }
 
 /**
- *
- * @param blockPtr
  */
 final case
 class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyVal with ZapCube2 with ZapCube2State
   with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Normalize with ZapCube2Iterator
   with ZapCube2Join with ZapCube2Truncate with ZapCube2Merge with ZapCube2Extract {
 
+  override def size(): TeslaMemorySize = availableMemorySize
+
   override
   def importCollector(sourceCollector: ZapCube2, sourceItems: Int, builder: ZapCube2Builder): Unit =
-    importCube(source = sourceCollector, rows = sourceItems)
+    importCube(source = sourceCollector.asInstanceOf[ZapCube2AnyVal], rows = sourceItems)
 
   override
   def defaultBuilder: ZapCube2Builder = throw VitalsException(s"default builder not allowed")
 
   override
-  def builder: ZapCube2Builder = cube2.ZapCube2Builder(dimensionCount = dimCount, aggregationCount = aggCount)
+  def builder: ZapCube2Builder =
+    cube2.ZapCube2Builder(dimensionCount = dimCount, aggregationCount = aggCount)
 
   override
   def normalize(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary)
-               (implicit text: VitalsTextCodec): FeltCubeCollector =
-    normalizeThatCubeToThis(thatCube = thatCube.asInstanceOf[ZapCube2], builder = builder.asInstanceOf[ZapCube2Builder], text = text)
+               (implicit text: VitalsTextCodec): FeltCubeCollector = {
+    val thatCube2 = thatCube.asInstanceOf[ZapCube2]
+    this.dictionary = thisDictionary.asInstanceOf[BrioFlexDictionary]
+    thatCube2.dictionary = thatDictionary.asInstanceOf[BrioFlexDictionary]
+
+    normalizeThatCubeToThis(thatCube = thatCube2, builder = builder.asInstanceOf[ZapCube2Builder], text = text)
+  }
 
   override
-  def rowLimited: Boolean = rowsLimited
+  def itemLimited: Boolean = rowsLimited
 
   override
-  def rowLimited_=(s: Boolean): Unit = rowsLimited = s
+  def itemLimited_=(s: Boolean): Unit = rowsLimited = s
 
   override
-  def rowCount: Int = rowsCount
+  def itemCount: Int = rowsCount
 
   override
-  def rowCount_=(count: Int): Unit = rowsCount = count
+  def itemCount_=(count: Int): Unit = rowsCount = count
 
   override
   def inheritCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, parentCube: FeltCubeCollector): FeltCubeCollector = {
@@ -372,40 +308,37 @@ class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyV
   }
 
   override
-  def writeAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, column: Int): Unit =
+  def writeAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, column: Int): Unit = {
     aggSetNull(column)
+  }
 
   override
-  def readAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int): BrioPrimitive =
+  def readAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int): BrioPrimitive = {
     aggRead(aggregation)
+  }
 
   override
-  def writeAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int, value: BrioPrimitive): Unit =
+  def writeAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int, value: BrioPrimitive): Unit = {
     aggWrite(aggregation, value)
+  }
 
   override
-  def readAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int): Boolean =
+  def readAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int): Boolean = {
     aggIsNull(aggregation)
+  }
 
   override
-  def writeDimension(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit =
+  def writeDimension(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = {
     dimWrite()
+  }
 
   override
-  def writeDimensionNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: Int): Unit =
+  def writeDimensionNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: Int): Unit = {
     dimSetNull(dimension)
+  }
 
   override
-  def writeDimensionPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: Int, value: BrioPrimitive): Unit =
+  def writeDimensionPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: Int, value: BrioPrimitive): Unit = {
     dimWrite(dimension, value)
-
-
-  override
-  def printCube(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): String = ???
-
-  override
-  def printCubeState(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary, msg: String): Unit = ???
-
-  override
-  def distribution(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): Double = ???
+  }
 }

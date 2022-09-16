@@ -26,7 +26,7 @@ trait ZapRouteRewriter extends Any with ZapRoute with ZapRouteState {
     }
 
     /**
-     * backtrack back from end of journal to beginning of the journa.
+     * backtrack back from end of journal to beginning of the journal.
      * At each 'end' step of each path test to see if that step has a 'complete' trait,
      * If so then as you go backwards mark each step in that path 'complete'.
      */

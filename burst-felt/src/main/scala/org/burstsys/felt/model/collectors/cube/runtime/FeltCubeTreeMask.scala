@@ -50,7 +50,10 @@ final case
 class FeltCubeTreeMask(data: Array[Long] = null) extends AnyVal {
 
   override def toString: String = {
-    new String(data.flatMap(VitalsBitMapAnyVal(_).toString.getBytes)).replace("0000 ", "").trim
+    if (data != null)
+      new String(data.flatMap(VitalsBitMapAnyVal(_).toString.getBytes)).replace("0000 ", "").trim
+    else
+      "NullTreeMask"
   }
 
   ///////////////////////////////////////////////////////////////////////////////////

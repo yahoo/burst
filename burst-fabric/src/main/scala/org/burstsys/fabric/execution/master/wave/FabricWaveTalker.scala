@@ -14,7 +14,8 @@ trait FabricWaveTalker extends AnyRef with FabricWaveListener {
 
   self: FabricMasterExecutionContext =>
 
-  private[this] def publish(event: FabricWaveEvent): Unit = publishPipelineEvent(event)
+  private[this] def publish(event: FabricWaveEvent): Unit =
+    publishPipelineEvent(event)
 
   final override
   def onWaveBegin(seqNum: FabricWaveSeqNum, guid: VitalsUid): Unit = {

@@ -35,13 +35,6 @@ object ZapRouteBuilder {
 
 }
 
-/**
- * TODO
- *
- * @param maxPartialPaths
- * @param maxStepsPerGraph
- * @param transitions
- */
 private
 final case
 class ZapRouteBuilderContext(
@@ -95,7 +88,7 @@ class ZapRouteBuilderContext(
   def requiredMemorySize: TeslaMemoryOffset = FeltRouteDefaultSize //ZapRouteHeaderSize +
   // ((maxStepsPerPath * ZapRouteJournalEntrySize) * maxPathsPerRoute) + ZapRouteJournalEntrySize
 
-  override def defaultStartSize: TeslaMemorySize = ???
+  override def defaultStartSize: TeslaMemorySize = ZapRouteDefaultStartSize
 
   override
   def init(

@@ -110,8 +110,10 @@ class FabricWaveStateContext(scatter: TeslaScatter) extends FabricWaveState {
     try {
       _sliceMetrics += newGather.gatherMetrics
       _result match {
-        case _: FabricEmptyGather | null => _result = newGather
-        case _ => _result.waveMerge(newGather)
+        case _: FabricEmptyGather | null =>
+          _result = newGather
+        case _ =>
+          _result.waveMerge(newGather)
       }
     } catch safely {
       case t: Throwable =>

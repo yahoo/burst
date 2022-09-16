@@ -332,13 +332,15 @@ class ZapCube2RowAnyVal(basePtr: TeslaMemoryPtr) extends AnyVal with ZapCube2Row
 
   @inline override
   def initializeFromRow(thatRow: ZapCube2Row): Unit = {
-
     ////////////////////////////////////////////////////////////////////////////////////////////
     // copy over dimensions
     dimNullMap = 0L
     var d = 0
     while (d < dimCount) {
-      if (thatRow.dimIsNull(d)) dimWrite(d, 0L) else dimWrite(d, thatRow.dimRead(d))
+      if (thatRow.dimIsNull(d))
+        dimWrite(d, 0L)
+      else
+        dimWrite(d, thatRow.dimRead(d))
       d += 1
     }
 
@@ -347,7 +349,10 @@ class ZapCube2RowAnyVal(basePtr: TeslaMemoryPtr) extends AnyVal with ZapCube2Row
     aggNullMap = 0L
     var a = 0
     while (a < aggCount) {
-      if (thatRow.aggIsNull(a)) aggWrite(a, 0L) else aggWrite(a, thatRow.aggRead(a))
+      if (thatRow.aggIsNull(a))
+        aggWrite(a, 0L)
+      else
+        aggWrite(a, thatRow.aggRead(a))
       a += 1
     }
 
@@ -534,20 +539,26 @@ class ZapCube2RowAnyVal(basePtr: TeslaMemoryPtr) extends AnyVal with ZapCube2Row
     out writeInt link
     var d = 0
     while (d < dimCount) {
-      out writeLong dimRead(d)
+      if (!dimIsNull(d))
+        out writeLong dimRead(d)
+      else
+        out writeLong 0
       d += 1
     }
     var a = 0
     while (a < aggCount) {
-      out writeLong aggRead(a)
+      if (!aggIsNull(a))
+        out writeLong aggRead(a)
+      else
+        out writeLong 0
       a += 1
     }
   }
 
   override
   def read(k: Kryo, in: Input): Unit = {
-    dimNullMap = in.readLong
-    aggNullMap = in.readLong
+    val tDimNullMap = in.readLong
+    val tAggNullMap = in.readLong
     dimCount = in.readByte
     aggCount = in.readByte
     dirty = in.readBoolean
@@ -557,11 +568,13 @@ class ZapCube2RowAnyVal(basePtr: TeslaMemoryPtr) extends AnyVal with ZapCube2Row
       dimWrite(d, in.readLong)
       d += 1
     }
+    dimNullMap = tDimNullMap
     var a = 0
     while (a < aggCount) {
       aggWrite(a, in.readLong)
       a += 1
     }
+    aggNullMap = tAggNullMap
   }
 
 }

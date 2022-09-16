@@ -19,8 +19,6 @@ package object state extends VitalsLogger {
   // Route Structure
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // TODO not all these fields need to be longs...
-
   final val poolIdFieldOffset: TeslaMemoryOffset = 0 // Int
 
   final val initialEntryFieldOffset: TeslaMemoryOffset = poolIdFieldOffset + SizeOfLong
@@ -41,23 +39,13 @@ package object state extends VitalsLogger {
 
   final val dirtyCursorFieldOffset: TeslaMemoryOffset = commitCursorFieldOffset + SizeOfLong
 
-  final val journalIteratorOffset: TeslaMemoryOffset = dirtyCursorFieldOffset + SizeOfLong
+  final val routeLimitedFieldOffset: TeslaMemoryOffset = dirtyCursorFieldOffset + SizeOfLong
+
+  final val journalIteratorOffset: TeslaMemoryOffset = routeLimitedFieldOffset + SizeOfInteger
 
   final val journalStartOffset: TeslaMemoryOffset = journalIteratorOffset + SizeOfLong
 
-  final val ZapRouteHeaderSize =
-  /* poolIdFieldOffset */ SizeOfLong +
-    /* initialEntryFieldOffset */ SizeOfLong +
-    /* currentPathFieldOffset */ SizeOfLong +
-    /* rewriteNeededFieldOffset */ SizeOfLong +
-    /* fullPathCountFieldOffset */ SizeOfLong +
-    /* currentStepKeyFieldOffset */ SizeOfLong +
-    /* currentStepKeyFieldOffset */ SizeOfLong +
-    /* currentTimeFieldOffset */ SizeOfLong +
-    /* currentPathStartTimeFieldOffset */ SizeOfLong +
-    /* commitCursorFieldOffset */ SizeOfLong +
-    /* dirtyCursorFieldOffset */ SizeOfLong +
-    /* journalCursorOffset */ SizeOfLong
+  final val ZapRouteHeaderSize = journalStartOffset
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Journal Entry Structure

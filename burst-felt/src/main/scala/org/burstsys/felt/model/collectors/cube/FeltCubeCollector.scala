@@ -106,7 +106,9 @@ trait FeltCubeCollector extends Any with FeltCollector {
    * @param text
    * @return
    */
-  def normalize(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary, thatCube: FeltCubeCollector,
+  def normalize(builder: FeltCubeBuilder,
+                thisCube: FeltCubeCollector, thisDictionary:
+                BrioMutableDictionary, thatCube: FeltCubeCollector,
                 thatDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeCollector
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -134,6 +136,12 @@ trait FeltCubeCollector extends Any with FeltCollector {
    * @param aggregation which zero based aggregation to use as the sort pivot
    */
   def truncateToBottomKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: Int, aggregation: Int): Unit
+
+  /**
+   * Reduce the cube to at most this many rows
+   * @param limit row cut off
+   */
+  def truncateRows(limit: Int): Unit
 
 
   /**

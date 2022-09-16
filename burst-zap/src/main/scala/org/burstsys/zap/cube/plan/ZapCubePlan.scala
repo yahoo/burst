@@ -12,6 +12,7 @@ import org.burstsys.felt.model.collectors.cube.decl.column.dimension.{FeltCubeDi
 import org.burstsys.felt.model.collectors.cube.runtime.{FeltCubeOrdinalMap, FeltCubeTreeMask}
 import org.burstsys.felt.model.collectors.cube.{FeltCubeId, FeltCubePlan, FeltCubeProvider}
 import org.burstsys.zap.cube._
+import org.burstsys.zap.cube2.ZapCube2Builder
 
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
@@ -321,16 +322,15 @@ class ZapCubePlanContext(decl: FeltCubeDecl) extends ZapCubePlan with ZapCubePla
     }
 
     // add scheme extensions
-
-    this.builder = ZapCubeBuilder(
+    this.builder = ZapCube2Builder(
       rowLimit = decl.rowLimit,
       fieldNames = fieldNames,
       dimensionCount = dimensionCount, dimensionSemantics = dimensionSemantics,
-      dimensionFieldTypes = dimensionFieldTypes, dimensionOrdinalMap = dimensionOrdinalMap,
+      dimensionFieldTypes = dimensionFieldTypes,
       dimensionCubeJoinMask = _dimensionCubeJoinMask,
       aggregationCount = aggregationCount, aggregationSemantics = aggregationSemantics,
       aggregationFieldTypes = aggregationFieldTypes,
-      aggregationOrdinalMap = aggregationOrdinalMap, aggregationCubeJoinMask = _aggregationCubeJoinMask
+      aggregationCubeJoinMask = _aggregationCubeJoinMask
     ).init(decl.frame.frameId, decl.frame.frameName, decl.global.binding)
     this
   }

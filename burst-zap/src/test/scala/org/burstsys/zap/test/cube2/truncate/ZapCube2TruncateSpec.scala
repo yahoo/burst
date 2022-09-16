@@ -30,8 +30,8 @@ class ZapCube2TruncateSpec extends ZapCube2Spec {
       defineExplicitLong(cubeA, cubeRows: _*)
       cubeA.truncateToBottomKBasedOnAggregation(builder, cubeA, k, 0)
 
-      cubeA.rowCount shouldEqual k
-      val bottomK = for (i <- 0.until(cubeA.rowCount)) yield cubeA.row(i).aggRead(0)
+      cubeA.itemCount shouldEqual k
+      val bottomK = for (i <- 0.until(cubeA.itemCount)) yield cubeA.row(i).aggRead(0)
       bottomK should contain theSameElementsInOrderAs Array(1, 1, 2, 2, 2, 3, 3, 3)
     }
 
@@ -42,8 +42,8 @@ class ZapCube2TruncateSpec extends ZapCube2Spec {
       defineExplicitLong(cubeA, cubeRows: _*)
       cubeA.truncateToTopKBasedOnAggregation(builder, cubeA, k, 0)
 
-      cubeA.rowCount shouldEqual k
-      val topK = for (i <- 0.until(cubeA.rowCount)) yield cubeA.row(i).aggRead(0)
+      cubeA.itemCount shouldEqual k
+      val topK = for (i <- 0.until(cubeA.itemCount)) yield cubeA.row(i).aggRead(0)
       topK should contain theSameElementsInOrderAs Array(14, 13, 12, 11, 10, 4, 4, 4)
     }
 

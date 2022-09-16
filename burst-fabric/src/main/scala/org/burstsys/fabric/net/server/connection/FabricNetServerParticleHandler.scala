@@ -73,15 +73,18 @@ trait FabricNetServerParticleHandler {
   def particleExecutionProgress(msg: FabricNetProgressMsg): Unit = {
     val tag = s"FabricNetServerParticleHandler.particleExecutionProgress($msg)"
     val slot = _particleSlotMap.get(msg)
-    if (slot == null) log warn s"$tag SLOTLESS"
-    else slot.slotProgress(msg.scatterMsg)
+    if (slot == null)
+      log warn s"$tag SLOTLESS"
+    else
+      slot.slotProgress(msg.scatterMsg)
   }
 
   final protected
   def particleExecutionResp(msg: FabricNetParticleRespMsg): Unit = {
     val tag = s"FabricNetServerParticleHandler.particleExecutionResp($msg)"
     val slot = _particleCallMap.get(msg)
-    if (slot == null) log warn s"$tag SLOTLESS"
+    if (slot == null)
+      log warn s"$tag SLOTLESS"
     else {
       FabricMasterRequestTrekMark.end(msg.guid) // are you there yet?
       log debug s"$tag received result"

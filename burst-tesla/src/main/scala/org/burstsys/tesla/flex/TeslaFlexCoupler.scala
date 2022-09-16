@@ -112,6 +112,8 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
    */
   final
   def lookupInternalCollector(index: TeslaFlexSlotIndex): Collector = {
+    if (index == emptySlotIndex)
+      throw VitalsException(s"lookupInternalCollector null index")
     assert(collectorName != null)
     if (index >= slotCount)
       throw VitalsException(s"lookupInternalCollector $collectorName $index > $slotCount")
@@ -136,15 +138,7 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
       val newInternal = allocateInternalCollector(builder, newSize)
       val oldPtr = oldInternal.basePtr
       val newPtr = newInternal.basePtr
-      log info
-        s"""|
-            |-----------------------------------
-            |FLEX_RESIZE '$collectorName' items=$items  (${prettyFixedNumber(items)})
-            |   oldPtr=$oldPtr
-            |   newPtr=$newPtr
-            |   oldSize=$oldSize (${prettyByteSizeString(oldSize)})
-            |   newSize=$newSize (${prettyByteSizeString(newSize)})
-            |-----------------------------------""".stripMargin
+      log debug s"RESIZE '$collectorName' items=$items  oldPtr=$oldPtr oldSize=$oldSize newPtr=$newPtr newSize=$newSize"
       newInternal.importCollector(oldInternal, items, builder)
       indexSlots(index) = newInternal.blockPtr
     } finally {
@@ -165,7 +159,8 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
   final
   def grabFlexCollectorProxy(builder: Builder, startSize: TeslaMemorySize): Proxy = {
     slotQueue poll match {
-      case null => throw VitalsException(s"$collectorName collector ran out of flex slots!")
+      case null =>
+        throw VitalsException(s"$collectorName collector ran out of flex slots!")
       case index =>
         indexSlots(index) = allocateInternalCollector(builder, startSize).blockPtr
         instantiateProxy(index)

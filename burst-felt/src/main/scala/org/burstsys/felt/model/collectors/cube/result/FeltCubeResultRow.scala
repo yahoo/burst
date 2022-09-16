@@ -89,4 +89,8 @@ class FeltCubeResultRowContext(cube: FeltCubePlane, row: FeltCubeRowData) extend
     override val cells: Array[FabricResultCell] = FeltCubeResultRowContext.this.cells.map(_.toJson)
   }
 
+  override def toString: String = {
+    row.map(_.toString).mkString("[",",", "]")
+  }
+
 }

@@ -21,10 +21,10 @@ class EqlMapQuerySpec extends EqlAlloyTestRunner {
 
       val names = result.resultSets(0).columnNames.zipWithIndex.toMap
       val r = result.resultSets(0).rowSet.map {
-        row => Array(row(names("evnts")).asLong, row(names("kys")).asString)
-      }
+        row => (row(names("evnts")).asLong, row(names("kys")).asString)
+      }.sortBy(_._1).sortBy(_._2)
 
-      r should equal(Array(Array(8928, "EK1"), Array(8929, "EK2"), Array(8929, "EK3"), Array(8929, "EK4"), Array(8929, "EK5"), Array(8928, "EK6"), Array(8928, "EK7")))
+      r should equal(Array((8928,"EK1"), (8929,"EK2"), (8929,"EK3"), (8929,"EK4"), (8929,"EK5"), (8928,"EK6"), (8928,"EK7")))
     })
   }
 
@@ -40,10 +40,10 @@ class EqlMapQuerySpec extends EqlAlloyTestRunner {
 
       val names = result.resultSets(0).columnNames.zipWithIndex.toMap
       val r = result.resultSets(0).rowSet.map {
-        row => Array(row(names("evnts")).asLong, row(names("vals")).asString)
-      }
+        row => (row(names("evnts")).asLong, row(names("vals")).asString)
+      }.sortBy(_._1).sortBy(_._2)
 
-      r should equal(Array(Array(8928, "EV1"), Array(8929, "EV2"), Array(8929, "EV3"), Array(8929, "EV4"), Array(8929, "EV5"), Array(8928, "EV6"), Array(8928, "EV7")))
+      r should equal(Array((8928,"EV1"), (8929,"EV2"), (8929,"EV3"), (8929,"EV4"), (8929,"EV5"), (8928,"EV6"), (8928,"EV7")))
     })
   }
 
@@ -59,10 +59,10 @@ class EqlMapQuerySpec extends EqlAlloyTestRunner {
 
       val names = result.resultSets(0).columnNames.zipWithIndex.toMap
       val r = result.resultSets(0).rowSet.map {
-        row => Array(row(names("evnts")).asLong, row(names("vals")).asString)
+        row => (row(names("evnts")).asLong, row(names("vals")).asString)
       }
 
-      r should equal(Array(Array(8929, "EV3"), Array(3571, "")))
+      r.sortBy(_._1) should equal(Array((3571, ""), (8929, "EV3")))
     })
   }
 
@@ -98,5 +98,4 @@ class EqlMapQuerySpec extends EqlAlloyTestRunner {
     // all the besides should return a result set
     result.resultSets.keys.size should be > 0
   }
-
 }

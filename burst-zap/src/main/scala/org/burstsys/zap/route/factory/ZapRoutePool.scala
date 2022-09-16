@@ -2,11 +2,11 @@
 package org.burstsys.zap.route.factory
 
 import org.burstsys.tesla
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.block.{TeslaBlock, TeslaBlockAnyVal}
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.zap.route.{ZapRoute, ZapRouteContext, ZapRouteBuilder, ZapRouteReporter}
+import org.burstsys.zap.route.{ZapRoute, ZapRouteBuilder, ZapRouteContext, ZapRouteReporter}
 
 import scala.language.postfixOps
 
@@ -17,14 +17,17 @@ case class ZapRoutePool(poolId: TeslaPoolId, partByteSize: TeslaMemoryOffset)
   override val partQueueSize: Int = 5e3.toInt // 5e3
 
   @inline override
-  def grabZapRoute(schema: ZapRouteBuilder): ZapRoute  = {
+  def grabZapRoute(builder: ZapRouteBuilder, startSize: TeslaMemorySize): ZapRoute  = {
     markPartGrabbed()
     val part = partQueue poll match {
       case null =>
         incrementPartsAllocated()
         ZapRouteReporter.alloc(partByteSize)
-        ZapRouteContext(tesla.block.factory.grabBlock(schema.requiredMemorySize).blockBasePtr).initialize(poolId)
-      case r => r.reset
+        val b = tesla.block.factory.grabBlock(startSize)
+        ZapRouteContext(b.blockBasePtr).initialize(poolId)
+      case r =>
+        r.reset(builder)
+        r
     }
     incrementPartsInUse()
     ZapRouteReporter.grab()

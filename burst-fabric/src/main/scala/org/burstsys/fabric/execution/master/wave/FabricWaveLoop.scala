@@ -69,8 +69,10 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
             waveState.shutdownMerge() // tell merge pipeline no more coming
             gather = Await.result(waveState.mergedResult, mergeWait) // wait for background merging to complete
             gather match {
-              case gather: FabricDataGather => onWaveSucceed(seqNum, waveState.guid, gather)
-              case gather: FabricFaultGather => onWaveFail(seqNum, waveState.guid, gather.fault.getMessage)
+              case gather: FabricDataGather =>
+                onWaveSucceed(seqNum, waveState.guid, gather)
+              case gather: FabricFaultGather =>
+                onWaveFail(seqNum, waveState.guid, gather.fault.getMessage)
             }
 
           // well that happened - make sure its clear what went wrong.
@@ -101,8 +103,10 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
             update.slot.request.result match {
               case gather: FabricGather =>
                 waveState.mergeGather(gather)
-                if (gather.succeeded) onParticleSucceed(seqNum, scatter.guid, update.slot.ruid)
-                else onParticleFail(seqNum, scatter.guid, update.slot.ruid, gather.messages.mkString("; "))
+                if (gather.succeeded)
+                  onParticleSucceed(seqNum, scatter.guid, update.slot.ruid)
+                else
+                  onParticleFail(seqNum, scatter.guid, update.slot.ruid, gather.messages.mkString("; "))
             }
 
 
@@ -112,11 +116,14 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
             scatter.scatterFail(update.throwable)
 
           // received when a particle is considered late - generally this is recoverable through retry or redirect
-          case update: TeslaScatterSlotTardy => onParticleTardy(seqNum, scatter.guid, update.slot.ruid, update.message)
+          case update: TeslaScatterSlotTardy =>
+            onParticleTardy(seqNum, scatter.guid, update.slot.ruid, update.message)
 
-          case update: TeslaScatterSlotRetry => onParticleRetry(seqNum, scatter.guid, update.slot.ruid, update.message)
+          case update: TeslaScatterSlotRetry =>
+            onParticleRetry(seqNum, scatter.guid, update.slot.ruid, update.message)
 
-          case update: TeslaScatterSlotCancel => onParticleCancelled(seqNum, scatter.guid, update.slot.ruid, "Particle canceled")
+          case update: TeslaScatterSlotCancel =>
+            onParticleCancelled(seqNum, scatter.guid, update.slot.ruid, "Particle canceled")
 
           case updateOfUnknownType =>
             waveState.shutdownMerge()

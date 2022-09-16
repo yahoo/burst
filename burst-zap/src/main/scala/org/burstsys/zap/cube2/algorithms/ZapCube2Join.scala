@@ -92,92 +92,67 @@ trait ZapCube2Join extends Any with ZapCube2State {
                                       resultCube: FeltCubeCollector,
                                       parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
                                       childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal): Unit = {
+    assert(this == thisCube)
+    assert(this != resultCube)
+    assert(childCube != resultCube)
     val rc = resultCube.asInstanceOf[ZapCube2]
     val cc = childCube.asInstanceOf[ZapCube2]
 
-    try {
-      /**
-       * if this cube as the ''parent'' is empty, then just copy any ''child'' rows in to this cube verbatim.
-       */
-      if (this.isEmpty) {
-        var b = 0
-        while (b < bucketsCount) { // same as child cube!
-          cc.bucketRead(b) match {
-            case EmptyBucket => // nada
-            case childBucketHeadOffset =>
-              var childContinue = true
-              var childListRow = ZapCube2Row(cc, childBucketHeadOffset)
-              while (childContinue) {
-                rc.createCopyRow(
-                  parentCube = this,
-                  childCube = cc, childRow = childListRow,
-                  resultCube = rc,
-                  parentDimensionMask = parentDimensionMask, parentAggregationMask = parentAggregationMask,
-                  childDimensionMask = childDimensionMask, childAggregationMask = childAggregationMask
-                )
-                if (rowsLimited) return
-                if (childListRow.isListEnd) childContinue = false else childListRow = ZapCube2Row(cc, childListRow.link)
-              }
-          }
-          b += 1
+    var cCount = 0
+    while (cCount < cc.rowsCount) {
+      val currentChildRow = cc.row(cCount)
+
+      if (this.rowsCount > 0) {
+        var pCount = 0
+        while (pCount < this.rowsCount) {
+          val currentParentRow = this.row(pCount)
+          rc.createJoinRow(
+            parentRow = currentParentRow,
+            childRow = currentChildRow,
+            resultCube = rc,
+            parentDimensionMask = parentDimensionMask, parentAggregationMask = parentAggregationMask,
+            childDimensionMask = childDimensionMask, childAggregationMask = childAggregationMask
+          )
+          pCount += 1
         }
-        return
+      } else {
+        // Since there are no parent rows
+        // just copy the child row info and mask the parent out
+        rc.createJoinRow(
+          parentRow = null,
+          childRow = currentChildRow,
+          resultCube = rc,
+          parentDimensionMask = VitalsBitMapAnyVal(), parentAggregationMask = VitalsBitMapAnyVal(),
+          childDimensionMask = childDimensionMask, childAggregationMask = childAggregationMask
+        )
       }
-
-      /**
-       * if the parent is not empty, then we have to create a new ''joined'' row for every combination of child and parent rows
-       * in a perfect nested loop. (O:N2)
-       */
-
-      // for each child bucket and each row in the bucket...
-      var childBucket = 0
-      while (childBucket < cc.bucketsCount) {
-        cc.bucketRead(childBucket) match {
-          case EmptyBucket => // nada
-          case childBucketHeadOffset =>
-            var childListRow = ZapCube2Row(cc, childBucketHeadOffset)
-
-            // for each parent bucket and each row in the bucket...
-            var childContinue = true
-            while (childContinue) {
-              var parentBucket = 0
-              while (parentBucket < this.bucketsCount) {
-                this.bucketRead(parentBucket) match {
-                  case EmptyBucket => // nada
-                  case parentBucketHeadOffset =>
-
-                    var parentListRow = ZapCube2Row(this, parentBucketHeadOffset)
-                    var parentContinue = true
-                    while (parentContinue) {
-                      // create join row for each row in bucket
-                      rc.createJoinRow(
-                        parentRow = parentListRow,
-                        childCube = cc, childRow = childListRow,
-                        resultCube = rc,
-                        parentDimensionMask = parentDimensionMask, parentAggregationMask = parentAggregationMask,
-                        childDimensionMask = childDimensionMask, childAggregationMask = childAggregationMask
-                      )
-                      if (rowsLimited) return
-                      if (parentListRow.isListEnd) parentContinue = false else parentListRow = ZapCube2Row(this, parentListRow.link)
-                    }
-
-                }
-                parentBucket += 1
-              }
-
-              if (childListRow.isListEnd) childContinue = false else childListRow = ZapCube2Row(this, childListRow.link)
-            }
-        }
-        childBucket += 1
-      }
-
-    } finally if (!rowsLimited) resizeCount = 0 // made it all the way through without a resize
+      cCount += 1
+    }
+    rc.validate()
   }
 
-  @inline final override
-  def createJoinRow(
-                     parentRow: ZapCube2Row,
-                     childCube: ZapCube2, childRow: ZapCube2Row,
+  /**
+   *  Make a join row in the result cube.
+   *
+   *  There are some strange unstated assumptions that are going on here that should be mentioned so that
+   *  the reader isn't too confused.   These "assumptions" should be tracked up through the generated sweep
+   *  code to correct them
+   *
+   *  The new row created in the result cube will have it's null bit set already.
+   *  The parent and child can have overlapping masks
+   *  The assumption is that only one of the child or parent will have data in a field even if the mask says both will
+   *  One of child or parent will have null data for the field it set in duplicate with the other
+   *  The fact that this code only write a field to the result if the source is not null, but doesn't set the result to null if it is, is
+   *     crucial.  This means one of the child or parent will set the field and neither will "accidently" set it to null after the other set it.
+   *  If both the parent and the child are null, then the fact that the new row is initialized to null covers that.
+   *
+   *  It's not clear why the parent mask overlaps the child.  This really causes problems with two dynamic paths on the
+   *  same parent using the same cube, since each child seems to have the same mask and so trounce on each other.  I guess one could argue
+   *  that this should be allowed.
+   */
+  @inline final
+  def createJoinRow( parentRow: ZapCube2Row,
+                     childRow: ZapCube2Row,
                      resultCube: ZapCube2,
                      parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
                      childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal): ZapCube2Row = {
@@ -189,65 +164,42 @@ trait ZapCube2Join extends Any with ZapCube2State {
     // put the correct dimensions in it
     var d = 0
     while (d < dimCount) {
-      //  copy over the parent dimension if mask so indicates
-      if (parentDimensionMask.testBit(d)) if (!parentRow.dimIsNull(d)) joinPivot.dimWrite(d, parentRow.dimRead(d))
+      if (childDimensionMask.testBit(d)) {
+        if (!childRow.dimIsNull(d)) {
+          joinPivot.dimWrite(d, childRow.dimRead(d))
+        }
+      }
+      if (parentDimensionMask.testBit(d)) {
+        if (!parentRow.dimIsNull(d)) {
+          joinPivot.dimWrite(d, parentRow.dimRead(d))
+        }
+      }
 
-      //  copy over the child dimension if mask so indicates
-      if (childDimensionMask.testBit(d)) if (!childRow.dimIsNull(d)) joinPivot.dimWrite(d, childRow.dimRead(d))
       d += 1
     }
 
     // place into result cube -- navigate to / insert the row pointed to by our pivot key
     val resultRow = resultCube.navigate(joinPivot)
-    if (resultRow == limitExceededMarkerRow) return limitExceededMarkerRow
+    if (resultRow == limitExceededMarkerRow)
+      return limitExceededMarkerRow
 
     // set the aggregations to the correct values
     var a = 0
     resultRow.aggNullMap = 0L
     while (a < aggCount) {
-      // always copy over the parent aggregation
-      if (parentAggregationMask.testBit(a)) if (!parentRow.aggIsNull(a)) resultRow.aggWrite(a, parentRow.aggRead(a))
+      if (childAggregationMask.testBit(a)) {
+        if (!childRow.aggIsNull(a)) {
+          resultRow.aggWrite(a, childRow.aggRead(a))
+        }
+      }
+      if (parentAggregationMask.testBit(a)) {
+        if (!parentRow.aggIsNull(a)) {
+          resultRow.aggWrite(a, parentRow.aggRead(a))
+        }
+      }
 
-      // only do child if this dimension comes from the child
-      if (childAggregationMask.testBit(a)) if (!childRow.aggIsNull(a)) resultRow.aggWrite(a, childRow.aggRead(a))
       a += 1
     }
     resultRow
   }
-
-  @inline final override
-  def createCopyRow(
-                     parentCube: ZapCube2,
-                     childCube: ZapCube2, childRow: ZapCube2Row,
-                     resultCube: ZapCube2,
-                     parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
-                     childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal): ZapCube2Row = {
-
-    // get our zero gc initialized temporary join key TODO - did I convince myself we can't use cursor?
-    val joinPivot = pivot
-    resetPivot()
-
-    // put the correct dimensions in it
-    var d = 0
-    while (d < dimCount) {
-      //  copy over the child dimension if mask so indicates
-      if (childDimensionMask.testBit(d)) if (!childRow.dimIsNull(d)) joinPivot.dimWrite(d, childRow.dimRead(d))
-      d += 1
-    }
-
-    // navigate to / insert the row pointed to by our pivot key
-    val resultRow = resultCube.navigate(joinPivot)
-    if (resultRow == limitExceededMarkerRow) return limitExceededMarkerRow
-
-    // set the aggregations to the correct values
-    resultRow.aggNullMap = 0L
-    var a = 0
-    while (a < aggCount) {
-      // only do child if this dimension comes from the child
-      if (childAggregationMask.testBit(a)) if (!childRow.aggIsNull(a)) resultRow.aggWrite(a, childRow.aggRead(a))
-      a += 1
-    }
-    resultRow
-  }
-
 }

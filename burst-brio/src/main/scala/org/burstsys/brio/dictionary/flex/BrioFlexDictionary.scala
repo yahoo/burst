@@ -6,6 +6,7 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.brio.dictionary.defaultDictionaryBuilder
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.brio.types.BrioTypes.BrioDictionaryKey
+import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.flex.{TeslaFlexCoupler, TeslaFlexProxy, TeslaFlexProxyContext, TeslaFlexSlotIndex}
 import org.burstsys.tesla.pool.TeslaPoolId
@@ -29,7 +30,12 @@ final case
 class BrioFlexDictionaryAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with BrioFlexDictionary
   with TeslaFlexProxyContext[BrioDictionaryBuilder, BrioMutableDictionary, BrioFlexDictionary] {
 
-  override def toString: String = internalCollector.toString
+  override def toString: String = {
+    if (index == org.burstsys.tesla.flex.emptySlotIndex)
+      s"EmptyFlexDictionary"
+    else
+      internalCollector.toString
+  }
 
   override def coupler: TeslaFlexCoupler[BrioDictionaryBuilder, BrioMutableDictionary, BrioFlexDictionary] = org.burstsys.brio.dictionary.flex.coupler
 

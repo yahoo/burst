@@ -131,7 +131,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
     _planeName = builder.frameName
     _planeBinding = builder.binding
     _planeBuilder = builder.asInstanceOf[B]
-    _planeCollector = grabCollector(_planeBuilder)
+    _planeCollector = grabCollector(_planeBuilder, 0)
     resetConstraintFlags()
     this
   }
@@ -176,6 +176,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
       writeOutcome(kryo, output)
 
       _planeBuilder.write(kryo, output)
+      output writeInt _planeCollector.size()
       _planeCollector.write(kryo, output)
     } catch safely {
       case t: Throwable =>
@@ -205,7 +206,8 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
       _planeBuilder = newBuilder()
       _planeBuilder.read(kryo, input)
 
-      _planeCollector = grabCollector(_planeBuilder)
+      val desiredSize = input.readInt()
+       _planeCollector = grabCollector(_planeBuilder, desiredSize)
       _planeCollector.read(kryo, input)
     } catch safely {
       case t: Throwable =>
@@ -229,7 +231,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
   override
   def toString: String = {
     s"""FeltCollectorPlane(
-       | planeId=${planeId}, planeName=${planeName}
+       | planeId=${planeId}, planeName=${planeName} rowCount=${rowCount} rowLimitExceeded=${rowLimitExceeded}
        |  $outcomeAsString
        |)
      """.stripMargin

@@ -7,13 +7,14 @@ import org.burstsys.brio.types.BrioTypes
 import org.burstsys.brio.types.BrioTypes.{BrioRelationName, BrioTypeKey}
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.FeltCubeAggSemRt
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.FeltCubeDimSemRt
-import org.burstsys.felt.model.collectors.cube.runtime.{FeltCubeOrdinalMap, FeltCubeTreeMask}
+import org.burstsys.felt.model.collectors.cube.runtime.FeltCubeTreeMask
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeBuilderContext}
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemorySize}
+import org.burstsys.tesla.TeslaTypes.{SizeOfLong, TeslaMemoryOffset, TeslaMemorySize}
 import org.burstsys.tesla.part.TeslaPartBuilder
+import org.burstsys.zap.cube2.row.ZapCube2Row
 
 trait ZapCube2Builder extends FeltCubeBuilder with TeslaPartBuilder {
-
+  def neededSize(itemCount: Int): TeslaMemorySize
 }
 
 object ZapCube2Builder {
@@ -33,13 +34,13 @@ object ZapCube2Builder {
              aggregationSemantics: Array[FeltCubeAggSemRt] = Array.empty
            ): ZapCube2Builder =
     ZapCube2BuilderContext(
-      defaultStartSize = defaultStartSize,
+      declaredDefaultStartSize = defaultStartSize,
 
       fieldNames = dimensionFieldNames ++ aggregationFieldNames,
 
       dimensionCount = dimensionCount: Int,
       dimensionFieldTypes = dimensionFieldTypes: Array[BrioTypeKey],
-      dimensionSemantics = null, // TODO
+      dimensionSemantics = Array.empty, // TODO
 
       aggregationCount = aggregationCount: Int,
       aggregationFieldTypes = aggregationFieldTypes: Array[BrioTypeKey],
@@ -94,26 +95,44 @@ object ZapCube2Builder {
  */
 private final case
 class ZapCube2BuilderContext(
-                              var defaultStartSize: TeslaMemorySize = flex.defaultStartSize,
-                              var rowLimit: Int = 10000,
+                              var declaredDefaultStartSize: TeslaMemorySize = flex.defaultStartSize,
+                              var rowLimit: Int = 100,
 
                               var fieldNames: Array[BrioRelationName] = Array.empty,
 
                               var dimensionCount: Int = 0,
                               var dimensionSemantics: Array[FeltCubeDimSemRt],
                               var dimensionFieldTypes: Array[BrioTypeKey] = Array.empty,
-                              var dimensionOrdinalMap: FeltCubeOrdinalMap = FeltCubeOrdinalMap(), // TODO DEPRECATED GIST ONLY
                               var dimensionCubeJoinMask: FeltCubeTreeMask = FeltCubeTreeMask(),
 
                               var aggregationCount: Int = 0,
                               var aggregationSemantics: Array[FeltCubeAggSemRt] = Array.empty,
                               var aggregationFieldTypes: Array[BrioTypeKey] = Array.empty,
-                              var aggregationOrdinalMap: FeltCubeOrdinalMap = FeltCubeOrdinalMap(), // TODO DEPRECATED GIST ONLY
                               var aggregationCubeJoinMask: FeltCubeTreeMask = FeltCubeTreeMask()
 
                             ) extends FeltCubeBuilderContext with ZapCube2Builder {
 
-  override val bucketCount: Int = 16
+  def defaultStartSize: TeslaMemorySize = neededSize(rowLimit)
+
+  //override val bucketCount: Int = 16
+  @inline override
+  def bucketCount(maxRowCount: Int): Int = {
+    maxRowCount match {
+      case n if n == 1 => 1;
+      case n if n < 10 => 3;
+      case n if n < 50 => 7;
+      case n if n < 100 => 11;
+      case n if n < 500 => 23;
+      case n if n < 1000 => 43;
+      case n if n < 5000 => 83;
+      case n if n < 10000 => 103;
+      case _ => 103
+    }
+  }
+
+  @inline
+  lazy val rowSize: TeslaMemoryOffset = ZapCube2Row.byteSize(dimensionCount, aggregationCount)
+
 
   override def totalMemorySize: TeslaMemoryOffset =
     ???
@@ -121,6 +140,12 @@ class ZapCube2BuilderContext(
   override def requiredMemorySize: TeslaMemorySize =
     ???
 
+  def neededSize(itemCount: Int): TeslaMemorySize = {
+    if (itemCount <= 0)
+      defaultStartSize
+    else
+      state.SizeofFixedSizeHeader + bucketCount(itemCount)*SizeOfLong + itemCount*rowSize
+  }
   /**
    * convert a field name to a column key
    */
@@ -145,6 +170,22 @@ class ZapCube2BuilderContext(
     fieldNames(dimensionCount + a)
   }
 
+  override
+  def toString: String =
+    f"""
+       |ZapCubeBuilder(frameId=$frameId, frameName=$frameName, rowLimit=$rowLimit,
+       |   fieldNames: ${fieldNames.mkString("[",",","]")}
+       |     row:
+       |          limit=$rowLimit%,d, size=$rowSize%,d, blockSize=${rowSize * rowLimit}%,d
+       |   dimensions:
+       |       dimensionCount=$dimensionCount%,d, semantics=${if (dimensionSemantics != null) dimensionSemantics.mkString("{'", "', '", "'}") else "NONE"}
+       |       types=${dimensionFieldTypes.mkString("{'", "', '", "'}")}, mask=$dimensionCubeJoinMask
+       |   aggregations:
+       |       aggregationCount=$aggregationCount%,d, semantics=${if (aggregationSemantics != null) aggregationSemantics.mkString("{'", "', '", "'}") else "NONE"}
+       |       types=${aggregationFieldTypes.mkString("{'", "', '", "'}")}, mask=$aggregationCubeJoinMask
+       |)
+       """.stripMargin
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // KRYO SERDE
   ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,25 +193,31 @@ class ZapCube2BuilderContext(
   override
   def write(kryo: Kryo, output: Output): Unit = {
     super.write(kryo, output)
-    output.writeInt(defaultStartSize)
     output.writeInt(dimensionCount)
     output.writeInt(aggregationCount)
     output.writeInt(rowLimit)
+    kryo.writeClassAndObject(output, fieldNames)
     kryo.writeClassAndObject(output, dimensionFieldTypes)
+    kryo.writeClassAndObject(output, dimensionSemantics)
+    dimensionCubeJoinMask.write(kryo, output)
     kryo.writeClassAndObject(output, aggregationFieldTypes)
     kryo.writeClassAndObject(output, aggregationSemantics)
+    aggregationCubeJoinMask.write(kryo, output)
   }
 
   override
   def read(kryo: Kryo, input: Input): Unit = {
     super.read(kryo, input)
-    defaultStartSize = input.readInt
     dimensionCount = input.readInt
     aggregationCount = input.readInt
     rowLimit = input.readInt
+    fieldNames = kryo.readClassAndObject(input).asInstanceOf[Array[BrioRelationName]]
     dimensionFieldTypes = kryo.readClassAndObject(input).asInstanceOf[Array[BrioTypeKey]]
+    dimensionSemantics = kryo.readClassAndObject(input).asInstanceOf[Array[FeltCubeDimSemRt]]
+    dimensionCubeJoinMask = FeltCubeTreeMask(kryo, input)
     aggregationFieldTypes = kryo.readClassAndObject(input).asInstanceOf[Array[BrioTypeKey]]
     aggregationSemantics = kryo.readClassAndObject(input).asInstanceOf[Array[FeltCubeAggSemRt]]
+    aggregationCubeJoinMask = FeltCubeTreeMask(kryo, input)
   }
 
 

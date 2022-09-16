@@ -29,7 +29,6 @@ class ZapFlexCube2BasicSpec extends ZapCube2Spec {
         cube.rowsCount should equal(0)
         cube.dimCount should equal(builder.dimensionCount)
         cube.aggCount should equal(builder.aggregationCount)
-        cube.bucketsCount should equal(builder.bucketCount)
       } finally {
         cube2.flex.releaseFlexCube(cube)
         flex.releaseFlexDictionary(dictionary)

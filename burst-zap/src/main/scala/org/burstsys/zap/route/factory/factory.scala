@@ -14,9 +14,9 @@ package object factory extends TeslaPartFactory[ZapRoute, ZapRoutePool]
   startPartTender
 
   final override
-  def grabZapRoute(schema: ZapRouteBuilder): ZapRoute = {
-    val bs = TeslaBlockSizes findBlockSize schema.requiredMemorySize
-    val route = perThreadPartPool(bs) grabZapRoute schema
+  def grabZapRoute(builder: ZapRouteBuilder, startSize: TeslaMemorySize): ZapRoute = {
+    val bs = TeslaBlockSizes findBlockSize startSize
+    val route = perThreadPartPool(bs).grabZapRoute(builder, startSize)
     route.validateAndIncrementReferenceCount()
     route
   }

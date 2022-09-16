@@ -54,7 +54,7 @@ object HydraQuoSubCubes02 extends HydraUseCase(1, 1, "quo") {
   }
 
   def found(rowSet: Array[FabricResultRow]): Array[_] = {
-    rowSet.map {
+    val mappedRows = rowSet.map {
       row =>
         (
           row.cells(0).asByte match {
@@ -63,13 +63,19 @@ object HydraQuoSubCubes02 extends HydraUseCase(1, 1, "quo") {
             case 1 => "Female"
             case _ => ???
           },
-          if (row.cells(1).isNull) -1 else row.cells(1).asLong,
+          if (row.cells(1).isNull)
+            -1
+          else
+            row.cells(1).asLong,
           row.cells(2).asLong
         )
-    }.sortBy(_._2).sortBy(_._1)
+    }
+
+    mappedRows.sortBy(_._2).sortBy(_._1)
   }
 
-  val expected: Array[Any] = Array(("Female",19184,9), ("Female",19192,3), ("Female",19272,3), ("Female",20129,8), ("Male",19184,12), ("Male",19187,14), ("Male",19192,4), ("Male",19272,7), ("Male",20129,11), ("Unknown",19184,2), ("Unknown",19272,2), ("Unknown",20129,2))
+  val expected: Array[Any] = Array(("Female",19184,9), ("Female",19192,3), ("Female",19272,3), ("Female",20129,8), ("Male",19184,12),
+    ("Male",19187,14), ("Male",19192,4), ("Male",19272,7), ("Male",20129,11), ("Unknown",19184,2), ("Unknown",19272,2), ("Unknown",20129,2))
 
 
 }

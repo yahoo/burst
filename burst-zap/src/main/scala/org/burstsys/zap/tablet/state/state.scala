@@ -14,6 +14,10 @@ package object state {
 
   final val tabletSizeFieldOffset: TeslaMemoryOffset = poolIdFieldOffset + SizeOfInteger
 
-  final val tabletDataFieldOffset: TeslaMemoryOffset = tabletSizeFieldOffset + SizeOfInteger
+  final val tabletItemSizeFieldOffset: TeslaMemoryOffset = tabletSizeFieldOffset + SizeOfInteger
+
+  final val tabletLimitedFieldOffset: TeslaMemoryOffset = tabletItemSizeFieldOffset + SizeOfInteger
+
+  final val tabletDataFieldOffset: TeslaMemoryOffset = tabletLimitedFieldOffset + SizeOfInteger
 
 }

@@ -4,17 +4,12 @@ package org.burstsys.felt.model.collectors
 import org.burstsys.felt.model.collectors.decl.FeltCollectorProvider
 import org.burstsys.felt.model.collectors.tablet.decl.{FeltTabletDecl, FeltTabletRef}
 import org.burstsys.vitals.instrument.MB
+import org.burstsys.vitals.io.KB
 
 package object tablet {
 
-  final val FeltMaxTablets = 512
-
   final
-  val FeltDefaultTabletSize: Int = (2 * MB).toInt
-
-  type FeltTabletName = String
-
-  type FeltTabletNameKey = Int
+  val FeltDefaultTabletSize: Int = (100 * KB).toInt
 
   trait FeltTabletProvider
     extends FeltCollectorProvider[FeltTabletCollector, FeltTabletBuilder, FeltTabletRef, FeltTabletDecl, FeltTabletPlan]

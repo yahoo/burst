@@ -3,6 +3,7 @@ package org.burstsys.zap.shrub
 
 import org.burstsys.felt.model.collectors.shrub.decl.FeltShrubDecl
 import org.burstsys.felt.model.collectors.shrub.{FeltShrubBuilder, FeltShrubCollector, FeltShrubPlan, FeltShrubProvider}
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 
 final case
 class ZapShrubProvider() extends FeltShrubProvider {
@@ -14,7 +15,7 @@ class ZapShrubProvider() extends FeltShrubProvider {
 
   override def collectorPlan(decl: FeltShrubDecl): FeltShrubPlan = ???
 
-  override def grabCollector(builder: FeltShrubBuilder): FeltShrubCollector = ???
+  override def grabCollector(builder: FeltShrubBuilder, desiredSize: TeslaMemorySize): FeltShrubCollector = ???
 
   override def releaseCollector(collector: FeltShrubCollector): Unit = ???
 }

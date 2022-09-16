@@ -6,9 +6,7 @@ import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.primitive
 import org.burstsys.vitals.bitmap.VitalsBitMapAnyVal
 import org.burstsys.zap.cube2
 import org.burstsys.zap.cube2.ZapCube2Builder
-import org.burstsys.zap.test.cube.ZapTestData.{builder, z1}
 import org.burstsys.zap.test.cube2.ZapCube2Spec
-import org.scalatest.Ignore
 
 //@Ignore
 class ZapFlexCube2Join1Spec extends ZapCube2Spec {

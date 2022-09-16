@@ -7,13 +7,11 @@ package org.burstsys.felt.model.collectors.route
 trait FeltRouteIterator extends Any {
 
   /**
-   * TODO
+   * start the route iteration at the beginning
    *
    * @return
-   * @deprecated use currentIteration/nextIteration
-   *             (used by GIST - not by HYDRA)
    */
-  def firstEntry: FeltRouteEntry
+  def startIteration: Unit
 
   /**
    * The Route stores a single cursor iteration pointer to a journal entry

@@ -3,6 +3,7 @@ package org.burstsys.zap.route.state
 
 
 import org.burstsys.felt.model.collectors.route._
+import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes.TeslaMemoryOffset
 import org.burstsys.tesla.offheap
 import org.burstsys.tesla.pool._
@@ -21,69 +22,108 @@ trait ZapRouteState extends Any with ZapRoute {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def poolId: TeslaPoolId = offheap.getInt(basePtr + poolIdFieldOffset)
+  def poolId: TeslaPoolId =
+    offheap.getInt(basePtr + poolIdFieldOffset)
 
   @inline final
-  def poolId(w: TeslaPoolId): Unit = offheap.putInt(basePtr + poolIdFieldOffset, w)
+  def poolId_=(w: TeslaPoolId): Unit =
+    offheap.putInt(basePtr + poolIdFieldOffset, w)
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // limited Field
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @inline final
+  def routeLimited: Boolean =
+    offheap.getInt(basePtr + routeLimitedFieldOffset) != 0
+
+  @inline final
+  def routeLimited_=(w: Boolean): Unit = {
+    offheap.putInt(
+      basePtr + routeLimitedFieldOffset, {
+        if (w)
+          1
+        else
+          0
+      })
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // rewrite needed flag
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final
-  def rewriteNeeded: Boolean = offheap.getByte(basePtr + rewriteNeededFieldOffset) > 0
+  def rewriteNeeded: Boolean =
+    offheap.getByte(basePtr + rewriteNeededFieldOffset) > 0
 
   @inline final
-  def rewriteNeeded_=(s: Boolean): Unit = offheap.putByte(basePtr + rewriteNeededFieldOffset, if (s) 1 else 0)
+  def rewriteNeeded_=(s: Boolean): Unit =
+    offheap.putByte(basePtr + rewriteNeededFieldOffset, {
+      if (s)
+        1
+      else
+        0
+    })
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // commitCursor
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final
-  def commitCursor: TeslaMemoryOffset = offheap.getInt(basePtr + commitCursorFieldOffset)
+  def commitCursor: TeslaMemoryOffset =
+    offheap.getInt(basePtr + commitCursorFieldOffset)
 
   @inline final
-  def commitCursor(w: TeslaMemoryOffset): Unit = offheap.putInt(basePtr + commitCursorFieldOffset, w)
+  def commitCursor(w: TeslaMemoryOffset): Unit =
+    offheap.putInt(basePtr + commitCursorFieldOffset, w)
 
   @inline final
-  def commitEntry: ZapRouteEntry = ZapRouteEntry(basePtr + journalStartOffset + commitCursor)
+  def commitEntry: ZapRouteEntry =
+    ZapRouteEntry(basePtr + journalStartOffset + commitCursor)
 
   @inline final
-  def commitEntry(e: ZapRouteEntry): Unit = commitCursor((e.basePtr - basePtr - journalStartOffset).toInt)
+  def commitEntry(e: ZapRouteEntry): Unit =
+    commitCursor((e.basePtr - basePtr - journalStartOffset).toInt)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // dirtyCursor
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final
-  def dirtyCursor: TeslaMemoryOffset = offheap.getInt(basePtr + dirtyCursorFieldOffset)
+  def dirtyCursor: TeslaMemoryOffset =
+    offheap.getInt(basePtr + dirtyCursorFieldOffset)
 
   @inline final
-  def dirtyCursor(w: TeslaMemoryOffset): Unit = offheap.putInt(basePtr + dirtyCursorFieldOffset, w)
+  def dirtyCursor(w: TeslaMemoryOffset): Unit =
+    offheap.putInt(basePtr + dirtyCursorFieldOffset, w)
 
   @inline final
-  def dirtyEntry: ZapRouteEntry = ZapRouteEntry(basePtr + journalStartOffset + dirtyCursor)
+  def dirtyEntry: ZapRouteEntry =
+    ZapRouteEntry(basePtr + journalStartOffset + dirtyCursor)
 
   @inline final
-  def dirtyEntry(e: ZapRouteEntry): Unit = dirtyCursor((e.basePtr - basePtr - journalStartOffset).toInt)
+  def dirtyEntry(e: ZapRouteEntry): Unit =
+    dirtyCursor((e.basePtr - basePtr - journalStartOffset).toInt)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // current path ordinal
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final
-  def currentPathOrdinal: FeltRoutePathOrdinal = offheap.getInt(basePtr + currentPathFieldOffset)
+  def currentPathOrdinal: FeltRoutePathOrdinal =
+    offheap.getInt(basePtr + currentPathFieldOffset)
 
   @inline final
-  def currentPathOrdinal_=(sk: FeltRoutePathOrdinal): Unit = offheap.putInt(basePtr + currentPathFieldOffset, sk)
+  def currentPathOrdinal_=(sk: FeltRoutePathOrdinal): Unit =
+    offheap.putInt(basePtr + currentPathFieldOffset, sk)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // full path count
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def routeCompletePaths: Int = offheap.getInt(basePtr + completePathsFieldOffset)
+  def routeCompletePaths: Int =
+    offheap.getInt(basePtr + completePathsFieldOffset)
 
   @inline final
   def routeCompletePaths_=(count: Int): Unit =
@@ -94,51 +134,67 @@ trait ZapRouteState extends Any with ZapRoute {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def routeStepCount: Int = if (isEmpty) 0 else commitEntry.stepOrdinal + 1
+  def routeStepCount: Int = {
+    if (isEmpty)
+      0
+    else
+      commitEntry.stepOrdinal + 1
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // current step key
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final
-  def currentStepKey: FeltRouteStepKey = offheap.getInt(basePtr + currentStepKeyFieldOffset)
+  def currentStepKey: FeltRouteStepKey =
+    offheap.getInt(basePtr + currentStepKeyFieldOffset)
 
   @inline final
-  def currentStepKey_=(key: FeltRouteStepKey): Unit = offheap.putInt(basePtr + currentStepKeyFieldOffset, key)
+  def currentStepKey_=(key: FeltRouteStepKey): Unit =
+    offheap.putInt(basePtr + currentStepKeyFieldOffset, key)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // current time
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final
-  def currentTime: FeltRouteStepTime = offheap.getLong(basePtr + currentTimeFieldOffset)
+  def currentTime: FeltRouteStepTime =
+    offheap.getLong(basePtr + currentTimeFieldOffset)
 
   @inline final
-  def currentTime_=(st: FeltRouteStepTime): Unit = offheap.putLong(basePtr + currentTimeFieldOffset, st)
+  def currentTime_=(st: FeltRouteStepTime): Unit =
+    offheap.putLong(basePtr + currentTimeFieldOffset, st)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // route path time
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def routePathStartTime: FeltRouteStepTime = offheap.getLong(basePtr + currentPathStartTimeFieldOffset)
+  def routePathStartTime: FeltRouteStepTime =
+    offheap.getLong(basePtr + currentPathStartTimeFieldOffset)
 
   @inline final
-  def routePathStartTime_=(st: FeltRouteStepTime): Unit = offheap.putLong(basePtr + currentPathStartTimeFieldOffset, st)
+  def routePathStartTime_=(st: FeltRouteStepTime): Unit =
+    offheap.putLong(basePtr + currentPathStartTimeFieldOffset, st)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Journal Entry Management
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def isEmpty: Boolean = commitCursor == UninitializedCursor && dirtyCursor == UninitializedCursor
-  //def isEmpty: Boolean = initialEntry
-
-  @inline final override
-  def firstEntry: ZapRouteEntry = ZapRouteEntry(basePtr + journalStartOffset) // TODO deprecated as public route make private
+  def isEmpty: Boolean =
+    commitCursor == UninitializedCursor && dirtyCursor == UninitializedCursor
 
   @inline final
   def createNewJournalEntry(isTacit: Boolean): Unit = {
+    // make sure there is room for the route header, the entries up to the dirty cursor, the dirty cursor, and
+    // the new slot we want to allocate
+    val neededSize = ZapRouteHeaderSize + dirtyCursor + ZapRouteJournalEntrySize + ZapRouteJournalEntrySize
+    if (neededSize > this.availableMemorySize) {
+      itemLimited = true
+      return
+    }
+
     var stepOrdinal = 0
     if (dirtyCursor == UninitializedCursor) {
       dirtyCursor(0)
@@ -151,26 +207,35 @@ trait ZapRouteState extends Any with ZapRoute {
       }
       dirtyCursor(dirtyCursor + ZapRouteJournalEntrySize)
     }
-    // make sure there is room for two more entries...
-    checkPtr(basePtr + journalStartOffset + dirtyCursor + ZapRouteJournalEntrySize + ZapRouteJournalEntrySize)
     dirtyEntry.initialize()
     dirtyEntry.isTacit = isTacit
     dirtyEntry.stepOrdinal = stepOrdinal
-    dirtyEntry.next.initialize()
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Journal Iteration
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  @inline final private
+  def firstEntry: ZapRouteEntry =
+    ZapRouteEntry(basePtr + journalStartOffset)
+
   @inline final override
-  def currentIteration: ZapRouteEntry = ZapRouteEntry(offheap.getLong(basePtr + journalIteratorOffset))
+  def startIteration: Unit = {
+    currentIteration = ZapRouteNullJournalEntry
+  }
+
+  @inline final override
+  def currentIteration: ZapRouteEntry =
+    ZapRouteEntry(offheap.getLong(basePtr + journalIteratorOffset))
 
   @inline final private
-  def currentIteration_=(e: ZapRouteEntry): Unit = offheap.putLong(basePtr + journalIteratorOffset, e.basePtr)
+  def currentIteration_=(e: ZapRouteEntry): Unit =
+    offheap.putLong(basePtr + journalIteratorOffset, e.basePtr)
 
   @inline final private
-  def currentIterationIsLast: Boolean = commitEntry.basePtr == currentIteration.basePtr
+  def currentIterationIsLast: Boolean =
+    commitEntry.basePtr == currentIteration.basePtr
 
   @inline final override
   def firstOrNextIterable: Boolean = {
@@ -202,8 +267,9 @@ trait ZapRouteState extends Any with ZapRoute {
    */
   @inline final override
   def initialize(id: TeslaPoolId): ZapRoute = {
-    poolId(id)
-    reset
+    poolId = id
+    clear()
+    this
   }
 
   /**
@@ -212,7 +278,12 @@ trait ZapRouteState extends Any with ZapRoute {
    * @return
    */
   @inline final override
-  def reset: ZapRoute = {
+  def reset(builder: ZapRouteBuilder): Unit = {
+    clear()
+  }
+
+  @inline final override
+  def clear(): Unit = {
     commitCursor(UninitializedCursor)
     dirtyCursor(UninitializedCursor)
     currentStepKey = FeltRouteNotInPathStep
@@ -223,9 +294,8 @@ trait ZapRouteState extends Any with ZapRoute {
     currentIteration = ZapRouteNullJournalEntry
     rewriteNeeded = false
     routePathStartTime = -1
-    this
+    routeLimited = false
   }
-
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // LAST ENTRY STATE
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -279,15 +349,15 @@ trait ZapRouteState extends Any with ZapRoute {
   }
 
   @inline final override
-  def routeScopeAbort(schema: FeltRouteBuilder): Unit = {
+  def routeScopeAbort(builder: FeltRouteBuilder): Unit = {
     // log info s"routeScopeAbort-START ${entryToString(dirtyEntry)}"
     if (commitCursor == UninitializedCursor ) {
-      // nothing has been comitted to the route
-      reset
+      // nothing has been committed to the route
+      reset(builder.asInstanceOf[ZapRouteBuilder])
     } else if (dirtyCursor != commitCursor  && dirtyCursor != UninitializedCursor) {
       // an uncommitted entry is present so restore the committed state.
       currentPathOrdinal = commitEntry.pathOrdinal
-      if (schema.exitSteps.contains(commitEntry.stepKey)) {
+      if (builder.exitSteps.contains(commitEntry.stepKey)) {
         currentStepKey = FeltRouteNotInPathStep
       } else {
         currentStepKey = commitEntry.stepKey
@@ -336,35 +406,66 @@ trait ZapRouteState extends Any with ZapRoute {
     r.result()
   }
 
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Flex Upscaling
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * copy over data from a presumably too small collector to this bigger upsized collector
+   */
+  override def importCollector(sourceCollector: ZapRoute, sourceItems: TeslaPoolId, builder: ZapRouteBuilder): Unit = {
+    val localPoolId = this.poolId
+    if (sourceCollector.availableMemorySize > this.availableMemorySize)
+      assert(sourceCollector.availableMemorySize <= this.availableMemorySize)
+    tesla.offheap.copyMemory(sourceCollector.basePtr, this.basePtr, sourceCollector.currentMemorySize)
+    this.poolId = localPoolId
+    this.routeLimited = false
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Debugging
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
   def toString: String =
-    s"""ZapRoute(
-       |  poolId=$poolId,
-       |  currentPath=$currentPathOrdinal,
-       |  currentStep=$currentStepKey,
-       |  routeStepCount=$routeStepCount,
-       |  routePathStartTime=$routePathStartTime,
-       |  routeCompletePaths=$routeCompletePaths,
-       |  commitCursor=$commitCursor,
-       |  dirtyCursor=$dirtyCursor,
-       |  currentTime=$currentTime
-       |)""".stripMargin
+    s"""ZapRoute(basePtr=$basePtr poolId=$poolId availableMem=$availableMemorySize dirtyCursor=$dirtyCursor)""".stripMargin
 
-  @inline
-  def entryToString(entry: ZapRouteEntry): String = {
-    val stepTacit = entry.isTacit
-    val stepOrdinal = entry.stepOrdinal
-    val pathOrdinal = entry.pathOrdinal
-    val stepKey = entry.stepKey
-    val stepTag = entry.stepTag
-    val stepTime = entry.stepTime
-    val stepPathComplete = entry.isComplete
-    s"(basePtr=$basePtr)${if (rewriteNeeded) "R" else "NR"} pathOrdinal=$pathOrdinal, currentStepKey=$currentStepKey, step${if (stepTacit) "(T)" else ""}${if (stepPathComplete) "(C)" else ""}(ord=$stepOrdinal, Key=$stepKey, tag=$stepTag, time=$stepTime)"
+  def printState: String =
+    s"""$toString(currentPath=$currentPathOrdinal, currentStep=$currentStepKey,
+       |  routeStepCount=$routeStepCount, routePathStartTime=$routePathStartTime,  routeCompletePaths=$routeCompletePaths,
+       |  commitCursor=$commitCursor, currentTime=$currentTime)""".stripMargin
+
+  def printEntries: String = {
+    var start = state.journalStartOffset
+    val entries = new mutable.StringBuilder()
+    // the limit is the start offset plus the dirty cursor start plus the size of the dirty entry
+    val entryLimit = start + this.dirtyCursor
+    while (start < entryLimit) {
+      val j = ZapRouteEntry(this.basePtr + start)
+      val diff =start-state.journalStartOffset
+      entries.append(s"[${diff/ZapRouteJournalEntrySize}:$diff]${j.toString}\n")
+      start += ZapRouteJournalEntrySize
+    }
+    entries.toString()
   }
 
-
+  override def validate(): Boolean = {
+    var valid = true
+    val low = this.basePtr
+    val high = this.basePtr + this.availableMemorySize
+    if (low > dirtyCursor || dirtyCursor > high) {
+      log warn s"invalid dirty cursor $dirtyCursor"
+      valid = false
+    }
+    if (low > commitCursor || commitCursor > high) {
+      log warn s"invalid commit cursor $commitCursor"
+      valid = false
+    }
+    if (commitCursor > dirtyCursor) {
+      log warn s"commit/dirty cursor mismatch commit=$commitCursor dirty=$dirtyCursor"
+      valid = false
+    }
+    valid
+  }
 }

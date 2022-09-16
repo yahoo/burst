@@ -9,6 +9,7 @@ import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
 import org.burstsys.fabric.execution.model.result.row.FeltCubeResultData
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
+import org.burstsys.tesla.flex
 import org.burstsys.tesla.flex.{TeslaFlexCoupler, TeslaFlexProxy, TeslaFlexProxyContext, TeslaFlexSlotIndex}
 import org.burstsys.tesla.pool.TeslaPoolId
 import org.burstsys.vitals.bitmap.VitalsBitMapAnyVal
@@ -44,95 +45,158 @@ private final case
 class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexCube2
   with TeslaFlexProxyContext[ZapCube2Builder, ZapCube2, ZapFlexCube2] {
 
-  override def coupler: TeslaFlexCoupler[ZapCube2Builder, ZapCube2, ZapFlexCube2] = cube2.flex.coupler
+  // not sure these should be overridden
+  @inline override
+  def currentMemorySize: TeslaMemorySize = internalCollector.currentMemorySize
+
+  @inline override
+  def poolId: TeslaPoolId = internalCollector.poolId
+
+  @inline override
+  def blockPtr: TeslaMemoryPtr = internalCollector.blockPtr
+
+  // proxy
+
+  @inline override
+  def size(): TeslaMemorySize = internalCollector.size()
+
+  @inline override
+  def coupler: TeslaFlexCoupler[ZapCube2Builder, ZapCube2, ZapFlexCube2] = cube2.flex.coupler
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // simple delegation for internal dictionary read only methods
   /////////////////////////////////////////////////////////////////////////////////////////////
 
-  override def clear(): Unit = internalCollector.clear()
+  @inline override
+  def clear(): Unit = internalCollector.clear()
 
-  override def bucketsCount: Int = internalCollector.bucketsCount
+  @inline override
+  def bucketsCount: Int = internalCollector.bucketsCount
 
-  override def rowsCount: Int = internalCollector.rowsCount
+  @inline override
+  def rowsCount: Int = internalCollector.rowsCount
 
-  override def rowCount: Int = internalCollector.rowCount
+  @inline override
+  def itemCount: Int = internalCollector.itemCount
 
-  override def rowsLimited: Boolean = internalCollector.rowsLimited
+  @inline override
+  def rowsLimited: Boolean = internalCollector.rowsLimited
 
-  override def rowLimited: Boolean = internalCollector.rowLimited
+  @inline override
+  def itemLimited: Boolean = internalCollector.itemLimited
 
-  override def isEmpty: Boolean = internalCollector.isEmpty
+  @inline override
+  def isEmpty: Boolean = internalCollector.isEmpty
 
-  override def aggCount: Int = internalCollector.aggCount
+  @inline override
+  def aggCount: Int = internalCollector.aggCount
 
-  override def dimCount: Int = internalCollector.dimCount
+  @inline override
+  def dimCount: Int = internalCollector.dimCount
 
-  //  override def inheritCursorFrom(thatCube: ZapCube2): Unit = internalCollector.inheritCursorFrom(thatCube)
+  @inline override
+  def cursor: ZapCube2Key = internalCollector.cursor
 
-  override def cursor: ZapCube2Key = internalCollector.cursor
+  @inline override
+  def pivot: ZapCube2Key = internalCollector.pivot
 
-  override def pivot: ZapCube2Key = internalCollector.pivot
+  @inline override
+  def initialize(pId: TeslaPoolId, builder: ZapCube2Builder): Unit = internalCollector.initialize(pId, builder)
 
-  override def initialize(pId: TeslaPoolId, builder: ZapCube2Builder): Unit = internalCollector.initialize(pId, builder)
+  @inline override
+  def reset(builder: ZapCube2Builder): Unit = internalCollector.reset(builder)
 
-  override def reset(builder: ZapCube2Builder): Unit = internalCollector.reset(builder)
+  @inline override
+  def defaultBuilder: ZapCube2Builder = internalCollector.defaultBuilder
 
-  override def defaultBuilder: ZapCube2Builder = internalCollector.defaultBuilder
+  @inline override
+  def builder: ZapCube2Builder = internalCollector.builder
 
-  override def currentMemorySize: TeslaMemorySize = internalCollector.currentMemorySize
+  @inline override
+  def aggIsNull(aggregation: Int): Boolean = internalCollector.aggIsNull(aggregation)
 
-  override def poolId: TeslaPoolId = internalCollector.poolId
+  @inline override
+  def dimIsNull(dimension: Int): Boolean = internalCollector.dimIsNull(dimension)
 
-  override def blockPtr: TeslaMemoryPtr = internalCollector.blockPtr
+  @inline override
+  def row(index: TeslaPoolId): ZapCube2Row = internalCollector.row(index)
 
-  override def builder: ZapCube2Builder = internalCollector.builder
+  @inline override
+  def write(k: Kryo, out: Output): Unit = {
+    internalCollector.write(k, out)
+  }
 
-  override def aggIsNull(aggregation: Int): Boolean = internalCollector.aggIsNull(aggregation)
+  @inline override
+  def read(k: Kryo, in: Input): Unit = {
+    internalCollector.read(k, in)
+  }
 
-  override def dimIsNull(dimension: Int): Boolean = internalCollector.dimIsNull(dimension)
+  @inline override
+  def toString: String = {
+    if (this.index != flex.emptySlotIndex ) {
+      val c = this.internalCollector
+      s"FlexCube[$index] ${c.toString}"
+    } else
+      "EmptySlotIndex"
+  }
 
-  override def row(index: TeslaPoolId): ZapCube2Row = internalCollector.row(index)
-
-  override def write(k: Kryo, out: Output): Unit = internalCollector.write(k, out)
-
-  override def read(k: Kryo, in: Input): Unit = internalCollector.read(k, in)
-
-  override def toString: String = internalCollector.toString
-
-  override def truncateToTopKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: TeslaPoolId, aggregation: TeslaPoolId): Unit =
+  @inline override
+  def truncateToTopKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: TeslaPoolId, aggregation: TeslaPoolId): Unit =
     internalCollector.truncateToTopKBasedOnAggregation(builder, thisCube, k, aggregation)
 
-  override def truncateToBottomKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: TeslaPoolId, aggregation: TeslaPoolId): Unit =
+  @inline override
+  def truncateToBottomKBasedOnAggregation(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, k: TeslaPoolId, aggregation: TeslaPoolId): Unit =
     internalCollector.truncateToBottomKBasedOnAggregation(builder, thisCube, k, aggregation)
 
-  override def bucketRead(index: TeslaPoolId): TeslaMemoryOffset = internalCollector.bucketRead(index)
+  @inline override
+  def truncateRows(limit: TeslaPoolId): Unit = {
+    internalCollector.truncateRows(limit)
+  }
 
-  override def resetCursor(): Unit = internalCollector.resetCursor()
+  @inline override
+  def bucketRead(index: TeslaPoolId): TeslaMemoryOffset = internalCollector.bucketRead(index)
 
-  override def resetPivot(): Unit = internalCollector.resetPivot()
+  @inline override
+  def resetCursor(): Unit = internalCollector.resetCursor()
 
-  override def initCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = internalCollector.initCursor(builder, thisCube)
+  @inline override
+  def resetPivot(): Unit = internalCollector.resetPivot()
 
-  override def inheritCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, parentCube: FeltCubeCollector): FeltCubeCollector =
+  @inline override
+  def setCursorFrom(row: ZapCube2Row): Unit = internalCollector.setCursorFrom(row)
+
+  @inline override
+  def initCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = internalCollector.initCursor(builder, thisCube)
+
+  @inline override
+  def inheritCursor(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, parentCube: FeltCubeCollector): FeltCubeCollector =
     internalCollector.inheritCursor(builder, thisCube, parentCube)
 
-  override def dictionary: BrioFlexDictionary = internalCollector.dictionary
+  @inline override
+  def dictionary: BrioFlexDictionary = internalCollector.dictionary
 
-  override def dictionary_=(d: BrioFlexDictionary): Unit = internalCollector.dictionary_=(d)
+  @inline override
+  def dictionary_=(d: BrioFlexDictionary): Unit = internalCollector.dictionary_=(d)
 
-  override def cursorRow: TeslaMemoryOffset = internalCollector.cursorRow
+  @inline override
+  def cursorRow: TeslaMemoryOffset = internalCollector.cursorRow
 
-  override def extractRows(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeResultData =
+  @inline override
+  def extractRows(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeResultData = {
     internalCollector.extractRows(builder, thisCube, thisDictionary)
+  }
 
-  override def bucketStdDeviation: Double = internalCollector.bucketStdDeviation
+  @inline override
+  def bucketStdDeviation: Double = internalCollector.bucketStdDeviation
 
-  override def bucketListLengthMax: Int = internalCollector.bucketListLengthMax
+  @inline override
+  def bucketListLengthMax: Int = internalCollector.bucketListLengthMax
 
-  override def resizeCount: Int = internalCollector.resizeCount
+  @inline override
+  def resizeCount: Int = internalCollector.resizeCount
 
-  override def resetDirtyRows(): Unit = internalCollector.resetDirtyRows()
+  @inline override
+  def resetDirtyRows(): Unit = internalCollector.resetDirtyRows()
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // write method(s) that require overflow interception and resizing - just one so far
@@ -146,247 +210,235 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
                                       parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
                                       childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal
                                      ): Unit = {
-    internalCollector.joinWithChildCubeIntoResultCube(
-      builder, thisCube, thisDictionary,
-      childCube,
-      resultCube,
-      parentDimensionMask, parentAggregationMask, childDimensionMask, childAggregationMask
-    )
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
+    runWithRetry {
       internalCollector.joinWithChildCubeIntoResultCube(
-        builder, thisCube, thisDictionary, childCube, resultCube,
+        builder, internalCollector, thisDictionary,
+        childCube,
+        resultCube,
         parentDimensionMask, parentAggregationMask, childDimensionMask, childAggregationMask
       )
     }
-    resetDirtyRows()
   }
 
   override
   def normalizeThatCubeToThis(thatCube: ZapCube2, builder: ZapCube2Builder, text: VitalsTextCodec): ZapCube2 = {
-    var result = internalCollector.normalizeThatCubeToThis(thatCube, builder, text)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      result = internalCollector.normalizeThatCubeToThis(thatCube, builder, text)
+    runWithRetry{
+      internalCollector.normalizeThatCubeToThis(thatCube, builder, text)
+
     }
-    resetDirtyRows()
-    result
   }
 
 
-  override def normalize(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary, thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeCollector = ???
+  @inline override
+  def normalize(builder: FeltCubeBuilder,
+                         thisCube: FeltCubeCollector,
+                         thisDictionary: BrioMutableDictionary,
+                         thatCube: FeltCubeCollector,
+                         thatDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeCollector = {
+    internalCollector.normalize(builder, thisCube, thisDictionary, thatCube, thatDictionary)
+  }
 
 
   override
   def navigate(key: ZapCube2Key): ZapCube2Row = {
-    var result = internalCollector.navigate(key)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      result = internalCollector.navigate(key)
+    runWithRetry{
+      internalCollector.navigate(key)
     }
-    //    resetDirtyRows()
-    result
   }
 
-  override def createCopyRow(parentCube: ZapCube2, childCube: ZapCube2, childRow: ZapCube2Row,
-                             resultCube: ZapCube2, parentDimensionMask: VitalsBitMapAnyVal,
-                             parentAggregationMask: VitalsBitMapAnyVal, childDimensionMask: VitalsBitMapAnyVal,
-                             childAggregationMask: VitalsBitMapAnyVal): ZapCube2Row = {
-    var result = internalCollector.createCopyRow(parentCube: ZapCube2, childCube: ZapCube2, childRow: ZapCube2Row,
-      resultCube: ZapCube2, parentDimensionMask: VitalsBitMapAnyVal,
-      parentAggregationMask: VitalsBitMapAnyVal, childDimensionMask: VitalsBitMapAnyVal,
-      childAggregationMask: VitalsBitMapAnyVal)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      result = internalCollector.createCopyRow(parentCube: ZapCube2, childCube: ZapCube2, childRow: ZapCube2Row,
-        resultCube: ZapCube2, parentDimensionMask: VitalsBitMapAnyVal,
-        parentAggregationMask: VitalsBitMapAnyVal, childDimensionMask: VitalsBitMapAnyVal,
-        childAggregationMask: VitalsBitMapAnyVal)
-    }
-    resetDirtyRows()
-    result
-  }
-
-  override def createJoinRow(
+  @inline override
+  def createJoinRow(
                               parentRow: ZapCube2Row,
-                              childCube: ZapCube2, childRow: ZapCube2Row,
+                              childRow: ZapCube2Row,
                               resultCube: ZapCube2,
                               parentDimensionMask: VitalsBitMapAnyVal,
                               parentAggregationMask: VitalsBitMapAnyVal,
                               childDimensionMask: VitalsBitMapAnyVal,
                               childAggregationMask: VitalsBitMapAnyVal
                             ): ZapCube2Row = {
-    var result = internalCollector.createJoinRow(
-      parentRow: ZapCube2Row,
-      childCube: ZapCube2, childRow: ZapCube2Row,
-      resultCube: ZapCube2,
-      parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
-      childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal
-    )
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      result = internalCollector.createJoinRow(
+    runWithRetry{
+      internalCollector.createJoinRow(
         parentRow: ZapCube2Row,
-        childCube: ZapCube2, childRow: ZapCube2Row,
+        childRow: ZapCube2Row,
         resultCube: ZapCube2,
         parentDimensionMask: VitalsBitMapAnyVal, parentAggregationMask: VitalsBitMapAnyVal,
         childDimensionMask: VitalsBitMapAnyVal, childAggregationMask: VitalsBitMapAnyVal
       )
     }
-    resetDirtyRows()
-    result
   }
 
   override
   def interMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
                  thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary): Unit = {
-    internalCollector.interMerge(builder, thisCube, thisDictionary, thatCube, thatDictionary)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      internalCollector.interMerge(builder, thisCube, thisDictionary, thatCube, thatDictionary)
+    assert(this == thisCube)
+    internalCollector.resetDirtyRows()
+    runWithRetry{
+      internalCollector.interMerge(builder, internalCollector, thisDictionary, thatCube, thatDictionary)
     }
-    resetDirtyRows()
   }
 
   override
   def intraMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
                  thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary,
                  dimensionMask: VitalsBitMapAnyVal, aggregationMask: VitalsBitMapAnyVal): Unit = {
-    internalCollector.intraMerge(builder, thisCube, thisDictionary, thatCube, thatDictionary, dimensionMask, aggregationMask)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      internalCollector.intraMerge(builder, thisCube, thisDictionary, thatCube, thatDictionary, dimensionMask, aggregationMask)
+    assert(this == thisCube)
+    internalCollector.resetDirtyRows()
+    runWithRetry {
+      internalCollector.intraMerge(builder, internalCollector, thisDictionary, thatCube, thatDictionary, dimensionMask, aggregationMask)
     }
-    resetDirtyRows()
   }
 
   override
   def dimRead(dimension: Int): BrioPrimitive = {
-    var result = internalCollector.dimRead(dimension)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      result = internalCollector.dimRead(dimension)
-    }
-    result
+    internalCollector.dimRead(dimension)
   }
 
-  override def dimWrite(): Unit = {
-    internalCollector.dimWrite()
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
+  @inline override
+  def dimWrite(): Unit = {
+    runWithRetry{
       internalCollector.dimWrite()
     }
   }
 
-  override def dimSetNotNull(dimension: Int): Unit = {
+  @inline override
+  def dimSetNotNull(dimension: Int): Unit = {
     internalCollector.dimSetNotNull(dimension)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      internalCollector.dimSetNotNull(dimension)
-    }
   }
 
-  override def dimSetNull(dimension: Int): Unit = {
+  @inline override
+  def dimSetNull(dimension: Int): Unit = {
     internalCollector.dimSetNull(dimension)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      internalCollector.dimSetNull(dimension)
-    }
   }
 
-  override def dimWrite(dimension: Int, value: BrioPrimitive): Unit = {
+  @inline override
+  def dimWrite(dimension: Int, value: BrioPrimitive): Unit = {
     internalCollector.dimWrite(dimension, value)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      internalCollector.dimWrite(dimension, value)
+  }
+
+  @inline override
+  def aggRead(aggregation: Int): BrioPrimitive = {
+    runWithRetry{
+      internalCollector.aggRead(aggregation)
     }
   }
 
-  override def aggRead(aggregation: Int): BrioPrimitive = {
-    val result = internalCollector.aggRead(aggregation)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
-      internalCollector.aggRead(aggregation)
-    } else result
-  }
-
-  override def aggSetNull(aggregation: Int): Unit = {
-    internalCollector.aggSetNull(aggregation)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
+  @inline override
+  def aggSetNull(aggregation: Int): Unit = {
+    runWithRetry{
       internalCollector.aggSetNull(aggregation)
     }
   }
 
-  override def aggSetNotNull(aggregation: Int): Unit = {
-    internalCollector.aggSetNotNull(aggregation)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
+  @inline override
+  def aggSetNotNull(aggregation: Int): Unit = {
+    runWithRetry{
       internalCollector.aggSetNotNull(aggregation)
     }
   }
 
-  override def aggWrite(aggregation: Int, value: BrioPrimitive): Unit = {
-    internalCollector.aggWrite(aggregation, value)
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
+  @inline override
+  def aggWrite(aggregation: Int, value: BrioPrimitive): Unit = {
+    runWithRetry{
       internalCollector.aggWrite(aggregation, value)
     }
   }
 
-  override def navigate(): Unit = {
-    internalCollector.navigate()
-    if (internalCollector.rowsLimited) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      // we have an opportunity to redo this
+  @inline override
+  def navigate(): Unit = {
+    runWithRetry{
       internalCollector.navigate()
     }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // Older ZapCube interface...still generated by hydra compiler
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  @inline override
+  def writeAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, column: Int): Unit = {
+    aggSetNull(column)
+  }
+
+  @inline override
+  def readAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int): BrioPrimitive = {
+    aggRead(aggregation)
+  }
+
+  @inline override
+  def writeAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int, value: BrioPrimitive): Unit = {
+    aggWrite(aggregation, value)
+  }
+
+  @inline override
+  def readAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: Int): Boolean = {
+    aggIsNull(aggregation)
+  }
+
+  @inline override
+  def writeDimension(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = {
+    dimWrite()
+  }
+
+  @inline override
+  def writeDimensionNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: Int): Unit = {
+    dimSetNull(dimension)
+  }
+
+  @inline override
+  def writeDimensionPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: Int, value: BrioPrimitive): Unit = {
+    dimWrite(dimension, value)
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // methods that should not be called on a proxy
   /////////////////////////////////////////////////////////////////////////////////////////////
 
-  override def importCollector(sourceCollector: ZapCube2, sourceItems: TeslaPoolId, builder: ZapCube2Builder): Unit =
+  @inline override
+  def importCollector(sourceCollector: ZapCube2, sourceItems: TeslaPoolId, builder: ZapCube2Builder): Unit =
     throw VitalsException(s"importCollector should not be called in flex cube!")
 
-  override def rowCount_=(count: TeslaPoolId): Unit = ???
+  @inline override
+  def itemCount_=(count: TeslaPoolId): Unit = ???
 
-  override def writeAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, column: TeslaPoolId): Unit = ???
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // show some state
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  @inline override
+  def printCube(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): String =
+    internalCollector.printCube(builder, thisCube, thisDictionary)
 
-  override def readAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: TeslaPoolId): BrioPrimitive = ???
+  @inline override
+  def printCubeState(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary, msg: String): Unit =
+    internalCollector.printCubeState(builder, thisCube, thisDictionary, msg)
 
-  override def writeAggregationPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: TeslaPoolId, value: BrioPrimitive): Unit = ???
+  @inline override
+  def distribution(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): Double =
+    internalCollector.distribution(builder, thisCube, thisDictionary)
 
-  override def readAggregationNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, aggregation: TeslaPoolId): Boolean = ???
+  @inline override
+  def itemLimited_=(s: Boolean): Unit = internalCollector.itemLimited=s
 
-  override def writeDimension(builder: FeltCubeBuilder, thisCube: FeltCubeCollector): Unit = ???
+  @inline override
+  def validateRow(row: ZapCube2Row): Boolean = internalCollector.validateRow(row)
 
-  override def writeDimensionNull(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: TeslaPoolId): Unit = ???
+  @inline override private[cube2]
+  def rowNormalize(thatBuilder: ZapCube2Builder, thatDictionary: BrioFlexDictionary, text: VitalsTextCodec): Unit =
+    internalCollector.rowNormalize(thatBuilder, thatDictionary, text)
 
-  override def writeDimensionPrimitive(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, dimension: TeslaPoolId, value: BrioPrimitive): Unit = ???
-
-  override def printCube(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): String = ???
-
-  override def printCubeState(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary, msg: String): Unit = ???
-
-  override def distribution(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): Double = ???
-
-  override def rowLimited_=(s: Boolean): Unit = ???
+  //
+  @inline
+  private
+  def runWithRetry[R](body:  => R): R = {
+    assert(!internalCollector.rowsLimited)
+    var r: R = body
+    var runCount = 1
+    while (internalCollector.rowsLimited && runCount < 11) {
+      coupler.upsize(this.index, rowsCount, internalCollector.builder)
+      r = body
+      runCount += 1
+    }
+    if (runCount > 10) {
+      log warn s"Too many upsize attempts"
+    }
+    r
+  }
 }

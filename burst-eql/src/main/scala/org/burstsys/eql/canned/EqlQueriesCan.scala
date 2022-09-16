@@ -78,6 +78,29 @@ object EqlQueriesCan {
        |from schema unity
        """.stripMargin
 
+  val uiUnityMetadataSourceV4: String =
+    s"""
+       |select count(user) as userCount limit 1
+       |     beside select count(user.sessions) as sessionCount
+       |     beside select count(user.sessions.events) as eventCount
+       |     beside select min(user.sessions.startTime) as minSessionTime
+       |     beside select max(user.sessions.startTime) as maxSessionTime
+       |     beside select top[1000](user) as users, user.deviceModelId as deviceModelIds
+       |     beside select top[400](user.sessions) as sessions, user.sessions.osVersionId as osVersionIds
+       |     beside select top[400](user.application) as projects, user.application.firstUse.languageId as languageId
+       |     beside select top[1000](user) as users, user.sessions.appVersion.id as appVersionIds
+       |     beside select top[100](user.sessions) as sessions, user.sessions.providedOrigin as providedOrigins
+       |     beside select top[50](user.sessions) as sessions, user.sessions.mappedOriginId as mappedOrigin
+       |     beside select top[10](user.sessions) as sessions, user.sessions.originSourceTypeId as originSourceType
+       |     beside select top[10](user.sessions) as sessions, user.sessions.originMethodTypeId as originMethodType
+       |     beside select top[1400](user.sessions.events) as eventFrequency, user.sessions.events.id as events
+       |     beside select top[2000](user) as campaignIdFrequency, user.application.channels.campaignId as campaignId
+       |     beside select top[200](user) as channelIdFrequency, user.application.channels.channelId as channelId
+       |     beside select top[200](user.sessions) as sessionParameterFrequency, user.sessions.parameters.key as sessionParameterKeys
+       |     beside select top[14000](user.sessions.events) as eventParameterFrequency, user.sessions.events.id as eventParameters, user.sessions.events.parameters.key as eventParameterKey
+       |from schema unity
+     """.stripMargin
+
   val uiQuoMetadataSourceV1: String =
     s"""
        |select count(user) as userCount limit 1
@@ -98,7 +121,7 @@ object EqlQueriesCan {
        |     beside select count(user) as channelIdFrequency, user.channels.networkId as channelId limit 200
        |     beside select count(user.sessions) as sessionParameterFrequency, user.sessions.parameters.key as sessionParameterKeys limit 200
        |from schema quo
-       """.stripMargin
+     """.stripMargin
 
   val uiQuoMetadataSourceV2: String =
     s"""
@@ -118,7 +141,7 @@ object EqlQueriesCan {
        |     beside select count(user) as channelIdFrequency, user.channels.networkId as channelId limit 200
        |     beside select count(user.sessions) as sessionParameterFrequency, user.sessions.parameters.key as sessionParameterKeys limit 200
        |from schema quo
-       """.stripMargin
+     """.stripMargin
 
   val uiQuoMetadataSourceV3: String =
     s"""
@@ -159,6 +182,16 @@ object EqlQueriesCan {
        |      beside select top[1000](user.sessions.events) as frequency, user.sessions.events.id as eventIds limit 1000
        |      from schema unity
        """.stripMargin
+
+  val uiUnityDimensionUsageSourceV3: String =
+    s"""
+       | select top[1000](user) as frequency, user.deviceModelId as deviceIds
+       |      beside select top[200](user.sessions) as frequency, user.sessions.osVersionId as firmwareIds
+       |      beside select top[200](user.application) as projects, user.application.firstUse.languageId as languageId
+       |      beside select top[1000](user) as frequency, user.sessions.appVersion.id as versionIds
+       |      beside select top[1000](user.sessions.events) as frequency, user.sessions.events.id as eventIds
+       |      from schema unity
+     """.stripMargin
 
   def apply(): EqlQueriesCan = new EqlQueriesCan()
 }

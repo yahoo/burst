@@ -3,11 +3,8 @@ package org.burstsys.hydra.test.cases.unity.maps
 
 import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
 import org.burstsys.hydra.test.cases.support.HydraUseCase
-import org.burstsys.hydra.test.cases.unity.conditional.HydraUnityCase06.{analysisName, frameName}
 
 object HydraUnityCase20 extends HydraUseCase(200, 200, "unity") {
-
-  //      override val sweep: BurstHydraSweep = new BE65BEBF88AFD4AE18AEBF403F019E3BC
 
   override val frameSource: String =
     s"""
@@ -48,6 +45,4 @@ object HydraUnityCase20 extends HydraUseCase(200, 200, "unity") {
     found should equal(Array(("EK1", 8928), ("EK2", 8929), ("EK3", 8929), ("EK4", 8929), ("EK5", 8929), ("EK6", 8928), ("EK7", 8928)))
 
   }
-
-
 }

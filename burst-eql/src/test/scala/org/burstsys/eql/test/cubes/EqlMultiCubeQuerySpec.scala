@@ -6,7 +6,7 @@ import org.burstsys.vitals.errors.VitalsException
 
 final
 class EqlMultiCubeQuerySpec extends EqlAlloyTestRunner {
-  ignore should "double aggregate with dimensions" in {
+  it should "double aggregate with dimensions" in {
     val source =
       s"""
          | select count(user) as users, count(user.sessions.events) as events, user.sessions.events.id as ids
@@ -31,7 +31,7 @@ class EqlMultiCubeQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("users")).asLong, row(names("events")).asLong, row(names("ids")).asLong)
       }.sortBy(_._2)
 
-      r should equal(Array((15, "(NULL)"), (1, "one"), (1, "two")))
+      r should equal(Array((3,0,0), (1,4,1), (1,12,2)))
     })
   }
 

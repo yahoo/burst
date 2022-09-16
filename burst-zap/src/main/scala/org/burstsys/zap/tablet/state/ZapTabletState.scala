@@ -2,11 +2,12 @@
 package org.burstsys.zap.tablet.state
 
 
+import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes._
-import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.offheap
 import org.burstsys.tesla.pool._
-import org.burstsys.zap.tablet.ZapTablet
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.zap.tablet.{ZapTablet, ZapTabletBuilder}
 
 /**
  * This Universal trait manages all off heap state associated with the
@@ -25,7 +26,7 @@ trait ZapTabletState extends Any  with ZapTablet {
   def poolId: TeslaPoolId = offheap.getInt(basePtr + poolIdFieldOffset)
 
   @inline final
-  def poolId(id: TeslaPoolId): Unit = offheap.putInt(basePtr + poolIdFieldOffset, id)
+  def poolId_=(id: TeslaPoolId): Unit = offheap.putInt(basePtr + poolIdFieldOffset, id)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Tablet Size
@@ -35,10 +36,41 @@ trait ZapTabletState extends Any  with ZapTablet {
   def tabletSize: Int = offheap.getInt(basePtr + tabletSizeFieldOffset)
 
   @inline final
-  def tabletSize(size: Int): Unit = offheap.putInt(basePtr + tabletSizeFieldOffset, 0)
+  def tabletSize_=(size: Int): Unit = offheap.putInt(basePtr + tabletSizeFieldOffset, size)
 
   @inline final
-  def incrementTabletSize(): Unit = offheap.putInt(basePtr + tabletSizeFieldOffset, tabletSize + 1)
+  def incrementTabletSize(): Unit = {
+    offheap.putInt(basePtr + tabletSizeFieldOffset, tabletSize + 1)
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Tablet Size
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @inline final
+  def tabletItemSize: TeslaMemorySize = offheap.getInt(basePtr + tabletItemSizeFieldOffset)
+
+  @inline final
+  def tabletItemSize_=(size: TeslaMemorySize): Unit = offheap.putInt(basePtr + tabletItemSizeFieldOffset, size)
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Tablet Limited
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @inline final override
+  def tabletLimited: Boolean = {
+    offheap.getInt(basePtr + tabletLimitedFieldOffset) != 0
+  }
+
+  @inline final
+  def tabletLimited_=(limited: Boolean): Unit = {
+    offheap.putInt(basePtr + tabletLimitedFieldOffset,{
+      if (limited)
+        1
+      else
+        0
+    })
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // indexed access
@@ -77,41 +109,62 @@ trait ZapTabletState extends Any  with ZapTablet {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // adds
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  private def tabletAddItem(itemSize: TeslaMemorySize): TeslaMemoryOffset = {
+    val lastSize = tabletItemSize
+    if (lastSize == 0) {
+      tabletItemSize = itemSize
+    } else if (lastSize != itemSize) {
+      throw VitalsException("tablet recorded item size differs from operation item size")
+    }
+    val offset = tabletDataFieldOffset + tabletSize*itemSize
+    if (offset + itemSize > availableMemorySize) {
+      tabletLimited = true
+    } else {
+      incrementTabletSize()
+    }
+    offset
+  }
 
   @inline final override
   def tabletAddBoolean(value: Boolean): Unit = {
-    offheap.putByte(checkPtr(basePtr + tabletDataFieldOffset + (tabletSize * SizeOfBoolean)), if (value) 1 else 0)
-    incrementTabletSize()
+    val offset = tabletAddItem(SizeOfBoolean)
+    if (!itemLimited)
+      offheap.putByte(basePtr + offset, if (value) 1 else 0)
   }
 
   @inline final override
   def tabletAddByte(value: Byte): Unit = {
-    offheap.putByte(checkPtr(basePtr + tabletDataFieldOffset + (tabletSize * SizeOfByte)), value)
-    incrementTabletSize()
+    val offset = tabletAddItem(SizeOfByte)
+    if (!itemLimited)
+      offheap.putByte(basePtr + offset, value)
   }
 
   @inline final override
   def tabletAddShort(value: Short): Unit = {
-    offheap.putShort(checkPtr(basePtr + tabletDataFieldOffset + (tabletSize * SizeOfShort)), value)
-    incrementTabletSize()
+    val offset = tabletAddItem(SizeOfShort)
+    if (!itemLimited)
+      offheap.putShort(basePtr + offset, value)
   }
 
   @inline final override
   def tabletAddInteger(value: Int): Unit = {
-    offheap.putInt(checkPtr(basePtr + tabletDataFieldOffset + (tabletSize * SizeOfInteger)), value)
-    incrementTabletSize()
+    val offset = tabletAddItem(SizeOfInteger)
+    if (!itemLimited)
+      offheap.putInt(basePtr + offset, value)
   }
 
   @inline final override
   def tabletAddLong(value: Long): Unit = {
-    offheap.putLong(checkPtr(basePtr + tabletDataFieldOffset + (tabletSize * SizeOfLong)), value)
-    incrementTabletSize()
+    val offset = tabletAddItem(SizeOfLong)
+    if (!itemLimited)
+      offheap.putLong(basePtr + offset, value)
   }
 
   @inline final override
   def tabletAddDouble(value: Double): Unit = {
-    offheap.putDouble(checkPtr(basePtr + tabletDataFieldOffset + (tabletSize * SizeOfDouble)), value)
-    incrementTabletSize()
+    val offset = tabletAddItem(SizeOfDouble)
+    if (!itemLimited)
+      offheap.putDouble(basePtr + offset, value)
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,8 +242,7 @@ trait ZapTabletState extends Any  with ZapTablet {
    */
   @inline
   def initialize(id: TeslaPoolId): ZapTablet = {
-    poolId(id)
-    tabletSize(0)
+    poolId=id
     reset
   }
 
@@ -201,11 +253,21 @@ trait ZapTabletState extends Any  with ZapTablet {
    */
   @inline
   def reset: ZapTablet = {
-    tabletSize(0)
+    tabletSize=0
+    tabletItemSize = 0
+    itemLimited = false
     this
   }
 
-
+  override def importCollector(sourceCollector: ZapTablet, sourceItems: TeslaPoolId, builder: ZapTabletBuilder): Unit = {
+    val localPoolId = this.poolId
+    if (sourceCollector.availableMemorySize > this.availableMemorySize) {
+      throw VitalsException("import to a smaller collector")
+    }
+    tesla.offheap.copyMemory(sourceCollector.basePtr, this.basePtr, sourceCollector.currentMemorySize)
+    this.poolId = localPoolId
+    this.tabletLimited = false
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Debugging
@@ -215,6 +277,7 @@ trait ZapTabletState extends Any  with ZapTablet {
   def toString: String =
     s"""ZapTablet(
        |  tabletSize=$tabletSize
+       |  tabletItemSize=$tabletItemSize =
        |  poolId=$poolId
        |)""".stripMargin
 

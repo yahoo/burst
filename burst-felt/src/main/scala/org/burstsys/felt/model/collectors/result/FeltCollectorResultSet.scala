@@ -100,7 +100,7 @@ class FeltCollectorResultSetContext[B <: FeltCollectorBuilder, C <: FeltCollecto
   def columnTypeKeys: Array[BrioTypeKey] = Array.empty
 
   final override
-  val rowCount: Int = plane.planeCollector.rowCount
+  val rowCount: Int = plane.planeCollector.itemCount
 
   override
   val dimensionCount: Int = 0

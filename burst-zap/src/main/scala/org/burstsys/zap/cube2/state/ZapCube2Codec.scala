@@ -59,8 +59,8 @@ trait ZapCube2Codec extends Any with ZapCube2State {
   final
   def read(k: Kryo, in: Input): Unit = {
     try {
-      aggCount = in.readByte
       dimCount = in.readByte
+      aggCount = in.readByte
       bucketsStart = in.readInt
       bucketsCount = in.readInt
       cursorStart = in.readInt

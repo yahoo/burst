@@ -3,7 +3,7 @@ package org.burstsys.zap.tablet.factory
 
 import org.burstsys.felt.model.collectors.tablet.FeltTabletBuilder
 import org.burstsys.tesla
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.block.TeslaBlockAnyVal
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.tesla.pool.TeslaPoolId
@@ -18,13 +18,13 @@ case class ZapTabletPool(poolId: TeslaPoolId, partByteSize: TeslaMemoryOffset)
   override val partQueueSize: Int = 5e3.toInt // 5e3
 
   @inline override
-  def grabZapTablet(builder: FeltTabletBuilder): ZapTablet = {
+  def grabZapTablet(builder: FeltTabletBuilder, startSize: TeslaMemorySize): ZapTablet = {
     markPartGrabbed()
     val part = partQueue poll match {
       case null =>
         incrementPartsAllocated()
         ZapTabletReporter.alloc(partByteSize)
-        ZapTabletAnyVal(tesla.block.factory.grabBlock(builder.requiredMemorySize).blockBasePtr).initialize(poolId)
+        ZapTabletAnyVal(tesla.block.factory.grabBlock(startSize).blockBasePtr).initialize(poolId)
       case r => r.reset
     }
     incrementPartsInUse()

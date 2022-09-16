@@ -4,13 +4,13 @@ package org.burstsys.zap.tablet
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.felt.model.collectors.tablet.{FeltDefaultTabletSize, FeltTabletBuilder, FeltTabletBuilderContext}
-import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
+import org.burstsys.tesla.TeslaTypes.{SizeOfDouble, TeslaMemorySize}
 
 trait ZapTabletBuilder extends FeltTabletBuilder
 
 object ZapTabletBuilder {
 
-  def apply(): ZapTabletBuilder = ZapTabletBuilderContext()
+  def apply(itemSize: Int = SizeOfDouble): ZapTabletBuilder = ZapTabletBuilderContext(itemSize)
 
 }
 
@@ -18,7 +18,7 @@ object ZapTabletBuilder {
  * parameters for building zap shrubs
  */
 private final case
-class ZapTabletBuilderContext() extends FeltTabletBuilderContext with ZapTabletBuilder {
+class ZapTabletBuilderContext(itemSize:  Int) extends FeltTabletBuilderContext with ZapTabletBuilder {
 
   override def requiredMemorySize: TeslaMemorySize = FeltDefaultTabletSize
 

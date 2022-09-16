@@ -9,6 +9,7 @@ import org.burstsys.hydra.test.cases.support.HydraUseCase
 object HydraQuoLongToStringCast extends HydraUseCase(1, 1, "quo") {
 
   //  override lazy val sweep: HydraSweep = new BD3D86F156175474DAF5A27C56C794AE7
+  // override val serializeTraversal = true
 
   override def frameSource: String =
     s"""

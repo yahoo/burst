@@ -90,16 +90,7 @@ class ZapRouteEntry(basePtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyVal
 
   override
   def toString: String =
-    s"""|ZapRouteEntry(
-        |   pathOrdinal=$pathOrdinal,
-        |   stepOrdinal=$stepOrdinal,
-        |   stepKey=$stepKey,
-        |   stepTag=$stepTag,
-        |   stepTime=$stepTime,
-        |   isTacit=$isTacit
-        |   isComplete=$isComplete
-        |   isRewritten=$isRewritten
-        |)""".stripMargin
+    s"""ZREntry[$basePtr](pOrd=$pathOrdinal sOrd=$stepOrdinal sKey=$stepKey sTag=$stepTag sTime=$stepTime tct=$isTacit cmplt=$isComplete rwrttn=$isRewritten)""".stripMargin
 
 }
 

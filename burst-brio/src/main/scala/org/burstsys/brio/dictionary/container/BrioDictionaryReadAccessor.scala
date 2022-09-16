@@ -123,7 +123,10 @@ trait BrioDictionaryReadAccessor extends Any with BrioDictionary with BrioDictio
 
   @inline override
   def dump(implicit text: VitalsTextCodec): String = {
-    keySet.map(k => s"$k -> '${stringLookup(k)}'").mkString(s"(\n\t", s",\n\t", s"\n)")
+    if (this.basePtr == TeslaNullMemoryPtr)
+      s"NULL"
+    else
+      keySet.map(k => s"$k -> '${stringLookup(k)}'").mkString(s"(\n\t", s",\n\t", s"\n)")
   }
 
 }

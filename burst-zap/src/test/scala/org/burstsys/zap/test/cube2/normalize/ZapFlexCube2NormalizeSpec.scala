@@ -3,13 +3,14 @@ package org.burstsys.zap.test.cube2.normalize
 
 import org.burstsys.brio.types.BrioTypes.BrioStringKey
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.primitive.FeltCubeAggSumSemRt
+import org.burstsys.zap
 import org.burstsys.zap.cube2
-import org.burstsys.zap.cube2.ZapCube2Builder
+import org.burstsys.zap.cube2.{ZapCube2, ZapCube2Builder}
 import org.burstsys.zap.cube2.flex.ZapFlexCube2
 import org.burstsys.zap.test.cube2.ZapCube2Spec
 import org.scalatest.Ignore
 
-//@Ignore
+@Ignore
 class ZapFlexCube2NormalizeSpec extends ZapCube2Spec {
 
   override val builder: ZapCube2Builder = cube2.ZapCube2Builder(
@@ -38,12 +39,13 @@ class ZapFlexCube2NormalizeSpec extends ZapCube2Spec {
 
       cubeA.dictionary should not equal cubeB.dictionary
 
-      cubeB = cubeA.normalizeThatCubeToThis(cubeB, builder, text).asInstanceOf[ZapFlexCube2]
+      cubeB = cubeA.normalizeThatCubeToThis(cubeB, builder, text)
 
       assertExplicitString(cubeB,
         ("1", "2", "3", "4"),
         ("5", "6", "7", "8")
       )
+
 
     }
   }

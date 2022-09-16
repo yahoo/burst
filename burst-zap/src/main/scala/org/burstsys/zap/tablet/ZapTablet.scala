@@ -4,14 +4,19 @@ package org.burstsys.zap.tablet
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.felt.model.collectors.tablet.FeltTabletCollector
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{SizeOfDouble, TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
+import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.zap.tablet.state.ZapTabletState
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.zap.tablet.state.{ZapTabletState, tabletDataFieldOffset, tabletSizeFieldOffset}
 
-trait ZapTablet extends Any with FeltTabletCollector with TeslaBlockPart {
+trait ZapTablet extends Any with FeltTabletCollector with TeslaBlockPart with TeslaFlexCollector[ZapTabletBuilder, ZapTablet]
+{
 
   def tabletSize: Int
+
+  def tabletLimited: Boolean
 
   def initialize(id: TeslaPoolId): ZapTablet
 
@@ -93,7 +98,13 @@ final
 case class ZapTabletAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyVal
   with ZapTabletState with ZapTablet {
 
-  override def currentMemorySize: TeslaMemoryOffset = ??? // TODO
+  override def currentMemorySize: TeslaMemoryOffset = {
+    val size = tabletItemSize
+    if (size == 0 && tabletSize != 0) {
+      throw VitalsException("items in tablet with no recorded item size")
+    }
+    tabletDataFieldOffset + tabletSize*tabletItemSize
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////
   // KRYO SERIALIZATION
@@ -105,19 +116,45 @@ case class ZapTabletAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extend
   override def read(kryo: Kryo, input: Input): Unit = {
   }
 
-  override def rowCount: TeslaPoolId = 0
-
-  override def rowCount_=(count: TeslaPoolId): Unit = {
+  override def itemCount: TeslaPoolId = {
+    tabletSize
   }
 
-  override def rowLimited: Boolean = false
+  override def itemCount_=(count: TeslaPoolId): Unit = {
+    tabletSize = count
+  }
 
-  override def rowLimited_=(s: Boolean): Unit = {
+
+  override def itemLimited: Boolean = {
+    tabletLimited
+  }
+
+  override def itemLimited_=(s: Boolean): Unit = {
+    tabletLimited = s
   }
 
   override def clear(): Unit = {
+    tabletLimited = false
+    tabletSize = 0
   }
 
-  override def isEmpty: Boolean = true
+  override def isEmpty: Boolean = {
+    tabletSize > 0
+  }
 
+  override def initialize(pId: TeslaPoolId, builder: ZapTabletBuilder): Unit = {
+    clear()
+  }
+
+  override def reset(builder: ZapTabletBuilder): Unit = {
+    clear()
+  }
+
+  override def defaultBuilder: ZapTabletBuilder = {
+    ZapTabletBuilder(SizeOfDouble)
+  }
+
+  override def builder: ZapTabletBuilder = {
+    ZapTabletBuilder(SizeOfDouble)
+  }
 }

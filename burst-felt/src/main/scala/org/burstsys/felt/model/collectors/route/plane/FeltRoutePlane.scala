@@ -6,6 +6,7 @@ import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.route.runtime.FeltRouteFactory
 import org.burstsys.felt.model.collectors.route.{FeltRouteBuilder, FeltRouteCollector}
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorPlane, FeltCollectorPlaneContext}
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 
 /**
  * A [[FabricPlane]] for route collectors
@@ -23,8 +24,8 @@ class FeltRoutePlaneContext()
   extends FeltCollectorPlaneContext[FeltRouteBuilder, FeltRouteCollector]
     with FeltRoutePlane with FeltRoutePlaneMerge with FeltRouteFactory {
 
-  override def grabCollector(builder: FeltRouteBuilder): FeltRouteCollector =
-    planeBinding.collectors.routes.grabCollector(builder)
+  override def grabCollector(builder: FeltRouteBuilder, desiredSize: TeslaMemorySize): FeltRouteCollector =
+    planeBinding.collectors.routes.grabCollector(builder, desiredSize)
 
   override def releaseCollector(collector: FeltRouteCollector): Unit =
     planeBinding.collectors.routes.releaseCollector(collector)

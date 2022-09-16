@@ -126,8 +126,9 @@ class ZapCube2KeyAnyVal(basePtr: TeslaMemoryPtr) extends AnyVal with ZapCube2Key
     val bit: Long = 1L << dimension.toLong
     val oldNulls = nullMap
     val newNulls = oldNulls & ~bit
-    nullMap = newNulls
     dimWrite(dimension, 0L)
+    // do this last since the above dimWrite sets the nullity
+    nullMap = newNulls
   }
 
   @inline override
@@ -178,11 +179,13 @@ class ZapCube2KeyAnyVal(basePtr: TeslaMemoryPtr) extends AnyVal with ZapCube2Key
   def importFrom(otherKey: ZapCube2Key): Unit = {
     assert(dimCount == otherKey.dimCount)
     val ok = otherKey.asInstanceOf[ZapCube2KeyAnyVal]
-    nullMap = ok.nullMap
     dimCount = ok.dimCount
     var d = 0
     while (d < dimCount) {
-      dimWrite(d, ok.dimRead(d))
+      if (ok.dimIsNull(d))
+        dimSetNull(d)
+      else
+        dimWrite(d, ok.dimRead(d))
       d += 1
     }
   }

@@ -11,6 +11,10 @@ package object flex extends VitalsLogger {
   type TeslaFlexSlotIndex = Integer
 
   /**
+   * we need a null pointer for a flex pointer
+   */
+  final val emptySlotIndex: TeslaFlexSlotIndex = -1
+  /**
    * we can mark each empty slot with a negative number
    */
   final val emptySlotValue: TeslaMemoryPtr = -1L
