@@ -145,7 +145,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
     }
   }
 
- ignore should "single sum aggregate expression dimension with scope (Hydra Bug)" in {
+ it should "single sum aggregate expression dimension with scope" in {
     val source =
       s"""
          | select sum(2) as 'one',
@@ -158,7 +158,7 @@ class EqlAggregateExpressionsQuerySpec extends EqlAlloyTestRunner {
 
       val names = result.resultSets(0).columnNames.zipWithIndex.toMap
       val r = result.resultSets(0).rowSet.map {
-        row => (row(names("one")).asByte, row(names("two")).asLong)
+        row => (row(names("one")).asLong, row(names("two")).asLong)
       }
 
       r should contain theSameElementsAs Array((100, 0), (100, 3))

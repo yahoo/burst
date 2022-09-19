@@ -40,7 +40,7 @@ class EqlHydraBugQuerySpec extends EqlAlloyTestRunner {
     })
   }
 
- ignore should "successfully query through a parameter keys with nulls" in {
+ it should "successfully query through a parameter keys with null test" in {
     val source = s"""
                  |select count(user.sessions.events) as 'count', user.sessions.events.parameters.key as 'key'
                  |from schema unity
@@ -64,8 +64,7 @@ class EqlHydraBugQuerySpec extends EqlAlloyTestRunner {
         row => (row(names("count")).asLong, row(names("key")).asString)
       }.sortBy(_._1).sortBy(_._2)
 
-      // TODO visit or traversal abandon need to get rid of 0 rows
-      r should equal(Array((50,1483257600000L,1485849600000L)))
+      r should equal(Array((8928,"EK1"), (8929,"EK2"), (8929,"EK3"), (8929,"EK4"), (8929,"EK5"), (8928,"EK6"), (8928,"EK7")))
     })
   }
 

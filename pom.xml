@@ -1366,16 +1366,13 @@
                             <jvmArg>-Djava.net.preferIPv4Stack=true</jvmArg>
                             <jvmArg>${java-exports}</jvmArg>
                             <javacArg>-release</javacArg>
-                            <javacArg>-source</javacArg>
-                            <javacArg>${java-short.version}</javacArg>
-                            <javacArg>-target</javacArg>
                             <javacArg>${java-short.version}</javacArg>
                         </jvmArgs>
                         <args>
-                            <arg>-target:jvm-1.8</arg>
                             <arg>-deprecation</arg>
                             <arg>-unchecked</arg>
                             <arg>-feature</arg>
+                            <arg>-target:${java-short.version}</arg>
                         </args>
                     </configuration>
                 </plugin>
@@ -1454,8 +1451,7 @@
                 <version>${compiler.maven-plugin.version}</version>
                 <configuration>
                     <compilerVersion>${java-short.version}</compilerVersion>
-                    <source>1.8</source>
-                    <target>${java-short.version}</target>
+                    <release>${java-short.version}</release>
                 </configuration>
             </plugin>
 

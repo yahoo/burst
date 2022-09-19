@@ -194,4 +194,45 @@ class EqlRetentionFunnelSpec extends EqlAlloyTestRunner {
       r should equal(Array(2))
     })
   }
+
+  it should "deal with segments and two funnels in query" in {
+    val source =
+      s"""
+         |funnel 'cf' conversion limit 100000 [[ LOOSE_MATCH ]] {
+         |   step 1 when (user.sessions.events.id == 24123599 && user.sessions.sessionType == 1)  timing on user.sessions.events.startTime
+         |   1
+         |} from schema Unity
+         |funnel 'tf' transaction limit 100000 [[ LOOSE_MATCH ]] {
+         |   step 1 when (user.sessions.startTime > 0 && user.sessions.sessionType == 1)  timing on user.sessions.startTime
+         |   1
+         |} from schema Unity
+         |segment 'sgmnt' {
+         |   segment 615684 when user.application.lastUse.osVersionId in (
+         |      261,4433,11141,33174,39603,39842,40178,48573,51976,57193,58794,60306,63823,
+         |      63964,64218,64362,64798,66232,77094,105767,117378,192420,204642,243173,243753,
+         |      245061,249131,256525,259676,264392,264797,266624,270099,272976,268305,275155,
+         |      278242,279437,280255,292986,294033,294386,297492,299970,302028,305234,306352,
+         |      306722,306745,307134,307137,307465,308312,309875,311372,312338,313458,313490,
+         |      281905,282708,282744,282825,284998,285159,286315,286742,286915,287322,288312,
+         |      288360,288420,288428,291871,291947,287910,292352,292487,292489,292978,319245,
+         |      319479,324079,324554,324579,316773,316770,317698,318192,318317,315718,314712,
+         |      315002,315686,314319,314260,362825,362826,354723,351927,351926,349995,347318,
+         |      342554,325425)
+         |} from schema Unity
+         |select
+         |   uniques(tf.paths.steps) as 'count', day(lastPathStepTime(cf)) as 'timestamp', (((day(tf.paths.steps.time) - day(lastPathStepTime(cf)) + 3600000) / 86400000  )) as 'timesince'
+         |   from schema Unity, funnel cf, funnel tf, segment sgmnt
+         |   where lastPathIsComplete(cf) && tf.paths.steps.id == 1 &&
+         |   day(tf.paths.steps.time) - day(lastPathStepTime(cf)) > 0 && day(tf.paths.steps.time) - day(lastPathStepTime(cf)) + 3600000 < 2678400000 &&
+         |   user.application.firstUse.sessionTime >= day(NOW - days(27)) && not(sgmnt.members.id in (615684))
+         |   limit 131072
+         |""".stripMargin
+    runTest(source, 99, 99, { result =>
+      val resultSet = checkResults(result)
+      val names = resultSet.columnNames.zipWithIndex.toMap
+      val r = resultSet.rowSet.map {
+        row => (row(names("count")).asLong, row(names("timestamp")).asLong, row(names("timesince")).asLong)
+      }.sortBy(r => r)
+    })
+  }
 }
