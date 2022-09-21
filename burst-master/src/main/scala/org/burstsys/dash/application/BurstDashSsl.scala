@@ -18,23 +18,25 @@ trait BurstDashSsl {
   final val KEYSTORE_SERVER_FILE = "/.keystore"
 
   def restSslContext: SSLContext = {
-    val keyStore = configuration.burstRestSslKeystorePath.get
-      .collect({ case path if path.nonEmpty => new FileInputStream(new File(path)) })
-      .getOrElse(defaultInsecureKeystore)
-
+    val keystorePath = configuration.burstRestSslKeystorePath.get.getOrElse("")
+    val keyStore = keystorePath match {
+      case path if path != null && path.nonEmpty => new FileInputStream(new File(path))
+      case _ => defaultInsecureKeystore
+    }
     val keystoreBytes = IOUtils.toByteArray(keyStore)
+    val keystorePassword = configuration.burstRestSslKeystorePassword.getOrThrow
+
     val sslConfigurator: SslConfigurator = SslConfigurator.newInstance()
       .keyStoreBytes(keystoreBytes)
-      .keyStorePassword(configuration.burstRestSslKeystorePassword.getOrThrow)
+      .keyStorePassword(keystorePassword)
 
-    val keystorePath = configuration.burstRestSslKeystorePath.get.orNull
-    val passwordLength = configuration.burstRestSslKeystorePassword.get.map(_.length).getOrElse(-1)
+    val passwordLength = if (keystorePassword == null) -1 else keystorePassword.length
     try {
       log debug s"Attempting to list keystore of assumed type '${KeyStore.getDefaultType}'"
       log debug s"path=$keystorePath"
       log debug s"password length=$passwordLength"
       val ks = KeyStore.getInstance(KeyStore.getDefaultType)
-      ks.load(new ByteArrayInputStream(keystoreBytes), configuration.burstRestSslKeystorePath.getOrThrow.toCharArray)
+      ks.load(new ByteArrayInputStream(keystoreBytes), keystorePassword.toCharArray)
       log debug s"Found ${ks.size()} entries in keystore"
     } catch safely {
       case t: Throwable =>
