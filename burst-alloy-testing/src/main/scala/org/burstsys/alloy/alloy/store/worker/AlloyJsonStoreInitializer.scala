@@ -1,16 +1,19 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.alloy.store.worker
 
+import org.burstsys.alloy.alloy.AlloyJsonFileProperty
+import org.burstsys.alloy.alloy.AlloyJsonRootVersionProperty
 import org.burstsys.alloy.alloy.json._
-import org.burstsys.alloy.alloy.store.sliceSet
-import org.burstsys.alloy.alloy.{AlloyJsonFileProperty, AlloyJsonRootVersionProperty}
-import org.burstsys.fabric.data.model.slice.state.{FabricDataState, FabricDataWarm}
+import org.burstsys.fabric.data.model.slice.state.FabricDataState
+import org.burstsys.fabric.data.model.slice.state.FabricDataWarm
 import org.burstsys.fabric.data.model.snap.FabricSnap
 import org.burstsys.fabric.data.worker.store.FabricWorkerLoader
 import org.burstsys.fabric.execution.model.pipeline.publishPipelineEvent
 import org.burstsys.tesla
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
-import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.errors._
+import org.burstsys.vitals.instrument.prettyByteSizeString
 import org.burstsys.vitals.logging._
 
 /**
@@ -22,7 +25,6 @@ trait AlloyJsonStoreInitializer extends FabricWorkerLoader {
   def initializeSlice(snap: FabricSnap): FabricDataState = {
     val data = snap.data
     val metadata = snap.metadata
-    sliceSet += data
     try {
       val start = System.nanoTime
       data.openForWrites()
@@ -46,10 +48,10 @@ trait AlloyJsonStoreInitializer extends FabricWorkerLoader {
     metadata.state
   }
 
-  private
-  def writeParcels(snap: FabricSnap): (Int, Int) = {
+  private def writeParcels(snap: FabricSnap): (Int, Int) = {
     val slice = snap.slice
     publishPipelineEvent(ParticleGotFile(slice.guid))
+
     var itemCount = 0
     var bufferTally = 0
     var byteCount = 0
@@ -59,6 +61,7 @@ trait AlloyJsonStoreInitializer extends FabricWorkerLoader {
       inflatedParcel.startWrites()
 
       def pushOut(): Unit = {
+        log info s"AlloyJsonInit queuing parcel parcelBuffers=${inflatedParcel.bufferCount} parcelBytes=${prettyByteSizeString(inflatedParcel.currentUsedMemory)}"
         bufferTally = 0
         val deflatedParcel = tesla.parcel.factory.grabParcel(bufferSize)
         deflatedParcel.deflateFrom(inflatedParcel)
@@ -70,27 +73,40 @@ trait AlloyJsonStoreInitializer extends FabricWorkerLoader {
 
       publishPipelineEvent(ParticleReadFile(slice.guid))
 
-      val view =snap.slice.datasource.view
-      if (view.storeProperties.contains(AlloyJsonFileProperty)) {
-      } else {
-        throw VitalsException(s"no json property '$AlloyJsonFileProperty' " +
-          s"found in store properties'")
+      val view = snap.slice.datasource.view
+      if (!view.storeProperties.contains(AlloyJsonFileProperty)) {
+        throw VitalsException(s"no json property '$AlloyJsonFileProperty' found in store properties'")
       }
 
-      loadFromJson(view.storeProperties(AlloyJsonFileProperty), view.schemaName, view.storeProperties(AlloyJsonRootVersionProperty).toInt)
-        .filter(_ != null).foreach{ buffer =>
+      val buffers = loadFromJson(view.storeProperties(AlloyJsonFileProperty), view.schemaName, view.storeProperties(AlloyJsonRootVersionProperty).toInt)
+        .filter(_ != null)
+      buffers.foreach({ buffer =>
         itemCount += 1
-        bufferTally += 1
-        if (bufferTally > buffersPerParcel)
+        if (inflatedParcel.bufferCount >= buffersPerParcel) {
+          log info "AlloyJsonInit parcel reached buffer limit, pushing parcel"
           pushOut()
+        }
+
         try {
-          inflatedParcel.writeNextBuffer(buffer)
-          byteCount += inflatedParcel.currentUsedMemory
-        } finally
-          tesla.buffer.factory.releaseBuffer(buffer)
-      }
-      if (bufferTally > 0)
+          val parcelRemaining = prettyByteSizeString(inflatedParcel.maxAvailableMemory - inflatedParcel.currentUsedMemory)
+          val bufferSize = prettyByteSizeString(buffer.currentUsedMemory)
+          log info s"AlloyJsonInit try write buffer item=$itemCount parcel_buffers=${inflatedParcel.bufferCount} parcel_available=$parcelRemaining buffer_size=$bufferSize"
+          val remaining = inflatedParcel.writeNextBuffer(buffer)
+          if (remaining == -1) {
+            log info "AlloyJsonInit could not write buffer to parcel, not enough space remaining"
+            pushOut()
+            inflatedParcel.writeNextBuffer(buffer)
+          }
+          byteCount += buffer.currentUsedMemory
+        } finally tesla.buffer.factory.releaseBuffer(buffer)
+      })
+      log info s"AlloyJsonInit pressed json buffers=${buffers.length}"
+
+      if (inflatedParcel.bufferCount > 0) {
+        log info "AlloyJsonInit all bufferes queued, pushing last parcel"
         pushOut()
+      }
+
       (itemCount, byteCount)
     } finally
       tesla.parcel.factory.releaseParcel(inflatedParcel)

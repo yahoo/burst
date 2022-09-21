@@ -30,8 +30,9 @@ package object packer extends VitalsLogger {
   }
 
   final
-  def releasePacker(slot: TeslaParcelPacker): Unit = {
-    slotQueue add slot.asInstanceOf[TeslaParcelPackerContext].close
+  def releasePacker(packer: TeslaParcelPacker): Unit = {
+    packer.asInstanceOf[TeslaParcelPackerContext].close
+    slotQueue add packer
   }
 
 }

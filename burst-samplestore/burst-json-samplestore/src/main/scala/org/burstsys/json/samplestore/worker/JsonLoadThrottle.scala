@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.json.samplestore.worker
 
-import org.burstsys.json.samplestore.configuration.alloyLoadConcurrencyProperty
+import org.burstsys.json.samplestore.configuration.jsonLoadConcurrencyProperty
 import org.burstsys.vitals.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.uid.VitalsUid
 
@@ -16,7 +16,7 @@ import scala.language.postfixOps
 object JsonLoadThrottle {
 
   private val MaxPressScheduleWait = 1 minute
-  private val MaxConcurrentLoads = alloyLoadConcurrencyProperty.getOrThrow
+  private val MaxConcurrentLoads = jsonLoadConcurrencyProperty.getOrThrow
   private[this] val _loadGate = new Semaphore(MaxConcurrentLoads, true)
 
   private def freeResourcesAvailableForLoad: Boolean = false

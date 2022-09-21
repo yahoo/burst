@@ -43,14 +43,20 @@ object TeslaTypes {
    */
   type TeslaMemoryOffset = Int
 
-  // uninitialized memory offset
+  /** Denotes an uninitialized memory offset (-1) */
   final val TeslaNullOffset: TeslaMemoryOffset = -1
 
+  /** The number of bytes used to store a Boolean: 1 */
   final val SizeOfBoolean: TeslaMemorySize = 1
+  /** The number of bytes used to store a Byte: 1 */
   final val SizeOfByte: TeslaMemorySize = 1
+  /** The number of bytes used to store a Short: 2 */
   final val SizeOfShort: TeslaMemorySize = 2
+  /** The number of bytes used to store a Integer: 4 */
   final val SizeOfInteger: TeslaMemorySize = 4
+  /** The number of bytes used to store a Long: 8 */
   final val SizeOfLong: TeslaMemorySize = 8
+  /** The number of bytes used to store a Double: 8 */
   final val SizeOfDouble: TeslaMemorySize = 8
 
 }

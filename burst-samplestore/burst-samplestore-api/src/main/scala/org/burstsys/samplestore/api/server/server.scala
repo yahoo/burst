@@ -3,7 +3,4 @@ package org.burstsys.samplestore.api
 
 import org.burstsys.vitals.logging._
 
-package object server extends VitalsLogger {
-
-
-}
+package object server extends VitalsLogger

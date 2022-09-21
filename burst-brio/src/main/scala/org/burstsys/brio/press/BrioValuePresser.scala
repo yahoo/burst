@@ -2,6 +2,8 @@
 package org.burstsys.brio.press
 
 import org.burstsys.brio.types.BrioTypes.BrioDictionaryKey
+import org.burstsys.brio.types.BrioTypes.BrioDictionaryNotFound
+import org.burstsys.vitals.errors.VitalsException
 
 /**
  * A utility trait to press various types of values
@@ -24,6 +26,23 @@ trait BrioValuePresser {
     if (value == null) capture.markRelationNull()
     else capture.stringValue(capture.dictionaryEntry(value))
   }
+
+  protected final
+  def addStringToDictionary(capture: BrioValueScalarPressCapture, value: String): BrioDictionaryKey = {
+    capture.dictionaryEntry(value) match {
+      case BrioDictionaryNotFound => throw VitalsException(s"Dictionary overflow while pressing")
+      case key => key
+    }
+  }
+
+  protected final
+  def pressString(capture: BrioValueScalarPressCapture, value: String): Unit = {
+    value match {
+      case null => capture.markRelationNull()
+      case _ => capture.stringValue(addStringToDictionary(capture, value))
+    }
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////////
   // Value Vectors

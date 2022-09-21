@@ -60,9 +60,9 @@ class HydraUnityCountSpec extends HydraAlloyTestRunner {
                     row[Long]("eventCount")
                   )
               } sortBy (_._3) sortBy (_._2) sortBy (_._1)
-              val expected =
-                Array((1,100,300000))
-              found should equal(expected)
+              found should equal(Array(
+                (5,500,1500000)
+              ))
             case _ =>
           }
       },

@@ -4,8 +4,10 @@ package org.burstsys.fabric.data.worker.cache.lifecycle
 import org.burstsys.fabric.data.model.slice.FabricSlice
 import org.burstsys.fabric.data.model.slice.state._
 import org.burstsys.fabric.data.model.snap.{FabricSnap, _}
+import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
 import org.burstsys.fabric.data.worker.cache.{FabricSnapCache, FabricSnapCacheContext}
 import org.burstsys.fabric.data.worker.store.getWorkerStore
+import org.burstsys.fabric.metadata.model.datasource
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
@@ -186,9 +188,10 @@ trait FabricSnapCacheLoader extends AnyRef {
    */
   private
   def doLoad(snap: FabricSnap): Boolean = {
-    lazy val tag = s"FabricSnapCacheLoader.doLoad(guid=${snap.guid}, ${snap.slice.identity})"
+    lazy val tag = s"FabricSnapCacheLoader.doLoad(guid=${snap.guid}, ${snap.slice.identity}, store=${snap.slice.datasource.view.storeProperties.get(FabricStoreNameProperty)})"
     try {
       val store = getWorkerStore(snap.slice.datasource)
+      log info s"$tag"
       store.loadSliceFromCacheOrInitialize(snap)
       snap.metadata.state match {
         case FabricDataNoData =>

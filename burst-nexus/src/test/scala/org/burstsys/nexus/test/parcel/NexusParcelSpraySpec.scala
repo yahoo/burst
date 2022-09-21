@@ -8,10 +8,12 @@ import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.nexus.test.NexusSpec
 import org.burstsys.nexus.client
 import org.burstsys.nexus._
+import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.parcel.TeslaParcel
 import org.burstsys.tesla.parcel._
+import org.burstsys.tesla.parcel.factory.TeslaParcelPool
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
@@ -19,6 +21,7 @@ import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.net.getPublicHostAddress
 import org.burstsys.vitals.net.getPublicHostName
 
+import java.util
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -31,40 +34,31 @@ class NexusParcelSpraySpec extends NexusSpec {
 
   it should "spray a random number of parcels across multiple clients" in {
 
+    val streamCounts = new util.HashMap[String, Int]()
+
     TeslaRequestCoupler {
+      val server = grabServer(getPublicHostAddress)
+      server fedBy new NexusStreamFeeder {
+        override def feedStream(stream: NexusStream): Unit = {
+          val itemCount: Int = math.abs(Random.nextInt % 100)
+          streamCounts.put(stream.guid, itemCount)
+          log info s"spraying $itemCount items(s) to ${stream.guid}"
 
-      val items = new ArrayBuffer[TeslaMutableBuffer]
-
-      val server = grabServer(getPublicHostAddress) fedBy new NexusStreamFeeder {
-
-        override
-        def feedStream(stream: NexusStream): Unit = {
-          val parcels = new ArrayBuffer[TeslaParcel]()
-          val itemCount: Int = math.abs(Random.nextInt() % 10)
-          parcels ++= BurstUnityMockData().pressToInflatedParcels.take(itemCount)
-          log info s"spraying $itemCount parcel(s) to ${stream.guid}"
-
-          TeslaRequestFuture {
-            try {
-              parcels.foreach(stream put)
-              stream put TeslaEndMarkerParcel
-            } catch safely {
-              case t: Throwable => throw t
-            }
-          }
+          BurstUnityMockData().pressToBuffers.take(itemCount).foreach(stream put)
+          stream.complete(itemCount, expectedItemCount = itemCount, potentialItemCount = itemCount, rejectedItemCount = 0)
         }
 
-        override
-        def abortStream(_stream: NexusStream, status: TeslaParcelStatus): Unit = {
+        override def abortStream(_stream: NexusStream, status: TeslaParcelStatus): Unit = {
           fail("we should not get a parcel abort")
         }
 
       }
-      try {
 
-        val connectionOutcomes = for (i <- 0 until 10) yield {
+      try {
+        val connectionOutcomes = for (_ <- 0 until 10) yield {
           TeslaRequestFuture {
-            testClient(server)
+            val stream = testClient(server)
+            stream.itemCount shouldEqual streamCounts.get(stream.guid)
           }
         }
 
@@ -78,7 +72,7 @@ class NexusParcelSpraySpec extends NexusSpec {
   }
 
   private
-  def testClient(server: NexusServer): Seq[TeslaParcel] = {
+  def testClient(server: NexusServer): NexusStream = {
     val client = grabClientFromPool(getPublicHostAddress, server.serverPort)
 
     try {
@@ -87,7 +81,7 @@ class NexusParcelSpraySpec extends NexusSpec {
       val pipe = TeslaParcelPipe(name = "mock", guid = guid, suid = suid).start
       val stream = client.startStream(guid, suid, Map("someKey" -> "someValue"), "unity", Some("someMotifFilter"), pipe, 0, getPublicHostName, getPublicHostName)
 
-      val results = new ArrayBuffer[TeslaParcel]
+      var parcelCount = 0
 
       var continue = true
       while (continue) {
@@ -95,14 +89,15 @@ class NexusParcelSpraySpec extends NexusSpec {
         if (parcel == TeslaEndMarkerParcel) {
           continue = false
         } else {
-          results += parcel
+          tesla.parcel.factory.releaseParcel(parcel)
+          parcelCount += 1
         }
       }
 
-      log info s"received ${results.size} parcels(s) from ${stream.guid}"
+      log info s"received ${parcelCount} parcels(s) from ${stream.guid}"
 
       Await.result(stream.receipt, 60 seconds)
-      results.toSeq
+      stream
     } finally {
       releaseClientToPool(client)
     }

@@ -15,6 +15,6 @@ trait SampleStoreApiListener extends Any {
    * @param dataSource
    * @return
    */
-  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[SampleStoreGenerator]
+  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[SampleStoreGeneration]
 
 }

@@ -2,7 +2,8 @@
 package org.burstsys.json.samplestore
 
 import org.burstsys.json.samplestore.configuration.{JsonSamplestoreConfiguration, JsonSamplestoreDefaultConfiguration}
-import org.burstsys.samplesource.handler.SampleSourceHandler
+import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
+import org.burstsys.samplesource.handler.SimpleSampleStoreApiListener
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
 import org.burstsys.samplestore.api.SampleStoreApiService
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
@@ -42,7 +43,7 @@ final case class JsonSampleStoreContainer(
     log info burstStdMsg(s"BRANCH: '${git.branch}'   COMMIT: '${git.commitId}'  ")
 
     log info burstStdMsg("starting new nexus server")
-    SampleSourceHandler.start
+    SampleSourceHandlerRegistry.start
 
     org.burstsys.vitals.reporter.startReporterSystem()
 
@@ -50,7 +51,7 @@ final case class JsonSampleStoreContainer(
 
     // start API server
     log info burstStdMsg("starting sample store api server")
-    apiServer = SampleStoreApiService(modality) talksTo JsonSampleStoreListener(configuration.alloyProperties)
+    apiServer = SampleStoreApiService(modality) talksTo SimpleSampleStoreApiListener(configuration.properties)
     apiServer.start
 
 

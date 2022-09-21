@@ -40,6 +40,8 @@ trait TeslaParcelPacker extends Any {
    */
   def put(buffer: TeslaMutableBuffer): Unit
 
+//  def allWritesComplete(): Future[Unit]
+
 }
 
 private[packer] final case

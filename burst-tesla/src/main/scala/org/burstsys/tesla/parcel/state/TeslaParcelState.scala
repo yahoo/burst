@@ -125,9 +125,9 @@ trait TeslaParcelState extends Any with TeslaParcel {
   }
 
   @inline final
-  def bufferCount(id: Int): Unit = {
+  def bufferCount(count: Int): Unit = {
     val ptr = checkPtr(parcelStartPtr + bufferCountFieldStart)
-    tesla.offheap.putInt(ptr, id)
+    tesla.offheap.putInt(ptr, count)
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -144,9 +144,9 @@ trait TeslaParcelState extends Any with TeslaParcel {
   }
 
   @inline final
-  def inflatedSize(id: Int): Unit = {
+  def inflatedSize(size: Int): Unit = {
     val ptr = checkPtr(parcelStartPtr + inflatedSizeFieldStart)
-    tesla.offheap.putInt(ptr, id)
+    tesla.offheap.putInt(ptr, size)
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -185,13 +185,13 @@ trait TeslaParcelState extends Any with TeslaParcel {
   }
 
   @inline final
-  def isInflated(id: Boolean): Unit = {
+  def isInflated(inflated: Boolean): Unit = {
     val ptr = checkPtr(parcelStartPtr + isInflatedFieldStart)
-    tesla.offheap.putInt(ptr, if (id) 1 else 0)
+    tesla.offheap.putInt(ptr, if (inflated) 1 else 0)
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
-  // field 8 in the next buffer slot offset
+  // field 8 is the next buffer slot offset
   //////////////////////////////////////////////////////////////////////////////////////////
 
   @inline private

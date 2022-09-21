@@ -26,8 +26,6 @@ import scala.util.Try
  */
 package object mock extends VitalsLogger {
 
-  lazy val blobs: Array[TeslaMutableBuffer] = quo.mockBlobs
-
   val itemsPerSlice = 500
 
   final val MockStoreName = "mock"

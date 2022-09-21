@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.views.unity
 
-import org.burstsys.brio.flurry.provider.unity._
 import org.burstsys.alloy.BurstUnitRepeatingValue
+import org.burstsys.brio.flurry.provider.unity._
 import org.burstsys.brio.press.BrioPressInstance
 import org.burstsys.vitals.time.VitalsTimeZones.BurstDefaultTimeZone
 import org.joda.time.DateTime
@@ -47,20 +47,21 @@ object UnityGenerator {
   def generated(userCount: Int, sessionCount: Int, eventCount: Int, parameterCount: Int = 0, controls: GeneratorControls = defaultGeneratorControls): Array[BrioPressInstance] = {
     (1 to userCount).map {
       _ =>
-        generateUser(sessionCount,eventCount,parameterCount, controls)
+        generateUser(sessionCount, eventCount, parameterCount, controls)
     }.toArray
   }
 
   def generateIterator(userCount: Int, sessionCount: Int, eventCount: Int, parameterCount: Int, controls: GeneratorControls = defaultGeneratorControls): Iterator[BrioPressInstance] = {
     new Iterator[BrioPressInstance]() {
       val count = new AtomicLong(userCount)
+
       def hasNext: Boolean = count.get() > 0
 
       def next(): BrioPressInstance = {
         if (count.decrementAndGet() < 0) {
           throw new NoSuchElementException()
         }
-        generateUser(sessionCount,eventCount,parameterCount, controls)
+        generateUser(sessionCount, eventCount, parameterCount, controls)
       }
     }
   }

@@ -1,10 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.json.samplestore.master
 
+import org.burstsys.json.samplestore.JsonBrioSampleSourceName
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
 import org.burstsys.samplesource.service.SampleSourceMasterService
-import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreApiRequestInvalidException, SampleStoreDataLocus, SampleStoreGenerator}
-import org.burstsys.json.samplestore.configuration.{alloyLociReplicationProperty, alloySkipIndexStreamPropertyKey}
+import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreApiRequestInvalidException, SampleStoreDataLocus, SampleStoreGeneration}
+import org.burstsys.json.samplestore.configuration.{alloySkipIndexStreamPropertyKey, jsonLociCountProperty}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{VitalsHostName, convertHostAddressToHostname, convertLocalAddressToExternal, getLocalHostAddress, getLocalHostName, isIpv4Address}
@@ -13,7 +14,9 @@ import org.burstsys.vitals.uid.{md5, newBurstUid}
 
 import scala.concurrent.{Future, Promise}
 
-trait JsonSampleSourceMasterService extends SampleSourceMasterService {
+case class JsonSampleSourceMasterService() extends SampleSourceMasterService {
+
+  override def name: String = JsonBrioSampleSourceName
 
   override
   def onSampleStoreDataLocusAdded(hostName: VitalsHostName): Unit = {
@@ -27,13 +30,13 @@ trait JsonSampleSourceMasterService extends SampleSourceMasterService {
 
   override
   def getBroadcastVars: Map[VitalsPropertyKey, java.io.Serializable] = {
-    var broadcastVars = Map[VitalsPropertyKey, java.io.Serializable]()
+    val broadcastVars = Map[VitalsPropertyKey, java.io.Serializable]()
     broadcastVars
   }
 
   override
-  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, listenerProperties: VitalsPropertyMap): Future[SampleStoreGenerator] = {
-    val promise = Promise[SampleStoreGenerator]()
+  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, listenerProperties: VitalsPropertyMap): Future[SampleStoreGeneration] = {
+    val promise = Promise[SampleStoreGeneration]()
     try {
       val loci: Array[SampleStoreDataLocus] = fetchLoci(mergeProperties(guid, dataSource, listenerProperties))
       val generationMapping: String = loci.map(l => (l.hostAddress, l.partitionProperties(alloySkipIndexStreamPropertyKey)))
@@ -43,7 +46,7 @@ trait JsonSampleSourceMasterService extends SampleSourceMasterService {
 
       log info burstStdMsg(s"End view generation for guid=$guid")
       promise.success(
-        SampleStoreGenerator(guid, generationHash, loci,
+        SampleStoreGeneration(guid, generationHash, loci,
           dataSource.view.schemaName, motifFilter = Some(dataSource.view.viewMotif))
       )
     } catch safely {
@@ -67,7 +70,7 @@ trait JsonSampleSourceMasterService extends SampleSourceMasterService {
   def fetchLoci(mergedProperties: VitalsPropertyMap): Array[SampleStoreDataLocus] = {
     // pretty basic loci lister
     // TODO get loci list from an external provider
-    val lociRepeat = Math.max(1, alloyLociReplicationProperty.getOrThrow)
+    val lociRepeat = Math.max(1, jsonLociCountProperty.getOrThrow)
 
     // list yourself as many times as the repeat property specifies
     val hostName =
@@ -118,4 +121,5 @@ trait JsonSampleSourceMasterService extends SampleSourceMasterService {
 
     mergedProperties
   }
+
 }

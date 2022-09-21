@@ -1,16 +1,21 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.alloy
 
-import org.burstsys.alloy.alloy.store.worker.{blobSize, log}
+import org.burstsys.alloy.alloy.store.worker.bufferSize
+import org.burstsys.alloy.alloy.store.worker.blobSize
+import org.burstsys.alloy.alloy.store.worker.log
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.json.JsonPressSource
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.brio.press.{BrioPressSink, BrioPresser}
+import org.burstsys.brio.press.BrioPressSink
+import org.burstsys.brio.press.BrioPresser
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.vitals.errors.safely
-import org.burstsys.{brio, tesla}
+import org.burstsys.brio
+import org.burstsys.tesla
 
-import java.io.{FileInputStream, InputStream}
+import java.io.FileInputStream
+import java.io.InputStream
 import java.nio.file.Paths
 import java.util.zip.GZIPInputStream
 
@@ -32,12 +37,13 @@ package object json {
     new Iterator[TeslaMutableBuffer]() {
       private val jsonIterator = brio.json.getJsonSource(schema, jsonSource)
       private var itemCount = 0
+
       override def hasNext: Boolean = jsonIterator.hasNext
 
       override def next(): TeslaMutableBuffer = {
         itemCount += 1
         val item = jsonIterator.next()
-        val pressBuffer = tesla.buffer.factory.grabBuffer(blobSize)
+        val pressBuffer = tesla.buffer.factory.grabBuffer(bufferSize)
         val blobBuffer = tesla.buffer.factory.grabBuffer(blobSize)
         val dictionary = brio.dictionary.factory.grabMutableDictionary()
         val sink = BrioPressSink(pressBuffer, dictionary)
@@ -49,7 +55,8 @@ package object json {
           blobBuffer
         } catch safely {
           case e: Exception =>
-            log error s"failed to press item $itemCount"
+            log error(s"failed to press item $itemCount", e)
+            tesla.buffer.factory.releaseBuffer(blobBuffer)
             null
         } finally {
           tesla.buffer.factory.releaseBuffer(pressBuffer)

@@ -17,13 +17,13 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   // Samplestore heartbeat
   /////////////////////////////////////////////
   final
-  val burstSampleStoreHeartbeatInterval: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
-    key = "burst.samplestore.heartbeat.interval.ms",
-    description = "heartbeat frequency, in ms",
-    default = Some(10000)
+  val burstSampleStoreHeartbeatInterval: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.samplestore.heartbeat.interval",
+    description = "heartbeat frequency",
+    default = Some(10.seconds)
   )
 
-  def burstSampleStoreHeartbeatDuration: Duration = Duration(burstSampleStoreHeartbeatInterval.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstSampleStoreHeartbeatDuration: Duration = burstSampleStoreHeartbeatInterval.getOrThrow
 
   /////////////////////////////////////////////
   // Sample Store API properties

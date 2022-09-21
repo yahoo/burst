@@ -1,12 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla
 
+import org.burstsys.tesla
+import org.burstsys.vitals.properties.VitalsPropertyRegistry
+import org.burstsys.vitals.properties.VitalsPropertySpecification
+
 import java.lang.Runtime.getRuntime
 import java.util.concurrent.TimeUnit
-
-import org.burstsys.tesla
-import org.burstsys.vitals.properties.{VitalsPropertyRegistry, VitalsPropertySpecification}
-
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -17,7 +17,7 @@ package object configuration extends VitalsPropertyRegistry {
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   def configureForUnitTests(): Unit = {
-    tesla.configuration.burstTeslaWorkerThreadCountProperty.set(getRuntime.availableProcessors)
+    tesla.configuration.burstTeslaWorkerThreadCountProperty.set(Runtime.getRuntime.availableProcessors())
     tesla.configuration.teslaPartsTenderProperty.set(30) // 30 seconds
   }
 

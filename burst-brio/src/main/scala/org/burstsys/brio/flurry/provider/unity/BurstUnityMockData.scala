@@ -15,7 +15,6 @@ import org.burstsys.brio.press.BrioPressSource
 final case
 class BurstUnityMockData(itemCount: Int = 1000) extends BrioMockDataModel {
 
-
   override
   val schema: BrioSchema =  BrioSchema("unity")
 

@@ -23,8 +23,4 @@ package object store {
     val workerClass: Class[AlloyJsonStoreWorker] = classOf[AlloyJsonStoreWorker]
   }
 
-
-  val sliceSet = new ArrayBuffer[FabricSliceData]
-
-
 }

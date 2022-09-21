@@ -21,8 +21,7 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
   // private state
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private[this]
-  val schemaMap = new ConcurrentHashMap[BrioSchemaName, BrioSchema] // don't over scala it!!
+  private[this] val schemaMap = new ConcurrentHashMap[BrioSchemaName, BrioSchema] // don't over scala it!!
 
   final
   def schemaAliasSet: String = schemaMap.asScala.keys.mkString("{'", "', '", "'}")
@@ -38,10 +37,10 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
    */
   final
   def getSchema(name: BrioSchemaName): BrioSchema = {
-    val schema = schemaMap.get(name)
-    if (schema == null) {
-      throw VitalsException(s"schema '$name' not found in set $schemaAliasSet")
-    } else schema
+    schemaMap.get(name) match {
+      case null => throw VitalsException(s"schema '$name' not found in set $schemaAliasSet")
+      case schema => schema
+    }
   }
 
   /**
@@ -64,8 +63,7 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
    * @param aliases                the set of one or more names that can be used to access the resulting schema model (case sensitive)
    * @return
    */
-  final
-  def registerBrioSchema(clazz: Class[_], schemaVersionClassPath: String, aliases: BrioSchemaName*): BrioSchema = {
+  final def registerBrioSchema(clazz: Class[_], schemaVersionClassPath: String, aliases: BrioSchemaName*): BrioSchema = {
     // make sure none of the aliases match any of the aliases previously registered...
     if (schemaMap.asScala.keys.exists(aliases.contains))
       throw VitalsException(s"duplicate schema alias found in set $schemaAliasSet")
@@ -78,8 +76,7 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
   // INTERNAL
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private
-  def loadSchema(clazz: Class[_], path: String, schemaNames: Seq[BrioSchemaName]): BrioSchema = {
+  private def loadSchema(clazz: Class[_], path: String, schemaNames: Seq[BrioSchemaName]): BrioSchema = {
     val schemata = schemaNames.mkString(", ")
     val sources = extractTextFilesFromClasspath(clazz, path, "brio")
     sources foreach {
@@ -97,8 +94,7 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
     schema
   }
 
-  private
-  def build(sources: String*): BrioSchema = {
+  private def build(sources: String*): BrioSchema = {
     try {
       build(sources.map(BrioSchemaParser(log).parse).toArray)
     } catch safely {
@@ -106,8 +102,7 @@ package object schema extends VitalsLogger with BrioTypeBuilder with BrioPathBui
     }
   }
 
-  private
-  def build(schemaClauses: Array[BrioSchemaClause]): BrioSchema = {
+  private def build(schemaClauses: Array[BrioSchemaClause]): BrioSchema = {
     // first version (version zero) is a start point for some migration invariant schema properties
     val s0 = schemaClauses.head
 

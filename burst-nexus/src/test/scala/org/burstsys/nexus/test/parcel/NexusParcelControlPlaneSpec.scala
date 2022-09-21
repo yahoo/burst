@@ -29,21 +29,20 @@ class NexusParcelControlPlaneSpec extends NexusSpec {
 
       val gate = new CountDownLatch(2)
 
-      val server = grabServer(getPublicHostAddress) talksTo new NexusServerListener {
-        override
-        def onStreamInitiate(stream: NexusStream, request: NexusStreamInitiateMsg): Unit = {
+      val server = grabServer(getPublicHostAddress)
+      server talksTo new NexusServerListener {
+        override def onStreamInitiate(stream: NexusStream, request: NexusStreamInitiateMsg): Unit = {
           stream.guid should equal(guid)
           gate.countDown()
         }
-      } fedBy new NexusStreamFeeder {
-
-        override
-        def abortStream(_stream: NexusStream, status: TeslaParcelStatus): Unit = {
+      }
+      server fedBy new NexusStreamFeeder {
+        override def abortStream(_stream: NexusStream, status: TeslaParcelStatus): Unit = {
           fail("we should not get a parcel abort")
         }
 
         override def feedStream(stream: NexusStream): Unit = {
-          stream.put(TeslaEndMarkerParcel)
+          stream.complete(0, 0, 0, 0)
         }
       }
 

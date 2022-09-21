@@ -6,19 +6,19 @@ import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.properties.{VitalsPropertyKey, VitalsPropertyMap, VitalsPropertyRegistry, VitalsPropertySpecification}
 
 package object configuration extends VitalsLogger with VitalsPropertyRegistry {
-  val alloyLoadConcurrencyProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+  val jsonLoadConcurrencyProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
     key = "json.samplestore.load.concurrency",
     description = "max allowed concurrent loads",
     default = Some(math.max(10, (Runtime.getRuntime.availableProcessors / 6.0).toInt))
   )
 
-  val alloyLociReplicationProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "json.samplestore.loci.replication",
-    description = "number of times to repeat a worker in the loci list",
+  val jsonLociCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+    key = "json.samplestore.loci.count",
+    description = "number of samplestore loci to generate",
     default = Some(0)
   )
 
-  val alloyJsonVersionProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+  val jsonVersionProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
     key = "json.samplestore.json.rootVersion",
     description = "the default version for Json alloy data",
     default = Some(1)
@@ -29,23 +29,23 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
 
   sealed trait JsonSamplestoreConfiguration extends Any {
     def distributedMode: Boolean
-    def alloyPropertiesFile: String
-    def alloyProperties: VitalsPropertyMap
+    def propertiesFile: String
+    def properties: VitalsPropertyMap
   }
 
 
   final case
   class JsonSamplestoreDefaultConfiguration() extends JsonSamplestoreConfiguration {
     override def distributedMode: Boolean = false
-    override def alloyPropertiesFile = "localAlloy.properties"
-    def alloyProperties: VitalsPropertyMap = loadPropertyMapFromJavaPropertiesFile(alloyPropertiesFile)
+    override def propertiesFile = "localAlloy.properties"
+    def properties: VitalsPropertyMap = loadPropertyMapFromJavaPropertiesFile(propertiesFile)
   }
 
   final case
   class JsonSamplestoreDistributedConfiguration() extends JsonSamplestoreConfiguration {
     override def distributedMode: Boolean = true
-    override def alloyPropertiesFile = "localAlloy.properties"
-    def alloyProperties: VitalsPropertyMap = loadPropertyMapFromJavaPropertiesFile(alloyPropertiesFile)
+    override def propertiesFile = "localAlloy.properties"
+    def properties: VitalsPropertyMap = loadPropertyMapFromJavaPropertiesFile(propertiesFile)
   }
 
 }

@@ -30,7 +30,7 @@ trait NexusParcelTransmitter {
     lazy val tag = s"NexusParcelTransmitter.transmitDataStream(id=$id, $link, stream=$stream  ${remoteAddress}:${remotePort})"
     TeslaRequestFuture {
       try {
-        var dataFuture: Future[Unit] = Promise[Unit]().success((): Unit).future
+        var lastMessageTransmit: Future[Unit] = Promise[Unit]().success((): Unit).future
 
         NexusServerStreamTrekMark.begin(stream.guid)
         var moreToGo = true
@@ -44,7 +44,7 @@ trait NexusParcelTransmitter {
             NexusServerReporter.onServerStreamSucceed()
             NexusServerCompleteSendTrekMark.begin(stream.guid)
 
-            Await.ready(dataFuture, Duration.Inf)
+            Await.ready(lastMessageTransmit, Duration.Inf)
             transmitControlMessage(NexusStreamCompleteMsg(stream, parcel.status)) onComplete {
               case Failure(t) =>
                 log error burstStdMsg(s"$tag:$t", t)
@@ -62,7 +62,7 @@ trait NexusParcelTransmitter {
             tesla.parcel.factory releaseParcel parcel
 
           } else {
-            Await.ready(dataFuture, Duration.Inf)
+            Await.ready(lastMessageTransmit, Duration.Inf)
 
             log info s"NexusStreamParcelMsg guid=${stream.guid} suid=${stream.suid} count=${parcel.bufferCount} action=transmit"
             val writeStart = System.nanoTime
@@ -73,8 +73,8 @@ trait NexusParcelTransmitter {
             tesla.parcel.factory releaseParcel parcel
 
             NexusServerParcelSendTrekMark.begin(stream.guid)
-            dataFuture = transmitDataMessage(buffer, flush = false)
-            dataFuture onComplete {
+            lastMessageTransmit = transmitDataMessage(buffer, flush = false)
+            lastMessageTransmit onComplete {
               case Failure(t) => log error burstStdMsg(s"$tag could not transmit parcel $t", t)
               case Success(r) => NexusServerParcelSendTrekMark.end(stream.guid)
             }

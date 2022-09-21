@@ -167,7 +167,7 @@ class FabricRegionWriterContext(
 
       writeHeader()
       _completed.set(false)
-      _parcelCount.reset
+      _parcelCount.reset()
 
       FabricRegionReporter.countWriteOpen()
       _isOpenForWrites = true

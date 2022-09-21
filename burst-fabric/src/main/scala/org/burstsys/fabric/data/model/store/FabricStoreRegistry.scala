@@ -42,14 +42,6 @@ trait FabricStoreRegistry[R <: FabricStore] extends VitalsService {
   def get(storeName: String): R
 
   /**
-   * get the (master or worker) store for the current container
-   *
-   * @param datasource
-   * @return
-   */
-  def get(datasource: FabricDatasource): R
-
-  /**
    * get the (master or worker) store for the current container, throwing
    * an exception if it is not available.
    *
@@ -71,7 +63,7 @@ class FabricStoreRegistryContext[R <: FabricStore : ClassTag]() extends FabricSt
 
   override val modality: VitalsServiceModality = VitalsPojo
 
-  override def serviceName: String = s"${classTag[R].runtimeClass.getSimpleName}"
+  override def serviceName: String = s"${classTag[R].runtimeClass.getSimpleName}Registry"
 
   override def toString: String = serviceName
 
@@ -121,20 +113,9 @@ class FabricStoreRegistryContext[R <: FabricStore : ClassTag]() extends FabricSt
   }
 
   override
-  def get(datasource: FabricDatasource): R = {
-    val storeName = datasource.view.storeProperties.getValueOrThrow[String](FabricStoreNameProperty)
-    _storeMap.get(storeName) match {
-      case null =>
-        log error burstStdMsg(s"FAB_STORE_GET datasource=$datasource, storeName='$storeName', FAIL - storeNames=$storeNames")
-        null.asInstanceOf[R]
-      case s => s
-    }
-  }
-
-  override
   def getOrThrow(datasource: FabricDatasource): R = {
     val storeName = datasource.view.storeProperties.getValueOrThrow[String](FabricStoreNameProperty)
-    _storeMap.get(storeName) match {
+    get(storeName) match {
       case null => throw VitalsException(s"FAB_STORE_GET datasource=$datasource, storeName='$storeName', FAIL - storeNames=$storeNames")
       case s => s
     }

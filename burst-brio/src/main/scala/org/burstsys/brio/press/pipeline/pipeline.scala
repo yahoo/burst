@@ -14,7 +14,7 @@ package object pipeline extends VitalsLogger with BrioPressPipeline {
   private[pipeline]
   final val jobId = new AtomicLong
 
-  final val pressBufferSize = 10000000
+  final val pressBufferSize = 2e7.toInt
 
   final val slowPressDuration = 60 seconds // how long is suspiciously long for a press
 

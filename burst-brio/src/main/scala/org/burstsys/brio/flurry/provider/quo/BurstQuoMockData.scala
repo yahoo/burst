@@ -9,11 +9,11 @@ import org.burstsys.brio.press.BrioPressSource
 import java.util.concurrent.atomic.AtomicLong
 
 /**
-  * create mock data for quo schema. Note to support unit testing (and perhaps other users) this must be
-  * deterministic - if you provide the same input parameters, the result will be identical
-  *
-  * @param userCount
-  */
+ * create mock data for quo schema. Note to support unit testing (and perhaps other users) this must be
+ * deterministic - if you provide the same input parameters, the result will be identical
+ *
+ * @param userCount
+ */
 final case
 class BurstQuoMockData(
                         userCount: Int = 10,
@@ -44,11 +44,9 @@ class BurstQuoMockData(
   private
   def newLongValue: Long = longValue.getAndIncrement
 
-  private
-  var genderValue = -1
+  private var genderValue = -1
 
-  private
-  def newGenderValue: Byte = {
+  private def newGenderValue: Byte = {
     genderValue += 1
     if (genderValue > 1) {
       genderValue = -1
@@ -56,11 +54,9 @@ class BurstQuoMockData(
     genderValue.toByte
   }
 
-  private
-  var flurryIdValue = new AtomicLong()
+  private val flurryIdValue = new AtomicLong()
 
-  private
-  def newFlurryId: String = s"FlurryId${flurryIdValue.getAndIncrement()}"
+  private def newFlurryId: String = s"FlurryId${flurryIdValue.getAndIncrement()}"
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -68,7 +64,7 @@ class BurstQuoMockData(
 
   override
   lazy val items: Seq[QuoMockUser] =
-    for (i <- 0 until userCount) yield {
+    for (_ <- 0 until userCount) yield {
       QuoMockUser(
         flurryId = newFlurryId,
         project = QuoMockProject(
@@ -99,30 +95,25 @@ class BurstQuoMockData(
   // Implementation
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private
-  def generateMap: Map[String, String] = {
+  private def generateMap: Map[String, String] = {
     Map("k1" -> "v1")
   }
 
-  private
-  def generatePersona: Array[QuoMockPersona] = {
+  private def generatePersona: Array[QuoMockPersona] = {
     Array(QuoMockPersona(personaId = newLongValue))
   }
 
-  private
-  def generateChannels: Array[QuoMockChannel] = {
+  private def generateChannels: Array[QuoMockChannel] = {
     Array(
       QuoMockChannel(channelId = newLongValue, networkId = newLongValue, isQuality = false)
     )
   }
 
-  private
-  def generateSegments: Array[QuoMockSegment] = {
+  private def generateSegments: Array[QuoMockSegment] = {
     Array(QuoMockSegment(segmentId = newLongValue))
   }
 
-  private
-  def generateSessions: Array[QuoMockSession] = {
+  private def generateSessions: Array[QuoMockSession] = {
     Array(
       QuoMockSession(
         sessionId = newLongValue,
@@ -152,8 +143,7 @@ class BurstQuoMockData(
     )
   }
 
-  private
-  def generateEvents: Array[QuoMockEvent] = {
+  private def generateEvents: Array[QuoMockEvent] = {
     Array(
       QuoMockEvent(
         eventId = newLongValue,

@@ -6,6 +6,7 @@ import org.burstsys.alloy.AlloyDatasetSpec
 import org.burstsys.alloy.store.mini.MiniView
 import org.burstsys.brio.flurry.provider.quo.BurstQuoMockPressSource
 import org.burstsys.brio.flurry.provider.unity.BurstUnityMockPressSource
+import org.burstsys.brio.flurry.provider.unity.UnityPressSource
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.BrioPressInstance
 import org.burstsys.brio.press.BrioPressSource
@@ -44,7 +45,7 @@ class UnitMiniViewContext(schema: BrioSchema, domainKey: FabricDomainKey, viewKe
     val unitySchema = BrioSchema("Unity").name
     schema.name match {
       case `quoSchema` => BurstQuoMockPressSource(root)
-      case `unitySchema` => BurstUnityMockPressSource(root)
+      case `unitySchema` => UnityPressSource(root)
       case _ => ???
     }
   }

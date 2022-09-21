@@ -1,14 +1,15 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test
 
-import org.burstsys.brio.provider.loadBrioSchemaProviders
 import org.burstsys.json.samplestore.JsonSampleStoreContainer
 import org.burstsys.json.samplestore.configuration.JsonSamplestoreDefaultConfiguration
 import org.burstsys.samplestore.api.SampleStoreApiService
 import org.burstsys.vitals
 import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
+import org.burstsys.vitals.VitalsService.VitalsStandardClient
 import org.burstsys.vitals.git
-import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
+import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
@@ -25,8 +26,6 @@ package object alloy extends VitalsLogger {
   }
 
   trait AlloySampleStoreSpecSupport extends AlloySampleSourceSpecSupport {
-    loadBrioSchemaProviders()
-
     vitals.configuration.burstVitalsEnableReporting.set(false)
 
     var sampleStoreClient: SampleStoreApiService = _
@@ -36,7 +35,7 @@ package object alloy extends VitalsLogger {
     override protected
     def beforeAll(): Unit = {
       alloyStore.start
-      sampleStoreClient = SampleStoreApiService().start
+      sampleStoreClient = SampleStoreApiService(VitalsStandardClient).start
     }
 
     override protected

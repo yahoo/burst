@@ -48,7 +48,7 @@ trait FabricWorkerLoader extends Any {
 
               // its now on disk - get into memory
               case FabricDataWarm =>
-                log info s"FabricSliceOnDisk (loading into memory...)  $tag"
+                log info s"FabricDataWarm (loading into memory...)  $tag"
                 fabricSliceData.loadSliceIntoMemory()
 
               // some sort of no data situation that did not throw exception...
@@ -78,7 +78,7 @@ trait FabricWorkerLoader extends Any {
          * already on disc, lets mmap it into memory for reading ...
          */
         case FabricDataWarm =>
-          log info s"FabricSliceOnDisk (opening for read...) $tag"
+          log info s"FabricDataWarm (opening for read...) $tag"
           fabricSliceData.loadSliceIntoMemory()
 
         /**

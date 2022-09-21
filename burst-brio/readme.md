@@ -16,26 +16,18 @@ disk/memory format specialized for zero `GC-churn`
 linearized byte-order scanning reads.
 * runtime support for Brio format writing and reading
 
-# `Components`
+# Components
 
-* [Model](src/main/scala/org/burstsys/brio/model/readme.md) --
-type and object modeling system library
-* [Blobs](src/main/scala/org/burstsys/brio/blob/readme.md) --
-runtime disk/memory binary encoding format
-* [Pressing](src/main/scala/org/burstsys/brio/press/readme.md) --
-runtime encoding (write) system
-* [Lattice](src/main/scala/org/burstsys/brio/configuration/readme.md) --
-runtime encoding (read) system
-* [Provider](src/main/scala/org/burstsys/brio/provider/readme.md) --
-runtime schema discover/load system
-* [Types](src/main/scala/org/burstsys/brio/types/readme.md) --
-Brio types
-* [Dictionaries](src/main/scala/org/burstsys/brio/dictionary/readme.md) --
-runtime string to key and key to string lookup support
-* [Extended Types](src/main/scala/org/burstsys/brio/extended/readme.md) --
-future planned extensions to model
-* [Configuration](src/main/scala/org/burstsys/brio/configuration/readme.md) --
-configuration properties
+* [Model](src/main/scala/org/burstsys/brio/model/readme.md) – type and object modeling system library
+* [Blobs](src/main/scala/org/burstsys/brio/blob/readme.md) – runtime disk/memory binary encoding format
+* [Pressing](src/main/scala/org/burstsys/brio/press/readme.md) – runtime encoding (write) system
+* [Lattice](src/main/scala/org/burstsys/brio/configuration/readme.md) – runtime encoding (read) system
+* [Provider](src/main/scala/org/burstsys/brio/provider/readme.md) – runtime schema discover/load system
+* [Types](src/main/scala/org/burstsys/brio/types/readme.md) – Brio types
+* [Dictionaries](src/main/scala/org/burstsys/brio/dictionary/readme.md) – runtime string to key and key to string lookup support
+* [Extended Types](src/main/scala/org/burstsys/brio/extended/readme.md) – future planned extensions to model
+* [Configuration](src/main/scala/org/burstsys/brio/configuration/readme.md) – configuration properties
+* [Unity synthetic data model](src/main/scala/org/burstsys/brio/flurry/provider/unity/readme.md) – a synthetic data generator for Unity schema queries
 
 ---
 ------ [HOME](../readme.md) --------------------------------------------

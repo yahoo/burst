@@ -255,6 +255,14 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
 
       lazy val countMsg = s"itemsRecevied=${_itemCount}"
 
+      // Aggregate the potential & rejected Size for SS load over all the loci
+      _streams.foreach { s =>
+        _expectedItemCount add s.expectedItemCount
+        _potentialItemCount add s.potentialItemCount
+        _rejectedItemCount add s.rejectedItemCount
+        _reportedItemCount add s.itemCount
+      }
+
       // -----------------------------------
       // anything bad happen here?
       // -----------------------------------
@@ -274,6 +282,11 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
         log error s"$msg $tag"
         metadata.failure(msg)
 
+      } else if (_reportedItemCount.longValue != _itemCount.longValue) {
+        val msg = s"SAMPLE_STORE_STREAM_INCOMPLETE $countMsg reportedItems=${_reportedItemCount} expectedItems=${_expectedItemCount}"
+        log error s"$msg $tag"
+        metadata.failure(msg)
+
       } else if (!dataReceived) {
         // we did not receive any data from any of the streams
         metadata.state = FabricDataNoData
@@ -283,14 +296,6 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
         // all is well
         metadata.state = FabricDataWarm
         log info s"SAMPLE_STORE_STREAM_GOOD_DATA $tag $countMsg emptyStreams=$streamsNoData"
-      }
-
-      // Aggregate the potential & rejected Size for SS load over all the loci
-      _streams.foreach { s =>
-        _expectedItemCount add s.expectedItemCount
-        _potentialItemCount add s.potentialItemCount
-        _rejectedItemCount add s.rejectedItemCount
-        _reportedItemCount add s.itemCount
       }
 
       if (snap.metadata.state == FabricDataFailed) {

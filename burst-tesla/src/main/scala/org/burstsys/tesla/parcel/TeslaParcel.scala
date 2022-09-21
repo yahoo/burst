@@ -35,30 +35,22 @@ trait TeslaParcel extends Any with TeslaBlockPart with  TeslaParcelStatusMarker 
   //////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-    * The factor pool for this parcel
-    *
-    * @return
+    * @return The id of the pool for this parcel in the factory
     */
   def poolId: TeslaPoolId
 
   /**
-    * max available memory in the parcel
-    *
-    * @return
+    * @return the total memory in this parcel useable for buffer storage
     */
   def maxAvailableMemory: TeslaMemorySize
 
   /**
-    * current used memory in the parcel
-    *
-    * @return
+    * @return the amount of memory currently in the parcel by buffers
     */
   def currentUsedMemory: TeslaMemorySize
 
   /**
-    * the offset for the parcel's buffer sequence
-    *
-    * @return
+    * @return the offset of the parcel's first buffer
     */
   def bufferSlotsStart: TeslaMemoryOffset
 
@@ -214,6 +206,12 @@ trait TeslaParcel extends Any with TeslaBlockPart with  TeslaParcelStatusMarker 
   //////////////////////////////////////////////////////////////////////////////////////////
   // ingress/egress
   //////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Copy the contents of a parcel into this parcel
+   * @param parcel the parcel to copy
+   */
+  def copyFrom(parcel: TeslaParcel): Unit
 
   /**
     * output bytes from this parcel into a heap byte array

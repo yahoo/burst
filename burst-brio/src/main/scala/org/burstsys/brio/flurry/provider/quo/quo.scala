@@ -17,66 +17,17 @@ import java.nio.file.Paths
 package object quo extends VitalsLogger {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // CANNED DATA
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * canned sequence file data. Note that these files are
-   * pulled down by a script - they are not checked in.
-   * There are V1 blob encoding i.e. they use old style brio dictionaries.
-   * Everything else is in V2 blob encoding (or soon will be with new
-   * pressing framework)
-   */
-  final val cannedClassPath = "/org/burstsys/schema/quo/canned/"
-
-  private
-  val tempDir = System.getProperty("java.io.tmpdir")
-
-  final
-  def getCachedSequenceFile(name: String): Path = {
-    try {
-      val indexFilePath = FileSystems.getDefault.getPath(tempDir, name)
-      if (Files.exists(indexFilePath))
-        return indexFilePath
-
-      val classPathLocation = s"${cannedClassPath.stripSuffix("/")}/$name"
-      //  now copy the classpath resource to the tmp folder
-      val stream = classOf[BurstQuoMockData].getResourceAsStream(classPathLocation)
-      if (stream == null)
-        throw VitalsException(s"resource $classPathLocation not found in classpath")
-      val newPath = Paths.get(indexFilePath.toUri)
-      Files.copy(stream, newPath)
-      newPath
-    } catch safely {
-      case t: Throwable =>
-        throw VitalsException(t)
-    }
-  }
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Mock Data
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   *
-   * @return
-   */
-  def mockBlobs: Array[TeslaMutableBuffer] = BurstQuoMockData().pressToBuffers
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // SCHEMA
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * provider class for the brio 'test' schema
    */
-  final case class QuoSchemaProvider() extends BrioSchemaProvider[BurstQuoMockPressSource] {
+  final case class QuoSchemaProvider() extends BrioSchemaProvider {
 
     val names: Array[String] = Array("quo", "Quo", "org.burstsys.schema.quo")
 
     val schemaResourcePath: String = "org/burstsys/brio/flurry/schema/quo"
-
-    val presserClass: Class[BurstQuoMockPressSource] = classOf[BurstQuoMockPressSource]
 
   }
 

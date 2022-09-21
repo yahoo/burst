@@ -48,9 +48,21 @@ object BrioTypes {
   // blobs are no bigger than 2,147,483,647 bytes
   type BrioCount = Short // collections/maps are no bigger than 32,767 members
 
+  /**
+   * Versions are encoded with an Int in Brio
+   */
   final val SizeOfVersion = SizeOfInteger
+  /**
+   * Counts are encoded with a Short in Brio
+   */
   final val SizeOfCount = SizeOfShort
+  /**
+   * Offsets are encoded with an Int in brio
+   */
   final val SizeOfOffset = SizeOfInteger
+  /**
+   * Strings are encoded with a Short in Brio
+   */
   final val SizeOfString = SizeOfShort
   // we use a dictionary and strings are stored as short keys max 32,767 words
 

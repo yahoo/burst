@@ -2,7 +2,6 @@
 package org.burstsys.master.test.support
 
 import org.burstsys._
-import org.burstsys.brio.provider.loadBrioSchemaProviders
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.catalog.model.view.CatalogView
 import org.burstsys.fabric.configuration
@@ -17,7 +16,7 @@ import org.burstsys.samplestore.api.BurstSampleStoreDataSource
 import org.burstsys.samplestore.api.SampleStoreApiListener
 import org.burstsys.samplestore.api.SampleStoreApiService
 import org.burstsys.samplestore.api.SampleStoreDataLocus
-import org.burstsys.samplestore.api.SampleStoreGenerator
+import org.burstsys.samplestore.api.SampleStoreGeneration
 import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
 import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
 import org.burstsys.tesla.parcel
@@ -35,9 +34,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import java.util.concurrent.CountDownLatch
-import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll
@@ -85,8 +84,6 @@ trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAft
 
   override protected
   def beforeAll(): Unit = {
-    loadBrioSchemaProviders()
-
     org.burstsys.vitals.configuration.burstCellNameProperty.set("Cell1")
     apiServer = SampleStoreApiService(VitalsStandardServer) talksTo this start
 
@@ -123,12 +120,12 @@ trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAft
    */
   override
   def getViewGenerator(guid: String,
-                       dataSource: BurstSampleStoreDataSource): Future[SampleStoreGenerator] = {
-    val promise = Promise[SampleStoreGenerator]()
+                       dataSource: BurstSampleStoreDataSource): Future[SampleStoreGeneration] = {
+    val promise = Promise[SampleStoreGeneration]()
     dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceNameProperty) should equal("mocksource")
     dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceVersionProperty) should equal("0.1")
     val generator =
-      SampleStoreGenerator(
+      SampleStoreGeneration(
         guid,
         "NO_HASH",
         Array(

@@ -16,7 +16,7 @@ import org.burstsys.tesla.thread.request._
 
 class TorquemadaQueryFailuresSpec extends TorquemadaHelper {
 
-  it must "query failures are counted and logged" in {
+  it must "count and log query failures" in {
     resetTestCounters()
 
     val params = Parameters.parseArguments(Array("-m", "localhost", "-v", "src/test/resources/primaryKeys.json"))

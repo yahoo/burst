@@ -3,7 +3,8 @@ package org.burstsys.samplesource.nexus
 
 import org.burstsys.nexus.server.NexusStreamFeeder
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplesource.handler.SampleSourceHandler._
+import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
+import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry._
 import org.burstsys.samplestore.api._
 import org.burstsys.tesla.parcel
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
@@ -14,11 +15,11 @@ import scala.util.{Failure, Success}
 import org.burstsys.vitals.logging._
 
 /**
- * takes a nexus master side stream feed operation and dispatches to the appropriate sample source
- * implementation
+ * The SampleSourceNexusFeeder is used by the NexusServer (which is run in the context of a samplestore worker)
+ * to press data and send it via nexus to the cell worker that initiated the request. The stream designates which
+ * sample source can fulfill the request by providing the [[SampleStoreSourceNameProperty]]
  */
-final
-case class SampleSourceNexusFeeder() extends NexusStreamFeeder {
+final case class SampleSourceNexusFeeder() extends NexusStreamFeeder {
 
   /**
    * dispatch nexus feed stream request to appropriate sample source implementation
@@ -29,23 +30,18 @@ case class SampleSourceNexusFeeder() extends NexusStreamFeeder {
   def feedStream(stream: NexusStream): Unit = {
     TeslaRequestFuture {
       log info burstStdMsg(s"SampleSourceNexusFeeder feed parcel stream $stream")
-      try {
-        val start = System.nanoTime()
-        val sourceName = stream.properties.getValueOrThrow[String](SampleStoreSourceNameProperty)
-        val handler = sampleSourceHandler(sourceName)
-        // call handler
-        log info burstStdMsg(s"Sending feed request to handler ${handler.id} for parcel stream $stream")
-        handler.feedStream(stream) onComplete {
-          case Failure(t) =>
-            log warn burstStdMsg(s"$handler failed to process parcel stream ")
-            throw t
-          case Success(s) =>
-            val duration = System.nanoTime() - start
-            log info burstStdMsg(s"$handler finished processing parcel stream in $duration nanos")
-        }
-      } catch safely {
-        case t: Throwable =>
+      val start = System.nanoTime()
+      val sourceName = stream.properties.getValueOrThrow[String](SampleStoreSourceNameProperty)
+      val handler = SampleSourceHandlerRegistry.getWorker(sourceName)
+      // call handler
+      log info burstStdMsg(s"Sending feed request to handler ${handler.name} for parcel stream $stream")
+      handler.feedStream(stream) onComplete {
+        case Failure(t) =>
+          log warn burstStdMsg(s"$handler failed to process parcel stream ")
           throw t
+        case Success(_) =>
+          val duration = System.nanoTime() - start
+          log info burstStdMsg(s"$handler finished processing parcel stream in $duration nanos")
       }
     }
   }

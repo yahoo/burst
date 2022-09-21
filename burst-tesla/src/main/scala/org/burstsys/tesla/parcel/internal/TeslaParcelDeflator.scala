@@ -18,7 +18,7 @@ trait TeslaParcelDeflator extends Any with TeslaParcel with TeslaParcelState {
     if (!isInflated)
       throw VitalsException(s"already deflated $this")
     try {
-      val deflatedSize = Snappy.rawCompress(this.parcelStartPtr + this.bufferSlotsStart, this.currentUsedMemory, destination)
+      val deflatedSize = Snappy.rawCompress(this.bufferSlotsStartPtr, this.currentUsedMemory, destination)
       /*
       log info s"deflateTo() currentUsedMemory=$currentUsedMemory, deflatedSize=$deflatedSize $this" + '\n' +
         tesla.printBytes(destination, 100) + "\n<->\n" +

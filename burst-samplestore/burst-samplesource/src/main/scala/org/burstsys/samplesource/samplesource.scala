@@ -5,14 +5,6 @@ import org.burstsys.vitals.logging._
 
 package object samplesource extends VitalsLogger {
 
-  /**
-    * TODO PLEASE DOCUMENT (shahd)
-    */
-  type SampleSourceId = String
-
-  /**
-    * TODO PLEASE DOCUMENT (shahd)
-    */
   type SampleSourceVersion = String
 
 }

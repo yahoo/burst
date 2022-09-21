@@ -1,16 +1,19 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.parcel.internal
 
-import java.nio.ByteBuffer
-
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
+import org.burstsys.tesla.TeslaTypes.TeslaMemoryPtr
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.parcel.TeslaParcel
 import org.burstsys.tesla.parcel.state.TeslaParcelState
-import org.burstsys.tesla.{TeslaTypes, offheap}
+import org.burstsys.tesla.TeslaTypes
+import org.burstsys.tesla.offheap
+
+import java.nio.ByteBuffer
 
 /**
-  * bulk operations byte ingress/egress operations
-  */
+ * bulk operations byte ingress/egress operations
+ * TODO: These methods looks sketchy, they don't copy or expose the parcel header information
+ */
 trait TeslaParcelBulk extends Any with TeslaParcel with TeslaParcelState {
 
   @inline final override

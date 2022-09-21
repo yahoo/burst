@@ -71,6 +71,7 @@ class VitalsPropertyMapSpec extends VitalsAbstractSpec {
     map.getValueOrDefault[String]("str", "bar") should equal("bar")
     map.getValueOrDefault[java.lang.String]("str", "bar") should equal("bar")
 
+    map.getValueOrDefault[Short]("num", "7") should equal(7.toShort)
     map.getValueOrDefault[Int]("num", "7") should equal(7)
     map.getValueOrDefault[Long]("num", "7") should equal(7L)
     map.getValueOrDefault[Double]("num", "7") should equal(7.0)
@@ -187,4 +188,25 @@ class VitalsPropertyMapSpec extends VitalsAbstractSpec {
     }
   }
 
+  it should "support getting numeric arrays as specific types" in {
+    val map = Map(
+      "nums" -> "{1, 2, 3, 4, 5}"
+    ).extend
+
+    val ints = map.getValueOrDefault("nums", Array(1, 2, 3))
+    ints shouldBe an[Array[Int]]
+    ints shouldEqual Array(1, 2, 3, 4, 5)
+
+    val shorts = map.getValueOrDefault("nums", Array[Short](1, 2, 3))
+    shorts shouldBe an[Array[Short]]
+    shorts shouldEqual Array[Short](1, 2, 3, 4, 5)
+
+    val longs = map.getValueOrDefault("nums", Array(1L, 2L, 3L))
+    longs shouldBe an[Array[Long]]
+    longs shouldEqual Array(1L, 2L, 3L, 4L, 5L)
+
+    val doubles = map.getValueOrDefault("nums", Array(1.0, 2.0, 3.0))
+    doubles shouldBe an[Array[Double]]
+    doubles shouldEqual Array(1.0, 2.0, 3.0, 4.0, 5.0)
+  }
 }

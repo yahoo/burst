@@ -10,29 +10,17 @@ import org.burstsys.vitals.logging._
 package object unity extends VitalsLogger {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Mock Data
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   *
-   * @return
-   */
-  def mockBlobs: Array[TeslaMutableBuffer] = BurstUnityMockData().pressToBuffers
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // SCHEMA
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * provider class for the brio 'unity' schema
    */
-  final case class UnitySchemaProvider() extends BrioSchemaProvider[BurstUnityMockPressSource] {
+  final case class UnitySchemaProvider() extends BrioSchemaProvider {
 
     val names: Array[String] = Array("org.burstsys.schema.unity", "unity", "Unity")
 
     val schemaResourcePath: String = "org/burstsys/brio/flurry/schema/unity"
-
-    val presserClass: Class[BurstUnityMockPressSource] = classOf[BurstUnityMockPressSource]
 
   }
 

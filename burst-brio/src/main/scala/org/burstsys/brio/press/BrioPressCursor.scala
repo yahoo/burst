@@ -13,30 +13,22 @@ import org.burstsys.brio.types.BrioTypes.{BrioRelationName, BrioRelationOrdinal}
 trait BrioPressCursor extends Any {
 
   /**
-    * TODO
-    *
-    * @return
+   * @return the name for the field on the traversed object that is begin pressed
     */
   def relationName: BrioRelationName
 
   /**
-    * TODO
-    *
-    * @return
+   * @return the key for the field on the traversed object that is being pressed
     */
   def relationOrdinal: BrioRelationOrdinal
 
   /**
-    * TODO
-    *
-    * @return
+    * @return TODO
     */
   def pathName: BrioPathName
 
   /**
-    * TODO
-    *
-    * @return
+    * @return TODO
     */
   def pathKey: BrioPathKey
 

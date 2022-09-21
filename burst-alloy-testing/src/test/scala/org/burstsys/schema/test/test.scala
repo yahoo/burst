@@ -11,8 +11,7 @@ package object test extends VitalsLogger {
 
   abstract class AbstractBrioSchemaSpec extends AnyFlatSpec with Matchers {
 
-    VitalsLog.configureLogging("schema", true)
-    brio.provider.loadBrioSchemaProviders()
+    VitalsLog.configureLogging("schema", consoleOnly = true)
 
   }
 

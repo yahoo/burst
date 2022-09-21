@@ -2,14 +2,9 @@
 package org.burstsys.brio.test.provider
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.brio.provider
 import org.burstsys.brio.test.BrioAbstractSpec
 
 class BrioProviderSpec extends BrioAbstractSpec {
-
-  before {
-    provider.loadBrioSchemaProviders()
-  }
 
   private case class SchemaTestCase(alias: String, schemaName: String, versions: Int)
 

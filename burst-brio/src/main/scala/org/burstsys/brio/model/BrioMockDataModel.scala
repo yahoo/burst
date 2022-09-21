@@ -62,7 +62,7 @@ trait BrioMockDataModel {
         try {
           inflatedParcel.startWrites()
           var buffersInParcel = 0
-          while (buffers.nonEmpty && buffersInParcel < 2) {
+          while (buffers.nonEmpty && buffersInParcel < 20) {
             val buf = buffers.remove(0)
             inflatedParcel writeNextBuffer buf
             tesla.buffer.factory releaseBuffer buf

@@ -6,7 +6,7 @@ import org.burstsys.catalog.canned
 import org.burstsys.catalog.canned.CatalogCan
 import org.burstsys.catalog.model.domain.CatalogCannedDomain
 import org.burstsys.catalog.model.view.CatalogCannedView
-import org.burstsys.json.samplestore.{JsonBrioSampleSourceId, JsonBrioSampleSourceVersion}
+import org.burstsys.json.samplestore.{JsonBrioSampleSourceName, JsonBrioSampleSourceVersion}
 
 import java.nio.file.Path
 
@@ -22,7 +22,7 @@ final class AlloyTestDeploySpecCan extends CatalogCan {
       CatalogCannedView("BurstAlloyView", "BurstAlloyTestDomain", 0,
         Map(
           "burst.store.name" -> "sample",
-          "burst.samplestore.source.name" -> JsonBrioSampleSourceId,
+          "burst.samplestore.source.name" -> JsonBrioSampleSourceName,
           "burst.samplestore.source.version" -> JsonBrioSampleSourceVersion,
           "json.samplestore.location" -> s"$alloyJsonFile"),
         canned.defaultMotif,

@@ -4,10 +4,6 @@ package org.burstsys.hydra.test.cases.support
 import org.burstsys.alloy.alloy.store.AlloyView
 import org.burstsys.alloy.alloy.usecase.AlloyJsonUseCaseRunner
 import org.burstsys.alloy.alloy.views.AlloyJsonUseCaseViews
-import org.burstsys.alloy.store.mini.MiniView
-import org.burstsys.alloy.views.quo.QuoUseCaseViews
-import org.burstsys.alloy.views.unity.UnityUseCaseViews
-import org.burstsys.{alloy, brio}
 import org.burstsys.hydra.HydraService
 import org.burstsys.vitals.logging._
 
@@ -19,7 +15,6 @@ abstract class HydraUseCaseRunner extends AlloyJsonUseCaseRunner
   override def localViews: Array[AlloyView] = super.localViews ++ Array(AlloyJsonUseCaseViews.quoSpecialView) ++ AlloyJsonUseCaseViews.quoViews
 
   VitalsLog.configureLogging("unit", consoleOnly = true)
-  brio.provider.loadBrioSchemaProviders()
 
   var hydra: HydraService = _
 

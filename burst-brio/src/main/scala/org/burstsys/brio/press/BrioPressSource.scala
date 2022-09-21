@@ -2,6 +2,7 @@
 package org.burstsys.brio.press
 
 import org.burstsys.brio.types.BrioTypes.BrioVersionKey
+import org.burstsys.vitals.errors.VitalsException
 
 /**
   * Press sources need to implement this API for each instance/object they
@@ -11,10 +12,24 @@ import org.burstsys.brio.types.BrioTypes.BrioVersionKey
 trait BrioPressInstance extends Any {
 
   /**
-    * this is all we need from a supplied external object instance
-    * @return
+    * @return the version of the schema supported by this instance
     */
   def schemaVersion: BrioVersionKey
+
+  /**
+   * @return a recognizable representation of where in the schema this instance is located
+   */
+  def context: String = ""
+
+  /**
+   * Throw an exception when the presser attempts to access a relation that this instance does not support
+   * @param name the unsupported relation name
+   */
+  final def unknownRelation(name: String): Nothing = {
+    val message = s"Error occurred during pressing: tried to press unexpected relation $context.$name"
+    log warn message
+    throw VitalsException(message)
+  }
 
 }
 

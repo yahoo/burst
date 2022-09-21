@@ -175,6 +175,15 @@
         <surefire.maven-plugin.version>2.22.2</surefire.maven-plugin.version>
         <!--********************************************************************************************-->
 
+        <!--********************************************************************************************-->
+        <!-- Docker publishing -->
+        <!--********************************************************************************************-->
+        <corretto.version>11</corretto.version>
+        <docker.app.dir>/app/burst</docker.app.dir>
+        <dockerRepo/>
+        <!--********************************************************************************************-->
+
+
         <antlr4.version>4.9.3</antlr4.version> <!-- yay terrance! -->
         <bouncycastle.version>1.70</bouncycastle.version> <!-- Sane JDK public key|private key|certificate interface -->
         <common-io.version>2.11.0</common-io.version> <!-- apache io libraries -->
@@ -1222,6 +1231,12 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${deploy.maven-plugin.version}</version>
                     <configuration>
@@ -1303,6 +1318,62 @@
                 </plugin>
 
                 <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>${jib.maven-plugin.version}</version>
+
+                    <configuration>
+                        <from>
+                            <image>${dockerRepo}/corretto-burst:${corretto.version}</image>
+                            <platforms>
+                                <platform>
+                                    <architecture>amd64</architecture>
+                                    <os>linux</os>
+                                </platform>
+                                <!-- <platform>-->
+                                <!--     <architecture>arm64</architecture>-->
+                                <!--     <os>linux</os>-->
+                                <!-- </platform>-->
+                            </platforms>
+                        </from>
+                        <containerizingMode>packaged</containerizingMode>
+                        <container>
+                            <appRoot>${docker.app.dir}</appRoot>
+                            <environment>
+                                <BURST_HOME>${docker.app.dir}</BURST_HOME>
+                            </environment>
+                            <entrypoint>${docker.app.dir}/sbin/start.sh</entrypoint>
+                            <expandClasspathDependencies>true</expandClasspathDependencies>
+                            <extraClasspath>${docker.app.dir}/classpath-files</extraClasspath>
+                        </container>
+                        <extraDirectories>
+                            <paths combine.children="append">
+                                <path>
+                                    <from>src/main/jib</from>
+                                    <into>${docker.app.dir}</into>
+                                </path>
+                            </paths>
+                            <permissions combine.children="append">
+                                <permission>
+                                    <file>${docker.app.dir}/sbin/start.sh</file>
+                                    <mode>755</mode>
+                                </permission>
+                            </permissions>
+                        </extraDirectories>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <id>build-docker</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>${spotless.version}</version>
@@ -1378,9 +1449,13 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <version>${jib.maven-plugin.version}</version>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+
+                    <configuration>
+                        <useMavenLogger>true</useMavenLogger>
+                    </configuration>
                 </plugin>
 
             </plugins>

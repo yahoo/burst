@@ -5,7 +5,7 @@ import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.CatalogService.CatalogRemoteClientConfig
 import org.burstsys.catalog.model.domain._
 import org.burstsys.catalog.model.view._
-import org.burstsys.json.samplestore.{JsonBrioSampleSourceId, JsonBrioSampleSourceVersion}
+import org.burstsys.json.samplestore.{JsonBrioSampleSourceName, JsonBrioSampleSourceVersion}
 import org.burstsys.master.configuration.{burstMasterJsonWatchDirectoryProperty, burstMasterPropertiesFileProperty}
 import org.burstsys.relate.RelatePk
 import org.burstsys.vitals.VitalsService
@@ -57,7 +57,7 @@ final case class BurstJsonFileManager( catalog: CatalogService, modality: Vitals
       val fileView = CatalogView(pk=0, udk = Some(name), moniker= name, domainFk=jsonDomain, schemaName="quo", storeProperties=
         Map(
           "burst.store.name" -> "sample",
-          "burst.samplestore.source.name" -> JsonBrioSampleSourceId,
+          "burst.samplestore.source.name" -> JsonBrioSampleSourceName,
           "burst.samplestore.source.version" -> JsonBrioSampleSourceVersion,
           "json.samplestore.location" -> s"${jf.getAbsolutePath}"))
       catalog.ensureView(fileView) match {

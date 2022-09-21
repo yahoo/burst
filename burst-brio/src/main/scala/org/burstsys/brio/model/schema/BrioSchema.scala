@@ -1,9 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.brio.model.schema
 
-import org.burstsys.brio.model.schema.tree.{BrioTree, BrioTreeContext}
-import org.burstsys.brio.model.schema.types.{BrioSchemaTypeContext, BrioSchemaTypes}
-import org.burstsys.brio.types.BrioPath.BrioPathName
+import org.burstsys.brio
+import org.burstsys.brio.model.schema.tree.BrioTree
+import org.burstsys.brio.model.schema.tree.BrioTreeContext
+import org.burstsys.brio.model.schema.types.BrioSchemaTypeContext
+import org.burstsys.brio.model.schema.types.BrioSchemaTypes
 import org.burstsys.brio.types.BrioTypes._
 
 /**
@@ -40,7 +42,10 @@ trait BrioSchema extends Any with BrioSchemaTypes with BrioTree {
  * generalized constructor to access previously instantiated schema models.
  */
 object BrioSchema {
-  def apply(name: BrioSchemaName): BrioSchema = getSchema(name)
+  def apply(name: BrioSchemaName): BrioSchema = {
+    brio.provider.loadBrioSchemaProviders()
+    brio.model.schema.getSchema(name)
+  }
 }
 
 final case

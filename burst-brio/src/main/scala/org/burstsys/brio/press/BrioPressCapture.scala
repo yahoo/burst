@@ -13,27 +13,29 @@ object BrioPressCapture {
 }
 
 /**
-  * this is a place for press sources to place value data to be pressed during rolling. This is a single object
-  * within a press and is dynamically typed as necessary at various visit points.
-  */
+ * this is a place for press sources to place value data to be pressed during rolling. This is a single object
+ * within a press and is dynamically typed as necessary at various visit points.
+ */
 trait BrioPressCapture extends Any {
 
   /**
-    * mark the relation null
-    */
+   * Mark the relation null
+   */
   def markRelationNull(): Unit
 
   /**
-    * the relations value data type
-    *
-    * @return
-    */
+   * Get the data type held by the current relation
+   *
+   * @return the relation's value's data type
+   */
   def relationValueDataType: BrioDataType
 
   /**
-    *
-    * @return
-    */
+   * Ensure a string exists in the blob's dictionary. If the string does not exist in the dictionary
+   * and the string cannot be added, then [[BrioDictionaryNotFound]] is returned instead
+   *
+   * @return the dictionary key for `word` in the dictionary
+   */
   def dictionaryEntry(word: String): BrioDictionaryKey
 
 }
@@ -42,26 +44,91 @@ trait BrioPressCapture extends Any {
 // Value Scalars
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Capture scalar data types
+ */
 trait BrioValueScalarPressCapture extends BrioPressCapture {
 
+  /**
+   * Write a boolean into the brio blob
+   *
+   * @param value the value to write
+   */
   def booleanValue(value: Boolean): Unit
+
+  /**
+   * If `value` is present, write the boolean contained by `value`, otherwise
+   * write a null entry into the brio blob
+   *
+   * @param value the potentially missing boolean value
+   */
+  @inline def booleanValue(value: Option[Boolean]): Unit =
+    if (value.isEmpty) markRelationNull() else booleanValue(value.get)
 
   def byteValue(value: Byte): Unit
 
+  /**
+   * If `value` is present, write the byte contained by `value`, otherwise
+   * write a null entry into the brio blob
+   *
+   * @param value the potentially missing byte value
+   */
+  @inline def byteValue(value: Option[Byte]): Unit =
+    if (value.isEmpty) markRelationNull() else byteValue(value.get)
+
   def shortValue(value: Short): Unit
+
+  /**
+   * If `value` is present, write the short contained by `value`, otherwise
+   * write a null entry into the brio blob
+   *
+   * @param value the potentially missing short value
+   */
+  @inline def shortValue(value: Option[Short]): Unit =
+    if (value.isEmpty) markRelationNull() else shortValue(value.get)
 
   def integerValue(value: Int): Unit
 
+  /**
+   * If `value` is present, write the integer contained by `value`, otherwise
+   * write a null entry into the brio blob
+   *
+   * @param value the potentially missing integer value
+   */
+  @inline def integerValue(value: Option[Int]): Unit =
+    if (value.isEmpty) markRelationNull() else integerValue(value.get)
+
   def longValue(value: Long): Unit
 
+  /**
+   * If `value` is present, write the long contained by `value`, otherwise
+   * write a null entry into the brio blob
+   *
+   * @param value the potentially missing long value
+   */
+  @inline def longValue(value: Option[Long]): Unit =
+    if (value.isEmpty) markRelationNull() else longValue(value.get)
+
   def doubleValue(value: Double): Unit
+
+  /**
+   * If `value` is present, write the long contained by `value`, otherwise
+   * write a null entry into the brio blob
+   *
+   * @param value the potentially missing long value
+   */
+  @inline def doubleValue(value: Option[Double]): Unit =
+    if (value.isEmpty) markRelationNull() else doubleValue(value.get)
 
   def stringValue(value: BrioDictionaryKey): Unit
 
 }
 
-trait BrioValueMapPressCapture extends BrioValueScalarPressCapture {
+trait BrioValueMapPressCapture extends BrioPressCapture {
 
+  /**
+   * @return the data type of the maps keys
+   */
   def relationKeyDataType: BrioDataType
 
   def valueMapEntries(size: Long): Unit
@@ -94,8 +161,20 @@ trait BrioValueMapPressCapture extends BrioValueScalarPressCapture {
 
   def stringMapValueSet: Array[BrioDictionaryKey]
 
+  /**
+   * Temporary storage for unsorted map[string, _] keys. The contents of this array are not used in the capture
+   * You must set the final set of keys in [[stringMapKeySet]], which should be sorted.
+   *
+   * @return an array that the user can update
+   */
   def unsortedStringMapKeySet: Array[BrioDictionaryKey]
 
+  /**
+   * Temporary storage for unsorted map[_, string] values. The contents of this array are not used in the capture
+   * You must set the final set of values in [[stringMapValueSet]], which should be in the order to correspond to.
+   *
+   * @return
+   */
   def unsortedStringMapValueSet: Array[BrioDictionaryKey]
 
 }
@@ -103,59 +182,45 @@ trait BrioValueMapPressCapture extends BrioValueScalarPressCapture {
 trait BrioValueVectorPressCapture extends BrioPressCapture {
 
   /**
-    * presser source sets the size of the vector here...
-    *
-    * @param size
-    */
+   * Tell the capture how many entries are expected in the vector being captured
+   *
+   * @param size the number of entries in the vector
+   */
   def valueVectorEntries(size: Long): Unit
 
   /**
-    * a boolean value vector to be updated
-    *
-    * @return
-    */
+   * @return a boolean value vector to be updated
+   */
   def booleanVector: Array[Boolean]
 
   /**
-    * a byte value vector to be updated
-    *
-    * @return
-    */
+   * @return a byte value vector to be updated
+   */
   def byteVector: Array[Byte]
 
   /**
-    * a short value vector to be updated
-    *
-    * @return
-    */
+   * @return a short value vector to be updated
+   */
   def shortVector: Array[Short]
 
   /**
-    * a integer value vector to be updated
-    *
-    * @return
-    */
+   * @return an integer value vector to be updated
+   */
   def integerVector: Array[Int]
 
   /**
-    * a long value vector to be updated
-    *
-    * @return
-    */
+   * @return a long value vector to be updated
+   */
   def longVector: Array[Long]
 
   /**
-    * a double value vector to be updated
-    *
-    * @return
-    */
+   * @return a double value vector to be updated
+   */
   def doubleVector: Array[Double]
 
   /**
-    * a string value vector to be updated
-    *
-    * @return
-    */
+   * @return a dictionary key vector to be updated
+   */
   def stringVector: Array[BrioDictionaryKey]
 
 }
@@ -194,37 +259,30 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
   var booleanValue: Boolean = _
   val booleanValueVector: Array[Boolean] = new Array[Boolean](MapCaptureArraySize)
   val booleanKeyVector: Array[Boolean] = new Array[Boolean](MapCaptureArraySize)
-  var booleanKey: Boolean = _
 
   var byteValue: Byte = _
   val byteValueVector: Array[Byte] = new Array[Byte](MapCaptureArraySize)
   val byteKeyVector: Array[Byte] = new Array[Byte](MapCaptureArraySize)
-  var byteKey: Byte = _
 
   var shortValue: Short = _
   val shortValueVector: Array[Short] = new Array[Short](MapCaptureArraySize)
   val shortKeyVector: Array[Short] = new Array[Short](MapCaptureArraySize)
-  var shortKey: Short = _
 
   var integerValue: Int = _
   val integerValueVector: Array[Int] = new Array[Int](MapCaptureArraySize)
   val integerKeyVector: Array[Int] = new Array[Int](MapCaptureArraySize)
-  var integerKey: Int = _
 
   var longValue: Long = _
   val longValueVector: Array[Long] = new Array[Long](MapCaptureArraySize)
   val longKeyVector: Array[Long] = new Array[Long](MapCaptureArraySize)
-  var longKey: Long = _
 
   var doubleValue: Double = _
   val doubleValueVector: Array[Double] = new Array[Double](MapCaptureArraySize)
   val doubleKeyVector: Array[Double] = new Array[Double](MapCaptureArraySize)
-  var doubleKey: Double = _
 
   var stringValue: BrioDictionaryKey = _
   val stringValueVector: Array[BrioDictionaryKey] = new Array[BrioDictionaryKey](MapCaptureArraySize)
   val stringKeyVector: Array[BrioDictionaryKey] = new Array[BrioDictionaryKey](MapCaptureArraySize)
-  var stringKey: BrioDictionaryKey = _
 
   val unsortedStringKeyVector: Array[BrioDictionaryKey] = new Array[BrioDictionaryKey](MapCaptureArraySize)
   val unsortedStringValueVector: Array[BrioDictionaryKey] = new Array[BrioDictionaryKey](MapCaptureArraySize)
@@ -235,10 +293,8 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
   final val excessiveCaution = false
 
   /**
-    * clear out and make ready for another usage
-    *
-    * @return
-    */
+   * clear out and make ready for another usage
+   */
   def reset: this.type = {
     isNullCaptured = false
     isValueCaptured = false
@@ -250,51 +306,32 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
     valueVectorEntries = 0
     valueMapEntries = 0
     booleanValue = false
-    if (excessiveCaution)
-      for (i <- booleanValueVector.indices) booleanValueVector(i) = false
-    if (excessiveCaution)
-      for (i <- booleanKeyVector.indices) booleanKeyVector(i) = false
-    booleanKey = false
     byteValue = 0
-    if (excessiveCaution)
-      for (i <- byteValueVector.indices) byteValueVector(i) = 0
-    if (excessiveCaution)
-      for (i <- byteKeyVector.indices) byteKeyVector(i) = 0
-    byteKey = 0
     shortValue = 0
-    if (excessiveCaution)
-      for (i <- shortValueVector.indices) shortValueVector(i) = 0
-    if (excessiveCaution)
-      for (i <- shortKeyVector.indices) shortKeyVector(i) = 0
-    shortKey = 0
     integerValue = 0
-    if (excessiveCaution)
-      for (i <- integerValueVector.indices) integerValueVector(i) = 0
-    if (excessiveCaution)
-      for (i <- integerKeyVector.indices) integerKeyVector(i) = 0
-    integerKey = 0
     longValue = 0
-    if (excessiveCaution)
-      for (i <- longValueVector.indices) longValueVector(i) = 0L
-    if (excessiveCaution)
-      for (i <- longKeyVector.indices) longKeyVector(i) = 0L
-    longKey = 0
     doubleValue = 0.0
-    if (excessiveCaution)
-      for (i <- doubleValueVector.indices) doubleValueVector(i) = 0.0
-    if (excessiveCaution)
-      for (i <- doubleKeyVector.indices) doubleKeyVector(i) = 0.0
-    doubleKey = 0.0
     stringValue = BrioDictionaryNotFound
+
     if (excessiveCaution)
-      for (i <- stringValueVector.indices) stringValueVector(i) = BrioDictionaryNotFound
-    if (excessiveCaution)
-      for (i <- stringKeyVector.indices) stringKeyVector(i) = BrioDictionaryNotFound
-    stringKey = BrioDictionaryNotFound
-    if (excessiveCaution)
-      for (i <- unsortedStringValueVector.indices) unsortedStringValueVector(i) = BrioDictionaryNotFound
-    if (excessiveCaution)
-      for (i <- unsortedStringKeyVector.indices) unsortedStringKeyVector(i) = BrioDictionaryNotFound
+      for (i <- 0 to MapCaptureArraySize) {
+        booleanValueVector(i) = false
+        booleanKeyVector(i) = false
+        byteValueVector(i) = 0
+        byteKeyVector(i) = 0
+        shortValueVector(i) = 0
+        shortKeyVector(i) = 0
+        integerValueVector(i) = 0
+        integerKeyVector(i) = 0
+        longValueVector(i) = 0L
+        longKeyVector(i) = 0L
+        doubleValueVector(i) = 0.0
+        doubleKeyVector(i) = 0.0
+        stringValueVector(i) = BrioDictionaryNotFound
+        stringKeyVector(i) = BrioDictionaryNotFound
+        unsortedStringValueVector(i) = BrioDictionaryNotFound
+        unsortedStringKeyVector(i) = BrioDictionaryNotFound
+      }
     this
   }
 
@@ -303,21 +340,34 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   def validateMapCapture: Boolean = {
-    if (isNullCaptured) return true
-    if (isKeyCaptured && isValueCaptured && isSizeCaptured) return true
-    throw VitalsException(s"invalid value map capture ($isKeyCaptured, $isValueCaptured, $isSizeCaptured)")
+    if (isNullCaptured)
+      true
+    else if (isSizeCaptured && valueMapEntries == 0)
+      true
+    else if (isKeyCaptured && isValueCaptured && isSizeCaptured)
+      true
+    else
+      throw VitalsException(s"invalid value map capture ($isKeyCaptured, $isValueCaptured, $isSizeCaptured)")
   }
 
   def validateVectorCapture: Boolean = {
-    if (isNullCaptured) return true
-    if (!isKeyCaptured && isValueCaptured && isSizeCaptured) return true
-    throw VitalsException(s"invalid value vector capture ($isKeyCaptured, $isValueCaptured, $isSizeCaptured)")
+    if (isNullCaptured)
+      true
+    else if (isSizeCaptured && valueVectorEntries == 0)
+      true
+    else if (!isKeyCaptured && isValueCaptured && isSizeCaptured)
+      true
+    else
+      throw VitalsException(s"invalid value vector capture ($isKeyCaptured, $isValueCaptured, $isSizeCaptured)")
   }
 
   def validateScalarCapture: Boolean = {
-    if (isNullCaptured) return true
-    if (!isKeyCaptured && isValueCaptured && !isSizeCaptured) return true
-    throw VitalsException(s"invalid value scalar capture ($isKeyCaptured, $isValueCaptured, $isSizeCaptured)")
+    if (isNullCaptured)
+      true
+    else if (!isKeyCaptured && isValueCaptured && !isSizeCaptured)
+      true
+    else
+      throw VitalsException(s"invalid value scalar capture ($isKeyCaptured, $isValueCaptured, $isSizeCaptured)")
   }
 
   def markNullCaptured(): Unit = {
@@ -372,7 +422,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def booleanValue(value: Boolean): Unit = {
-    validateNonNull()
     validateValueType(BrioBooleanKey)
     booleanValue = value
     markValueCaptured()
@@ -380,7 +429,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def byteValue(value: Byte): Unit = {
-    validateNonNull()
     validateValueType(BrioByteKey)
     byteValue = value
     markValueCaptured()
@@ -388,7 +436,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def shortValue(value: Short): Unit = {
-    validateNonNull()
     validateValueType(BrioShortKey)
     shortValue = value
     markValueCaptured()
@@ -396,7 +443,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def integerValue(value: Int): Unit = {
-    validateNonNull()
     validateValueType(BrioIntegerKey)
     integerValue = value
     markValueCaptured()
@@ -404,7 +450,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def longValue(value: Long): Unit = {
-    validateNonNull()
     validateValueType(BrioLongKey)
     longValue = value
     markValueCaptured()
@@ -412,7 +457,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def doubleValue(value: Double): Unit = {
-    validateNonNull()
     validateValueType(BrioDoubleKey)
     doubleValue = value
     markValueCaptured()
@@ -420,7 +464,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def stringValue(value: BrioDictionaryKey): Unit = {
-    validateNonNull()
     validateValueType(BrioStringKey)
     stringValue = value
     markValueCaptured()
@@ -440,7 +483,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def booleanMapKeySet: Array[Boolean] = {
-    validateNonNull()
     validateKeyType(BrioBooleanKey)
     markKeyCaptured()
     booleanKeyVector
@@ -448,7 +490,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def booleanMapValueSet: Array[Boolean] = {
-    validateNonNull()
     validateValueType(BrioBooleanKey)
     markValueCaptured()
     booleanValueVector
@@ -456,7 +497,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def byteMapKeySet: Array[Byte] = {
-    validateNonNull()
     validateKeyType(BrioByteKey)
     markKeyCaptured()
     byteKeyVector
@@ -464,7 +504,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def byteMapValueSet: Array[Byte] = {
-    validateNonNull()
     validateValueType(BrioByteKey)
     markValueCaptured()
     byteValueVector
@@ -472,7 +511,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def shortMapKeySet: Array[Short] = {
-    validateNonNull()
     validateKeyType(BrioShortKey)
     markKeyCaptured()
     shortKeyVector
@@ -480,7 +518,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def shortMapValueSet: Array[Short] = {
-    validateNonNull()
     validateValueType(BrioShortKey)
     markValueCaptured()
     shortValueVector
@@ -488,7 +525,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def integerMapKeySet: Array[Int] = {
-    validateNonNull()
     validateKeyType(BrioIntegerKey)
     markKeyCaptured()
     integerKeyVector
@@ -496,7 +532,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def integerMapValueSet: Array[Int] = {
-    validateNonNull()
     validateValueType(BrioIntegerKey)
     markValueCaptured()
     integerValueVector
@@ -504,7 +539,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def longMapKeySet: Array[Long] = {
-    validateNonNull()
     validateKeyType(BrioLongKey)
     markKeyCaptured()
     longKeyVector
@@ -512,7 +546,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def longMapValueSet: Array[Long] = {
-    validateNonNull()
     validateValueType(BrioLongKey)
     markValueCaptured()
     longValueVector
@@ -520,7 +553,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def doubleMapKeySet: Array[Double] = {
-    validateNonNull()
     validateKeyType(BrioDoubleKey)
     markKeyCaptured()
     doubleKeyVector
@@ -528,7 +560,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def doubleMapValueSet: Array[Double] = {
-    validateNonNull()
     validateValueType(BrioDoubleKey)
     markValueCaptured()
     doubleValueVector
@@ -536,7 +567,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def stringMapKeySet: Array[BrioDictionaryKey] = {
-    validateNonNull()
     validateKeyType(BrioStringKey)
     markKeyCaptured()
     stringKeyVector
@@ -544,7 +574,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def stringMapValueSet: Array[BrioDictionaryKey] = {
-    validateNonNull()
     validateValueType(BrioStringKey)
     markValueCaptured()
     stringValueVector
@@ -576,7 +605,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def booleanVector: Array[Boolean] = {
-    validateNonNull()
     validateValueType(BrioBooleanKey)
     markValueCaptured()
     booleanValueVector
@@ -584,7 +612,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def byteVector: Array[Byte] = {
-    validateNonNull()
     validateValueType(BrioByteKey)
     markValueCaptured()
     byteValueVector
@@ -592,7 +619,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def shortVector: Array[Short] = {
-    validateNonNull()
     validateValueType(BrioShortKey)
     markValueCaptured()
     shortValueVector
@@ -600,7 +626,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def integerVector: Array[Int] = {
-    validateNonNull()
     validateValueType(BrioIntegerKey)
     markValueCaptured()
     integerValueVector
@@ -608,7 +633,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def longVector: Array[Long] = {
-    validateNonNull()
     validateValueType(BrioLongKey)
     markValueCaptured()
     longValueVector
@@ -616,7 +640,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def doubleVector: Array[Double] = {
-    validateNonNull()
     validateValueType(BrioDoubleKey)
     markValueCaptured()
     doubleValueVector
@@ -624,7 +647,6 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
 
   override
   def stringVector: Array[BrioDictionaryKey] = {
-    validateNonNull()
     validateValueType(BrioStringKey)
     markValueCaptured()
     stringValueVector
@@ -640,14 +662,14 @@ class BrioPressCaptureContext(dictionary: BrioDictionary) extends AnyRef with Br
       throw VitalsException(s"value asserted where isNull=$isNull")
   }
 
-  private
-  def validateValueType(bType: BrioTypeKey): Unit = {
+  private def validateValueType(bType: BrioTypeKey): Unit = {
+    validateNonNull()
     if (relationValueDataType != bType)
       throw VitalsException(s"'${brioDataTypeNameFromKey(bType)}' asserted where valueDataType='${brioDataTypeNameFromKey(relationValueDataType)}'")
   }
 
-  private
-  def validateKeyType(bType: BrioTypeKey): Unit = {
+  private def validateKeyType(bType: BrioTypeKey): Unit = {
+    validateNonNull()
     if (relationKeyDataType != bType)
       throw VitalsException(s"'${brioDataTypeNameFromKey(bType)}' asserted where keyDataType='${brioDataTypeNameFromKey(relationKeyDataType)}'")
   }

@@ -2,7 +2,9 @@
 package org.burstsys.schema.test
 
 import org.burstsys.brio.flurry.provider.quo
+import org.burstsys.brio.flurry.provider.quo.BurstQuoMockData
 import org.burstsys.brio.flurry.provider.unity
+import org.burstsys.brio.flurry.provider.unity.BurstUnityMockData
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.tesla
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
@@ -54,7 +56,7 @@ class BrioSchemaSpec extends AbstractBrioSchemaSpec {
 
   it should "press mock quo model" in {
     TeslaRequestCoupler {
-      val presses = quo.mockBlobs // TODO free buffers
+      val presses = BurstQuoMockData(userCount = 10).pressToBuffers
       presses.length should equal(10)
       presses.foreach(tesla.buffer.factory.releaseBuffer)
     }
@@ -62,8 +64,8 @@ class BrioSchemaSpec extends AbstractBrioSchemaSpec {
 
   it should "press mock unity model" in {
     TeslaRequestCoupler {
-      val presses = unity.mockBlobs // TODO free buffers
-      presses.length should equal(1000)
+      val presses = BurstUnityMockData(itemCount = 10).pressToBuffers
+      presses.length should equal(10)
       presses.foreach(tesla.buffer.factory.releaseBuffer)
     }
   }

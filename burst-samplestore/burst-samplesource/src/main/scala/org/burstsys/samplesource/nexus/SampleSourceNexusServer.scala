@@ -52,6 +52,7 @@ object SampleSourceNexusServer extends VitalsService {
     ensureRunning
     log info stoppingMessage
     nexus.releaseServer(_nexusServer)
+    markNotRunning
     this
   }
 

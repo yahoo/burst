@@ -9,8 +9,8 @@ package object worker extends VitalsLogger {
 
   private[alloy] final val buffersPerParcel = 5
 
-  private[alloy] final val bufferSize: Int = 10e6.toInt
-  private[alloy] final val blobSize: Int = 10e6.toInt
+  private[alloy] final val bufferSize: Int = 2e7.toInt
+  private[alloy] final val blobSize: Int = 2e7.toInt
 
   final case class ParticleGotFile(guid: VitalsUid) extends FabricLoadEvent("canned", "got-alloy-file")
 

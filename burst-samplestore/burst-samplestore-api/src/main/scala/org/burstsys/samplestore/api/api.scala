@@ -46,7 +46,7 @@ package object api extends VitalsLogger {
   //////////////////////////////////////////////////////////
 
   final case
-  class SampleStoreGenerator(
+  class SampleStoreGeneration(
                               guid: VitalsUid,
                               generationHash: String, // a quick way to compare one loci set to another different one
                               loci: Array[SampleStoreDataLocus],

@@ -1,17 +1,19 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.container.model
 
-import org.burstsys.brio.provider.loadBrioSchemaProviders
 import org.burstsys.fabric.container.FabricContainerId
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
-import org.burstsys.vitals.VitalsService.{VitalsContainer, VitalsServiceModality}
+import org.burstsys.vitals.VitalsService.VitalsContainer
+import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.configuration.burstCellNameProperty
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.healthcheck.VitalsHealthCheckService
-import org.burstsys.vitals.logging.{VitalsLog, _}
+import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties.VitalsPropertyRegistry
-import org.burstsys.vitals.{VitalsService, git, reporter}
-import org.burstsys.{brio, fabric, tesla, vitals}
+import org.burstsys.vitals.VitalsService
+import org.burstsys.vitals.git
+import org.burstsys.vitals.reporter
 
 /**
  * A top level JVM singleton representing the Burst node process - master or worker.
@@ -94,9 +96,6 @@ class FabricContainerContext extends FabricContainer {
         TeslaFactoryBoss.startIfNotAlreadyStarted
 
         reporter.startReporterSystem()
-
-        // load schema providers from classpath via reflection
-        loadBrioSchemaProviders()
 
         markRunning
       }

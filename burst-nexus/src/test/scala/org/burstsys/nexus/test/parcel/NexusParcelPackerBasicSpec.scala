@@ -26,7 +26,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-//@Ignore
 class NexusParcelPackerBasicSpec extends NexusSpec {
 
   it should "perform basic buffer send/recv using parcel packer" in {
@@ -47,8 +46,8 @@ class NexusParcelPackerBasicSpec extends NexusSpec {
           TeslaRequestFuture {
             try {
               buffers foreach (stream put)
-              stream put endMarkerMutableBuffer
-              stream put TeslaEndMarkerParcel
+              Thread.sleep(150)
+              stream.complete(bufferCount, bufferCount, bufferCount, 0)
             } catch safely {
               case t: Throwable =>
                 throw t
@@ -65,8 +64,6 @@ class NexusParcelPackerBasicSpec extends NexusSpec {
           val streamProperties: VitalsPropertyMap = Map("someKey" -> "someValue")
           val motifFilter: BurstMotifFilter = Some("someMotifFilter")
           val stream = client.startStream(guid, suid, streamProperties, "quo", motifFilter, pipe, 0, getPublicHostName, getPublicHostName)
-
-          val results = new ArrayBuffer[TeslaParcel]
 
           var continue = true
           var receivedBufferCount = 0
@@ -90,22 +87,23 @@ class NexusParcelPackerBasicSpec extends NexusSpec {
 
                 // read the buffers
                 inflatedParcel.startReads()
-                for (i <- 1 to inflatedParcel.bufferCount) {
+                for (_ <- 1 to inflatedParcel.bufferCount) {
                   val bItem = inflatedParcel.readNextBuffer
                   bItem.isNullBuffer should not equal true
                   BurstUnityValidator.validateBlob(bItem)
                   tesla.buffer.factory.releaseBuffer(bItem)
                 }
                 inflatedParcel.bufferCount should equal(0)
-                results += deflatedParcel
+                tesla.parcel.factory.releaseParcel(deflatedParcel)
               }
             }
           }
           receivedBufferCount should equal(bufferCount)
 
-          TeslaWorkerCoupler {
-            results foreach tesla.parcel.factory.releaseParcel
-          }
+          stream.itemCount shouldEqual bufferCount
+          stream.expectedItemCount  shouldEqual bufferCount
+          stream.potentialItemCount shouldEqual bufferCount
+          stream.rejectedItemCount shouldEqual 0
 
           Await.result(stream.receipt, 10 seconds)
         } finally releaseClientToPool(client)

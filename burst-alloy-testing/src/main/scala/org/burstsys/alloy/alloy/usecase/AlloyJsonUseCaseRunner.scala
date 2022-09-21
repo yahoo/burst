@@ -64,15 +64,12 @@ abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
   def beforeAll(): Unit = {
     try {
 
-      loadBrioSchemaProviders()
-
       masterContainer.metadata withLookup this
       masterContainer.topology talksTo this
 
       localStartup()
 
       masterContainer.start
-      store.getMasterStore(AlloyJsonStoreName).asInstanceOf[AlloyJsonStoreMaster]
       workerContainer.start
 
       // wait for the local worker to be available before trying anything

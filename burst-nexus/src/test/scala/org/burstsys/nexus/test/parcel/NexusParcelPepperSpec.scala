@@ -51,8 +51,9 @@ class NexusParcelPepperSpec extends NexusSpec {
             val itemCount = if (stream.guid == bigClientUid) 10e3.toInt else 5e1.toInt
             log info print(s"feedStream ${stream.guid} with $itemCount items")
 
-            BurstUnityMockData(itemCount).pressToInflatedParcels.foreach(stream put)
-            stream put TeslaEndMarkerParcel
+            val buffers = BurstUnityMockData(itemCount).pressToBuffers
+            buffers.foreach(stream put)
+            stream.complete(buffers.length, buffers.length, buffers.length, 0)
           }
         }
 

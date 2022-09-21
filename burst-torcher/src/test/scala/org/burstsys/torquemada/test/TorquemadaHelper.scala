@@ -1,11 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.torquemada.test
 
-import org.burstsys.agent.{AgentLanguage, AgentService}
-import org.burstsys.brio.provider.loadBrioSchemaProviders
+import org.apache.logging.log4j.Logger
+import org.burstsys.agent.AgentLanguage
+import org.burstsys.agent.AgentService
 import org.burstsys.brio.types.BrioTypes._
 import org.burstsys.catalog.CatalogService
-import org.burstsys.catalog.CatalogService.{CatalogUnitTestClientConfig, CatalogUnitTestServerConfig}
+import org.burstsys.catalog.CatalogService.CatalogUnitTestClientConfig
+import org.burstsys.catalog.CatalogService.CatalogUnitTestServerConfig
 import org.burstsys.fabric.data.model.generation.FabricGeneration
 import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.data.model.ops._
@@ -14,14 +16,15 @@ import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
 import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
 import org.burstsys.fabric.execution.model.result.FabricExecuteResult
 import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.execution.model.result.row.{FabricAggregationCell, FabricResultCell, FabricResultRow}
+import org.burstsys.fabric.execution.model.result.row.FabricAggregationCell
+import org.burstsys.fabric.execution.model.result.row.FabricResultCell
+import org.burstsys.fabric.execution.model.result.row.FabricResultRow
 import org.burstsys.fabric.execution.model.result.set.FabricResultSet
 import org.burstsys.fabric.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
 import org.burstsys.vitals.logging.VitalsLog
 import org.burstsys.vitals.uid._
-import org.apache.logging.log4j.Logger
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -42,7 +45,6 @@ abstract class TorquemadaHelper extends AnyFlatSpec
 
   override protected
   def beforeAll(): Unit = {
-    loadBrioSchemaProviders()
     catalogServer.start
     catalogClient.start
     agentService.start

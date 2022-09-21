@@ -2,14 +2,14 @@
 package org.burstsys.eql.test.support
 
 import org.burstsys.alloy.alloy.usecase.AlloyJsonUseCaseRunner
-import org.burstsys.brio
 import org.burstsys.eql.EqlContext
 import org.burstsys.eql.context.EqlContextImpl
 import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
 import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
 import org.burstsys.fabric.execution.model.result.set.FabricResultSet
 import org.burstsys.fabric.metadata.model.over.FabricOver
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
+import org.burstsys.fabric.metadata.model.FabricDomainKey
+import org.burstsys.fabric.metadata.model.FabricViewKey
 import org.burstsys.hydra.HydraService
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors._
@@ -18,15 +18,18 @@ import org.burstsys.vitals.uid._
 
 import java.util.concurrent.atomic.AtomicLong
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.language.postfixOps
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog {
 
   override def localStartup(): Unit = {
     log info s"Starting Eql Alloy Test Runner"
-    brio.provider.loadBrioSchemaProviders()
     eql = new EqlContextImpl(newBurstUid)
     hydra = HydraService(masterContainer).start
   }

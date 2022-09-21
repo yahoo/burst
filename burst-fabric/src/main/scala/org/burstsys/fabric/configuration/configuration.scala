@@ -2,6 +2,7 @@
 package org.burstsys.fabric
 
 import org.apache.commons.io.FileUtils
+import org.burstsys.fabric
 import org.burstsys.fabric.metadata.ViewCacheEraseTtlMsProperty
 import org.burstsys.fabric.metadata.ViewCacheEvictTtlMsProperty
 import org.burstsys.fabric.metadata.ViewCacheFlushTtlMsProperty

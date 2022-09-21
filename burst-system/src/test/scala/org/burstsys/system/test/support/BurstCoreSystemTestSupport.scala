@@ -2,7 +2,6 @@
 package org.burstsys.system.test.support
 
 import org.burstsys._
-import org.burstsys.brio.provider.loadBrioSchemaProviders
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.fabric.configuration
 import org.burstsys.fabric.topology.master.FabricTopologyListener
@@ -56,7 +55,6 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
   override protected
   def beforeAll(): Unit = {
 
-    loadBrioSchemaProviders()
     org.burstsys.vitals.configuration.burstCellNameProperty.set("Cell1")
 
     masterContainer.topology talksTo this

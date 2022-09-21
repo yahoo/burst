@@ -11,9 +11,6 @@
 
     <properties>
         <artifact.skip-deploy>false</artifact.skip-deploy>
-        <corretto.version>11</corretto.version>
-        <docker.app.dir>/app/burst</docker.app.dir>
-        <dockerRepo/>
     </properties>
 
     <dependencies>
@@ -102,44 +99,13 @@
                             <to>
                                 <image>${dockerRepo}/burst-cell:${project.version}</image>
                             </to>
-                            <from>
-                                <image>${dockerRepo}/corretto-burst:${corretto.version}</image>
-                                <platforms>
-                                    <platform>
-                                        <architecture>amd64</architecture>
-                                        <os>linux</os>
-                                    </platform>
-<!--                                    <platform>-->
-<!--                                        <architecture>arm64</architecture>-->
-<!--                                        <os>linux</os>-->
-<!--                                    </platform>-->
-                                </platforms>
-                            </from>
-                            <containerizingMode>packaged</containerizingMode>
                             <container>
-                                <appRoot>${docker.app.dir}</appRoot>
-                                <environment>
-                                    <BURST_HOME>${docker.app.dir}</BURST_HOME>
-                                </environment>
-                                <entrypoint>${docker.app.dir}/sbin/start.sh</entrypoint>
-                                <expandClasspathDependencies>true</expandClasspathDependencies>
-                                <extraClasspath>${docker.app.dir}/classpath-files</extraClasspath>
                                 <ports>
                                     <port>443</port>
                                 </ports>
                             </container>
                             <extraDirectories>
-                                <paths>
-                                    <path>
-                                        <from>src/main/jib</from>
-                                        <into>${docker.app.dir}</into>
-                                    </path>
-                                </paths>
                                 <permissions>
-                                    <permission>
-                                        <file>${docker.app.dir}/sbin/start.sh</file>
-                                        <mode>755</mode>
-                                    </permission>
                                     <permission>
                                         <file>${docker.app.dir}/sbin/pre-start.sh</file>
                                         <mode>755</mode>
@@ -157,9 +123,54 @@
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>build-local-docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>${jib.maven-plugin.version}</version>
+
+                        <configuration>
+                            <to>
+                                <image>burst-cell:${project.version}</image>
+                            </to>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>build-docker</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>buildTar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <id>load-docker-image</id>
+                                <phase>install</phase>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <commandlineArgs>load --input target/jib-image.tar</commandlineArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>

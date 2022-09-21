@@ -1,13 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog
 
-import org.burstsys.brio.provider.loadBrioSchemaProviders
-import org.burstsys.catalog.CatalogService.{CatalogUnitTestClientConfig, CatalogUnitTestServerConfig}
-import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
+import org.burstsys.catalog.CatalogService.CatalogUnitTestServerConfig
+import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.properties.VitalsPropertyRegistry
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.BeforeAndAfterEach
 
 package object test extends VitalsLogger {
 
@@ -27,8 +28,6 @@ package object test extends VitalsLogger {
       VitalsLog.configureLogging("catalog", consoleOnly = true)
       log info s"------------STARTING------------"
       VitalsPropertyRegistry.logReport
-      loadBrioSchemaProviders()
-//      catalogServer.start
       catalogServer.start
       log info s"------------STARTED------------\n"
     }

@@ -14,7 +14,7 @@ package object factory extends TeslaPartFactory[TeslaMutableBuffer, TeslaBufferP
   startPartTender
 
   @inline final override
-  def grabBuffer(byteSize: TeslaMemoryOffset): TeslaMutableBuffer = {
+  def grabBuffer(byteSize: TeslaMemorySize): TeslaMutableBuffer = {
     val bufferByteSize = byteSize + mutable.SizeofMutableBufferHeader
     val bs = TeslaBlockSizes findBlockSize bufferByteSize
     perThreadPartPool(bs) grabBuffer bufferByteSize

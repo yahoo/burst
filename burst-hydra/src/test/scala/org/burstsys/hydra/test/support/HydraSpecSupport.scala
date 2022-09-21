@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra.test.support
 
-import org.burstsys.brio
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.felt.FeltService
 import org.burstsys.hydra.parser.HydraParser
@@ -9,7 +8,8 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, Suite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Suite
 
 abstract class HydraSpecSupport extends AnyFlatSpec with Suite with Matchers with BeforeAndAfterAll {
 
@@ -31,7 +31,6 @@ abstract class HydraSpecSupport extends AnyFlatSpec with Suite with Matchers wit
   def beforeAll(): Unit = {
     log info s"Starting Felt"
     // these must be lazy so they don't start logging too soon
-    brio.provider.loadBrioSchemaProviders()
     FeltService.start
 
   }

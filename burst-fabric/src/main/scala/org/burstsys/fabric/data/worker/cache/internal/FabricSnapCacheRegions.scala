@@ -121,7 +121,7 @@ trait FabricSnapCacheRegions extends Any {
           }
 
           // state is no longer unknown - its on disc
-          descriptorCache.values foreach (_.metadata.state = FabricSliceOnDisk)
+          descriptorCache.values foreach (_.metadata.state = FabricDataWarm)
 
           log debug s"$hdr ${descriptorCache.size} validated slice descriptor(s) in cache"
         } catch safely {

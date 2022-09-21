@@ -8,6 +8,7 @@ import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandardClient}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
+import org.burstsys.api._
 
 import scala.concurrent.{Future, Promise}
 
@@ -39,11 +40,9 @@ trait SampleStoreApiService extends VitalsService with SampleStoreApiProperties 
 }
 
 object SampleStoreApiService {
-  def apply(): SampleStoreApiService =
-    SampleStoreApiServiceContext(VitalsStandardClient)
 
   def apply(mode: VitalsServiceModality): SampleStoreApiService =
-    SampleStoreApiServiceContext(mode: VitalsServiceModality)
+    SampleStoreApiServiceContext(mode)
 }
 
 private[samplestore] final case
@@ -116,23 +115,10 @@ class SampleStoreApiServiceContext(modality: VitalsServiceModality) extends Samp
                       ): Future[BurstSampleStoreApiViewGenerator] = {
     val promise = Promise[BurstSampleStoreApiViewGenerator]()
     try {
-     val result = if (modality.isServer) {
-        _apiServer.getViewGenerator(
-          guid = guid,
-          dataSource = dataSource
-        )
-      } else {
-        _apiClient.getViewGenerator(
-          guid = guid,
-          dataSource = dataSource
-        )
-      }
-      result onSuccess {
-        r => promise.success(r)
-      }
-      result onFailure {
-        t => promise.failure(t)
-      }
+     promise.completeWith(
+       if (modality.isServer) _apiServer.getViewGenerator(guid, dataSource)
+       else _apiClient.getViewGenerator(guid, dataSource)
+     )
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(t)

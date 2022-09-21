@@ -31,14 +31,14 @@ trait TeslaBlockPart extends Any with TeslaPart with TeslaPooledResource {
     TeslaBlockAnyVal(blockPtr).blockBasePtr // use the any val so we don't create a new object
 
   /**
-   * the start of the data section of the underlying memory block
+   * @return the start of the data section of the underlying memory block
    */
   @inline
   def basePtr: TeslaMemoryPtr =
     TeslaBlockAnyVal(blockPtr).dataStart // use the any val so we don't create a new object
 
   /**
-   * this is the maximum memory available in the currently allocated memory
+   * @return the memory size allocated in the underlying tesla block
    */
   @inline final
   def availableMemorySize: TeslaMemoryOffset =

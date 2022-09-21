@@ -14,10 +14,11 @@ import scala.concurrent.duration.{Duration, _}
 import scala.language.postfixOps
 
 /**
+ * TeslaParcelPipe is essentially a named queue for TeslaParcels.
+ *
  * == Resource Cleanup ==
- * For producers, parcel pipes are responsible for free'ing of memory once put on the
- * queue. For clients, the consumer is responsible for free'ing of memory
- * once taken off the queue.
+ * Parcel pipes are responsible for free'ing of memory for parcels put on the pipe.
+ * Consumers are responsible for free'ing of memory for parcels taken from the pipe.
  */
 trait TeslaParcelPipe extends VitalsService {
 

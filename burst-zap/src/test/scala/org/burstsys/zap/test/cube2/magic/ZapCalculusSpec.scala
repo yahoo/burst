@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.zap.test.cube2.magic
 
-import org.burstsys.brio
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.types.BrioPath.BrioPathKey
 import org.burstsys.felt.model.collectors.cube.generate.calculus.FeltCubeCalculus
@@ -14,7 +13,6 @@ import org.scalatest.matchers.should.Matchers
 class ZapCalculusSpec extends AnyFlatSpec with Matchers {
 
   VitalsLog.configureLogging("zap", true)
-  brio.provider.loadBrioSchemaProviders()
 
   private lazy val brioSchema: BrioSchema = BrioSchema("quo")
 

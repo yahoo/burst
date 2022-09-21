@@ -26,6 +26,7 @@ import scala.reflect.classTag
 package object properties extends VitalsLogger {
 
   final val javaBooleanName: String = classOf[java.lang.Boolean].getName
+  final val javaByteName: String = classOf[java.lang.Byte].getName
   final val javaShortName: String = classOf[java.lang.Short].getName
   final val javaIntegerName: String = classOf[java.lang.Integer].getName
   final val javaLongName: String = classOf[java.lang.Long].getName
@@ -33,6 +34,7 @@ package object properties extends VitalsLogger {
   final val javaStringName: String = classOf[java.lang.String].getName
 
   final val scalaBooleanName: String = classOf[scala.Boolean].getName
+  final val scalaByteName: String = classOf[scala.Byte].getName
   final val scalaShortName: String = classOf[scala.Short].getName
   final val scalaIntegerName: String = classOf[scala.Int].getName
   final val scalaLongName: String = classOf[scala.Long].getName
@@ -40,6 +42,12 @@ package object properties extends VitalsLogger {
   final val scalaStringName: String = classOf[java.lang.String].getName
   final val scalaDurationName: String = classOf[scala.concurrent.duration.Duration].getName
   final val scalaFiniteDurationName: String = classOf[scala.concurrent.duration.FiniteDuration].getName
+
+  final val arrayByteName: String = classOf[Array[scala.Byte]].getName
+  final val arrayShortName: String = classOf[Array[scala.Short]].getName
+  final val arrayIntegerName: String = classOf[Array[scala.Int]].getName
+  final val arrayLongName: String = classOf[Array[scala.Long]].getName
+  final val arrayDoubleName: String = classOf[Array[scala.Double]].getName
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Type definitions
@@ -233,7 +241,7 @@ package object properties extends VitalsLogger {
   /**
    * extensions for basic (string -> string) property maps.
    */
-  implicit class VitalsRichPropertyMap(val map: VitalsPropertyMap) extends AnyVal {
+  implicit class VitalsRichPropertyMap(val map: VitalsPropertyMap) {
 
     final def extend: VitalsExtendedPropertyMap = {
       val result = new mutable.HashMap[VitalsPropertyKey, VitalsPropertyComplexDataType]()
@@ -301,6 +309,7 @@ package object properties extends VitalsLogger {
     private def convertPropertyValue[C <: VitalsPropertyAtomicDataType : ClassTag](value: VitalsPropertyValue, tag: String): C = {
       classTag[C].runtimeClass match {
         case b if b == classOf[Boolean] => value.toBoolean.asInstanceOf[C]
+        case s if s == classOf[Short] => value.toShort.asInstanceOf[C]
         case i if i == classOf[Int] => value.toInt.asInstanceOf[C]
         case l if l == classOf[Long] => value.toLong.asInstanceOf[C]
         case d if d == classOf[Double] => value.toDouble.asInstanceOf[C]
@@ -333,43 +342,82 @@ package object properties extends VitalsLogger {
     private def castValue[C <: VitalsPropertyComplexDataType : ClassTag](tag: String, value: Any): C = {
       val targetClass = classTag[C].runtimeClass.getName
       val sourceClass = value.getClass.getName
-      if (targetClass == sourceClass) return value.asInstanceOf[C]
+
+      if (targetClass == sourceClass)
+        return value.asInstanceOf[C]
+
       (sourceClass, targetClass) match {
-        /* Bool to Bool */
         case (`javaBooleanName`, `scalaBooleanName`) =>
           value.asInstanceOf[java.lang.Boolean].asInstanceOf[C]
-        /* Int to Number */
+
         case (`javaIntegerName`, `scalaIntegerName`) =>
           value.asInstanceOf[java.lang.Integer].toInt.asInstanceOf[C]
         case (`javaIntegerName`, `scalaLongName`) =>
           value.asInstanceOf[java.lang.Integer].toLong.asInstanceOf[C]
         case (`javaIntegerName`, `scalaDoubleName`) =>
           value.asInstanceOf[java.lang.Integer].toDouble.asInstanceOf[C]
-        /* Double to Number */
+
         case (`javaDoubleName`, `scalaIntegerName`) =>
           value.asInstanceOf[java.lang.Double].toInt.asInstanceOf[C]
         case (`javaDoubleName`, `scalaLongName`) =>
           value.asInstanceOf[java.lang.Double].toLong.asInstanceOf[C]
         case (`javaDoubleName`, `scalaDoubleName`) =>
           value.asInstanceOf[java.lang.Double].toDouble.asInstanceOf[C]
-        /* Long to Number */
+
         case (`javaLongName`, `scalaIntegerName`) =>
           value.asInstanceOf[java.lang.Long].toInt.asInstanceOf[C]
         case (`javaLongName`, `scalaLongName`) =>
           value.asInstanceOf[java.lang.Long].toLong.asInstanceOf[C]
         case (`javaLongName`, `scalaDoubleName`) =>
           value.asInstanceOf[java.lang.Long].toDouble.asInstanceOf[C]
-        /* Durations */
+
         case (`scalaFiniteDurationName`, `scalaDurationName`) =>
           value.asInstanceOf[FiniteDuration].asInstanceOf[C]
         case (`scalaDurationName`, `scalaFiniteDurationName`) =>
           value.asInstanceOf[Duration].asInstanceOf[C]
-        /* Any to String */
+
         case (_, `javaStringName`) | (_, `scalaStringName`) =>
           value.toString.asInstanceOf[C]
-        // TODO FLESH OUT REMAINING
+
+        case (`arrayByteName`, `arrayShortName`) =>
+          value.asInstanceOf[Array[Byte]].map(_.toShort).asInstanceOf[C]
+        case (`arrayByteName`, `arrayIntegerName`) =>
+          value.asInstanceOf[Array[Byte]].map(_.toInt).asInstanceOf[C]
+        case (`arrayByteName`, `arrayLongName`) =>
+          value.asInstanceOf[Array[Byte]].map(_.toLong).asInstanceOf[C]
+        case (`arrayByteName`, `arrayDoubleName`) =>
+          value.asInstanceOf[Array[Byte]].map(_.toDouble).asInstanceOf[C]
+
+        case (`arrayShortName`, `arrayByteName`) =>
+          value.asInstanceOf[Array[Short]].map(_.toByte).asInstanceOf[C]
+        case (`arrayShortName`, `arrayIntegerName`) =>
+          value.asInstanceOf[Array[Short]].map(_.toInt).asInstanceOf[C]
+        case (`arrayShortName`, `arrayLongName`) =>
+          value.asInstanceOf[Array[Short]].map(_.toLong).asInstanceOf[C]
+        case (`arrayShortName`, `arrayDoubleName`) =>
+          value.asInstanceOf[Array[Short]].map(_.toDouble).asInstanceOf[C]
+
+        case (`arrayIntegerName`, `arrayByteName`) =>
+          value.asInstanceOf[Array[Int]].map(_.toByte).asInstanceOf[C]
+        case (`arrayIntegerName`, `arrayShortName`) =>
+          value.asInstanceOf[Array[Int]].map(_.toShort).asInstanceOf[C]
+        case (`arrayIntegerName`, `arrayLongName`) =>
+          value.asInstanceOf[Array[Int]].map(_.toLong).asInstanceOf[C]
+        case (`arrayIntegerName`, `arrayDoubleName`) =>
+          value.asInstanceOf[Array[Int]].map(_.toDouble).asInstanceOf[C]
+
+        case (`arrayDoubleName`, `arrayByteName`) =>
+          value.asInstanceOf[Array[Double]].map(_.toByte).asInstanceOf[C]
+        case (`arrayDoubleName`, `arrayShortName`) =>
+          value.asInstanceOf[Array[Double]].map(_.toShort).asInstanceOf[C]
+        case (`arrayDoubleName`, `arrayIntegerName`) =>
+          value.asInstanceOf[Array[Double]].map(_.toInt).asInstanceOf[C]
+        case (`arrayDoubleName`, `arrayLongName`) =>
+          value.asInstanceOf[Array[Double]].map(_.toLong).asInstanceOf[C]
+
+
         case _ =>
-          throw VitalsException(s"VITALS_PROP_UNKNOWN_TYPE sourceClass=$sourceClass -> targetClass=$targetClass $tag")
+          throw VitalsException(s"VITALS_PROP_UNKNOWN_TYPE $tag sourceClass=$sourceClass -> targetClass=$targetClass value=$value")
       }
 
     }
@@ -384,6 +432,14 @@ package object properties extends VitalsLogger {
       lazy val tag = s"VitalsRichExtendedPropertyMap.getValueOrDefault(key=$property)"
       map.get(property) match {
         case None => default
+        case Some(v) => castValue(tag, v)
+      }
+    }
+
+    final def getValueOrProperty[C <: VitalsPropertyComplexDataType : ClassTag](property: VitalsPropertyKey, default: VitalsPropertySpecification[C]): C = {
+      lazy val tag = s"VitalsRichExtendedPropertyMap.getValueOrDefault(key=$property)"
+      map.get(property) match {
+        case None => default.getOrThrow
         case Some(v) => castValue(tag, v)
       }
     }

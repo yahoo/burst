@@ -83,7 +83,9 @@ trait VitalsService extends AnyRef {
   final
   def isRunning: Boolean = _running
 
-  def serviceName: String = this.getClass.getSimpleName.stripPrefix("Burst").stripSuffix("$").stripSuffix("Context").stripSuffix("Provider")
+  private[this] lazy val _serviceName = this.getClass.getSimpleName.stripPrefix("Burst").stripSuffix("$").stripSuffix("Context").stripSuffix("Provider")
+
+  def serviceName: String = _serviceName
 
   def start: this.type
 

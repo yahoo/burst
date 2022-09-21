@@ -5,22 +5,17 @@
 
 ___Pressing___ is the forward scan binary encoding of a Brio [Schema](schema.md) conformant Brio data
 [Model](model.md) , into a
-Brio [Blob](blob.md). This is done in as time and space performant fashion as possible since the input and output
+Brio [Blob](blob.md). This is done in maner as time and space performant as possible since the input and output
 sizes can be extremely large.
 
 ##### In situ decoding
-All values in the encoded Blob are serialized on the fly ( **in situ** ) if and only if they are accessed
+All values in the encoded Blob are serialized on the fly (*in situ*) if and only if they are accessed
 in a scan. This means there is no deserialization unless the value is actually used. There is inherently
 no deserialization required for the overall tree structures and the relationships between instances within the tree.
 
 #### Pressing
 The act of taking some form of input data and encoding it in the appropriate binary format for a Blob is called
-_'pressing'_. There are two forms of pressing
-
-1. __V1 pressing__ _(old school)_ - very inefficient and GC noisy way of creating a Blob. Uses standard on-heap
-   Brio Dictionaries.
-2. __V2 pressing__ _(zap)_  - Zap format described in the Zap Blob documentation. Very efficient, low GC noise technique.
-   Uses Zap Dictionaries.
+_'pressing'_. 
 
 # Runtime access
 Critical to Brio performance goals is the ability to do very fast and GC quiet read scans and write scans.
