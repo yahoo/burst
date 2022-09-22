@@ -21,6 +21,9 @@ package object query {
     def apply(pk: Long, moniker: String, languageType: BurstCatalogApiQueryLanguageType, source: String,
               labels: Option[VitalsPropertyMap] = None): BurstCatalogApiQuery =
       BurstCatalogApiQuery(pk, moniker, languageType, source, labels)
+
+    def apply(pk: Long, moniker: String, langauge: String, source: String): CatalogQuery =
+      BurstCatalogApiQuery(pk, moniker, BurstCatalogApiQueryLanguageType.valueOf(langauge).get, source, None)
   }
 
   final case

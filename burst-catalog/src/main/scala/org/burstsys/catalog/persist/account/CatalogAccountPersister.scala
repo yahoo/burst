@@ -21,8 +21,7 @@ import scala.util.Success
 import scala.util.Try
 
 final case
-class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntityPersister[CatalogAccount]
-  with CatalogAccountSql {
+class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntityPersister[CatalogAccount] {
 
   override val sqlTableName: String = "burst_catalog_account"
 
@@ -42,7 +41,7 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
     stringToOptionalPropertyMap(rs.string(labelsColumn))
   )
 
-  override def createTableSql: TableCreateSql = service.dialect match {
+  override protected def createTableSql: TableCreateSql = service.dialect match {
     case RelateMySqlDialect => mysqlCreateTableSql
     case RelateDerbyDialect => derbyCreateTableSql
   }
@@ -117,4 +116,34 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
   private def getPasswordHash(password: String, salt: String): String = {
     new String(BCrypt.generate(password.getBytes(utf8), salt.getBytes(utf8), 10), utf8)
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Table Schema
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  def derbyCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+       ${this.column.pk} BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+       ${this.column.moniker} VARCHAR(255) NOT NULL,
+       ${this.column.labels} VARCHAR(32672),
+       ${this.column.hashedPassword} VARCHAR(255),
+       ${this.column.salt} VARCHAR(255),
+       UNIQUE (${this.column.moniker})
+      )
+     """
+
+  def mysqlCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+        ${this.column.pk} BIGINT NOT NULL AUTO_INCREMENT,
+        ${this.column.moniker} VARCHAR(255) NOT NULL,
+        ${this.column.labels} TEXT,
+        ${this.column.hashedPassword} VARCHAR(255),
+        ${this.column.salt} VARCHAR(255),
+        PRIMARY KEY (${this.column.pk}),
+       UNIQUE (${this.column.moniker})
+     ) ENGINE=InnoDb DEFAULT CHARSET=utf8
+     """
+
 }

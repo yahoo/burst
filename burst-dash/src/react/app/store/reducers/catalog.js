@@ -90,6 +90,24 @@ const save = createAsyncThunk('catalog/save', async ({type, entity}, thunk) => {
     }
 })
 
+const createDomain = createAsyncThunk('catalog/newDomain', async (ignored, thunk) => {
+    try {
+        const now = new Date()
+        const parameters = {moniker: `New Domain ${now.toLocaleString()}`}
+        const response = await request('/catalog/newDomain', {parameters})
+        if (response.pk) {
+            thunk.dispatch(crosscutting.selectDataset(({domain: response})))
+            return response
+        } else {
+            dispatch(crosscutting.displayMessage(response.message, 'Failed to create domain'));
+            thunk.rejectWithValue(response.message);
+        }
+    } catch (e) {
+        thunk.dispatch(crosscutting.displayError(e, 'Failed to create new domain'))
+        throw e;
+    }
+})
+
 const createView = createAsyncThunk('catalog/newView', async ({domainPk}, thunk) => {
     try {
         const now = new Date()
@@ -244,6 +262,12 @@ const catalogSlice = createSlice({
         [save.rejected]: (state) => {
             state.editor.saving = false;
         },
+        [createDomain.fulfilled]: (state, action) => {
+            const {payload: domain} = action
+            state.domains[domain.pk] = domain
+            const {pk, moniker, udk} = domain
+            state.tree.push({pk, moniker, udk, children: []})
+        },
         [createView.fulfilled]: (state, action) => {
             const {payload: view} = action
             state.tree.forEach(d => {
@@ -269,6 +293,7 @@ export const actions = {
     search,
     edit,
     save,
+    createDomain,
     createView,
     bumpGenerationClock,
 }

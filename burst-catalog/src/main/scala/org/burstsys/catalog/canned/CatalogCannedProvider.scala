@@ -63,8 +63,6 @@ class CatalogCannedProvider(modality: VitalsServiceModality) extends CatalogCann
    */
   override
   def loadCannedData(sql: CatalogSqlProvider, onlyQuery: Boolean, addSecurity: Boolean)(implicit session: DBSession): Unit = {
-    implicit val s: CatalogSqlProvider = sql
-
     loadEach(cannedQueries, (query: CatalogCannedQuery) => {
       sql.queries.insertEntity(BurstCatalogApiQuery(0, query.moniker, query.languageType, query.source, query.labels))
     })
@@ -95,7 +93,6 @@ class CatalogCannedProvider(modality: VitalsServiceModality) extends CatalogCann
       } catch safely {
         case ex: Throwable =>
           log error burstStdMsg(s"failed to insert $e", ex)
-          throw ex
       }
     })
   }

@@ -16,8 +16,7 @@ object CatalogDomainPersister {
   val tableName: String = "burst_catalog_domain"
 }
 
-final case class CatalogDomainPersister(service: RelateService) extends UdkCatalogEntityPersister[CatalogDomain]
-  with CatalogDerbyDomainSql with CatalogMySqlDomainSql {
+final case class CatalogDomainPersister(service: RelateService) extends UdkCatalogEntityPersister[CatalogDomain] {
 
   override val sqlTableName: String = CatalogDomainPersister.tableName
 
@@ -37,28 +36,17 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
       labels = stringToOptionalPropertyMap(rs.string(labelsColumn)),
       domainProperties = stringToPropertyMap(rs.string(domainPropertiesColumn)),
       udk = rs.stringOpt(udkColumn), // TODO fsg 180109 Does stringOpt return None for null?
-      createTimestamp = {
-        val ts = rs.dateOpt(createTSColumn)
-        if (ts.isDefined)
-          Some(ts.get.getTime)
-        else
-          None
-      },
-      modifyTimestamp = {
-        val ts = rs.dateOpt(modifyTSColumn)
-        if (ts.isDefined)
-          Some(ts.get.getTime)
-        else
-          None
-      })
+      createTimestamp = timestampColToMillis(rs, createTSColumn),
+      modifyTimestamp = timestampColToMillis(rs, modifyTSColumn),
+    )
   )
 
-  override def createTableSql: TableCreateSql = service.dialect match {
+  override protected def createTableSql: TableCreateSql = service.dialect match {
     case RelateMySqlDialect => mysqlCreateTableSql
     case RelateDerbyDialect => derbyCreateTableSql
   }
 
-  override def insertEntitySql(entity: CatalogDomain): WriteSql = {
+  override protected def insertEntitySql(entity: CatalogDomain): WriteSql = {
     sql"""
      INSERT INTO  ${this.table}
        (
@@ -79,7 +67,7 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
     )
   }
 
-  override def updateEntityByPkSql(entity: CatalogDomain): WriteSql = {
+  override protected def updateEntityByPkSql(entity: CatalogDomain): WriteSql = {
     sql"""
      UPDATE  ${this.table}
      SET
@@ -100,7 +88,7 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
 
   /// CatalogUdkPersister methods
 
-  override def updatesForEntityByUdk(proposed: CatalogDomain, stored: CatalogDomain): WriteSql = {
+  override protected def updatesForEntityByUdk(proposed: CatalogDomain, stored: CatalogDomain): WriteSql = {
     val entity = fieldsForUpdate(proposed, stored)
     sql"""
      UPDATE  ${this.table}
@@ -118,7 +106,7 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
     )
   }
 
-  override def updatesForEntityByPk(proposed: CatalogDomain, stored: CatalogDomain): WriteSql = {
+  override protected def updatesForEntityByPk(proposed: CatalogDomain, stored: CatalogDomain): WriteSql = {
     val entity = fieldsForUpdate(proposed, stored)
     sql"""UPDATE  ${this.table}
      SET
@@ -149,4 +137,38 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
     }
     CatalogDomain(pk, moniker, domainProperties, udk, labels)
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Table Schema
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  def mysqlCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+        ${this.column.pk} BIGINT NOT NULL AUTO_INCREMENT,
+        ${this.column.moniker} VARCHAR(255) NOT NULL UNIQUE,
+        ${this.column.labels} TEXT,
+        ${this.column.domainProperties} TEXT,
+        ${this.column.udk} VARCHAR(255) UNIQUE,
+        ${this.column.modifyTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        ${this.column.createTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (${this.column.pk}),
+        UNIQUE (${this.column.udk})
+     ) ENGINE=InnoDb DEFAULT CHARSET=utf8
+     """
+
+  def derbyCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+        ${this.column.pk} BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+        ${this.column.moniker} VARCHAR(255) NOT NULL,
+        ${this.column.labels} VARCHAR(32672),
+        ${this.column.domainProperties} VARCHAR(32672),
+        ${this.column.udk} VARCHAR(255),
+        ${this.column.modifyTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ${this.column.createTimestamp} TIMESTAMP,
+        UNIQUE (${this.column.udk})
+    )
+    """
+
 }

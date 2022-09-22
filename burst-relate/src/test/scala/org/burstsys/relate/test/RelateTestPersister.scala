@@ -23,7 +23,7 @@ class RelateTestPersister() extends RelatePersister[BurstSqlTestEntity] {
     test1 = rs.string(sqltest1ColumnName)
   )
 
-  override def createTableSql: TableCreateSql = {
+  override protected def createTableSql: TableCreateSql = {
     service.dialect match {
       case RelateMySqlDialect => ???
       case RelateDerbyDialect =>
@@ -59,8 +59,6 @@ class RelateTestPersister() extends RelatePersister[BurstSqlTestEntity] {
              VALUES (${entity.test1})
           """
     }
-
   }
-
 
 }

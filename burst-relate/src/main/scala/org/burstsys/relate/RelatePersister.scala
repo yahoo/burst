@@ -1,13 +1,18 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.relate
 
+import org.apache.logging.log4j.Logger
 import org.burstsys.relate
 import org.burstsys.relate.dialect.SelectLockLevel.NoLock
-import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect, SelectLockLevel}
+import org.burstsys.relate.dialect.RelateDerbyDialect
+import org.burstsys.relate.dialect.RelateMySqlDialect
+import org.burstsys.relate.dialect.SelectLockLevel
 import org.burstsys.vitals.errors._
-import org.apache.logging.log4j.Logger
+import org.burstsys.vitals.properties.VitalsPropertyMap
+import org.burstsys.vitals.properties.propertyMapToString
+import org.checkerframework.checker.units.qual.m
+import org.checkerframework.checker.units.qual.s
 import scalikejdbc._
-import org.burstsys.vitals.logging._
 
 /**
   * base class for all relate persisters
@@ -72,16 +77,42 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
    */
   protected def resultToEntity(rs: WrappedResultSet): E
 
+  protected def timestampColToMillis(rs: WrappedResultSet, column: String): Option[Long] = {
+    rs.timestampOpt(column).map(_.getTime)
+  }
+
   /**
    * @return the SQL statement to create the table
    */
   protected def createTableSql: TableCreateSql
 
   /**
+   * @return the text used to create the schmea
+   */
+  def createSchemaText: String = s"${createTableSql.statement.trim};"
+
+  /**
    * @param entity the entity to insert
    * @return the sql required to insert a new record
    */
   protected def insertEntitySql(entity: E): WriteSql
+
+  /**
+   * @param entity the entity to insert
+   * @return SQL that can be used to insert the entity
+   */
+  def insertEntityStatement(entity: E): String = {
+    val sqlStmt = insertEntitySql(entity)
+    val values = sqlStmt.parameters.map({
+      case props: VitalsPropertyMap => propertyMapToString(props)
+      case x => x
+    }).map({
+      case str: String => s"'$str'"
+      case o => o.toString
+    })
+    val tuples = sqlStmt.statement.trim.split("\\?").zipAll(values, "", "")
+    s"${tuples.map(t => s"${t._1}${t._2}").mkString}; "
+  }
 
   /**
    * @param entity the new final state of the entity

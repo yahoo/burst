@@ -10,8 +10,7 @@ import org.burstsys.vitals.properties._
 import scalikejdbc.{WrappedResultSet, _}
 
 final case
-class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPersister[CatalogQuery]
-  with CatalogDerbyQuerySql with CatalogMySqlQuerySql {
+class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPersister[CatalogQuery] {
 
   override val sqlTableName: String = "burst_catalog_query"
 
@@ -30,7 +29,7 @@ class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPe
     )
   )
 
-  override def createTableSql: TableCreateSql = service.dialect match {
+  override protected def createTableSql: TableCreateSql = service.dialect match {
     case RelateMySqlDialect => mysqlCreateTableSql
     case RelateDerbyDialect => derbyCreateTableSql
   }
@@ -72,5 +71,34 @@ class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPe
       Symbol("source") -> entity.source
     )
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Table Schema
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  def mysqlCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+        ${this.column.pk} BIGINT NOT NULL AUTO_INCREMENT,
+        ${this.column.moniker} VARCHAR(255) NOT NULL,
+        ${this.column.labels} TEXT,
+        ${this.column.languageType} VARCHAR(255),
+        ${this.column.source} TEXT,
+        PRIMARY KEY (${this.column.pk}),
+        UNIQUE (${this.column.moniker})
+     ) ENGINE=InnoDb DEFAULT CHARSET=utf8
+     """
+
+  def derbyCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+       ${this.column.pk} BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+       ${this.column.moniker} VARCHAR(255) NOT NULL,
+       ${this.column.labels} VARCHAR(32672),
+       ${this.column.languageType} VARCHAR(255),
+       ${this.column.source} VARCHAR(32672),
+       UNIQUE (${this.column.moniker})
+      )
+     """
 
 }

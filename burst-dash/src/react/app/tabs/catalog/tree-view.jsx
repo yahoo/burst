@@ -63,6 +63,12 @@ const TreeView = () => {
                     </div>
                 </ReactTreeView>
             ))}
+            <div>
+                    <span className="tree-node view" onClick={() => dispatch(catalog.createDomain())}>
+                        <FaIcon icon="plus" className="text-success"/>
+                        <span>Add Domain</span>
+                    </span>
+            </div>
         </div>
     );
 }

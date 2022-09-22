@@ -21,8 +21,7 @@ import scala.util.Try
 
 //noinspection SqlNoDataSourceInspection
 final case
-class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntityPersister[CatalogView]
-  with CatalogDerbyViewSql with CatalogMySqlViewSql {
+class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntityPersister[CatalogView] {
 
   override def sqlTableName: String = "burst_catalog_view"
 
@@ -56,32 +55,14 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
       viewMotif = rs.string(viewMotifColumn),
       viewProperties = stringToPropertyMap(rs.string(viewPropertiesColumn)),
       schemaName = rs.string(schemaColumn),
-      createTimestamp = {
-        val ts = Try(rs.timestamp(createTSColumn))
-        if (ts.isSuccess && ts.get != null)
-          Some(ts.get.getTime)
-        else
-          None
-      },
-      modifyTimestamp = {
-        val ts = Try(rs.timestamp(modifyTSColumn))
-        if (ts.isSuccess && ts.get != null)
-          Some(ts.get.getTime)
-        else
-          None
-      },
-      accessTimestamp = {
-        val ts = Try(rs.timestamp(accessTSColumn))
-        if (ts.isSuccess && ts.get != null)
-          Some(ts.get.getTime)
-        else
-          None
-      },
+      createTimestamp = timestampColToMillis(rs, createTSColumn),
+      modifyTimestamp = timestampColToMillis(rs, modifyTSColumn),
+      accessTimestamp = timestampColToMillis(rs, accessTSColumn),
       udk = rs.stringOpt(udkColumn)
     )
   )
 
-  override def createTableSql: TableCreateSql = service.dialect match {
+  override protected def createTableSql: TableCreateSql = service.dialect match {
     case RelateMySqlDialect => mysqlCreateTableSql
     case RelateDerbyDialect => derbyCreateTableSql
   }
@@ -308,5 +289,51 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
          WHERE ${this.column.domainFk} = {domainFk} ${service.dialect.limitClause(limit)}
       """.bindByName(Symbol("domainFk") -> domainFk).map(resultToEntity).list().apply()
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Table Schema
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  def mysqlCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+        ${this.column.pk} BIGINT NOT NULL AUTO_INCREMENT,
+        ${this.column.moniker} VARCHAR(255) NOT NULL,
+        ${this.column.labels} TEXT,
+        ${this.column.domainFk} BIGINT,
+        ${this.column.generationClock} BIGINT DEFAULT 0,
+        ${this.column.udk} VARCHAR(255),
+        ${this.column.schemaName} VARCHAR(255) NOT NULL,
+        ${this.column.viewMotif} TEXT,
+        ${this.column.storeProperties} TEXT,
+        ${this.column.viewProperties} TEXT,
+        ${this.column.modifyTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+        ${this.column.createTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ${this.column.accessTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (${this.column.pk}),
+        UNIQUE (${this.column.udk}, ${this.column.domainFk})
+     ) ENGINE=InnoDb DEFAULT CHARSET=utf8
+     """
+
+  def derbyCreateTableSql: TableCreateSql =
+    sql"""
+     CREATE TABLE  ${this.table} (
+      ${this.column.pk} BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+      ${this.column.domainFk} BIGINT,
+      ${this.column.generationClock} BIGINT DEFAULT 0,
+      ${this.column.moniker} VARCHAR(255) NOT NULL UNIQUE,
+      ${this.column.udk} VARCHAR(255),
+      ${this.column.labels} VARCHAR(32672),
+      ${this.column.schemaName} VARCHAR(255) NOT NULL,
+      ${this.column.viewMotif} VARCHAR(32672),
+      ${this.column.storeProperties} VARCHAR(32672),
+      ${this.column.viewProperties} VARCHAR(32672),
+      ${this.column.modifyTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      ${this.column.createTimestamp} TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      ${this.column.accessTimestamp} TIMESTAMP,
+
+      UNIQUE (${this.column.udk}, ${this.column.domainFk})
+    )
+    """
 
 }
