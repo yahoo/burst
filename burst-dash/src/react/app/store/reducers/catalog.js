@@ -171,6 +171,7 @@ const fetchedView = (state, action) => {
 const catalogSlice = createSlice({
     name: 'catalog',
     initialState: {
+        uninitialized: true,
         searchPending: false,
         tree: [],
         expanded: [],
@@ -213,6 +214,7 @@ const catalogSlice = createSlice({
             state.searchPending = true;
         },
         [search.fulfilled]: (state, action) => {
+            state.uninitialized = false;
             state.searchPending = false;
             const domainList = action.payload.sort((l, r) => l.moniker < r.moniker ? -1 : 1)
             state.tree = domainList

@@ -15,13 +15,14 @@ const TreeNode = ({type, object, selected = false, onClick = () => null}) => (
 
 const TreeView = () => {
     const dispatch = useDispatch()
-    const {tree, expanded, selected} = useSelector(({catalog, crosscutting}) => ({
+    const {tree, expanded, selected, uninitialized} = useSelector(({catalog, crosscutting}) => ({
+        uninitialized: catalog.uninitialized,
         tree: catalog.tree,
         expanded: catalog.expanded,
         selected: crosscutting.selectedDataset,
     }))
 
-    if (!tree) {
+    if (uninitialized) {
         return (
             <div id="catalog-tree" className="burst-border">
                 <div className="burst-empty-message"> ready to search...</div>
@@ -31,6 +32,12 @@ const TreeView = () => {
         return (
             <div id="catalog-tree" className="burst-border">
                 <div className="burst-empty-message"> no search results...</div>
+                <div>
+                    <span className="tree-node view" onClick={() => dispatch(catalog.createDomain())}>
+                        <FaIcon icon="plus" className="text-success"/>
+                        <span>Add Domain</span>
+                    </span>
+                </div>
             </div>
         );
     }

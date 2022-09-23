@@ -116,6 +116,7 @@
 
                         <executions>
                             <execution>
+                                <id>build-docker</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
@@ -160,7 +161,10 @@
                         <executions>
                             <execution>
                                 <id>load-docker-image</id>
-                                <phase>install</phase>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
                                 <configuration>
                                     <executable>docker</executable>
                                     <commandlineArgs>load --input target/jib-image.tar</commandlineArgs>

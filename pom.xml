@@ -1361,16 +1361,6 @@
                             </permissions>
                         </extraDirectories>
                     </configuration>
-
-                    <executions>
-                        <execution>
-                            <id>build-docker</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>build</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
 
                 <plugin>
