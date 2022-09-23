@@ -3,10 +3,9 @@
 mainClass="org.burstsys.synthetic.samplestore.main.ChooseWorkload"
 
 envConfig="-Dburst.home=${BURST_HOME}" # set this so log files go to the correct place
-envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL}"
-envConfig="${envConfig} -Dburst.fabric.moniker=${FAB_MONIKER}"
-envConfig="${envConfig} -Dburst.cell.name=${cellName}"
-envConfig="${envConfig} -DdeploymentName=${cellName}"
+envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL:=INFO}"
+envConfig="${envConfig} -Dburst.cell.name=${DEPLOYMENT_NAME:=synthetic-samplesource}"
+envConfig="${envConfig} -DdeploymentName=${DEPLOYMENT_NAME}"
 
 if [ "${WORKLOAD}" = "supervisor" ]; then
     mainClass="org.burstsys.synthetic.samplestore.main.SyntheitcSampleSourceSupervisorMain"

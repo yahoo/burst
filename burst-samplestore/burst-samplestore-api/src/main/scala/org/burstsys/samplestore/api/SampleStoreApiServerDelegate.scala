@@ -4,16 +4,16 @@ package org.burstsys.samplestore.api
 import scala.concurrent.Future
 
 /**
- * event listener for incoming thrift API events
+ * Delegate responsible for doing view generation in response to thrift calls
  */
-trait SampleStoreApiListener extends Any {
+trait SampleStoreApiServerDelegate extends Any {
 
   /**
    * generate a view
    *
-   * @param guid
-   * @param dataSource
-   * @return
+   * @param guid the unique id of the generation
+   * @param dataSource the datasource for the view
+   * @return a future that will eventually resolve into the view's generation
    */
   def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[SampleStoreGeneration]
 

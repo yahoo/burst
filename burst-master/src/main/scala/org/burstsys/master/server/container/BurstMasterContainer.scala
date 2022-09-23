@@ -20,6 +20,7 @@ import org.burstsys.master.configuration.burstMasterJsonWatchDirectoryProperty
 import org.burstsys.master.configuration.burstMasterPropertiesFileProperty
 import org.burstsys.master.server.torcher.BurstMasterTorcherService
 import org.burstsys.tesla
+import org.burstsys.vitals.VitalsService.VitalsStandardClient
 import org.burstsys.vitals.VitalsService.VitalsStandardServer
 import org.burstsys.vitals.configuration.burstLog4j2NameProperty
 import org.burstsys.vitals.errors._
@@ -108,7 +109,7 @@ class BurstMasterContainerContext() extends FabricMasterContainerContext(default
   val _agentServer: AgentService = AgentService(bootModality)
 
   protected
-  val _agentClient: AgentService = AgentService()
+  val _agentClient: AgentService = AgentService(VitalsStandardClient)
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Catalog
@@ -144,7 +145,7 @@ class BurstMasterContainerContext() extends FabricMasterContainerContext(default
         // this should be done before any other systems start up
         VitalsLog.configureLogging(burstLog4j2NameProperty.getOrThrow)
 
-        /**
+        /*
          * the critical first step is to start up the catalog - eventually all other config info comes from this
          */
         _catalogServer.start

@@ -1,16 +1,20 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.json.samplestore
 
-import org.burstsys.json.samplestore.configuration.{JsonSamplestoreConfiguration, JsonSamplestoreDefaultConfiguration}
+import org.burstsys.json.samplestore.configuration.JsonSamplestoreConfiguration
+import org.burstsys.json.samplestore.configuration.JsonSamplestoreDefaultConfiguration
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
-import org.burstsys.samplesource.handler.SimpleSampleStoreApiListener
+import org.burstsys.samplesource.handler.SimpleSampleStoreApiServerDelegate
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
-import org.burstsys.samplestore.api.SampleStoreApiService
+import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
-import org.burstsys.vitals.configuration.{burstLog4j2NameProperty, burstVitalsHealthCheckPortProperty}
+import org.burstsys.vitals.configuration.burstLog4j2NameProperty
 import org.burstsys.vitals.healthcheck.VitalsHealthCheckService
-import org.burstsys.vitals.logging.{VitalsLog, burstStdMsg, log}
-import org.burstsys.vitals.{VitalsService, git}
+import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.log
+import org.burstsys.vitals.VitalsService
+import org.burstsys.vitals.git
 
 /**
  */
@@ -23,12 +27,10 @@ final case class JsonSampleStoreContainer(
   // private state
   ////////////////////////////////////////////////////////////////////////////////
 
-  var apiServer: SampleStoreApiService = _
-
-  val _hcPort: Option[Int] = burstVitalsHealthCheckPortProperty.get.orElse(Some(0))
+  var apiServer: SampleStoreApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(configuration.properties))
 
   protected
-  var _healthCheck: VitalsHealthCheckService = _
+  var _healthCheck: VitalsHealthCheckService = VitalsHealthCheckService(serviceName)
 
   ////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -47,11 +49,10 @@ final case class JsonSampleStoreContainer(
 
     org.burstsys.vitals.reporter.startReporterSystem()
 
-    _healthCheck = VitalsHealthCheckService(serviceName).start
+    _healthCheck.start
 
     // start API server
     log info burstStdMsg("starting sample store api server")
-    apiServer = SampleStoreApiService(modality) talksTo SimpleSampleStoreApiListener(configuration.properties)
     apiServer.start
 
 

@@ -2,9 +2,9 @@
 package org.burstsys.synthetic.samplestore
 
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
-import org.burstsys.samplesource.handler.SimpleSampleStoreApiListener
+import org.burstsys.samplesource.handler.SimpleSampleStoreApiServerDelegate
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
-import org.burstsys.samplestore.api.SampleStoreApiService
+import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.properties.VitalsPropertyMap
@@ -16,13 +16,11 @@ case class SyntheticSampleStoreContainer(
                                           var storeListenerProperties: VitalsPropertyMap = Map.empty
                                         ) extends VitalsService {
 
-  private var thriftApiServer: SampleStoreApiService = _
+  private val thriftApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(storeListenerProperties))
 
   override def start: SyntheticSampleStoreContainer.this.type = {
     SampleSourceHandlerRegistry.start
     if (modality.isServer) {
-      thriftApiServer = SampleStoreApiService(modality)
-        .talksTo(SimpleSampleStoreApiListener(storeListenerProperties))
       thriftApiServer.start
     } else {
       SampleSourceNexusServer.start

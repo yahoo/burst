@@ -1,8 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.api.server
 
+import com.twitter
 import com.twitter.util.Future
 import org.burstsys.api.BurstApiServer
+import org.burstsys.api.scalaToTwitterFuture
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestContext
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiNotReady
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestException
@@ -10,56 +12,51 @@ import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleS
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestTimeout
 import org.burstsys.samplestore.api.BurstSampleStoreApiViewGenerator
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
-import org.burstsys.samplestore.api.SampleStoreApiListener
+import org.burstsys.samplestore.api.SampleStoreApi
+import org.burstsys.samplestore.api.SampleStoreApiServerDelegate
 import org.burstsys.samplestore.api.SampleStoreApiNotReadyException
 import org.burstsys.samplestore.api.SampleStoreApiRequestInvalidException
 import org.burstsys.samplestore.api.SampleStoreApiRequestTimeoutException
-import org.burstsys.samplestore.api.SampleStoreApi
-import org.burstsys.samplestore.api.SampleStoreApiService
-import org.burstsys.tesla.thread.request.FutureSemanticsEnhancer
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
-import org.burstsys.api._
+import org.burstsys.vitals.VitalsService
+import org.burstsys.vitals.VitalsService.VitalsStandardServer
+import org.burstsys.vitals.errors.safely
 
-import scala.concurrent.Promise
 
 /**
  * samplesource side implementation of the sample store Thrift server
  *
  * @param service
  */
-private[samplestore] final case
-class SampleStoreApiServer(service: SampleStoreApiService) extends BurstApiServer with SampleStoreApi {
+final case
+class SampleStoreApiServer(delegate: SampleStoreApiServerDelegate) extends BurstApiServer with SampleStoreApi {
 
-  private[this]
-  var _listener: SampleStoreApiListener = _
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // API
-  //////////////////////////////////////////////////////////////////////////////////////
-
-  def listener: SampleStoreApiListener = _listener
-
-  def talksTo(l: SampleStoreApiListener): this.type = {
-    _listener = l
-    this
-  }
+  override def modality: VitalsService.VitalsServiceModality = VitalsStandardServer
 
   override
-  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[BurstSampleStoreApiViewGenerator] = {
+  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): twitter.util.Future[BurstSampleStoreApiViewGenerator] = {
     ensureRunning
-    _listener.getViewGenerator(guid, dataSource) map { generator =>
-      BurstSampleStoreApiViewGenerator(
-        BurstSampleStoreApiRequestContext(guid), generator.generationHash, Some(generator.loci), generator.motifFilter
-      )
-    } recover {
-      case t =>
-        val status = t match {
-          case _: SampleStoreApiRequestTimeoutException => BurstSampleStoreApiRequestTimeout
-          case _: SampleStoreApiRequestInvalidException => BurstSampleStoreApiRequestInvalid
-          case _: SampleStoreApiNotReadyException => BurstSampleStoreApiNotReady
-          case _ => BurstSampleStoreApiRequestException
-        }
-        BurstSampleStoreApiViewGenerator(BurstSampleStoreApiRequestContext(guid, status, t.toString), "NO_HASH")
+    try {
+      scalaToTwitterFuture(delegate.getViewGenerator(guid, dataSource)) map { generator =>
+        BurstSampleStoreApiViewGenerator(
+          BurstSampleStoreApiRequestContext(guid), generator.generationHash, Some(generator.loci), generator.motifFilter
+        )
+      } handle {
+        case t: Throwable =>
+          val status = t match {
+            case _: SampleStoreApiRequestTimeoutException => BurstSampleStoreApiRequestTimeout
+            case _: SampleStoreApiRequestInvalidException => BurstSampleStoreApiRequestInvalid
+            case _: SampleStoreApiNotReadyException => BurstSampleStoreApiNotReady
+            case _ => BurstSampleStoreApiRequestException
+          }
+          BurstSampleStoreApiViewGenerator(BurstSampleStoreApiRequestContext(guid, status, t.toString), "NO_HASH")
+      }
+    } catch safely {
+      case t: Throwable =>
+        Future.value(
+          BurstSampleStoreApiViewGenerator(BurstSampleStoreApiRequestContext(guid, BurstSampleStoreApiRequestException, t.toString), "NO_HASH")
+        )
     }
   }
+
 }

@@ -1,12 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.api.configuration
 
+import org.burstsys.api.BurstApi
 import org.burstsys.vitals.configuration.SslGlobalProperties
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort}
 
 import scala.concurrent.duration.Duration
 
-trait SampleStoreApiProperties extends Any with SslGlobalProperties {
+trait SampleStoreApiProperties extends BurstApi with SslGlobalProperties {
 
   /**
     *

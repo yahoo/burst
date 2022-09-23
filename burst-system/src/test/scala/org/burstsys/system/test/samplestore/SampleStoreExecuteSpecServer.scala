@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @Ignore
-class SampleStoreExecuteSpec extends BurstSystemTestSpecSupport {
+class SampleStoreExecuteSpecServer extends BurstSystemTestSpecSupport {
 
 
   it should "execute eql from sample store" in {

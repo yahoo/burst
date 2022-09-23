@@ -50,6 +50,8 @@ package object nexus extends VitalsReporterSource with VitalsLogger {
 
   }
 
+  def port: VitalsHostPort = nexus.configuration.burstNexusServerPortProperty.getOrThrow
+
   /**
    * A timeout during any aspect (control or data plane) within a nexus transaction.
    *

@@ -49,16 +49,12 @@ The keystore packaged with Burst contains an insecure, self-signed cert/key pair
 configuration will prevent the use of the CLI (or any other java client). If you wish to issue queries you will need to
 run the dash using a certificate trusted by java. You can do with the property `burst.liaison.keystore.path`.
 
-One way to generate an appropriate keystore:
+One way to generate an appropriate keystore is to use [mkcert](https://github.com/FiloSottile/mkcert):
 
 ```shell
 brew install mkcert
 mkcert localhost 127.0.0.1 ::1
-openssl pkcs12 -export -in localhost+2.pem -inkey localhost+2-key.pem \
--out localhost.p12 -name burst-dash
-keytool -importkeystore \
--destkeypass burstomatic -destkeystore keystore.jks \
--srckeystore localhost.p12 -srcstoretype PKCS12 -srcstorepass burstomatic
+openssl pkcs12 -export -in localhost+2.pem -inkey localhost+2-key.pem -out localhost.p12 -name burst-dash
 ```
 
 ---

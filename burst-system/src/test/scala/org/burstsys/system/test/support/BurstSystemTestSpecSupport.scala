@@ -2,31 +2,29 @@
 package org.burstsys.system.test.support
 
 import org.burstsys._
-import org.burstsys.brio.provider.loadBrioSchemaProviders
 import org.burstsys.nexus.newNexusUid
 import org.burstsys.nexus.server.NexusServer
 import org.burstsys.nexus.server.NexusStreamFeeder
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
-import org.burstsys.samplestore.api.SampleStoreApiListener
-import org.burstsys.samplestore.api.SampleStoreApiService
+import org.burstsys.samplestore.api.SampleStoreApiServerDelegate
 import org.burstsys.samplestore.api.SampleStoreDataLocus
 import org.burstsys.samplestore.api.SampleStoreGeneration
 import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
 import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
+import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.tesla.parcel
-import org.burstsys.vitals.VitalsService.VitalsStandardServer
 import org.burstsys.vitals.net.getPublicHostAddress
 import org.burstsys.vitals.net.getPublicHostName
 import org.burstsys.vitals.properties._
 
-import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 trait BurstSystemTestSpecSupport extends BurstCoreSystemTestSupport
-  with NexusStreamFeeder with SampleStoreApiListener {
+  with NexusStreamFeeder with SampleStoreApiServerDelegate {
 
   final lazy
   val mockNexusServer: NexusServer = nexus.grabServer(getPublicHostAddress) fedBy this
@@ -34,12 +32,11 @@ trait BurstSystemTestSpecSupport extends BurstCoreSystemTestSupport
   // override the time period to shorten the test
   vitals.configuration.burstVitalsHealthCheckPeriodMsProperty.set((5 seconds).toMillis)
 
-  final
-  var apiServer: SampleStoreApiService = _
+  final val apiServer: SampleStoreApiServer = SampleStoreApiServer(this)
 
   override protected
   def beforeAll(): Unit = {
-    apiServer = SampleStoreApiService(VitalsStandardServer) talksTo this start
+    apiServer.start
 
     super.beforeAll()
   }

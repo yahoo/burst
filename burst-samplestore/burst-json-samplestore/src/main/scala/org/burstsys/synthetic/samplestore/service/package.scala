@@ -3,8 +3,10 @@ package org.burstsys.synthetic.samplestore
 
 package object service {
 
+  /** `synthetic-samplesource` */
   val SynteticSampleSourceName = "synthetic-samplesource"
 
+  /** `consistent-hash` */
   val InvariantHash = "consistent-hash"
 
 }

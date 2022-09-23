@@ -75,7 +75,7 @@ cellName="$DEPLOY_ENV"
 mainClass="org.burstsys.main.ChooseWorkload"
 
 envConfig="-Dburst.home=${BURST_HOME}" # set this so log files go to the correct place
-envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL}"
+envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL:-INFO}"
 envConfig="${envConfig} -Dburst.fabric.moniker=${FAB_MONIKER}"
 envConfig="${envConfig} -Dburst.cell.name=${cellName}"
 envConfig="${envConfig} -DdeploymentName=${cellName}"

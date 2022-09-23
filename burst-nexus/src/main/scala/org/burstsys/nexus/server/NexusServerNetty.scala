@@ -76,11 +76,6 @@ trait NexusServerNetty extends Any {
         */
       //.childOption(ChannelOption.SO_REUSEADDR, true)
 
-      /**
-        * https://github.com/netty/netty/issues/939
-        */
-      .childOption[java.lang.Boolean](ChannelOption.TCP_NODELAY, true)
-
 /*
       /**
         * when writable condition is toggled

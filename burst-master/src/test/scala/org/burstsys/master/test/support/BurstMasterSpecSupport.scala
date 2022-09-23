@@ -13,14 +13,14 @@ import org.burstsys.nexus.server.NexusServer
 import org.burstsys.nexus.server.NexusStreamFeeder
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
-import org.burstsys.samplestore.api.SampleStoreApiListener
-import org.burstsys.samplestore.api.SampleStoreApiService
+import org.burstsys.samplestore.api.SampleStoreApiServerDelegate
 import org.burstsys.samplestore.api.SampleStoreDataLocus
 import org.burstsys.samplestore.api.SampleStoreGeneration
 import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
 import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
+import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.tesla.parcel
-import org.burstsys.vitals.VitalsService.VitalsStandardServer
+import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
@@ -35,12 +35,11 @@ import org.scalatest.matchers.should.Matchers
 
 import java.util.concurrent.CountDownLatch
 import scala.concurrent.Future
-import scala.concurrent.Promise
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll
-  with SampleStoreApiListener with NexusStreamFeeder with FabricTopologyListener {
+  with SampleStoreApiServerDelegate with NexusStreamFeeder with FabricTopologyListener {
   VitalsLog.configureLogging("master", consoleOnly = true)
 
   final def domain: CatalogDomain = masterContainer.catalog.findDomainByMoniker("BurstMasterTestDomain").get
@@ -73,7 +72,7 @@ trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAft
   }
 
   final
-  var apiServer: SampleStoreApiService = _
+  var apiServer: SampleStoreApiServer = _
 
   val workerGainGate = new CountDownLatch(1)
 
@@ -85,7 +84,7 @@ trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAft
   override protected
   def beforeAll(): Unit = {
     org.burstsys.vitals.configuration.burstCellNameProperty.set("Cell1")
-    apiServer = SampleStoreApiService(VitalsStandardServer) talksTo this start
+    apiServer = SampleStoreApiServer(this).start
 
     masterContainer.topology talksTo this
 
@@ -119,26 +118,19 @@ trait BurstMasterSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAft
    * @return
    */
   override
-  def getViewGenerator(guid: String,
-                       dataSource: BurstSampleStoreDataSource): Future[SampleStoreGeneration] = {
-    val promise = Promise[SampleStoreGeneration]()
+  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): Future[SampleStoreGeneration] = {
     dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceNameProperty) should equal("mocksource")
     dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceVersionProperty) should equal("0.1")
-    val generator =
+    TeslaRequestFuture {
       SampleStoreGeneration(
-        guid,
-        "NO_HASH",
+        guid, "NO_HASH",
         Array(
-          SampleStoreDataLocus(
-            newNexusUid,
-            getPublicHostAddress, getPublicHostName, mockNexusServer.serverPort, partitionProperties
-          )
+          SampleStoreDataLocus(newNexusUid, getPublicHostAddress, getPublicHostName, mockNexusServer.serverPort, partitionProperties)
         ),
         dataSource.view.schemaName,
         Some(dataSource.view.viewMotif)
       )
-    promise.success(generator)
-    promise.future
+    }
   }
 
   override def feedStream(stream: NexusStream): Unit = ???

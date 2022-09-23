@@ -3,7 +3,7 @@ package org.burstsys.system.test
 
 import org.burstsys.json.samplestore.JsonSampleStoreContainer
 import org.burstsys.json.samplestore.configuration.JsonSamplestoreDefaultConfiguration
-import org.burstsys.samplestore.api.SampleStoreApiService
+import org.burstsys.samplestore.api.client.SampleStoreApiClient
 import org.burstsys.vitals
 import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
 import org.burstsys.vitals.VitalsService.VitalsStandardClient
@@ -28,14 +28,14 @@ package object alloy extends VitalsLogger {
   trait AlloySampleStoreSpecSupport extends AlloySampleSourceSpecSupport {
     vitals.configuration.burstVitalsEnableReporting.set(false)
 
-    var sampleStoreClient: SampleStoreApiService = _
+    var sampleStoreClient: SampleStoreApiClient = _
 
     val alloyStore: JsonSampleStoreContainer = JsonSampleStoreContainer(JsonSamplestoreDefaultConfiguration(), VitalsStandaloneServer)
 
     override protected
     def beforeAll(): Unit = {
       alloyStore.start
-      sampleStoreClient = SampleStoreApiService(VitalsStandardClient).start
+      sampleStoreClient = SampleStoreApiClient().start
     }
 
     override protected

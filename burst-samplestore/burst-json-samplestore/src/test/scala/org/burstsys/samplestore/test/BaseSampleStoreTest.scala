@@ -19,12 +19,10 @@ class BaseSampleStoreTest extends AnyFlatSpec with Matchers with BeforeAndAfterA
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    SampleSourceNexusServer.start
   }
 
   override def afterAll(): Unit = {
     super.afterAll()
-    SampleSourceNexusServer.stop
   }
 
 }

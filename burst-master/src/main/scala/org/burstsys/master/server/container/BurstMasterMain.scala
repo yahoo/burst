@@ -122,17 +122,7 @@ object BurstMasterMain {
 
     val master = fabric.container.masterContainer
 
-    val alloyContainer: JsonSampleStoreContainer =
-      if (args.jsonSampleStore)
-        JsonSampleStoreContainer(JsonSamplestoreDefaultConfiguration(), VitalsStandaloneServer)
-      else
-        null
-
     master.start
-    if (alloyContainer != null) {
-      log info s"Starting alloy sample store process"
-      alloyContainer.start
-    }
 
     log info s"Starting ${args.cellWorkers} workers"
     val workers = (1 to args.cellWorkers).map(id => {
@@ -148,8 +138,6 @@ object BurstMasterMain {
 
     master.run.stop
     workers.foreach(_.stopIfNotAlreadyStopped)
-    if (alloyContainer != null)
-      alloyContainer.stop
   }
 
   def runInCluster(args: BurstMasterArguments): Unit = {

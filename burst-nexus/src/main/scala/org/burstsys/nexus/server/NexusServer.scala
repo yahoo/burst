@@ -4,7 +4,6 @@ package org.burstsys.nexus.server
 import java.io.File
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicInteger
-
 import org.burstsys.nexus.NexusIoMode._
 import org.burstsys.nexus.configuration._
 import org.burstsys.nexus.message.{NexusInboundFrameDecoder, NexusOutboundFrameEncoder}
@@ -27,10 +26,13 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.socket.{ServerSocketChannel, SocketChannel}
 import io.netty.handler.ssl._
+import org.burstsys.nexus
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration.Duration._
 import org.burstsys.vitals.logging._
+
+import java.net.InetAddress
 
 /**
   * The server (stream data provider) side of the next protocol
@@ -160,30 +162,26 @@ class NexusServerContext(
   // Pipeline
   ////////////////////////////////////////////////////////////////////////////////////
 
-  private
-  def initializer: ChannelInitializer[SocketChannel] = new ChannelInitializer[SocketChannel] {
+  private def initializer: ChannelInitializer[SocketChannel] = (nettyChannel: SocketChannel) => {
 
-    final override def initChannel(nettyChannel: SocketChannel): Unit = {
+    val pipeline: ChannelPipeline = nettyChannel.pipeline
 
-      val pipeline: ChannelPipeline = nettyChannel.pipeline
+    val transmitter = NexusTransmitter(serverId, isServer = true, channel = nettyChannel, maxQueuedWrites = 1)
+    val connection = NexusServerConnection(_nettyChannel, transmitter, _feeder) talksTo _listener
 
-      val transmitter = NexusTransmitter(serverId, isServer = true, channel = nettyChannel, maxQueuedWrites = 1)
-      val connection = NexusServerConnection(_nettyChannel, transmitter, _feeder) talksTo _listener
-
-      if (_sslContext.isDefined)
-        pipeline.addLast("server-inbound-stage-0", _sslContext.get.newHandler(nettyChannel.alloc))
-
-      // inbound goes in forward pipeline order
-      pipeline.addLast("server-inbound-stage-1", NexusInboundFrameDecoder())
-      pipeline.addLast("server-inbound-stage-2",
-        NexusReceiver(serverId, isServer = true, transmitter = transmitter, serverListener = connection)
-      )
-
-      // outbound goes in reverse pipeline order
-      pipeline.addLast("server-outbound-stage-2", NexusOutboundFrameEncoder())
-      pipeline.addLast("server-outbound-stage-1", transmitter)
-
+    if (_sslContext.isDefined) {
+      pipeline.addLast("server-inbound-stage-0", _sslContext.get.newHandler(nettyChannel.alloc))
     }
+
+    // inbound goes in forward pipeline order
+    pipeline.addLast("server-inbound-stage-1", NexusInboundFrameDecoder())
+    pipeline.addLast("server-inbound-stage-2",
+      NexusReceiver(serverId, isServer = true, transmitter = transmitter, serverListener = connection)
+    )
+
+    // outbound goes in reverse pipeline order
+    pipeline.addLast("server-outbound-stage-2", NexusOutboundFrameEncoder())
+    pipeline.addLast("server-outbound-stage-1", transmitter)
 
   }
 
@@ -236,10 +234,11 @@ class NexusServerContext(
           _sslContext = Some(contextBuilder.clientAuth(ClientAuth.REQUIRE).build)
         }
 
-        val bootstrap = new ServerBootstrap
-        bootstrap.group(_listenGroup, _connectionGroup).channel(_transportClass)
+        val bootstrap = new ServerBootstrap()
+          .group(_listenGroup, _connectionGroup)
+          .channel(_transportClass)
         setNettyOptions(bootstrap).childHandler(initializer)
-        val channelFuture = bootstrap.bind(serverHost, burstNexusServerPortProperty.getOrThrow)
+        val channelFuture = bootstrap.bind(new InetSocketAddress(null.asInstanceOf[InetAddress], nexus.port))
 
         if (!channelFuture.awaitUninterruptibly.isSuccess) {
           val cause = channelFuture.cause
