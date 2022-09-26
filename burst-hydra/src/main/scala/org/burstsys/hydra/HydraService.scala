@@ -1,9 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra
 
-import org.burstsys.fabric.container.FabricMasterService
-import org.burstsys.fabric.container.master.FabricMasterContainer
-import org.burstsys.fabric.execution.master.group.FabricGroupExecuteContext
+import org.burstsys.fabric.container.FabricSupervisorService
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
+import org.burstsys.fabric.execution.supervisor.group.FabricGroupExecuteContext
 import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
 import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
 import org.burstsys.fabric.execution.model.gather.data.FabricDataGather
@@ -19,9 +19,9 @@ import org.burstsys.vitals.VitalsService.VitalsPojo
 import scala.concurrent.Future
 
 /**
- * the master side hydra pipeline front end
+ * the supervisor side hydra pipeline front end
  */
-trait HydraService extends FabricMasterService {
+trait HydraService extends FabricSupervisorService {
 
   /**
    * execute a hydra analysis in hydra source language
@@ -42,12 +42,12 @@ trait HydraService extends FabricMasterService {
 
 object HydraService {
 
-  def apply(container: FabricMasterContainer): HydraService = HydraServiceContext(container: FabricMasterContainer)
+  def apply(container: FabricSupervisorContainer): HydraService = HydraServiceContext(container: FabricSupervisorContainer)
 
 }
 
 final case
-class HydraServiceContext(container: FabricMasterContainer) extends FabricGroupExecuteContext with HydraWaveExecutor {
+class HydraServiceContext(container: FabricSupervisorContainer) extends FabricGroupExecuteContext with HydraWaveExecutor {
 
   override def modality: VitalsService.VitalsServiceModality = VitalsPojo
 

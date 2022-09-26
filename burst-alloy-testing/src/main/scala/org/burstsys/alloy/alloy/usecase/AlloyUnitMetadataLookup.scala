@@ -7,10 +7,7 @@ import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
 import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey}
-import org.burstsys.fabric.topology.model.node.master.FabricMaster
-import org.burstsys.fabric.topology.model.node.worker.FabricWorker
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
 import scala.util.{Failure, Success, Try}

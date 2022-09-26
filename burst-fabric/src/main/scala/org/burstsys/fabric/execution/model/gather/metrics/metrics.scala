@@ -26,7 +26,7 @@ package object metrics extends VitalsLogger {
 
     override def finalizeSliceMetricsOnWorker(): Unit = jsonMethodException
 
-    override def finalizeWaveMetricsOnMaster(sliceMetrics: Array[FabricGatherMetrics]): Unit = jsonMethodException
+    override def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[FabricGatherMetrics]): Unit = jsonMethodException
   }
 
 }

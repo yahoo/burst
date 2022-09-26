@@ -3,8 +3,8 @@ package org.burstsys.fabric.net.server.connection
 
 import java.util.concurrent.ConcurrentHashMap
 
-import org.burstsys.fabric.container.FabricMasterService
-import org.burstsys.fabric.container.master.FabricMasterContainer
+import org.burstsys.fabric.container.FabricSupervisorService
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.data.model.generation.FabricGeneration
 import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.data.model.ops.FabricCacheManageOp
@@ -19,7 +19,7 @@ import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.FabricNetServerListener
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter}
-import org.burstsys.fabric.topology.model.node.master.FabricMasterNode
+import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlot
@@ -34,7 +34,7 @@ import scala.concurrent.Future
 /**
  * This is the server side representative of a connection to a single client [[FabricNetConnection]].
  */
-trait FabricNetServerConnection extends FabricMasterService with FabricNetConnection with FabricNetServerListener {
+trait FabricNetServerConnection extends FabricSupervisorService with FabricNetConnection with FabricNetServerListener {
 
   /**
    * optional listener for the protocol
@@ -59,13 +59,13 @@ trait FabricNetServerConnection extends FabricMasterService with FabricNetConnec
 }
 
 object FabricNetServerConnection {
-  def apply(container: FabricMasterContainer, channel: Channel, transmitter: FabricNetTransmitter, receiver: FabricNetReceiver): FabricNetServerConnection =
-    FabricNetServerConnectionContext(container: FabricMasterContainer, channel: Channel, transmitter: FabricNetTransmitter, receiver: FabricNetReceiver)
+  def apply(container: FabricSupervisorContainer, channel: Channel, transmitter: FabricNetTransmitter, receiver: FabricNetReceiver): FabricNetServerConnection =
+    FabricNetServerConnectionContext(container: FabricSupervisorContainer, channel: Channel, transmitter: FabricNetTransmitter, receiver: FabricNetReceiver)
 }
 
 protected final case
 class FabricNetServerConnectionContext(
-                                        container: FabricMasterContainer,
+                                        container: FabricSupervisorContainer,
                                         channel: Channel,
                                         transmitter: FabricNetTransmitter,
                                         receiver: FabricNetReceiver
@@ -180,8 +180,6 @@ class FabricNetServerConnectionContext(
   )
 
   override
-  lazy val serverKey: FabricNode = FabricMasterNode(
-    masterId = container.containerIdGetOrThrow, masterNodeAddress = localAddress, masterPort = UnknownFabricNodePort
-  )
+  lazy val serverKey: FabricNode = FabricSupervisorNode(supervisorId = container.containerIdGetOrThrow, supervisorNodeAddress = localAddress, supervisorPort = UnknownFabricNodePort)
 
 }

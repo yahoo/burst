@@ -19,7 +19,7 @@ trait FabricNetClientCacheHandler {
   self: FabricNetClientConnectionContext =>
 
   /**
-   * Respond to a request from the master to perform a cache operation.
+   * Respond to a request from the supervisor to perform a cache operation.
    */
   final
   def cacheManageOperation(msg: FabricNetCacheOperationReqMsg): Unit = {
@@ -52,7 +52,7 @@ trait FabricNetClientCacheHandler {
   }
 
   /**
-   * Respond to a request from the master requesting slices for a particular generation key
+   * Respond to a request from the supervisor requesting slices for a particular generation key
    */
   final
   def cacheSliceFetch(msg: FabricNetSliceFetchReqMsg): Unit = {

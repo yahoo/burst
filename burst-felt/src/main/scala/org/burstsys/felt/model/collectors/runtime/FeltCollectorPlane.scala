@@ -148,7 +148,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
 
 
   @inline override
-  def releaseResourcesOnMaster(): Unit = {
+  def releaseResourcesOnSupervisor(): Unit = {
     /// save constraint flags for use after we release the cube and dictionary
     transferTallies()
 
@@ -186,7 +186,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
   }
 
   /**
-   * reads are collecting results from worker slices for master aggregation.
+   * reads are collecting results from worker slices for supervisor aggregation.
    *
    * @param kryo
    * @param input

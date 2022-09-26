@@ -20,7 +20,7 @@ abstract class HydraUseCaseRunner extends AlloyJsonUseCaseRunner
 
 
   override def localStartup(): Unit = {
-    hydra = HydraService(masterContainer).start
+    hydra = HydraService(supervisorContainer).start
   }
 
   override def localShutdown(): Unit = {

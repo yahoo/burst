@@ -1,10 +1,10 @@
 import expect from 'expect.js';
 import sinon from 'sinon';
 import request, {
+    __RewireAPI__ as RewireAPI,
+    asJson,
     baseURL,
     formParameters,
-    asJson,
-    __RewireAPI__ as RewireAPI,
     JsonMimeTypeHeader
 } from '../../../app/utility/api-requests';
 
@@ -34,7 +34,7 @@ describe('API Requests', function () {
         it('should append the base path to requests', function () {
             request('/an/endpoint');
             expect(fetch.callCount).to.equal(1);
-            expect(fetch.firstCall.args[0]).to.equal('//BASE_URL/api/master/an/endpoint');
+            expect(fetch.firstCall.args[0]).to.equal('//BASE_URL/api/supervisor/an/endpoint');
         });
 
         it('should default to POST', function () {
@@ -61,7 +61,7 @@ describe('API Requests', function () {
                     many: [1, 2, 3]
                 }
             });
-            expect(fetch.firstCall.args[0]).to.equal('//BASE_URL/api/master/an/endpoint?a%20number=1&foo=bar%2Fbaz&many=1&many=2&many=3');
+            expect(fetch.firstCall.args[0]).to.equal('//BASE_URL/api/supervisor/an/endpoint?a%20number=1&foo=bar%2Fbaz&many=1&many=2&many=3');
         });
     });
 

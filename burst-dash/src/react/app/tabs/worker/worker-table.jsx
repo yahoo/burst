@@ -32,7 +32,7 @@ class WorkerTable extends React.Component {
             return (
                 <div className="w-100">
                     <div className="burst-empty-message">{
-                        meta.initialized ? 'No workers in fabric yet...' : 'No data received from master'
+                        meta.initialized ? 'No workers in fabric yet...' : 'No data received from supervisor'
                     }</div>
                 </div>
             )

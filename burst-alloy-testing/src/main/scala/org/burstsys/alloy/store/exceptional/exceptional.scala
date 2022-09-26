@@ -27,7 +27,7 @@ package object exceptional extends VitalsLogger {
   object FailureMode {
     val FailureLocation = "burst.store.exception.FailureLocation"
     val OnWorker = "FailOnWorker"
-    val OnMaster = "FailOnMaster"
+    val OnSupervisor = "FailOnSupervisor"
 
     val FailureMode = "burst.store.exception.FailureMode"
     val UncaughtException = "RuntimeException"

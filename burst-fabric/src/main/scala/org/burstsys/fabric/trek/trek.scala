@@ -5,19 +5,19 @@ import org.burstsys.vitals.trek._
 
 package object trek {
 
-  final object FabricMasterWaveTrekMark extends VitalsTrekMark("fabric_master_wave",
+  final object FabricSupervisorWaveTrekMark extends VitalsTrekMark("fabric_supervisor_wave",
     cluster = VitalsTrekCell,
-    role = VitalsTrekMaster
+    role = VitalsTrekSupervisor
   )
 
-  final object FabricMasterParticleTrekMark extends VitalsTrekMark("fabric_master_particle",
+  final object FabricSupervisorParticleTrekMark extends VitalsTrekMark("fabric_supervisor_particle",
     cluster = VitalsTrekCell,
-    role = VitalsTrekMaster
+    role = VitalsTrekSupervisor
   )
 
-  final object FabricMasterRequestTrekMark extends VitalsTrekMark("fabric_master_request",
+  final object FabricSupervisorRequestTrekMark extends VitalsTrekMark("fabric_supervisor_request",
     cluster = VitalsTrekCell,
-    role = VitalsTrekMaster
+    role = VitalsTrekSupervisor
   )
 
   final object FabricWorkerRequestTrekMark extends VitalsTrekMark("fabric_worker_request",

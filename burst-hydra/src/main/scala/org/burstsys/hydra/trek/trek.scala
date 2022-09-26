@@ -1,18 +1,18 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra
 
-import org.burstsys.vitals.trek.{VitalsTrekCell, VitalsTrekMark, VitalsTrekMaster}
+import org.burstsys.vitals.trek.{VitalsTrekCell, VitalsTrekMark, VitalsTrekSupervisor}
 
 package object trek {
 
-  final object HydraMasterSchemaLookup extends VitalsTrekMark("hydra_master_schema_lookup",
+  final object HydraSupervisorSchemaLookup extends VitalsTrekMark("hydra_supervisor_schema_lookup",
     cluster = VitalsTrekCell,
-    role = VitalsTrekMaster
+    role = VitalsTrekSupervisor
   )
 
-  final object HydraMasterParse extends VitalsTrekMark("hydra_master_parse",
+  final object HydraSupervisorParse extends VitalsTrekMark("hydra_supervisor_parse",
     cluster = VitalsTrekCell,
-    role = VitalsTrekMaster
+    role = VitalsTrekSupervisor
   )
 
 }

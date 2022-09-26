@@ -7,7 +7,7 @@ import org.burstsys.vitals.properties.{VitalsPropertyRegistry, VitalsPropertySpe
 package object configuration extends VitalsPropertyRegistry {
 
   /**
-   * set up threading for master container
+   * set up threading for supervisor container
    */
   final def configureThreading(): Unit = {
     tesla.configuration.burstTeslaWorkerThreadCountProperty.set(Runtime.getRuntime.availableProcessors / 2)

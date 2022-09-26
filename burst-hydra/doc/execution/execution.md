@@ -5,7 +5,7 @@
 
 # Execution Steps
 __Execution__ for Hydra is a pipeline consists of the following processing sequence:
-1. **Master Node**
+1. **Supervisor Node**
    1. Receive language processing request from the [`Burst Agent`](../../../burst-agent/readme.md)
    2. Parse/validate the attached _analysis_ source
       1. return error messages if necessary...
@@ -21,13 +21,13 @@ __Execution__ for Hydra is a pipeline consists of the following processing seque
       1. If needed, generate Traveler scala code and compile/cache
       2. If needed, generate Sweep scala code and compile/cache
    4. Execute scan using Traveler/Sweep across all Fabric Regions in the Slice producing a final Hydra Gather
-   5. Serialize `HydraGather` and transmit to **Master** via **Fabric Protocol**
-3. **Master Node**
+   5. Serialize `HydraGather` and transmit to **Supervisor** via **Fabric Protocol**
+3. **Supervisor Node**
    1. Deserialize the `HydraGather` and check for errors
    2. Return results or errors to **Agent**
    
 # Design Notes
-* Both the `FeltMaster` node and the `FeltWorker` node parse the Hydra source but scala code generation and compilation happens
+* Both the `FeltSupervisor` node and the `FeltWorker` node parse the Hydra source but scala code generation and compilation happens
  only on the `FeltWorker` node.
 * Hydra is a concrete syntax for a **FELT** based language. This means **Hydra** is mostly a parser, a **FELT** tree generator, and a front end
     to allow execution of **Hydra** source language in the [`burst-agent`](../../../burst-agent/readme.md) processing framework

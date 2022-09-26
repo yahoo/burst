@@ -18,7 +18,7 @@ import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
 import org.burstsys.fabric.test.mock
 import org.burstsys.fabric.test.mock.MockScanner
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.uid._
 
@@ -61,7 +61,7 @@ class FabricCacheGenerationsNoSlicesSpec extends FabricCacheOpsBaseSpec with Fab
       promise1.failure(t)
     }
 
-    masterContainer.data.slices(guid1, datasource) onComplete {
+    supervisorContainer.data.slices(guid1, datasource) onComplete {
       case Failure(t) => FAIL(t)
       case Success(slices) =>
         Try {
@@ -72,7 +72,7 @@ class FabricCacheGenerationsNoSlicesSpec extends FabricCacheOpsBaseSpec with Fab
         } match {
           case Failure(t) => FAIL(t)
           case Success(wave) =>
-            masterContainer.execution.executionWaveOp(wave) onComplete {
+            supervisorContainer.execution.executionWaveOp(wave) onComplete {
               case Failure(t) => FAIL(t)
               case Success(gather) => promise1.success(gather)
             }
@@ -83,7 +83,7 @@ class FabricCacheGenerationsNoSlicesSpec extends FabricCacheOpsBaseSpec with Fab
 
     val guid = newBurstUid
     val promise = Promise[Array[FabricGeneration]]()
-    masterContainer.data.cacheGenerationOp(guid, FabricCacheSearch,  FabricGenerationKey(), None) onComplete {
+    supervisorContainer.data.cacheGenerationOp(guid, FabricCacheSearch,  FabricGenerationKey(), None) onComplete {
       case Failure(t) => promise.failure(t)
       case Success(r) =>
         val generations = r.map(_.toJsonLite).toArray

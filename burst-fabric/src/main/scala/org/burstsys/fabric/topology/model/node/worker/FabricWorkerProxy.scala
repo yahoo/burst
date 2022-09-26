@@ -66,7 +66,7 @@ trait FabricWorkerProxy extends FabricWorkerNode with VitalsJsonRepresentable[Js
   def assessLatencyNanos_=(t: Long): Unit
 
   /**
-   * the time between worker epoch send and master epoch recv times.
+   * the time between worker epoch send and supervisor epoch recv times.
    * Note this includes both send time and any clock skew
    */
   def tetherSkewMs: Long
@@ -96,7 +96,7 @@ private[fabric] final case
 class FabricWorkerProxyContext(connection: FabricNetServerConnection, commitId: String)
   extends FabricWorkerProxy {
 
-  override def toString: String = s"FabricWorkerProxy(nodeName=$nodeName, nodeAddress=$nodeAddress, masterPort=$fabricPort)"
+  override def toString: String = s"FabricWorkerProxy(nodeName=$nodeName, nodeAddress=$nodeAddress, supervisorPort=$fabricPort)"
 
   override def toJson: JsonFabricWorker = JsonFabricWorker(
     assessLatencyNanos, assessment, commitId, connectionTime, lastUpdateTime, fabricPort, mismatched,

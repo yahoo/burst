@@ -8,7 +8,7 @@ import org.burstsys.fabric.data.model.snap.FabricSnap
 import org.burstsys.fabric.data.worker.cache.{burstModuleName => _}
 import org.burstsys.fabric.data.worker.pump.FabricCacheIntake
 import org.burstsys.fabric.metadata.model
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
 import org.burstsys.fabric.test.mock.MockSlice
 import org.burstsys.fabric.topology.model.node.UnknownFabricNodeId
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
@@ -17,7 +17,7 @@ import org.burstsys.vitals.uid._
 
 import scala.language.postfixOps
 
-class FabricCacheSnapSpec extends FabricMasterWorkerBaseSpec {
+class FabricCacheSnapSpec extends FabricSupervisorWorkerBaseSpec {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()

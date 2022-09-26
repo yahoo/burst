@@ -23,7 +23,7 @@ trait FabricPlaneScanner extends FabricScanner {
   def activePlanes: Int
 
   /**
-   * called on master to initialize the scanner
+   * called on supervisor to initialize the scanner
    *
    * @param group
    * @param datasource
@@ -67,8 +67,8 @@ class FabricPlaneScannerContext extends FabricScannerContext with FabricPlaneSca
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * The scanner is written on the master to send to the workers to read. It is not sent back from the
-   * worker to the master.
+   * The scanner is written on the supervisor to send to the workers to read. It is not sent back from the
+   * worker to the supervisor.
    *
    */
   override

@@ -44,7 +44,7 @@ package object zap extends VitalsReporterSource {
 
   /**
    * provide a set of zap mutables to a FELT language instance. This API allows the
-   * implementation to be in a higher level package than FELT.
+   * implementation to be in a higher level supervisor than FELT.
    */
   object ZapMutableProviders extends FeltMutableProviders {
     override def valarr: FeltMutableValArrProv = ZapValArrProvider()

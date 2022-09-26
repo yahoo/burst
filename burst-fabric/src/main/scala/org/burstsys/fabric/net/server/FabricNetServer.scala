@@ -3,8 +3,8 @@ package org.burstsys.fabric.net.server
 
 import java.util.concurrent.ConcurrentHashMap
 
-import org.burstsys.fabric.container.FabricMasterService
-import org.burstsys.fabric.container.master.FabricMasterContainer
+import org.burstsys.fabric.container.FabricSupervisorService
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.net.FabricNetIoMode.FabricNetIoMode
 import org.burstsys.fabric.net.message.{FabricNetInboundFrameDecoder, FabricNetOutboundFrameEncoder}
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
@@ -34,7 +34,7 @@ import scala.language.postfixOps
  * The ''server'' binds to a port given to it by the network stack. This port is then sent to clients. This is
  * ''not'' a ''well known'' port
  */
-trait FabricNetServer extends FabricMasterService with FabricNetLink with FabricNetLocator {
+trait FabricNetServer extends FabricSupervisorService with FabricNetLink with FabricNetLocator {
 
   /**
    * a listener for protocol events
@@ -51,7 +51,7 @@ trait FabricNetServer extends FabricMasterService with FabricNetLink with Fabric
 
 object FabricNetServer {
 
-  def apply(container: FabricMasterContainer, netConfig: FabricNetworkConfig): FabricNetServer =
+  def apply(container: FabricSupervisorContainer, netConfig: FabricNetworkConfig): FabricNetServer =
     FabricNetServerContext(container, netConfig)
 }
 
@@ -61,12 +61,12 @@ object FabricNetServer {
  * ''not'' a ''well known'' port
  */
 private[server] final case
-class FabricNetServerContext(container: FabricMasterContainer, netConfig: FabricNetworkConfig) extends FabricNetServer
+class FabricNetServerContext(container: FabricSupervisorContainer, netConfig: FabricNetworkConfig) extends FabricNetServer
   with FabricNetServerNetty with FabricNetLocator with FabricNetServerListener with VitalsHealthMonitoredService {
 
   override def toString: String = serviceName
 
-  override def serviceName: String = s"fabric-net-server(containerId=${container.containerIdGetOrThrow}, $netMasterUrl)"
+  override def serviceName: String = s"fabric-net-server(containerId=${container.containerIdGetOrThrow}, $netSupervisorUrl)"
 
   override val modality: VitalsServiceModality = VitalsPojo
 
@@ -199,11 +199,11 @@ class FabricNetServerContext(container: FabricMasterContainer, netConfig: Fabric
         val bootstrap = new ServerBootstrap
         bootstrap.group(_listenGroup, _connectionGroup).channel(_transportClass)
         setNettyOptions(bootstrap, netConfig).childHandler(initializer)
-        val channelFuture = bootstrap.bind(netMasterAddress, netMasterPort)
+        val channelFuture = bootstrap.bind(netSupervisorAddress, netSupervisorPort)
 
         if (!channelFuture.awaitUninterruptibly.isSuccess) {
           val cause = channelFuture.cause
-          val msg = s"$serviceName: server failed startup to $netMasterAddress($netMasterPort): ${cause.getLocalizedMessage}"
+          val msg = s"$serviceName: server failed startup to $netSupervisorAddress($netSupervisorPort): ${cause.getLocalizedMessage}"
           log error msg
           // log error getAllThreadsDump.mkString("\n")
           throw VitalsException(msg, cause)

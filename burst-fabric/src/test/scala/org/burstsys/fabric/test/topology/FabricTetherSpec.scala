@@ -8,17 +8,17 @@ import org.burstsys.fabric.net.client.FabricNetClientListener
 import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.net.server.FabricNetServerListener
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
 import org.scalatest.Ignore
 
-class FabricTetherSpec extends FabricMasterWorkerBaseSpec with FabricNetServerListener with FabricNetClientListener {
+class FabricTetherSpec extends FabricSupervisorWorkerBaseSpec with FabricNetServerListener with FabricNetClientListener {
 
   override def wantsContainers = true
 
   override protected
   def beforeAll(): Unit = {
     super.beforeAll()
-    masterContainer.netServer.talksTo(this)
+    supervisorContainer.netServer.talksTo(this)
     workerContainer1.netClient.talksTo(this)
   }
 

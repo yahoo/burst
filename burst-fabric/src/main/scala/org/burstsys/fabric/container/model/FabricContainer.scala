@@ -16,7 +16,7 @@ import org.burstsys.vitals.git
 import org.burstsys.vitals.reporter
 
 /**
- * A top level JVM singleton representing the Burst node process - master or worker.
+ * A top level JVM singleton representing the Burst node process - supervisor or worker.
  * All of the functionality in common across both.
  */
 trait FabricContainer extends VitalsService {

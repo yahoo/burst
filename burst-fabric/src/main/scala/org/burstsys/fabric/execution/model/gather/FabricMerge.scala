@@ -35,18 +35,18 @@ trait FabricMerge extends FabricOutcome with FabricResourceHolder {
   def sliceFinalize(): Unit
 
   /////////////////////////////////////////////////////////////////////////////////
-  // MASTER SIDE OPERATIONS
+  // Supervisor SIDE OPERATIONS
   /////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * merge slices in a scatter on a master
+   * merge slices in a scatter on a supervisor
    *
    * @param merge
    */
   def waveMerge(merge: FabricMerge): Unit
 
   /**
-   * called on the master for the very last merge of the very last in the list of results into a final result
+   * called on the supervisor for the very last merge of the very last in the list of results into a final result
    *
    * @return
    */

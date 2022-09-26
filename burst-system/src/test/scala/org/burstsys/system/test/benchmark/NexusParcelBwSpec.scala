@@ -16,7 +16,7 @@ class NexusParcelBwSpec extends AnyFlatSpec with Matchers {
 
   VitalsMetricsRegistry.disable()
 
-  VitalsLog.configureLogging("master", true)
+  VitalsLog.configureLogging("supervisor", true)
 
   "Nexus" should "be the simplest" in {
     NexusBenchmarkMain.executeBwRun(

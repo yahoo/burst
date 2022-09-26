@@ -4,7 +4,7 @@ package org.burstsys.samplesource.service
 /**
  * implemented by each sample source to provide lifecycle and sample source specific operations
  */
-trait SampleSourceService[C <: SampleSourceMasterService, W <: SampleSourceWorkerService] {
+trait SampleSourceService[C <: SampleSourceSupervisorService, W <: SampleSourceWorkerService] {
 
   /**
    * @return the id of this sample source

@@ -70,7 +70,7 @@ final class CatalogDefaultBaseTypesCan extends CatalogCan {
         schemaName = "quo"
       )
     ) ++ {
-      Array("Worker", "Master").flatMap(errorLocation =>
+      Array("Worker", "Supervisor").flatMap(errorLocation =>
         Array("RuntimeException", "FabricException", "Timeout", "NoData").map(errorType => {
           val storeProps: VitalsPropertyMap = exceptionalStoreProperties + Map(
               "burst.store.exception.FailureMode" -> errorType,

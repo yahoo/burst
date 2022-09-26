@@ -15,9 +15,9 @@ fast and efficiently as possible, delivering
 results in a useful form back to the client with low latency.
 
 This goal has translated to a system architecture design focused on the distribution of language
-driven queries from a master node out to multiple worker nodes where rapid parallel scans
+driven queries from a supervisor node out to multiple worker nodes where rapid parallel scans
 of carefully optimized binary data are performed, results gathered,
-merged with other results, and passed back to the master node for a final 
+merged with other results, and passed back to the supervisor node for a final 
 merge. 
 
 ## architectural themes
@@ -104,7 +104,7 @@ Points to consider:
     nature of the data import mechanism in use. 
 
 #### fast on demand data import
-Burst does not store data authoritatively. It relies on the Cell master and worker nodes
+Burst does not store data authoritatively. It relies on the Cell supervisor and worker nodes
 to have live connection to
 a external store for on demand data import and caching. When an analysis query is run,
 the specification for the data it is to be run on is partitioned and

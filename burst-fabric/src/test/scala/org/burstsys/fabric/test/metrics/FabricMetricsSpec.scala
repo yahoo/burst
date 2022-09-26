@@ -15,7 +15,7 @@ import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
 import org.burstsys.fabric.test.mock
 import org.burstsys.fabric.test.mock.MockScanner
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.uid._
 
@@ -59,7 +59,7 @@ class FabricMetricsSpec extends FabricMetricsBaseSpec with FabricTopologyListene
       promise.failure(t)
     }
 
-    masterContainer.data.slices(guid, datasource) onComplete {
+    supervisorContainer.data.slices(guid, datasource) onComplete {
       case Failure(t) => FAIL(t)
       case Success(slices) =>
         Try {
@@ -70,7 +70,7 @@ class FabricMetricsSpec extends FabricMetricsBaseSpec with FabricTopologyListene
         } match {
           case Failure(t) => FAIL(t)
           case Success(wave) =>
-            masterContainer.execution.executionWaveOp(wave) onComplete {
+            supervisorContainer.execution.executionWaveOp(wave) onComplete {
               case Failure(t) => FAIL(t)
               case Success(gather) => promise.success(gather)
             }

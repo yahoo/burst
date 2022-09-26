@@ -17,7 +17,7 @@ case class SimpleSampleStoreApiServerDelegate(listenerProperties: VitalsProperty
     val sourceName = dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceNameProperty)
     log info s"Handling view generation request guid=$guid sourceName=$sourceName"
     try {
-      SampleSourceHandlerRegistry.getMaster(sourceName).getViewGenerator(guid, dataSource, listenerProperties)
+      SampleSourceHandlerRegistry.getSupervisor(sourceName).getViewGenerator(guid, dataSource, listenerProperties)
     } catch safely {
       case e =>
         log error("View generation request failed guid=$guid", e)

@@ -4,29 +4,29 @@ package org.burstsys.fabric.test.topology
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import org.burstsys.fabric
-import org.burstsys.fabric.container.master.MockMasterContainer
+import org.burstsys.fabric.container.supervisor.MockSupervisorContainer
 import org.burstsys.fabric.container.worker.MockWorkerContainer
 import org.burstsys.fabric.net.client.FabricNetClientListener
 import org.burstsys.fabric.net.server.FabricNetServerListener
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 
 import scala.language.postfixOps
 
 /**
-  * basic unit test for single master / multiple worker
+  * basic unit test for single supervisor / multiple worker
   */
-class FabricMultiWorkerBootSpec extends FabricMasterWorkerBaseSpec
+class FabricMultiWorkerBootSpec extends FabricSupervisorWorkerBaseSpec
   with FabricNetServerListener with FabricNetClientListener with FabricTopologyListener {
 
   override def wantsContainers = true
 
   override def workerCount = 10
 
-  override def configureMaster(master: MockMasterContainer): Unit = {
-    master.netServer.talksTo(this)
-    master.topology.talksTo(this)
+  override def configureSupervisor(supervisor: MockSupervisorContainer): Unit = {
+    supervisor.netServer.talksTo(this)
+    supervisor.topology.talksTo(this)
   }
 
   override def configureWorker(worker: MockWorkerContainer): Unit = {
@@ -43,14 +43,14 @@ class FabricMultiWorkerBootSpec extends FabricMasterWorkerBaseSpec
   override protected
   def afterAll(): Unit = {
     workerContainers.foreach(_.stop)
-    masterContainer.stop
+    supervisorContainer.stop
   }
 
 
   it should "start multiple workers" in {
 
     gate.await(20, TimeUnit.SECONDS) should equal(true)
-    masterContainer.topology.healthyWorkers.length should equal(workerCount)
+    supervisorContainer.topology.healthyWorkers.length should equal(workerCount)
 
   }
 

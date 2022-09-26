@@ -9,7 +9,7 @@ import org.burstsys.eql.parsing.{ParsedBlock, ParsedFunnel, ParsedQuery, ParsedS
 import org.burstsys.eql.planning.funnels.Funnel
 import org.burstsys.eql.planning.queries.Query
 import org.burstsys.eql.planning.segments.Segment
-import org.burstsys.eql.trek.{EqlMasterQueryGenerate, EqlMasterQueryParse, EqlMasterQueryPlan}
+import org.burstsys.eql.trek.{EqlSupervisorQueryGenerate, EqlSupervisorQueryParse, EqlSupervisorQueryPlan}
 import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
 import org.burstsys.vitals.errors.VitalsException
 
@@ -30,17 +30,17 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
     globalContext.reset
 
     // build the parse tree
-    EqlMasterQueryParse.begin(guid)
+    EqlSupervisorQueryParse.begin(guid)
     val block = ParsedBlock(source)
-    EqlMasterQueryParse.end(guid)
+    EqlSupervisorQueryParse.end(guid)
 
     val executions = block.getStatements.flatMap {
       case query: ParsedQuery =>
 
         // analyze the query for work
-        EqlMasterQueryPlan.begin(guid)
+        EqlSupervisorQueryPlan.begin(guid)
         val analysis = Query(query)
-        EqlMasterQueryPlan.end(guid)
+        EqlSupervisorQueryPlan.end(guid)
 
         // add a declaration for the primary schema in the global context
         val thisSchemaDeclaration = SchemaDeclaration(DeclarationScope.Frame, query.getSchema)
@@ -60,7 +60,7 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
         }
 
         // generate hydra
-        EqlMasterQueryGenerate.begin(guid)
+        EqlSupervisorQueryGenerate.begin(guid)
         val generator = BlockGenerator(analysis)
 
         val querySchema = query.getSchema.getSchemaName.toLowerCase.trim
@@ -68,7 +68,7 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
           throw VitalsException(s"target schema '$schemaName' does not match the EQL declared schema '$querySchema'")
         }
         val source = generator.generateSource()
-        EqlMasterQueryGenerate.end(guid)
+        EqlSupervisorQueryGenerate.end(guid)
 
         Some(source)
       case funnel: ParsedFunnel =>

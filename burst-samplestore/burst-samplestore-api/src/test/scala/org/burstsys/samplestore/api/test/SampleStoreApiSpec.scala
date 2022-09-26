@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 //@Ignore
-class SampleStoreApiSpec extends SampleStoreMasterSpec {
+class SampleStoreApiSpec extends SampleStoreSupervisorSpec {
 
 
   "Sample Store API" should "do a mock client/server interchange" in {

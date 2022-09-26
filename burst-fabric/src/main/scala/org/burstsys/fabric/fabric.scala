@@ -3,11 +3,11 @@ package org.burstsys
 
 import org.burstsys.fabric.data.model.slice.region.FabricRegionReporter
 import org.burstsys.fabric.data.worker.cache.FabricCacheReporter
-import org.burstsys.fabric.execution.master.wave.FabricWaveReporter
+import org.burstsys.fabric.execution.supervisor.wave.FabricWaveReporter
 import org.burstsys.fabric.execution.worker.FabricEngineReporter
 import org.burstsys.fabric.metadata.model.FabricMetadataReporter
 import org.burstsys.fabric.net.FabricNetReporter
-import org.burstsys.fabric.topology.master.FabricTopologyReporter
+import org.burstsys.fabric.topology.supervisor.FabricTopologyReporter
 import org.burstsys.vitals.reporter.VitalsReporter
 import org.burstsys.vitals.reporter.VitalsReporterSource
 

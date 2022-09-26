@@ -9,7 +9,7 @@ include "agentCache.thrift"
 /***********************************************************************************
     The Burst thrift group analysis execution API IDL
     This is where 'clients' of the Burst query engine use thrift clients to
-    contact a Burst ''master'' to initiate a group analysis request or perform other
+    contact a Burst ''supervisor'' to initiate a group analysis request or perform other
     management operations such as ''cache'' operations.
 ***********************************************************************************/
 service BurstQueryApiService {

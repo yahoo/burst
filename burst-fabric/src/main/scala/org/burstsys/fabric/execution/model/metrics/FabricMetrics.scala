@@ -38,12 +38,12 @@ trait FabricMetrics[M <: FabricMetrics[M]] extends VitalsJsonRepresentable[M] {
    */
   def finalizeSliceMetricsOnWorker(): Unit
 
-  //------------------ MASTER SIDE -----------------------------
+  //------------------ SUPERVISOR SIDE -----------------------------
 
   /**
-   * called once after all slices in a wave are merged on master. The array is expected
+   * called once after all slices in a wave are merged on supervisor. The array is expected
    * to contain metrics for all slices (i.e. the array must contain this object).
    */
-  def finalizeWaveMetricsOnMaster(sliceMetrics: Array[M]): Unit
+  def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[M]): Unit
 
 }

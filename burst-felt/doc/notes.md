@@ -46,7 +46,7 @@ ___Skips___ terminate the visit without clearing the current cube contents
 
 
 
-#### Master Query
+#### Supervisor Query
 TBD
 
 ---

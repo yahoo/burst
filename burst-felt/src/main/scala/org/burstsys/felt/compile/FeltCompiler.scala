@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.compile
 
-import org.burstsys.felt.compile.FeltCompileEngine.generatedAllBindings
 import org.burstsys.felt.compile.artifact.{FeltArtifactKey, FeltArtifactTag}
 import org.burstsys.felt.model.tree.code.FeltCode
 import org.burstsys.vitals.errors.{VitalsException, _}
@@ -252,6 +251,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
     "org.burstsys.tesla.director.TeslaDirector",
     "org.burstsys.zap.cube2.ZapCube2",
     "org.burstsys.hydra.HydraService",
+    "org.burstsys.hydra.sweep.HydraRuntime",
     "org.joda.time.DateTime",
     "com.esotericsoftware.kryo.KryoSerializable"
   )
@@ -266,6 +266,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
         case Success(c) =>
           effectiveClassPath.add(c.getProtectionDomain.getCodeSource.getLocation.getPath)
         case Failure(e) =>
+          log warn s"didn't find classpath $n: $e"
       }
     }
     effectiveClassPath.toList

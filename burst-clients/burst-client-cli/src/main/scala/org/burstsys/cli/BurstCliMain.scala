@@ -7,7 +7,7 @@ object BurstCliMain {
     help("help").text("displays this message")
 
     opt[String]("connection")
-      .text("how to connect to the burst master")
+      .text("how to connect to the burst supervisor")
       .maxOccurs(1)
       .withFallback(() => "connection.json")
       .action {

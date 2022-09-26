@@ -21,9 +21,9 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
 
   // ----------------------------- TOPOLOGY -----------------------------
 
-  val burstCellMasterHostProperty: VitalsPropertySpecification[VitalsHostName] = VitalsPropertySpecification[VitalsHostName](
-    key = "burst.cell.master.host",
-    description = "cell master host",
+  val burstCellSupervisorHostProperty: VitalsPropertySpecification[VitalsHostName] = VitalsPropertySpecification[VitalsHostName](
+    key = "burst.cell.supervisor.host",
+    description = "cell supervisor host",
     default = Some("localhost")
   )
 

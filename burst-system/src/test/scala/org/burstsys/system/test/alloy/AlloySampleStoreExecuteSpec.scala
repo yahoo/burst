@@ -10,7 +10,7 @@ import scala.language.postfixOps
 class AlloySampleStoreExecuteSpec extends BurstAlloySampleStoreTestSpecSupport {
   it should "execute eql from alloy sample store" in {
 
-    val view = masterContainer.catalog.findViewByMoniker("BurstAlloyView").get
+    val view = supervisorContainer.catalog.findViewByMoniker("BurstAlloyView").get
 
     val eql: String =
       s"""
@@ -18,7 +18,7 @@ class AlloySampleStoreExecuteSpec extends BurstAlloySampleStoreTestSpecSupport {
          |""".stripMargin
 
     val over = model.over.FabricOver(domain.pk, view.pk)
-    val future = masterContainer.agent.execute(eql, over, "eql-alloy-sample-store")
+    val future = supervisorContainer.agent.execute(eql, over, "eql-alloy-sample-store")
     val result = checkResults(Await.result(future, 10 minutes))
 
     val names = result.columnNames.zipWithIndex.toMap

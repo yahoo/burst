@@ -40,7 +40,7 @@ package object test extends VitalsLogger {
     final override def log: Logger = test.log
   }
 
-  trait SampleStoreMasterSpec extends AnyFlatSpec with Matchers
+  trait SampleStoreSupervisorSpec extends AnyFlatSpec with Matchers
     with SampleStoreSpecLog with BeforeAndAfterAll {
 
     final override def log: Logger = test.log

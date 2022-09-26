@@ -8,14 +8,14 @@ import org.burstsys.fabric.data.model.slice.region
 import org.burstsys.fabric.data.model.snap.FabricSnap
 import org.burstsys.fabric.data.worker.pump.FabricCacheIntake
 import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
 import org.burstsys.fabric.test.mock.MockSlice
 import org.burstsys.fabric.topology.model.node.UnknownFabricNodeId
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.vitals.net.getPublicHostAddress
 import org.burstsys.vitals.uid.newBurstUid
 
-class FabricCacheSnapDataSpec extends FabricMasterWorkerBaseSpec {
+class FabricCacheSnapDataSpec extends FabricSupervisorWorkerBaseSpec {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()

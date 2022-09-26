@@ -3,7 +3,7 @@ package org.burstsys.fabric.test.data
 
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.fabric.execution.model.execute.parameters.{FabricCall, FabricParameterType, FabricParameterValue, FabricSignature}
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
@@ -11,7 +11,7 @@ import org.scalatest.Ignore
 
 import scala.language.postfixOps
 
-class FabricParameterSpec extends FabricMasterWorkerBaseSpec {
+class FabricParameterSpec extends FabricSupervisorWorkerBaseSpec {
 
   val p1Name = "p1"
   val p2Name = "p2"

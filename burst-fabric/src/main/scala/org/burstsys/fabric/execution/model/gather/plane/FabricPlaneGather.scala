@@ -66,10 +66,10 @@ trait FabricPlaneGather extends FabricDataGatherContext {
   }
 
   override
-  def releaseResourcesOnMaster(): Unit = {
+  def releaseResourcesOnSupervisor(): Unit = {
     var i = 0
     while (i < activePlanes) {
-      _planes(i).releaseResourcesOnMaster()
+      _planes(i).releaseResourcesOnSupervisor()
       i += 1
     }
   }
@@ -158,7 +158,7 @@ trait FabricPlaneGather extends FabricDataGatherContext {
     try {
       merge(gather, FabricWaveMergeLevel)
     } finally {
-      gather.releaseResourcesOnMaster() // once the other gather is merged, we can free up the associated resources
+      gather.releaseResourcesOnSupervisor() // once the other gather is merged, we can free up the associated resources
     }
   }
 
@@ -221,7 +221,7 @@ trait FabricPlaneGather extends FabricDataGatherContext {
 
   /**
    * this is to allow final processing of the gather on the remote node
-   * before sending it back to the master.
+   * before sending it back to the supervisor.
    *
    * @return
    */
@@ -235,7 +235,7 @@ trait FabricPlaneGather extends FabricDataGatherContext {
   }
 
   /**
-   * called on the master for the very last
+   * called on the supervisor for the very last
    *
    * @return
    */
@@ -258,8 +258,8 @@ trait FabricPlaneGather extends FabricDataGatherContext {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * The gather is serialized from the worker nodes to the master to collect final results. (It is
-   * not serialized from the master to the worker)
+   * The gather is serialized from the worker nodes to the supervisor to collect final results. (It is
+   * not serialized from the supervisor to the worker)
    *
    * @param kryo
    * @param output
@@ -284,7 +284,7 @@ trait FabricPlaneGather extends FabricDataGatherContext {
   }
 
   /**
-   * This is read back on the master node to collect results.
+   * This is read back on the supervisor node to collect results.
    * There is no scan context - we manage artifacts differently than the way
    * we do on the worker (executor) nodes.
    *

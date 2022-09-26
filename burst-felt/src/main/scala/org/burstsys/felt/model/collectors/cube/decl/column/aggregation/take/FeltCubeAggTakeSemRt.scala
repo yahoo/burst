@@ -17,7 +17,7 @@ import scala.language.postfixOps
  * little real value in our applications.
  *
  * @param _mode     the mode for this take
- * @param _scatterK the sort/truncate/randomize set size for the operation on the master
+ * @param _scatterK the sort/truncate/randomize set size for the operation on the supervisor
  * @param _sliceK   the sort/truncate/randomize set size for the operation on on each worker node partition.
  *                  If set to -1, then this defaults to 10 * finalK.
  * @param _itemK    the sort/truncate/randomize set size foreach blob in blob region. If set to -1, then

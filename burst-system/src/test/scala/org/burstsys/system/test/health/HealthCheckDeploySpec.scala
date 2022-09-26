@@ -28,8 +28,8 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
     super.afterAll()
   }
 
-  it should "see if master responds to health check" in {
-    val port = this.masterContainer.health.healthCheckPort
+  it should "see if supervisor responds to health check" in {
+    val port = this.supervisorContainer.health.healthCheckPort
     val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
@@ -58,14 +58,14 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
     }
   }
 
-  it should "see if master expires health check after a set duration" in {
-    val port = this.masterContainer.health.healthCheckPort
+  it should "see if supervisor expires health check after a set duration" in {
+    val port = this.supervisorContainer.health.healthCheckPort
     val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
     // put a lifetime on the process
     val life = VitalsHealthLifetimeComponent(null, Period.parse("PT2s"))
-    this.masterContainer.health.registerComponent(life)
+    this.supervisorContainer.health.registerComponent(life)
     val client = HttpClients.createDefault()
     val get = new HttpGet(checkPath)
     try {
@@ -79,7 +79,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
       val respTwo = client.execute(get)
       try assert(respTwo.getStatusLine.getStatusCode == VitalsHealthUnhealthy.statusCode)
       finally respTwo.close()
-      this.masterContainer.health.deregisterComponent(life)
+      this.supervisorContainer.health.deregisterComponent(life)
 
       Thread.sleep((1 second).toMillis)
       val respThree = client.execute(get)
@@ -87,13 +87,13 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
       finally respThree.close()
 
     } finally {
-      this.masterContainer.health.deregisterComponent(life)
+      this.supervisorContainer.health.deregisterComponent(life)
       client.close()
     }
   }
 
-  it should "see if master expires health check at a set time" in {
-    val port = this.masterContainer.health.healthCheckPort
+  it should "see if supervisor expires health check at a set time" in {
+    val port = this.supervisorContainer.health.healthCheckPort
     val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
@@ -107,7 +107,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
     val cutoff = DateTime.now.toLocalTime.plusSeconds(2)
 
     val life = VitalsHealthLifetimeComponent(cutoff, Period.parse("PT1M"))
-    this.masterContainer.health.registerComponent(life)
+    this.supervisorContainer.health.registerComponent(life)
     try {
       // wait for timeout and the status to be refreshed
       Thread.sleep((2.5 seconds).toMillis)
@@ -117,7 +117,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
 
     } finally {
       client.close()
-      this.masterContainer.health.deregisterComponent(life)
+      this.supervisorContainer.health.deregisterComponent(life)
     }
   }
 

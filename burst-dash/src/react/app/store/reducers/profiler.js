@@ -15,7 +15,7 @@ const start = createAsyncThunk('profiler/start', async ({
         const parameters = {domain: domainPk, view: viewPk, source, timezone, concurrency, executions, reload};
         const response = await request('/profiler/run', {parameters})
         if (response.success === false) {
-            throw new Error('Check the logs on the master')
+            throw new Error('Check the logs on the supervisor')
         }
     } catch (e) {
         thunk.dispatch(crosscutting.displayError(e, 'Failed to start profiler'))
@@ -27,7 +27,7 @@ const stop = createAsyncThunk('profiler/stop', async (none, thunk) => {
     try {
         const response = await request('/profiler/stop')
         if (response.success === false) {
-            throw new Error('Check the logs on the master')
+            throw new Error('Check the logs on the supervisor')
         }
     } catch (e) {
         thunk.dispatch(crosscutting.displayError(e, 'Failed to stop profiler'))

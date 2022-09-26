@@ -34,7 +34,7 @@ package object exception {
                                 ) extends RuntimeException(message, cause.orNull) {
 
     /**
-      * create remote/local merged exception stack for throwing on master after receiving serialized
+      * create remote/local merged exception stack for throwing on supervisor after receiving serialized
       * stack trace from remote JVM
       *
       * @return

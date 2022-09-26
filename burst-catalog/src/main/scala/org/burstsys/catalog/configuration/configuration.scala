@@ -3,7 +3,7 @@ package org.burstsys.catalog
 
 import java.util.concurrent.TimeUnit
 
-import org.burstsys.vitals.configuration.burstCellMasterHostProperty
+import org.burstsys.vitals.configuration.burstCellSupervisorHostProperty
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, VitalsHostPort, getPublicHostName}
 import org.burstsys.vitals.properties._
@@ -99,7 +99,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   val burstCatalogDbHostProperty: VitalsPropertySpecification[VitalsHostName] = VitalsPropertySpecification[VitalsHostName](
     key = "burst.catalog.db.host",
     description = "burst catalog sql db hostname",
-    default = Some(burstCellMasterHostProperty.getOrThrow)
+    default = Some(burstCellSupervisorHostProperty.getOrThrow)
   )
 
   val burstCatalogDbPortProperty: VitalsPropertySpecification[VitalsHostPort] = VitalsPropertySpecification[VitalsHostPort](

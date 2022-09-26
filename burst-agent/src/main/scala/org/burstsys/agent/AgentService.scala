@@ -23,7 +23,7 @@ trait AgentService extends VitalsService with FabricCacheOps {
   /**
    * Add a processor for queries in a burst language. (e.g. eql, hydra)
    *
-   * (only done during master startup and in torquemada)
+   * (only done during supervisor startup and in torquemada)
    *
    * @param processor a language processor
    */
@@ -32,7 +32,7 @@ trait AgentService extends VitalsService with FabricCacheOps {
   /**
    * Register a cache manager
    *
-   * (only done during master startup and in torquemada)
+   * (only done during supervisor startup and in torquemada)
    *
    * @param processor a cache manager
    */

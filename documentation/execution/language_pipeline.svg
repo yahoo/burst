@@ -786,7 +786,7 @@
          id="tspan932-6-9-0"
          x="-60.706238"
          y="-29.434219"
-         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold Italic';opacity:1;fill:#7f7f7f;fill-opacity:1;stroke:#656565;stroke-width:0.0406826;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">master-node instance</tspan></text>
+         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold Italic';opacity:1;fill:#7f7f7f;fill-opacity:1;stroke:#656565;stroke-width:0.0406826;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">supervisor-node instance</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:#656565;stroke-width:0.0406826;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"

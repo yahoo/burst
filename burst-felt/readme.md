@@ -38,7 +38,7 @@ framework. Hydra/Felt generate Fabric compatible execution artifacts
 and rely on Fabric dataset management to load data appropriately
 on workers, and perform the appropriate scans on workers,
 as well as hierarchical merges
-from workers to master for final results processing. Generally
+from workers to supervisor for final results processing. Generally
 What this translates to is that  Hydra knows how to turn Hydra source into
 an appropriate Fabric scanners and submit those scanners along with
 the appropriate data loading commands.

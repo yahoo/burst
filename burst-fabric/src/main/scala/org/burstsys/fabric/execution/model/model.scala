@@ -6,7 +6,7 @@ package object model {
 
   /**
    * there are three merge steps in the merge hierarchy (region, slice, wave) the first two are on the worker,
-   * the last one on the master.
+   * the last one on the supervisor.
    * @param code
    */
   sealed case class FabricMergeLevel(code: Int) {

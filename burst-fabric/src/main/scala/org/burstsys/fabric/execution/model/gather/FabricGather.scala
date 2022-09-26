@@ -14,7 +14,7 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.logging.burstStdMsg
 
 /**
- * [[FabricGather]] instances are what are collected from workers and returned to the master
+ * [[FabricGather]] instances are what are collected from workers and returned to the supervisor
  * as part of a [[FabricWave]] / [[org.burstsys.fabric.execution.model.wave.FabricParticle]]
  * scatter/gather
  * <p/>
@@ -176,7 +176,7 @@ class FabricGatherContext extends AnyRef with FabricGather with KryoSerializable
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * serialize on worker to send back to master
+   * serialize on worker to send back to supervisor
    *
    * @param kryo
    * @param output
@@ -194,7 +194,7 @@ class FabricGatherContext extends AnyRef with FabricGather with KryoSerializable
   }
 
   /**
-   * deserialize on master after receipt from worker
+   * deserialize on supervisor after receipt from worker
    *
    * @param kryo
    * @param input
@@ -205,7 +205,7 @@ class FabricGatherContext extends AnyRef with FabricGather with KryoSerializable
       _groupKey = kryo.readClassAndObject(input).asInstanceOf[FabricGroupKey]
       readOutcome(kryo, input)
       _gatherMetrics = kryo.readClassAndObject(input).asInstanceOf[FabricGatherMetricsContext]
-      _scanner = null // this asserts this as being a master side operation (not on executor)
+      _scanner = null // this asserts this as being a supervisor side operation (not on executor)
     } catch safely {
       case t: Throwable =>
         throw VitalsException(t)

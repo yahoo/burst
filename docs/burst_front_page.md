@@ -52,9 +52,9 @@ world 24x7 cost-effective interactive service.
 ![](../documentation/image/burst_front.svg "")
 
 
-### Burst Cell (master/worker linux cluster)
+### Burst Cell (supervisor/worker linux cluster)
 Burst is a linux server 'cell' or 'cluster'
-with a familiar master/worker topology
+with a familiar supervisor/worker topology
 running on your choice of
 a process orchestration system such as Kubernetes.
 

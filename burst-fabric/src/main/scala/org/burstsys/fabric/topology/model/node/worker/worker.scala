@@ -49,7 +49,7 @@ package object worker extends VitalsLogger {
    */
   object FabricWorkerStateExiled extends FabricWorkerState(5)
 
-  final case class FabricWorkerParameters(masterAddress: String = "", masterPort: Int = 0)
+  final case class FabricWorkerParameters(supervisorAddress: VitalsHostName = "", supervisorPort: VitalsHostPort = 0)
 
   var workerParameters: FabricWorkerParameters = FabricWorkerParameters()
 

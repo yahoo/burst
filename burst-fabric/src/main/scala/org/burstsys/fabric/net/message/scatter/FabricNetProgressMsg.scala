@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf
 
 /**
   * a scatter message reflected back periodically to make sure
-  * master/server knows progress is still being made
+  * supervisor/server knows progress is still being made
   */
 trait FabricNetProgressMsg extends FabricNetScatterMsg {
 

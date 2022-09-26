@@ -31,14 +31,14 @@ trait FabricScanner extends (BrioBlob => FabricGather) with FabricWorkerScanner 
   def datasource: FabricDatasource
 
   /**
-   * the snap for this scan - valid only on worker - null on master
+   * the snap for this scan - valid only on worker - null on supervisor
    *
    * @return
    */
   def snap: FabricSnap
 
   /**
-   * called on the master before the scan is sent to the worker
+   * called on the supervisor before the scan is sent to the worker
    *
    * @param group
    * @param datasource
@@ -125,8 +125,8 @@ class FabricScannerContext extends AnyRef with FabricScanner with KryoSerializab
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * The scanner is written on the master to send to the workers to read. It is not sent back from the
-   * worker to the master.
+   * The scanner is written on the supervisor to send to the workers to read. It is not sent back from the
+   * worker to the supervisor.
    *
    */
   override

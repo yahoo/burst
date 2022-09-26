@@ -112,14 +112,14 @@ should be of the form MAJOR.MINOR, e.g. 3.11 or 4.0.
 If the current version is 3.10, and the script is invoked `./scripts/branch-for-release.sh 3.11` then the script will:
 
 - create a new branch called `burst-3.10`
-- return to master and create a new branch called `rev-to-3.11`
+- return to supervisor and create a new branch called `rev-to-3.11`
 - update the poms in `rev-to-3.11` to the version `3.11.0${revision}-SNAPSHOT` and commit the pom changes
 
 After the script has finished a developer should:
 
 - push the branch `burst-3.10` to github in order to trigger a CI build that will deploy artifacts with
   version `3.10.0` (and also rev the `burst-3.10` branch to version `3.10.1${revision}-SNAPSHOT`)
-- push and create a PR with the branch `rev-to-3.11` to change the pom version in the master branch.
+- push and create a PR with the branch `rev-to-3.11` to change the pom version in the supervisor branch.
 
 The full expected command sequence for releasing 3.10 follows:
 

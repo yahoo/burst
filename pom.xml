@@ -52,7 +52,7 @@
                                     <portNames>
                                         <portName>burst.agent.api.port</portName>
                                         <portName>burst.catalog.api.port</portName>
-                                        <portName>burst.fabric.master.port</portName>
+                                        <portName>burst.fabric.supervisor.port</portName>
                                         <portName>burst.fabric.net.port</portName>
                                         <portName>burst.liaison.port</portName>
                                         <portName>burst.nexus.server.port</portName>
@@ -106,7 +106,7 @@
                                 <burst.nexus.server.port>${burst.nexus.server.port}</burst.nexus.server.port>
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
-                                <burst.fabric.master.port>${burst.fabric.master.port}</burst.fabric.master.port>
+                                <burst.fabric.supervisor.port>${burst.fabric.supervisor.port}</burst.fabric.supervisor.port>
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
                                 <burst.liaison.port>${burst.liaison.port}</burst.liaison.port>
                             </systemProperties>
@@ -248,7 +248,7 @@
         <module>burst-fabric</module>
         <module>burst-ginsu</module>
         <module>burst-hydra</module>
-        <module>burst-master</module>
+        <module>burst-supervisor</module>
         <module>burst-motif</module>
         <module>burst-nexus</module>
         <module>burst-torcher</module>
@@ -354,7 +354,7 @@
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
-                <artifactId>burst-master</artifactId>
+                <artifactId>burst-supervisor</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1375,7 +1375,7 @@
                         </execution>
                     </executions>
                     <configuration>
-<!--                        <ratchetFrom>origin/master</ratchetFrom>-->
+<!--                        <ratchetFrom>origin/supervisor</ratchetFrom>-->
                         <formats>
                             <format>
                                 <includes>

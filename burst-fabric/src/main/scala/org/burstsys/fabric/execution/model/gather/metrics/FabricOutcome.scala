@@ -119,7 +119,7 @@ trait FabricOutcome extends AnyRef {
 
   /**
    * if something was thrown - mark that here so we can return it
-   * to the master
+   * to the supervisor
    *
    * @param t
    * @return
@@ -226,7 +226,7 @@ trait FabricOutcome extends AnyRef {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * serialize on worker to send back to master
+   * serialize on worker to send back to supervisor
    *
    * @param k
    * @param out
@@ -252,7 +252,7 @@ trait FabricOutcome extends AnyRef {
   }
 
   /**
-   * deserialize on master after receipt from worker
+   * deserialize on supervisor after receipt from worker
    *
    * @param k
    * @param in

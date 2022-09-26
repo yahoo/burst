@@ -79,7 +79,7 @@ class FabricNetClientContext(container: FabricWorkerContainer) extends FabricNet
 
   override def toString: String = serviceName
 
-  override def serviceName: String = s"fabric-net-client(containerId=${container.containerIdGetOrThrow}, $netMasterUrl)"
+  override def serviceName: String = s"fabric-net-client(containerId=${container.containerIdGetOrThrow}, $netSupervisorUrl)"
 
   val modality: VitalsServiceModality = VitalsPojo
 
@@ -104,7 +104,7 @@ class FabricNetClientContext(container: FabricWorkerContainer) extends FabricNet
   var _transportClass: Class[_ <: Channel] = _
 
   private[this]
-  val _socketAddress: SocketAddress = netMasterSocketAddress
+  val _socketAddress: SocketAddress = netSupervisorSocketAddress
 
   private[this]
   var _eventLoopGroup: EventLoopGroup = _
@@ -254,7 +254,7 @@ class FabricNetClientContext(container: FabricWorkerContainer) extends FabricNet
 
   /**
    * do a connection operation here. We will have to do this at boot and each time
-   * we 'lose' connection to the server (master)
+   * we 'lose' connection to the server (supervisor)
    *
    * @return
    */

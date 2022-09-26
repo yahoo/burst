@@ -42,9 +42,5 @@ add the generations field to views:
 alter table burst_catalog_view add generation_clock BIGINT NOT NULL DEFAULT 0 after domain_fk;
 ```
 
-#### April 10, 2018
-* [Add Master Table](../src/main/scala/org/burstsys/catalog/persist/master/master.sql)
-* [Add Worker Table](../src/main/scala/org/burstsys/catalog/persist/worker/worker.sql)
-
 ---
 ------ [HOME](../readme.md) --------------------------------------------

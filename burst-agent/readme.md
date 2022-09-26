@@ -4,7 +4,7 @@
 
 ___Agent___ is the external client API supporting analytic query execution requests and
 result handling data model. Also provided are various ancillary functions such as cache
-manipulation. An Agent server is deployed/hosted in each [Master](../burst-master/readme.md) deployed.
+manipulation. An Agent server is deployed/hosted in each [Supervisor](../burst-supervisor/readme.md) deployed.
 
 #### Thrift API
 The relevant Thrift types and service endpoints are
@@ -15,7 +15,7 @@ The Agent implements execution/result types and basic semantics as defined
 in the [Fabric](../burst-fabric/readme.md) module. These types are
 used throughout the Burst ecosystem, however the Agent is where
 these data structures are accessible via external APIs.
-The Burst Master hosts the Agent server and the Agent client is used internally
+The Burst Supervisor hosts the Agent server and the Agent client is used internally
 and made available externally.
 
 

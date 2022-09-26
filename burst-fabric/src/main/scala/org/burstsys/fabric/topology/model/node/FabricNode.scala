@@ -9,15 +9,15 @@ import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
 /**
  * == Nodes are a JVM container running on a physical or virtual ''host'' ==
  * The Fabric representative for the Burst '''Node''' concept. A Node is a container running in a JVM
- * that is acting as either a master or worker (or both)
+ * that is acting as either a supervisor or worker (or both)
  * == Semantics ==
  * <ol>
- * <li>A node can be acting as a '''worker''' or '''master''' or ''both''</li>
+ * <li>A node can be acting as a '''worker''' or '''supervisor''' or ''both''</li>
  * <li>nodes belong to '''at most one''' cell (a node can be ''not assigned'' to a node)</li>
  * <li>nodes are persisted to the catalog</li>
  * </ol>
  *
- * @see [[org.burstsys.fabric.topology.model.node.master.FabricMaster]]
+ * @see [[org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisor]]
  *      [[org.burstsys.fabric.topology.model.node.worker.FabricWorker]]
  */
 trait FabricNode extends Any with Equals with Ordered[FabricNode] {

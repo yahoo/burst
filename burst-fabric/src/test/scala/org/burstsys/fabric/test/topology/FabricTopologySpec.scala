@@ -4,17 +4,17 @@ package org.burstsys.fabric.test.topology
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import org.burstsys.fabric
-import org.burstsys.fabric.container.master.MockMasterContainer
+import org.burstsys.fabric.container.supervisor.MockSupervisorContainer
 import org.burstsys.fabric.container.worker.MockWorkerContainer
 import org.burstsys.fabric.net.client.FabricNetClientListener
 import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
 import org.burstsys.fabric.net.server.FabricNetServerListener
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 
-class FabricTopologySpec extends FabricMasterWorkerBaseSpec
+class FabricTopologySpec extends FabricSupervisorWorkerBaseSpec
   with FabricNetServerListener with FabricNetClientListener with FabricTopologyListener {
 
 
@@ -22,9 +22,9 @@ class FabricTopologySpec extends FabricMasterWorkerBaseSpec
 
   override protected def workerCount = 10
 
-  override def configureMaster(master: MockMasterContainer): Unit = {
-    master.netServer.talksTo(this)
-    master.topology.talksTo(this)
+  override def configureSupervisor(supervisor: MockSupervisorContainer): Unit = {
+    supervisor.netServer.talksTo(this)
+    supervisor.topology.talksTo(this)
   }
 
   override def configureWorker(worker: MockWorkerContainer): Unit = {
@@ -46,14 +46,14 @@ class FabricTopologySpec extends FabricMasterWorkerBaseSpec
   it should "initiate a topology" in {
     tether.await(15, TimeUnit.SECONDS) shouldEqual true
     workerGain.await(15, TimeUnit.SECONDS) shouldEqual true
-    masterContainer.topology.healthyWorkers.length should equal(workerCount)
+    supervisorContainer.topology.healthyWorkers.length should equal(workerCount)
 
     workerContainers.foreach(_.stop)
     Thread.sleep(100)
 
     disconnect.await(15, TimeUnit.SECONDS) shouldEqual true
     workerLoss.await(15, TimeUnit.SECONDS) shouldEqual true
-    masterContainer.topology.healthyWorkers.length should equal(0)
+    supervisorContainer.topology.healthyWorkers.length should equal(0)
 
     tether = latch()
     workerGain = latch()
@@ -62,7 +62,7 @@ class FabricTopologySpec extends FabricMasterWorkerBaseSpec
 
     tether.await(15, TimeUnit.SECONDS) shouldEqual true
     workerGain.await(15, TimeUnit.SECONDS) shouldEqual true
-    masterContainer.topology.healthyWorkers.length should equal(workerCount)
+    supervisorContainer.topology.healthyWorkers.length should equal(workerCount)
 
     disconnect = latch(workerCount / 2)
     workerLoss = latch(workerCount / 2)
@@ -74,7 +74,7 @@ class FabricTopologySpec extends FabricMasterWorkerBaseSpec
 
     disconnect.await(15, TimeUnit.SECONDS) shouldEqual true
     workerLoss.await(15, TimeUnit.SECONDS) shouldEqual true
-    masterContainer.topology.healthyWorkers.length should equal(workerCount / 2)
+    supervisorContainer.topology.healthyWorkers.length should equal(workerCount / 2)
   }
 
   override

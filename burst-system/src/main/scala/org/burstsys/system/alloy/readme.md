@@ -31,10 +31,10 @@ There are a number of possible ways we will want to configure the burst cell and
 * Containerized alloy source that can be scale in a k8s-like deployment.
 
 #Features
-* master and worker together, more peer-to-peer
+* supervisor and worker together, more peer-to-peer
 * need a way to find peers, but make it easy to change:  config file, k8 api should be easy to support.
-* any master/worker can be contacted to get view information...helps fault-tolerance and with k8 services entry points
-    * the initial "master" would need to contact the other "workers" to help find loci?
+* any supervisor/worker can be contacted to get view information...helps fault-tolerance and with k8 services entry points
+    * the initial "supervisor" would need to contact the other "workers" to help find loci?
 * use directory structure to group common json files into a loadable dataset
     * notices when files change
     * notices when new files are added
@@ -50,8 +50,8 @@ cell and store
 * Do we support multiple sample store servers?
 * Motif view statement support for alloy store?
 * identifier for common json files?  unique name
-* Current sample store assume master can answer view questions without any support to ask the other "workers".  Do we add
-  a master->worker API to the skeleton structure to help with this case?
+* Current sample store assume supervisor can answer view questions without any support to ask the other "workers".  Do we add
+  a supervisor->worker API to the skeleton structure to help with this case?
 
 ## Configuration
 

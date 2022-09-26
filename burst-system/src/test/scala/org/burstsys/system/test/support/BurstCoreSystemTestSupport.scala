@@ -4,9 +4,9 @@ package org.burstsys.system.test.support
 import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.fabric.configuration
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
-import org.burstsys.system.test.master.BurstSystemTestMasterContainer
+import org.burstsys.system.test.supervisor.BurstSystemTestSupervisorContainer
 import org.burstsys.system.test.worker.BurstSystemTestWorkerContainer
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
@@ -23,23 +23,23 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
   VitalsLog.configureLogging("system", consoleOnly = true)
 
   final
-  def domain: CatalogDomain = masterContainer.catalog.findDomainByMoniker("BurstMasterTestDomain").get
+  def domain: CatalogDomain = supervisorContainer.catalog.findDomainByMoniker("BurstSupervisorTestDomain").get
 
   VitalsMetricsRegistry.disable()
 
   vitals.configuration.configureForUnitTests()
   tesla.configuration.configureForUnitTests()
   fabric.configuration.configureForUnitTests()
-  configuration.burstFabricMasterStandaloneProperty.set(true)
+  configuration.burstFabricSupervisorStandaloneProperty.set(true)
   configuration.burstFabricWorkerStandaloneProperty.set(true)
   git.turnOffBuildValidation()
 
   final
-  val masterContainer: BurstSystemTestMasterContainer = fabric.container.masterContainer.asInstanceOf[BurstSystemTestMasterContainer]
+  val supervisorContainer: BurstSystemTestSupervisorContainer = fabric.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
 
   final
   val workerContainer: BurstSystemTestWorkerContainer = {
-    // we mix master and worker in the same JVM so move the health port
+    // we mix supervisor and worker in the same JVM so move the health port
     val port = vitals.configuration.burstVitalsHealthCheckPortProperty.getOrThrow
     vitals.configuration.burstVitalsHealthCheckPortProperty.set(port + 1)
     fabric.container.workerContainer.asInstanceOf[BurstSystemTestWorkerContainer]
@@ -57,12 +57,12 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
 
     org.burstsys.vitals.configuration.burstCellNameProperty.set("Cell1")
 
-    masterContainer.topology talksTo this
+    supervisorContainer.topology talksTo this
 
-    masterContainer.containerId = 1
+    supervisorContainer.containerId = 1
     workerContainer.containerId = 1
 
-    masterContainer.start
+    supervisorContainer.start
     workerContainer.start
 
     // wait for the local worker to be available before trying anything
@@ -72,7 +72,7 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   override protected
   def afterAll(): Unit = {
-    masterContainer.stop
+    supervisorContainer.stop
     workerContainer.stop
   }
 }

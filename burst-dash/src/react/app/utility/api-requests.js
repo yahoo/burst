@@ -36,7 +36,7 @@ export default function request(endpoint, {
         }
         return params;
     }, []).join('&');
-    return httpRequest(`//${baseURL}/api/master${endpoint}${method !== 'POST' && qs ? `?${qs}` : ''}`, {
+    return httpRequest(`//${baseURL}/api/supervisor${endpoint}${method !== 'POST' && qs ? `?${qs}` : ''}`, {
         method,
         headers,
         credentials: 'include',

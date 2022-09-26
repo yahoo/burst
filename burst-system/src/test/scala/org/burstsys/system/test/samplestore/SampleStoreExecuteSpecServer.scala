@@ -21,7 +21,7 @@ class SampleStoreExecuteSpecServer extends BurstSystemTestSpecSupport {
 
 
   it should "execute eql from sample store" in {
-    val view = masterContainer.catalog.findViewByMoniker("BurstMasterTestView4").get
+    val view = supervisorContainer.catalog.findViewByMoniker("BurstSupervisorTestView4").get
 
     val eql: String =
       s"""
@@ -29,7 +29,7 @@ class SampleStoreExecuteSpecServer extends BurstSystemTestSpecSupport {
          |""".stripMargin
 
     val over = model.over.FabricOver(domain.pk, view.pk)
-    val future = masterContainer.agent.execute(eql, over, "parcel-eql-sample-store")
+    val future = supervisorContainer.agent.execute(eql, over, "parcel-eql-sample-store")
     val r = Await.result(future, 10 minutes)
     r.resultStatus should equal(FabricSuccessResultStatus)
     r.resultGroup.get.resultSets.size should equal(1)

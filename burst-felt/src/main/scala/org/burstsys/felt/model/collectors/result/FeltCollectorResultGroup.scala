@@ -98,14 +98,14 @@ class FeltCollectorResultGroupContext(
   def rowCount: Int = gather.totalRows
 
   override
-  def releaseResourcesOnMaster(): Unit = {
-    gather.releaseResourcesOnMaster()
+  def releaseResourcesOnSupervisor(): Unit = {
+    gather.releaseResourcesOnSupervisor()
   }
 
   override
   def releaseResourcesOnWorker(): Unit =
     throw VitalsException(
-      s"FeltCollectorResultGroup.releaseResourcesOnWorker() can't do this on worker (master?)!"
+      s"FeltCollectorResultGroup.releaseResourcesOnWorker() can't do this on worker (supervisor?)!"
     )
 
   override
@@ -129,7 +129,7 @@ class FeltCollectorResultGroupContext(
       }
       gather match {
         case g: FabricDataGather =>
-          gather.gatherMetrics.executionMetrics.recordFinalMetricsOnMaster(g)
+          gather.gatherMetrics.executionMetrics.recordFinalMetricsOnSupervisor(g)
         case _ =>
       }
       _groupMetrics = FabricResultGroupMetrics(gather)

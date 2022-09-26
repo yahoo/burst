@@ -32,7 +32,7 @@ trait FabricWorkerContainer extends FabricContainer {
   def engine: FabricWorkerEngine
 
   /**
-   * the master metadata service
+   * the supervisor metadata service
    *
    * @return
    */

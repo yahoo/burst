@@ -14,9 +14,9 @@ import org.burstsys.fabric.metadata.model._
 import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
 import org.burstsys.fabric.test.mock.{MockScanner, MockStoreName}
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.uid.newBurstUid
@@ -26,7 +26,7 @@ import scala.concurrent.{Await, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-abstract class FabricCacheLifecycleSpec extends FabricMasterWorkerBaseSpec
+abstract class FabricCacheLifecycleSpec extends FabricSupervisorWorkerBaseSpec
   with FabricSnapCacheListener with FabricTopologyListener {
 
   val newWorkerGate = new CountDownLatch(1)
@@ -36,7 +36,7 @@ abstract class FabricCacheLifecycleSpec extends FabricMasterWorkerBaseSpec
   override protected
   def beforeAll(): Unit = {
     snapCache withLimits mockLimits
-    masterContainer.topology.talksTo(this)
+    supervisorContainer.topology.talksTo(this)
     super.beforeAll()
     newWorkerGate.await(60, TimeUnit.SECONDS) should equal(true)
   }
@@ -136,7 +136,7 @@ abstract class FabricCacheLifecycleSpec extends FabricMasterWorkerBaseSpec
       promise.failure(t)
     }
 
-    masterContainer.data.slices(guid, datasource) onComplete {
+    supervisorContainer.data.slices(guid, datasource) onComplete {
       case Failure(t) => FAIL(t)
       case Success(slices) =>
         Try {
@@ -147,7 +147,7 @@ abstract class FabricCacheLifecycleSpec extends FabricMasterWorkerBaseSpec
         } match {
           case Failure(t) => FAIL(t)
           case Success(wave) =>
-            masterContainer.execution.executionWaveOp(wave) onComplete {
+            supervisorContainer.execution.executionWaveOp(wave) onComplete {
               case Failure(t) => FAIL(t)
               case Success(gather) => promise.success(gather)
             }

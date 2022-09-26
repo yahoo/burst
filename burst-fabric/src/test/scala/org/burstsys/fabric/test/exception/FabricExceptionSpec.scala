@@ -22,8 +22,8 @@ class FabricExceptionSpec extends AnyFlatSpec with Suite with Matchers with Befo
     // make believe there was an exception on a worker
     val workerSideException = FabricGenericException("", new RuntimeException().fillInStackTrace())
 
-    // that we serialized back to the master
-    var masterSideException: FabricException = null
+    // that we serialized back to the supervisor
+    var supervisorSideException: FabricException = null
 
     // do the serialization using java serialization in the kryo framework
     val k = acquireKryo
@@ -34,12 +34,12 @@ class FabricExceptionSpec extends AnyFlatSpec with Suite with Matchers with Befo
 
       val input = new Input(encoded)
 
-      masterSideException = k.readObject(input, classOf[FabricException], new JavaSerializer)
+      supervisorSideException = k.readObject(input, classOf[FabricException], new JavaSerializer)
 
       try {
 
-        // stitch together worker and master stack traces before throwing
-        throw masterSideException.stitch
+        // stitch together worker and supervisor stack traces before throwing
+        throw supervisorSideException.stitch
 
       } catch safely {
         case fe: FabricException =>

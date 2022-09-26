@@ -8,14 +8,14 @@ package object execution extends VitalsLogger {
 
   /**
    * type that has releasable resources on either the
-   * worker or master sides
+   * worker or supervisor sides
    */
   trait FabricResourceHolder extends Any {
 
     /**
-     * release resources on the master side
+     * release resources on the supervisor side
      */
-    def releaseResourcesOnMaster(): Unit = {}
+    def releaseResourcesOnSupervisor(): Unit = {}
 
     /**
      * release resources on the worker side

@@ -28,7 +28,7 @@ class FabricGenerationMetricsSpec extends FabricBaseSpec {
     )
 
 
-    metrics.finalizeWaveMetricsOnMaster(slices)
+    metrics.finalizeWaveMetricsOnSupervisor(slices)
 
     metrics.sliceCount should equal(5)
     metrics.byteCount should equal(size * metrics.sliceCount)
@@ -54,7 +54,7 @@ class FabricGenerationMetricsSpec extends FabricBaseSpec {
       metricsWithItems(size, items, 0, expectedItems, potentialItems),
     )
 
-    metrics.finalizeWaveMetricsOnMaster(slices)
+    metrics.finalizeWaveMetricsOnSupervisor(slices)
 
     metrics.sliceCount should equal(5)
     metrics.byteCount should equal(size * metrics.sliceCount)
@@ -80,7 +80,7 @@ class FabricGenerationMetricsSpec extends FabricBaseSpec {
       metricsWithItems(size, items, 0, expectedItems, potentialItems),
     )
 
-    metrics.finalizeWaveMetricsOnMaster(slices)
+    metrics.finalizeWaveMetricsOnSupervisor(slices)
 
     metrics.sliceCount should equal(5)
     metrics.byteCount should equal(size * metrics.sliceCount)
@@ -107,7 +107,7 @@ class FabricGenerationMetricsSpec extends FabricBaseSpec {
       metricsWithItems(size, items, 0, expectedItems, potentialItems),
     )
 
-    metrics.finalizeWaveMetricsOnMaster(slices)
+    metrics.finalizeWaveMetricsOnSupervisor(slices)
 
     metrics.sliceCount should equal(5)
     metrics.byteCount should equal(size * metrics.sliceCount)

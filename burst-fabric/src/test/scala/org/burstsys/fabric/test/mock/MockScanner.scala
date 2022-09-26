@@ -103,8 +103,8 @@ class MockScanner(var schemaName: BrioSchemaName) extends FabricPlaneScannerCont
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * The scanner is written on the master to send to the workers to read. It is not sent back from the
-   * worker to the master.
+   * The scanner is written on the supervisor to send to the workers to read. It is not sent back from the
+   * worker to the supervisor.
    *
    * @param kryo
    * @param output

@@ -31,7 +31,7 @@ abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog
   override def localStartup(): Unit = {
     log info s"Starting Eql Alloy Test Runner"
     eql = new EqlContextImpl(newBurstUid)
-    hydra = HydraService(masterContainer).start
+    hydra = HydraService(supervisorContainer).start
   }
 
   override def localShutdown(): Unit = {

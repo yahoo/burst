@@ -26,7 +26,7 @@ package object take {
     def mode: FeltCubeTakeSemMode
 
     /**
-     * the final sort/truncate operation on the master
+     * the final sort/truncate operation on the supervisor
      *
      * @return
      */

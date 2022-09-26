@@ -43,9 +43,9 @@ class HydraGather() extends FeltCollectorGather with KryoSerializable with Tesla
   }
 
   @inline override
-  def releaseResourcesOnMaster(): Unit = {
-    super.releaseResourcesOnMaster()
-    // we do not pool gathers on masters since they come in as kryo serialized objects over messaging
+  def releaseResourcesOnSupervisor(): Unit = {
+    super.releaseResourcesOnSupervisor()
+    // we do not pool gathers on supervisors since they come in as kryo serialized objects over messaging
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ class HydraGather() extends FeltCollectorGather with KryoSerializable with Tesla
     try {
       TeslaWorkerCoupler {
         super.write(kryo, output)
-        releaseResourcesOnWorker() // this op is on worker to send to master
+        releaseResourcesOnWorker() // this op is on worker to send to supervisor
       }
     } catch safely {
       case t: Throwable =>

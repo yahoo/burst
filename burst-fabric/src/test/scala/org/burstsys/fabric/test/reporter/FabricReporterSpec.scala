@@ -4,7 +4,7 @@ package org.burstsys.fabric.test.reporter
 import org.burstsys.fabric
 import org.burstsys.fabric.data.model.slice.region.FabricRegionReporter
 import org.burstsys.fabric.data.worker.cache.FabricCacheReporter
-import org.burstsys.fabric.execution.master.wave.FabricWaveReporter
+import org.burstsys.fabric.execution.supervisor.wave.FabricWaveReporter
 import org.burstsys.fabric.execution.model.execute.group.FabricGroupKey
 import org.burstsys.fabric.execution.model.gather.{FabricGather, FabricMerge}
 import org.burstsys.fabric.execution.model.gather.metrics.FabricGatherMetrics
@@ -13,7 +13,7 @@ import org.burstsys.fabric.execution.model.scanner.FabricScanner
 import org.burstsys.fabric.execution.worker.FabricEngineReporter
 import org.burstsys.fabric.metadata.model.FabricMetadataReporter
 import org.burstsys.fabric.net.FabricNetReporter
-import org.burstsys.fabric.topology.master.FabricTopologyReporter
+import org.burstsys.fabric.topology.supervisor.FabricTopologyReporter
 import org.burstsys.vitals.reporter
 import org.scalatest.Ignore
 

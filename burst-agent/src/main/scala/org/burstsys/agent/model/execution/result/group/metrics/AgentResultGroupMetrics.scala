@@ -6,19 +6,12 @@ import org.burstsys.agent.model.cache.generation.key._
 import org.burstsys.agent.model.cache.generation.metrics._
 import org.burstsys.agent.model.execution.group.key._
 import org.burstsys.agent.model.execution.metrics._
-import org.burstsys.agent.model.execution.result._
 import org.burstsys.agent.model.execution.result.status._
-import org.burstsys.fabric.data.model.generation._
 import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.data.model.generation.metrics.FabricGenerationMetrics
-import org.burstsys.fabric.execution.master.group._
-import org.burstsys.fabric.execution.model.execute._
 import org.burstsys.fabric.execution.model.execute.group.FabricGroupKey
 import org.burstsys.fabric.execution.model.metrics.FabricExecutionMetrics
 import org.burstsys.fabric.execution.model.result.status._
-import org.burstsys.fabric.execution.model.result._
-import org.burstsys.fabric.execution.model.result.group._
-import org.burstsys.fabric.execution.model.result.group._
 
 import scala.language.implicitConversions
 

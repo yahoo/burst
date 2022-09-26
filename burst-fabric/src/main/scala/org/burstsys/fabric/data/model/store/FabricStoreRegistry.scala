@@ -14,12 +14,12 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.{ClassTag, _}
 
 /**
- * central repository for store instances on the worker or master side
+ * central repository for store instances on the worker or supervisor side
  */
 trait FabricStoreRegistry[R <: FabricStore] extends VitalsService {
 
   /**
-   * add a (master or worker) store to the local container
+   * add a (supervisor or worker) store to the local container
    *
    * @param store
    * @return
@@ -42,7 +42,7 @@ trait FabricStoreRegistry[R <: FabricStore] extends VitalsService {
   def get(storeName: String): R
 
   /**
-   * get the (master or worker) store for the current container, throwing
+   * get the (supervisor or worker) store for the current container, throwing
    * an exception if it is not available.
    *
    * @param datasource

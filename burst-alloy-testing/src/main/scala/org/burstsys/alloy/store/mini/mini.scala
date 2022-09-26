@@ -1,6 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.store
 
+import org.burstsys.alloy.store.mini.supervisor.MiniStoreSupervisor
+import org.burstsys.alloy.store.mini.worker.MiniStoreWorker
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.press.{BrioPressSink, BrioPresser}
 import org.burstsys.fabric.data.model.slice.data.FabricSliceData
@@ -9,8 +11,6 @@ import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
 import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
-import org.burstsys.alloy.store.mini.master.MiniStoreMaster
-import org.burstsys.alloy.store.mini.worker.MiniStoreWorker
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
@@ -26,11 +26,11 @@ package object mini extends VitalsLogger {
   /**
    * mini store plugin provider
    */
-  final case class MiniStoreProvider() extends FabricStoreProvider[MiniStoreMaster, MiniStoreWorker] {
+  final case class MiniStoreProvider() extends FabricStoreProvider[MiniStoreSupervisor, MiniStoreWorker] {
 
     val storeName: String = mini.MiniStoreName
 
-    val masterClass: Class[MiniStoreMaster] = classOf[MiniStoreMaster]
+    val supervisorClass: Class[MiniStoreSupervisor] = classOf[MiniStoreSupervisor]
 
     val workerClass: Class[MiniStoreWorker] = classOf[MiniStoreWorker]
 

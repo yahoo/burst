@@ -6,7 +6,7 @@ import com.esotericsoftware.kryo.{Kryo, KryoSerializable}
 import org.burstsys.vitals.uid._
 
 /**
- * a wave is the ''scatter'' part of the ''scatter/gather'' ''master/slave'' algorithm.
+ * a wave is the ''scatter'' part of the ''scatter/gather'' ''supervisor/slave'' algorithm.
  * It consists of a set of [[FabricParticle]] instances each of which is sent to a worker for execution
  */
 trait FabricWave extends Any {

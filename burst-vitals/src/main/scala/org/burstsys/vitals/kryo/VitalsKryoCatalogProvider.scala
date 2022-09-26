@@ -3,7 +3,7 @@ package org.burstsys.vitals.kryo
 
 /**
  * a marker trait that allows us using reflection to grab all kryo seralized classes,
- * with their unique keys, using reflection. This works both in master and in slave/worker nodes.
+ * with their unique keys, using reflection. This works both in supervisor and in slave/worker nodes.
  * The first 128 classes registered will be sent with 1 byte. Classes after that will be sent with 2 bytes.
  */
 trait VitalsKryoCatalogProvider {

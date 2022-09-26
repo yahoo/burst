@@ -1,16 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.usecase
 
+import org.burstsys.alloy.store.mini.MiniView
 import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
 import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey}
-import org.burstsys.fabric.topology.model.node.master.FabricMaster
-import org.burstsys.fabric.topology.model.node.worker.FabricWorker
-import org.burstsys.alloy
-import org.burstsys.alloy.store.mini.MiniView
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
 import scala.util.{Failure, Success, Try}

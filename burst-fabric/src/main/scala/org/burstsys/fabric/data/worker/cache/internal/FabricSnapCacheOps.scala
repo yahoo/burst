@@ -15,7 +15,7 @@ import scala.concurrent.{Future, Promise}
 
 /**
  * worker side front end for external operations on the [[org.burstsys.fabric.data.worker.cache.FabricSnapCache]]
- * These are called over the fabric master->worker network protocol
+ * These are called over the fabric supervisor->worker network protocol
  */
 trait FabricSnapCacheOps extends Any {
 

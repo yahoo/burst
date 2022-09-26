@@ -7,7 +7,7 @@ import org.burstsys.fabric.net.message.cache._
 import org.burstsys.fabric.net.message.wave.FabricNetParticleReqMsg
 
 /**
- * handle events from a remote fabric protocol server-master to the local fabric protocol client-worker
+ * handle events from a remote fabric protocol server-supervisor to the local fabric protocol client-worker
  * (this is on a fabric protocol [[TeslaRequestThreadPool]])
  */
 trait FabricNetClientListener extends Any {

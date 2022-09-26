@@ -8,7 +8,7 @@ Javascript application that provides use friendly administration,
 authoring, & monitoring for the Burst ecosystem.
 This module depends heavily on the [Rest](../burst-rest/readme.md) module
 for the HTTP server, REST and Websocket communication protocols. The
-[Burst Master](../burst-master/readme.md) JVM process hosts the rest service
+[Burst Supervisor](../burst-supervisor/readme.md) JVM process hosts the rest service
 which serves the Dash assets.
 
 ### Javascript Tool Chain
@@ -43,19 +43,19 @@ Building of the React application bundle happens during the standard
 Burst maven build. The result of the packaging is resource artifacts in the
 classpath of the final jar. These artifacts are loaded into the browser
 via the bootload. The HTTP server is embedded and started up as the
-__Burst Master__ boots.
+__Burst Supervisor__ boots.
 
 ## Bootload
-When the __Burst Master__  process starts up, it
+When the __Burst Supervisor__  process starts up, it
 initiates a REST based API at a specified port. The rest API is used
 to boot a REACT javascript application. A small set of UI static resources
 are served by the REST API as well. Note: There are no HTTP interactions
 that are *not* served by the REST API.
 
-## Browser to Master duplex communication
+## Browser to Supervisor duplex communication
 Once the Dash REACT application is started, it communicates with the
-Master via a combination of REST/JSON calls from Browser REACT Client to Master Process, and
-Websocket calls from Master Process to Browser REACT Client.
+Supervisor via a combination of REST/JSON calls from Browser REACT Client to Supervisor Process, and
+Websocket calls from Supervisor Process to Browser REACT Client.
 
 
 ---

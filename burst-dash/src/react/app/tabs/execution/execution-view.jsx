@@ -86,7 +86,7 @@ const ExecutionView = ({guid}) => {
         <div className="w-100 p-2">
             {!execution && (
                 <Alert variant="danger">
-                    <b>Caution:</b> The details of this execution are no longer cached on the master.
+                    <b>Caution:</b> The details of this execution are no longer cached on the supervisor.
                     If you navigate away from this page you will lose all details on this page.<br/>
                     {downloadLink}
                 </Alert>

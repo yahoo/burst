@@ -7,7 +7,7 @@ import org.burstsys.fabric.execution.model.gather.FabricGather
 import org.burstsys.fabric.execution.model.wave.FabricParticle
 import org.burstsys.fabric.net.message.scatter.{FabricNetProgressMsg, FabricNetScatterMsg}
 import org.burstsys.fabric.net.message.wave.{FabricNetParticleReqMsg, FabricNetParticleRespMsg}
-import org.burstsys.fabric.trek.FabricMasterRequestTrekMark
+import org.burstsys.fabric.trek.FabricSupervisorRequestTrekMark
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlot
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 
@@ -58,7 +58,7 @@ trait FabricNetServerParticleHandler {
     _particleSlotMap.put(msg, slot)
     transmitter.transmitControlMessage(call.request) onComplete {
       case Success(_) =>
-        FabricMasterRequestTrekMark.begin(guid) // are you there yet?
+        FabricSupervisorRequestTrekMark.begin(guid) // are you there yet?
       case Failure(t) =>
         log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
     }
@@ -86,7 +86,7 @@ trait FabricNetServerParticleHandler {
     if (slot == null)
       log warn s"$tag SLOTLESS"
     else {
-      FabricMasterRequestTrekMark.end(msg.guid) // are you there yet?
+      FabricSupervisorRequestTrekMark.end(msg.guid) // are you there yet?
       log debug s"$tag received result"
       _particleCallMap.remove(msg)
       _particleSlotMap.remove(msg)

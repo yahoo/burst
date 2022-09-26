@@ -16,8 +16,8 @@ import org.burstsys.vitals.properties.{VitalsPropertyMap, readPropertyMapFromKry
  * <li>cells belong to '''exactly one site''' and are not easily moved</li>
  * <li>nodes belong to '''at most one''' cell</li>
  * <li>nodes can be '''moved between cells'''</li>
- * <li>cells '''contain''' one or more workers and one or more masters</li>
- * <li>generally cell masters are behind a single virtual IP (failover/load balancing)</li>
+ * <li>cells '''contain''' one or more workers and one or more supervisor</li>
+ * <li>generally cell supervisors are behind a single virtual IP (failover/load balancing)</li>
  * <li>cells are persisted to the catalog</li>
  * </ol>
  *

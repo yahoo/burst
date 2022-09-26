@@ -25,9 +25,9 @@ import org.burstsys.fabric.execution.model.wave.{FabricParticleContext, FabricWa
 import org.burstsys.fabric.metadata.model.datasource.FabricDatasourceContext
 import org.burstsys.fabric.metadata.model.domain.FabricDomainContext
 import org.burstsys.fabric.metadata.model.view.FabricViewContext
-import org.burstsys.fabric.topology.model.node.master.{FabricMasterContext, FabricMasterNodeContext}
+import org.burstsys.fabric.topology.model.node.supervisor.{FabricSupervisorContext, FabricSupervisorNodeContext}
 import org.burstsys.fabric.topology.model.node.worker._
-import org.burstsys.vitals.kryo.{VitalsKryoCatalogProvider, _}
+import org.burstsys.vitals.kryo._
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -96,9 +96,9 @@ class FabricKryoCatalog extends VitalsKryoCatalogProvider {
         /////////////////////////////////////////////////////////////////////////////////
         // topology
         /////////////////////////////////////////////////////////////////////////////////
-        (key.getAndIncrement, classOf[FabricMasterContext]),
+        (key.getAndIncrement, classOf[FabricSupervisorContext]),
         (key.getAndIncrement, classOf[FabricWorkerNodeContext]),
-        (key.getAndIncrement, classOf[FabricMasterNodeContext]),
+        (key.getAndIncrement, classOf[FabricSupervisorNodeContext]),
 
         /////////////////////////////////////////////////////////////////////////////////
         // worker state

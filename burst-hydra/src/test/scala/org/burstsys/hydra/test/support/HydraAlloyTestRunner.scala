@@ -40,7 +40,7 @@ abstract class HydraAlloyTestRunner extends AlloyJsonUseCaseRunner with VitalsLo
 
   override def localStartup(): Unit = {
     log info s"Starting Hydra Alloy Test Runner"
-    hydraService = HydraService(masterContainer).start
+    hydraService = HydraService(supervisorContainer).start
   }
 
   override def localShutdown(): Unit = {

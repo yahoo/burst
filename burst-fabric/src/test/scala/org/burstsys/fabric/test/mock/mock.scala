@@ -3,7 +3,7 @@ package org.burstsys.fabric.test
 
 import org.burstsys.brio.flurry.provider.quo
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.container.master.FabricMasterContainer
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.data.model.store.FabricStoreName
@@ -35,11 +35,11 @@ package object mock extends VitalsLogger {
   /**
    * mock store plugin provider
    */
-  final case class MockStoreProvider() extends FabricStoreProvider[MockStoreMaster, MockStoreWorker] {
+  final case class MockStoreProvider() extends FabricStoreProvider[MockStoreSupervisor, MockStoreWorker] {
 
     val storeName: String = mock.MockStoreName
 
-    val masterClass: Class[MockStoreMaster] = classOf[MockStoreMaster]
+    val supervisorClass: Class[MockStoreSupervisor] = classOf[MockStoreSupervisor]
 
     val workerClass: Class[MockStoreWorker] = classOf[MockStoreWorker]
 
@@ -56,7 +56,7 @@ package object mock extends VitalsLogger {
 
   val mockDatasource: FabricDatasource = model.datasource.FabricDatasource(domain, view)
 
-  var mockMaster: FabricMasterContainer = _
+  var mockSupervisor: FabricSupervisorContainer = _
 
   val domainKey: FabricDomainKey = 1L
   val viewKey: FabricViewKey = 1L

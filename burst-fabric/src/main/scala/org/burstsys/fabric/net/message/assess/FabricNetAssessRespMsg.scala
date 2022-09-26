@@ -16,12 +16,12 @@ trait FabricNetAssessRespMsg extends FabricNetMsg {
   def gitCommit: String
 
   /**
-    * The nano timestamp (in the master JVM) when the message was sent
+    * The nano timestamp (in the supervisor JVM) when the message was sent
     */
   def sentNanos: Long
 
   /**
-    * The elapsed duration for the request (only valid in the master JVM)
+    * The elapsed duration for the request (only valid in the supervisor JVM)
     */
   def elapsedNanos: Long
 

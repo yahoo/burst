@@ -1,8 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.model.collectors.cube.decl.column.dimension.datetime
 
-import org.burstsys.brio.runtime.BrioThreadRuntime
-import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
 import org.burstsys.felt.model.collectors.cube.decl.column.dimension.FeltDimSemType
 
 package object grain {
@@ -25,28 +23,7 @@ package object grain {
   // grains
   /////////////////////////////////////////////////////////////////////////////////////
 
-  object QUARTER_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(QuarterGrainName)
-
-  object HALF_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(HalfGrainName)
-
-  object MONTH_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(MonthGrainName)
-
-  object DAY_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(DayGrainName)
-
-  object WEEK_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(WeekGrainName)
-
-  object HOUR_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(HourGrainName)
-
-  object MINUTE_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(MinuteGrainName)
-
-  object SECOND_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(SecondGrainName)
-
-  object YEAR_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(YearGrainName)
-
-
-  //////////////////////////////////////////////////////////////////////////////////////////
-  // Time Grain Semantic
-  //////////////////////////////////////////////////////////////////////////////////////////
+  trait FeltCubeDimTimeGrainSemRt extends FeltCubeDimDatetimeSemRt
 
   /**
    * all date time related dimensions
@@ -82,6 +59,11 @@ package object grain {
     final override val semanticRt: FeltCubeDimQuarterGrainSemRt = FeltCubeDimQuarterGrainSemRt()
   }
 
+
+  //////////////////////////////////////////////////////////////////////////////////////////
+  // Time Grain Semantic
+  //////////////////////////////////////////////////////////////////////////////////////////
+
   abstract class FeltCubeDimHalfGrainSem extends FeltCubeDimTimeGrainSem {
     final override val semanticRt: FeltCubeDimHalfGrainSemRt = FeltCubeDimHalfGrainSemRt()
   }
@@ -90,73 +72,21 @@ package object grain {
     final override val semanticRt: FeltCubeDimYearGrainSemRt = FeltCubeDimYearGrainSemRt()
   }
 
-  //////////////////////////////////////////////////////////////////////////////////////////
-  // Time Grain Semantic Runtime
-  //////////////////////////////////////////////////////////////////////////////////////////
+  object QUARTER_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(QuarterGrainName)
 
-  sealed trait FeltCubeDimTimeGrainSemRt extends FeltCubeDimDatetimeSemRt
+  object HALF_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(HalfGrainName)
 
-  final case class FeltCubeDimSecondGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = SECOND_GRAIN_DIMENSION_SEMANTIC
+  object MONTH_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(MonthGrainName)
 
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      secondGrain(time)
-  }
+  object DAY_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(DayGrainName)
 
-  final case class FeltCubeDimMinuteGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = MINUTE_GRAIN_DIMENSION_SEMANTIC
+  object WEEK_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(WeekGrainName)
 
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      minuteGrain(time)
-  }
+  object HOUR_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(HourGrainName)
 
-  final case class FeltCubeDimHourGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = HOUR_GRAIN_DIMENSION_SEMANTIC
+  object MINUTE_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(MinuteGrainName)
 
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      hourGrain(time)
-  }
+  object SECOND_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(SecondGrainName)
 
-  final case class FeltCubeDimDayGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = DAY_GRAIN_DIMENSION_SEMANTIC
-
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      dayGrain(time)
-  }
-
-  final case class FeltCubeDimWeekGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = WEEK_GRAIN_DIMENSION_SEMANTIC
-
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      weekGrain(time)
-  }
-
-  final case class FeltCubeDimMonthGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = MONTH_GRAIN_DIMENSION_SEMANTIC
-
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      monthGrain(time)
-  }
-
-  final case class FeltCubeDimQuarterGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = QUARTER_GRAIN_DIMENSION_SEMANTIC
-
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      quarterGrain(time)
-  }
-
-  final case class FeltCubeDimHalfGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = HALF_GRAIN_DIMENSION_SEMANTIC
-
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      halfGrain(time)
-  }
-
-  final case class FeltCubeDimYearGrainSemRt() extends FeltCubeDimTimeGrainSemRt {
-    semanticType = YEAR_GRAIN_DIMENSION_SEMANTIC
-
-    @inline def sliceTime(time: Long)(implicit threadRuntime: BrioThreadRuntime): BrioPrimitive =
-      yearGrain(time)
-  }
-
+  object YEAR_GRAIN_DIMENSION_SEMANTIC extends FeltDimSemType(YearGrainName)
 }

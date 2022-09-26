@@ -11,7 +11,7 @@ Required env vars:
 - DB_PASS - The password to the database host
 - DEPLOY_ENV - A distinguishable name that will be present in the logs
 - WORKLOAD - Should be one of `supervisor` or `worker`, a cell requires a single `supervisor` that coordinates many `worker`s
-- SAMPLESTORE_HOST - The samlestore master hostname. Required only for `supervisor`.
+- SAMPLESTORE_HOST - The samlestore supervisor hostname. Required only for `supervisor`.
 - BURST_SUPERVISOR_HOST - The supervisor hostname (or k8s service). Required only for `worker`s
 
 Other configurable env vars:

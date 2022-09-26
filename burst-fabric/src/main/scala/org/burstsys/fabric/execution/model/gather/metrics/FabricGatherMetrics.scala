@@ -128,9 +128,9 @@ class FabricGatherMetricsContext() extends FabricGatherMetrics with KryoSerializ
     _executionMetrics.finalizeSliceMetricsOnWorker()
   }
 
-  override def finalizeWaveMetricsOnMaster(sliceMetrics: Array[FabricGatherMetrics]): Unit = {
-    _generationMetrics.finalizeWaveMetricsOnMaster(sliceMetrics.map(_.generationMetrics))
-    _executionMetrics.finalizeWaveMetricsOnMaster(sliceMetrics.map(_.executionMetrics))
+  override def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[FabricGatherMetrics]): Unit = {
+    _generationMetrics.finalizeWaveMetricsOnSupervisor(sliceMetrics.map(_.generationMetrics))
+    _executionMetrics.finalizeWaveMetricsOnSupervisor(sliceMetrics.map(_.executionMetrics))
   }
 
   ///////////////////////////////////////////////////////////////////

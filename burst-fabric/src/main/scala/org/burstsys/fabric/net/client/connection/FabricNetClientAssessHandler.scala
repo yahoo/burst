@@ -19,7 +19,7 @@ trait FabricNetClientAssessHandler {
   self: FabricNetClientConnectionContext =>
 
   /**
-   * This is actually done on the master (normalized to 0-10)
+   * This is actually done on the supervisor (normalized to 0-10)
    */
   private[this]
   val _pingCollector: FabricLastHourMetricCollector = FabricLastHourMetricCollector().initialize
@@ -76,7 +76,7 @@ trait FabricNetClientAssessHandler {
 
   /**
    *
-   * incoming assessment request from remote master
+   * incoming assessment request from remote supervisor
    *
    * @param msg
    */

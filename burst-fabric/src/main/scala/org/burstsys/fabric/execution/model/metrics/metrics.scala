@@ -27,7 +27,7 @@ package object metrics {
 
     override def recordSliceScanOnWorker(scanTime: Long): Unit = jsonMethodException
 
-    override def recordFinalMetricsOnMaster(gather: FabricDataGather): Unit = jsonMethodException
+    override def recordFinalMetricsOnSupervisor(gather: FabricDataGather): Unit = jsonMethodException
 
     override def initMetrics(key: FabricGenerationKey): Unit = jsonMethodException
 
@@ -37,7 +37,7 @@ package object metrics {
 
     override def finalizeSliceMetricsOnWorker(): Unit = jsonMethodException
 
-    override def finalizeWaveMetricsOnMaster(sliceMetrics: Array[FabricExecutionMetrics]): Unit = jsonMethodException
+    override def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[FabricExecutionMetrics]): Unit = jsonMethodException
   }
 
 }

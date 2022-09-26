@@ -10,7 +10,7 @@ ___Torcher___ is a testing and performance service for stressing the Burst execu
 
 # Running Torcher
 
-Torcher is a controlled from a tab in the master node administration web page (port 37030). From this tab, any user
+Torcher is a controlled from a tab in the supervisor node administration web page (port 37030). From this tab, any user
 can start and stop a torcher run,  monitor an in-process run, and download statistics about current or past runs.
 Only one torcher run is allowed to run in a cell at a time.
 

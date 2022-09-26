@@ -7,7 +7,7 @@ import org.burstsys.fabric.configuration._
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort, VitalsUrl}
 
 /**
- * The way we bind/connect to the fabric net master
+ * The way we bind/connect to the fabric net supervisor
  */
 trait FabricNetLocator extends Any {
 
@@ -17,29 +17,29 @@ trait FabricNetLocator extends Any {
    * @return
    */
   final
-  def netMasterUrl: VitalsUrl = s"$netMasterAddress:$netMasterPort"
+  def netSupervisorUrl: VitalsUrl = s"$netSupervisorAddress:$netSupervisorPort"
 
   /**
-   * The ip address of the master protocol server
+   * The ip address of the supervisor protocol server
    *
    * @return
    */
   final
-  def netMasterAddress: VitalsHostAddress = {
+  def netSupervisorAddress: VitalsHostAddress = {
     burstFabricNetHostProperty.getOrThrow
   }
 
   /**
-   * the ip port of the master protocol serer
+   * the ip port of the supervisor protocol serer
    *
    * @return
    */
   final
-  def netMasterPort: VitalsHostPort = {
+  def netSupervisorPort: VitalsHostPort = {
     burstFabricNetPortProperty.getOrThrow
   }
 
   final
-  def netMasterSocketAddress: InetSocketAddress = new InetSocketAddress(netMasterAddress, netMasterPort)
+  def netSupervisorSocketAddress: InetSocketAddress = new InetSocketAddress(netSupervisorAddress, netSupervisorPort)
 
 }

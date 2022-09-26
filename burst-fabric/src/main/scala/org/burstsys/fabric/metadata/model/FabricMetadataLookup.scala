@@ -13,7 +13,7 @@ import scala.util.Try
 
 /**
  * These are low level Fabric layer metadata operations that need to be implemented
- * at a higher layer of the system e.g. the cell master, that has access to a persistent
+ * at a higher layer of the system e.g. the cell supervisor, that has access to a persistent
  * metadata store, e.g. the catalog
  */
 trait FabricMetadataLookup extends Any {

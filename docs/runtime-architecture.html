@@ -49,12 +49,12 @@
             </div>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12 col-lg-12"><img src="assets/img/tech/burst_runtime.svg" style="width:100%;max-width:100%;"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Burst runtime topology is a fairly standard single-master, multiple-worker cluster that is called a Cell. It managed requests from clients and imports data from one or more SampleStores.</span><br /><br /></p>
+                    <div class="col-md-12 col-lg-12"><img src="assets/img/tech/burst_runtime.svg" style="width:100%;max-width:100%;"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The Burst runtime topology is a fairly standard single-supervisor, multiple-worker cluster that is called a Cell. It managed requests from clients and imports data from one or more SampleStores.</span><br /><br /></p>
                         <h2><strong><span style="color: rgb(36, 41, 47);">Cell Runtime Components</span></strong><br></h2>
                         <hr style="height: 3px;">
                         <p><span style="color: rgb(36, 41, 47);">The top level elements in a Cell are:</span><br></p>
                         <ol style="font-size: 18px;">
-                            <li><span style="color: rgb(36, 41, 47);">Master Node</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Supervisor Node</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">Worker Node(s)</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">Metadata Catalog</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">Client Protocol</span><br></li>
@@ -64,9 +64,9 @@
                             <li><span style="color: rgb(36, 41, 47);">Data Caches</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">SampleStore Instance</span><br></li>
                         </ol>
-                        <p><strong><span style="color: rgb(36, 41, 47);">Master Node Responsibilities</span></strong><br></p>
-                        <p><span style="color: rgb(36, 41, 47);">There is a single Master node. It is conceptually possible to have multiple masters, and in fact the team toyed with that idea since there are some workloads that&nbsp;</span><em><span style="color: rgb(36, 41, 47);">can</span></em><span style="color: rgb(36, 41, 47);">&nbsp;bottleneck during master node processing, but the added value was not worth the attendant implementation complexity&nbsp;</span><em><span style="color: rgb(36, 41, 47);">for the current use cases</span></em><span style="color: rgb(36, 41, 47);">.</span><br></p>
-                        <p><span style="color: rgb(36, 41, 47);">The Master node is responsible for:</span><br></p>
+                        <p><strong><span style="color: rgb(36, 41, 47);">Supervisor Node Responsibilities</span></strong><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">There is a single Supervisor node. It is conceptually possible to have multiple supervisors, and in fact the team toyed with that idea since there are some workloads that&nbsp;</span><em><span style="color: rgb(36, 41, 47);">can</span></em><span style="color: rgb(36, 41, 47);">&nbsp;bottleneck during supervisor node processing, but the added value was not worth the attendant implementation complexity&nbsp;</span><em><span style="color: rgb(36, 41, 47);">for the current use cases</span></em><span style="color: rgb(36, 41, 47);">.</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">The Supervisor node is responsible for:</span><br></p>
                         <ol style="font-size: 18px;">
                             <li><span style="color: rgb(36, 41, 47);">destination for incoming requests from clients via client protocol</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">pre-processing of the requests</span><br></li>
@@ -78,25 +78,25 @@
                         <p><strong><span style="color: rgb(36, 41, 47);">Worker Node Responsibilities</span></strong><br></p>
                         <p><span style="color: rgb(36, 41, 47);">There are one or more Worker nodes. Each is responsible for:</span><br></p>
                         <ol style="font-size: 18px;">
-                            <li><span style="color: rgb(36, 41, 47);">Receiving incoming (scatter) requests from the Master node via the Fabric protocol.</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Receiving incoming (scatter) requests from the Supervisor node via the Fabric protocol.</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">Fetch/Load data through the Data Cache, using samplestore protocol as appropriate for the request</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">process requests into execution scans that produce results</span><br></li>
-                            <li><span style="color: rgb(36, 41, 47);">send results back to Master node (gather) via the Fabric protocol</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">send results back to Supervisor node (gather) via the Fabric protocol</span><br></li>
                         </ol>
                         <p><strong><span style="color: rgb(36, 41, 47);">The Catalog</span></strong><br></p>
                         <p><span style="color: rgb(36, 41, 47);">The Catalog is a relational store for the metadata that is used throughout the Burst ecosystem. The primary use is to define datasets and how/where they are located and fetched. Burst uses a very simple JDBC interface to a very simple relational model. MySql and Derby are currently supported out of the box but due to the dead simple model used, it is considered easy to port this to just about any SQL DBMS.</span><br></p>
                         <p><strong><span style="color: rgb(36, 41, 47);">Cell Deployment</span></strong><br></p>
-                        <p><span style="color: rgb(36, 41, 47);">The Burst codebase does not dictate or provide for any specific form of deployment for the Master and Worker nodes. Master and Worker nodes can be started up via JVM jar files that read traditional&nbsp;</span><em><span style="color: rgb(36, 41, 47);">property</span></em><span style="color: rgb(36, 41, 47);">&nbsp;based configurations as well as a few command line parameters. Burst Cells have been deployed via standalone scripts, chef, and currently kubernetes.</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">The Burst codebase does not dictate or provide for any specific form of deployment for the Supervisor and Worker nodes. Supervisor and Worker nodes can be started up via JVM jar files that read traditional&nbsp;</span><em><span style="color: rgb(36, 41, 47);">property</span></em><span style="color: rgb(36, 41, 47);">&nbsp;based configurations as well as a few command line parameters. Burst Cells have been deployed via standalone scripts, chef, and currently kubernetes.</span><br></p>
                         <h2><strong><span style="color: rgb(36, 41, 47);">SampleStore Runtime Components</span></strong><br></h2>
                         <hr style="height: 3px;">
-                        <p><span style="color: rgb(36, 41, 47);">Any given Burst Cell can import data from one or more SampleStore instances. The SampleStore can be thought of as being separated into a single Master role along with one or more Worker roles. These can coexist on the same runtime deployment process or container or be on separate contexts where it is valuable to import data via massive parallelism where you want to distribute the Worker rolee across many nodes e.g. a store such as HBASE. Its responsibilities are:</span><br></p>
+                        <p><span style="color: rgb(36, 41, 47);">Any given Burst Cell can import data from one or more SampleStore instances. The SampleStore can be thought of as being separated into a single Supervisor role along with one or more Worker roles. These can coexist on the same runtime deployment process or container or be on separate contexts where it is valuable to import data via massive parallelism where you want to distribute the Worker rolee across many nodes e.g. a store such as HBASE. Its responsibilities are:</span><br></p>
                         <ol style="font-size: 18px;">
-                            <li><span style="color: rgb(36, 41, 47);">Receive incoming dataset fetch requests from Cell Master node via SampleStore protocol</span></li>
-                            <li><span style="color: rgb(36, 41, 47);">Send message to remote SampleStore Master with fetch parameters</span><br></li>
-                            <li><span style="color: rgb(36, 41, 47);">Receive message from remote SampleStore Master with instructions for slice requests to send to Cell Workers</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Receive incoming dataset fetch requests from Cell Supervisor node via SampleStore protocol</span></li>
+                            <li><span style="color: rgb(36, 41, 47);">Send message to remote SampleStore Supervisor with fetch parameters</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Receive message from remote SampleStore Supervisor with instructions for slice requests to send to Cell Workers</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">Cell Workers contact SampleStore remote workers using slice instructions and convey slice parameters while establishing Nexus protocol streams</span><br></li>
                             <li><span style="color: rgb(36, 41, 47);">Cell Workers receive streamed data from SampleStore remote workers and write to disk cache</span><br></li>
-                            <li><span style="color: rgb(36, 41, 47);">Cell Workers return result status and other parameters to Cell Master</span><br></li>
+                            <li><span style="color: rgb(36, 41, 47);">Cell Workers return result status and other parameters to Cell Supervisor</span><br></li>
                         </ol>
                     </div>
                 </div>

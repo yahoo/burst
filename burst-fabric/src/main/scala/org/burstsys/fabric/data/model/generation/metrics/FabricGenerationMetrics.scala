@@ -216,7 +216,7 @@ trait FabricGenerationMetrics extends FabricMetrics[FabricGenerationMetrics] {
    */
   def xferSliceCacheLoadMetrics(cacheGenerationMetrics: FabricGenerationMetrics): Unit
 
-  //------------------ MASTER SIDE -----------------------------
+  //------------------ Supervisor SIDE -----------------------------
 
   /**
    *
@@ -523,10 +523,10 @@ class FabricGenerationMetricsContext() extends KryoSerializable with FabricGener
     _suggestedSliceCount = 0
   }
 
-  //------------------ MASTER SIDE -----------------------------
+  //------------------ Supervisor SIDE -----------------------------
 
   override
-  def finalizeWaveMetricsOnMaster(sliceMetrics: Array[FabricGenerationMetrics]): Unit = {
+  def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[FabricGenerationMetrics]): Unit = {
     // this is a very important routine - last stop to massage a lot of numbers gathered from a lot of places
     var coldLoadAt = Long.MinValue
     var coldLoadTook: Long = 0

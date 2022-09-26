@@ -28,14 +28,14 @@ object Driver  {
   }
 
   /**
-    * Open the clients to the master catalog and agent
+    * Open the clients to the supervisor catalog and agent
     */
   def openClients(torcherParameters: TorcherParameters): (CatalogService, AgentService) = {
     System.setProperty("java.net.preferIPv4Stack", true.toString)
-    catalog.configuration.burstCatalogApiHostProperty.set(torcherParameters.master)
+    catalog.configuration.burstCatalogApiHostProperty.set(torcherParameters.supervisor)
     implicit val catalogClient: CatalogService = CatalogService(CatalogRemoteClientConfig).start
 
-    agent.configuration.burstAgentApiHostProperty.set(torcherParameters.master)
+    agent.configuration.burstAgentApiHostProperty.set(torcherParameters.supervisor)
     val agentTimeout = if (torcherParameters.clientTimeout != null) torcherParameters.clientTimeout else Duration(10, TimeUnit.MINUTES)
     agent.configuration.burstAgentApiTimeoutMsProperty.set(agentTimeout.toMillis)
     implicit val agentClient: AgentService = AgentService().start

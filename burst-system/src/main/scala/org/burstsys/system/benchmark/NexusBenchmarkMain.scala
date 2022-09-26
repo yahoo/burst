@@ -42,7 +42,7 @@ object NexusBenchmarkMain {
 
   def main(args: Array[String]): Unit = {
 
-    VitalsLog.configureLogging("master")
+    VitalsLog.configureLogging("supervisor")
 
     var defaultArguments = NexusBenchmarkerArguments()
 

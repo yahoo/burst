@@ -34,8 +34,8 @@ The Catalog is not designed to keep track of a very large number of Cells, Provi
  ![Metadata Model](model.png)
  
 # Cells
-A Burst Cell is a physical cluster consisting of a distributed set of linux servers. There is one Burst master, possibly a
-secondary master for HA scenarios, and a set of Burst workers.
+A Burst Cell is a physical cluster consisting of a distributed set of linux servers. There is one Burst supervisor, possibly a
+secondary supervisor for HA scenarios, and a set of Burst workers.
 
 # Provinces
 A Burst Province is a grouping of Domains _contained_ within a Cell that is used by various types of Fabric

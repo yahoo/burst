@@ -13,7 +13,7 @@ import scala.concurrent.Future
 
 /**
  * process and execute Hydra language analysis
- * <hr/> '''NOTE:''' this is designed to be imported into Master Process as well<hr/>
+ * <hr/> '''NOTE:''' this is designed to be imported into Supervisor Process as well<hr/>
  */
 final case
 class BurstSystemHydraQueryProcessor(agent: AgentService, hydra: HydraService) extends AgentLanguage {

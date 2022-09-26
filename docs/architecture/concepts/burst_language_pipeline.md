@@ -19,7 +19,7 @@ high performance `JIT` warmed scan closures that execute the intended semantics 
 ## The pipeline runtime
 ![](../../../documentation/image/burst_pipeline.svg "")
 The sequence of operations as depicted above are:
-1. **MASTER:**
+1. **SUPERVISOR:**
     1. EQL source is received via the client library
     2. EQL `parses` the source and `validates` against the schema
     3. EQL `generates` HYDRA source
@@ -36,8 +36,8 @@ The sequence of operations as depicted above are:
     6. Slice is loaded or fetched through the slice cache if needed
     7. Traveler and Sweep are used to scan all the regions in the slice
 4. **NETWORK:**
-    1. all worker slice merge results are serialized and sent back to master node
-5. **MASTER:**
+    1. all worker slice merge results are serialized and sent back to supervisor node
+5. **SUPERVISOR:**
     1. slice results from all workers are merged together
     2. final result is sent back via the client library
 

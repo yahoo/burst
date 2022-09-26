@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric
 
-import org.burstsys.fabric.container.master.FabricMasterContainer
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.VitalsLogger
@@ -14,10 +14,10 @@ package object container extends VitalsLogger {
   type FabricContainerId = Long
 
   /**
-    * All services that are master side
+    * All services that are supervisor side
     */
-  trait FabricMasterService extends VitalsService {
-    def container: FabricMasterContainer
+  trait FabricSupervisorService extends VitalsService {
+    def container: FabricSupervisorContainer
   }
 
   /**
@@ -27,7 +27,7 @@ package object container extends VitalsLogger {
     def container: FabricWorkerContainer
   }
 
-  final val MasterLog4JPropertiesFileName: String = "master"
+  final val SupervisorLog4JPropertiesFileName: String = "supervisor"
   final val WorkerLog4JPropertiesFileName: String = "worker"
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -35,18 +35,18 @@ package object container extends VitalsLogger {
   ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    * find/instantiate the singleton top level fabric master container
+    * find/instantiate the singleton top level fabric supervisor container
     */
-  lazy val masterContainer: FabricMasterContainer = {
-    val annotationClass = classOf[FabricMasterContainerProvider]
+  lazy val supervisorContainer: FabricSupervisorContainer = {
+    val annotationClass = classOf[FabricSupervisorContainerProvider]
     val classes = reflection.getTypesAnnotatedWith(annotationClass).asScala
     if (classes.size != 1)
-      throw VitalsException(s"found ${classes.size} master container(s) instead of a single one!")
-    val containerClass = classOf[FabricMasterContainer]
+      throw VitalsException(s"found ${classes.size} supervisor container(s) instead of a single one!")
+    val containerClass = classOf[FabricSupervisorContainer]
     val clazz = classes.head
     if (!containerClass.isAssignableFrom(clazz))
       throw VitalsException(s"annotation '${annotationClass.getSimpleName}' was not on '${containerClass.getSimpleName}' container class")
-    clazz.getDeclaredConstructor().newInstance().asInstanceOf[FabricMasterContainer]
+    clazz.getDeclaredConstructor().newInstance().asInstanceOf[FabricSupervisorContainer]
   }
 
   /**

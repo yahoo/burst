@@ -4,11 +4,11 @@
 # Fabric Configuration
 
 
-## Master Connection
-|  system property |  default |  description |
-|---|---|---|
-|  burst.fabric.master.host |  0.0.0.0 |  host name or IP to bind protocol to  |
-|  burst.fabric.master.port |  37040 |  port to bind protocol to  |
+## Supervisor Connection
+| system property              |  default |  description |
+|------------------------------|---|---|
+| burst.fabric.supervisor.host |  0.0.0.0 |  host name or IP to bind protocol to  |
+| burst.fabric.supervisor.port |  37040 |  port to bind protocol to  |
 
 ## Worker Assessment
 |  system property |  default |  description |

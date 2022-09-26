@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplesource.handler
 
-import org.burstsys.samplesource.service.SampleSourceMasterService
+import org.burstsys.samplesource.service.SampleSourceSupervisorService
 import org.burstsys.samplesource.service.SampleSourceService
 import org.burstsys.samplesource.service.SampleSourceWorkerService
 import org.burstsys.vitals.VitalsService
@@ -30,16 +30,16 @@ object SampleSourceHandlerRegistry extends VitalsService {
   val _workers = new ConcurrentHashMap[String, SampleSourceWorkerService]()
 
   private[this]
-  val _masters = new ConcurrentHashMap[String, SampleSourceMasterService]()
+  val _supervisors = new ConcurrentHashMap[String, SampleSourceSupervisorService]()
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  def getMaster(name: String): SampleSourceMasterService = {
+  def getSupervisor(name: String): SampleSourceSupervisorService = {
     ensureRunning
-    _masters.computeIfAbsent(name,
-      _ => _services.get(name).coordinatorClass.getDeclaredConstructor().newInstance().asInstanceOf[SampleSourceMasterService].start)
+    _supervisors.computeIfAbsent(name,
+      _ => _services.get(name).coordinatorClass.getDeclaredConstructor().newInstance().asInstanceOf[SampleSourceSupervisorService].start)
   }
 
   def getWorker(name: String): SampleSourceWorkerService = {
@@ -57,7 +57,7 @@ object SampleSourceHandlerRegistry extends VitalsService {
     log info startingMessage
     log info s"$serviceName scanning for handler(s)"
     _services.clear()
-    _masters.clear()
+    _supervisors.clear()
     _workers.clear()
     scanForSampleSources()
     markRunning
@@ -68,10 +68,10 @@ object SampleSourceHandlerRegistry extends VitalsService {
   override def stop: this.type = {
     ensureRunning
     log info stoppingMessage
-    for (m <- _masters.values.asScala) m.stop
+    for (m <- _supervisors.values.asScala) m.stop
     for (w <- _workers.values.asScala) w.stop
     _services.clear()
-    _masters.clear()
+    _supervisors.clear()
     _workers.clear()
     markNotRunning
     this

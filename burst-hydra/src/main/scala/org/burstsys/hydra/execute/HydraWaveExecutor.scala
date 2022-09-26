@@ -3,7 +3,7 @@ package org.burstsys.hydra.execute
 
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.fabric.exception.FabricQueryProcessingException
-import org.burstsys.fabric.execution.master.group.FabricGroupExecuteContext
+import org.burstsys.fabric.execution.supervisor.group.FabricGroupExecuteContext
 import org.burstsys.fabric.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
 import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
 import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
@@ -12,7 +12,7 @@ import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.metadata.model.over.FabricOver
 import org.burstsys.hydra.parser.parse
 import org.burstsys.hydra.runtime.HydraScanner
-import org.burstsys.hydra.trek.{HydraMasterParse, HydraMasterSchemaLookup}
+import org.burstsys.hydra.trek.{HydraSupervisorParse, HydraSupervisorSchemaLookup}
 import org.burstsys.hydra.{HydraService, HydraServiceContext}
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
@@ -40,14 +40,14 @@ trait HydraWaveExecutor extends FabricGroupExecuteContext with HydraService {
     var datasource: FabricDatasource = null
     var schema: BrioSchema = null
     Try {
-      HydraMasterSchemaLookup.begin(groupUid)
+      HydraSupervisorSchemaLookup.begin(groupUid)
       datasource = container.metadata.lookup.datasource(over = over, validate = true)
       schema = BrioSchema(datasource.view.schemaName)
-      HydraMasterSchemaLookup.end(groupUid)
+      HydraSupervisorSchemaLookup.end(groupUid)
 
-      HydraMasterParse.begin(groupUid)
+      HydraSupervisorParse.begin(groupUid)
       val analysis = parse(source = hydraSource, schema = schema)
-      HydraMasterParse.end(groupUid)
+      HydraSupervisorParse.end(groupUid)
       analysis
     } match {
       case Failure(t) => promise.failure(FabricQueryProcessingException("HYDRA", s"HYDRA_PARSE_FAIL $t $tag", t))

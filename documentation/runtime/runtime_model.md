@@ -2,10 +2,10 @@
 
 # `Burst Runtime Model`
 
-## `master slave topology`
+## `supervisor slave topology`
 
 
-### `master resiliency`
+### `supervisor resiliency`
 
 ### `worker resiliency`
 

@@ -9,7 +9,7 @@ import org.burstsys.vitals.uid.VitalsUid
 import scala.concurrent.Future
 
 /**
- * master and worker side API for ops
+ * supervisor and worker side API for ops
  * associated with the worker side [[org.burstsys.fabric.data.worker.cache.FabricSnapCache]]
  */
 trait FabricCacheOps extends Any {

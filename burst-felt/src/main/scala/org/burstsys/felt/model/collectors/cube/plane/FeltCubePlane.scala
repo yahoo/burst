@@ -123,8 +123,8 @@ class FeltCubePlaneContext()
   }
 
   @inline override
-  def releaseResourcesOnMaster(): Unit = {
-    super.releaseResourcesOnMaster()
+  def releaseResourcesOnSupervisor(): Unit = {
+    super.releaseResourcesOnSupervisor()
     brio.dictionary.flex.releaseFlexDictionary(_planeDictionary.asInstanceOf[BrioFlexDictionary])
     _planeDictionary = BrioMutableDictionaryAnyVal() // set to null
   }
@@ -185,7 +185,7 @@ class FeltCubePlaneContext()
   }
 
   /**
-   * reads are collecting results from worker slices for master aggregation.
+   * reads are collecting results from worker slices for supervisor aggregation.
    *
    * @param kryo
    * @param input

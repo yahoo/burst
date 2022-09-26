@@ -124,7 +124,7 @@ class FabricGenerationContext() extends KryoSerializable with FabricGeneration {
   def finalizeMetrics(): Unit = {
     _generationMetrics = FabricGenerationMetrics()
     _generationMetrics.initMetrics(datasource)
-    _generationMetrics.finalizeWaveMetricsOnMaster(slices.map(_.generationMetrics))
+    _generationMetrics.finalizeWaveMetricsOnSupervisor(slices.map(_.generationMetrics))
     _state = _generationMetrics.state
   }
 

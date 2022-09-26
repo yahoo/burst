@@ -19,7 +19,7 @@
         <!-- both cell containers -->
         <dependency>
             <groupId>org.burstsys</groupId>
-            <artifactId>burst-master</artifactId>
+            <artifactId>burst-supervisor</artifactId>
         </dependency>
 
         <dependency>

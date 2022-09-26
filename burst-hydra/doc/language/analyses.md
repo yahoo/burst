@@ -10,7 +10,7 @@ as a set of related metrics executed against a single datasource
  that are logically combined into a single set of measurements/dimensionings.
  
 An Analysis clause is a single language translation unit and has special processing throughout
-the system. The Analysis is parsed and processed on the master for validation purposes and
+the system. The Analysis is parsed and processed on the supervisor for validation purposes and
 then sent in a _normalized_ form to the workers. This normalized form is further processed
 on the workers, where it is _code-generated_ into Scala and _instantiated_ as a Scala single 
 class. This class is then _cached_ on the workers where it can be re-used repeatedly without

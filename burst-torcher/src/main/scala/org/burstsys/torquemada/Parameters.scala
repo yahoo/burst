@@ -12,7 +12,7 @@ object Parameters {
 
   final case class TorcherParameters
   (
-    master: VitalsHostName = "localhost",
+    supervisor: VitalsHostName = "localhost",
     verbose: Boolean = false,
     duration: Duration = null,
     loadRate: Double = -1, // As fast as possible
@@ -20,14 +20,14 @@ object Parameters {
     parallelism: Int = -1,
     source: Reader = null,
     clientTimeout: Duration = null,
-    reportingInterval: Duration = 30 seconds,
+    reportingInterval: Duration = 30.seconds,
     startingIndex: Int = 0,
     endingIndex: Int = 0
   ) {
     override def toString: String =
       s"""
          | parallelism='$parallelism'
-         | master='$master'
+         | supervisor='$supervisor'
          | sourceFile=$source
          | duration=${if (duration.length != 0) duration else "once through all datasets"}
          | loadRate=${if (loadRate != 0) s"$loadRate lps" else "unlimited"}
@@ -47,8 +47,8 @@ object Parameters {
       opt[Unit]('v', "verbose") text s"print lots of messages" maxOccurs 1 action {
         (_, parameters) => parameters.copy(verbose = true)
       }
-      opt[String]('m', "master") text s"target cell master host name/address" maxOccurs 1 action {
-        (newValue, parameters) => parameters.copy(master = newValue)
+      opt[String]('m', "supervisor") text s"target cell supervisor host name/address" maxOccurs 1 action {
+        (newValue, parameters) => parameters.copy(supervisor = newValue)
       }
       opt[Int]('p', "parallelism").text(s"number of datasets to load concurrently").action {
         (newValue, parameters) => parameters.copy(parallelism = newValue)

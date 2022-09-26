@@ -133,14 +133,14 @@ trait FabricExecutionMetrics extends FabricMetrics[FabricExecutionMetrics] {
    */
   def recordSliceScanOnWorker(scanTime: Long): Unit
 
-  //------------------ MASTER SIDE -----------------------------
+  //------------------ SUPERVISOR SIDE -----------------------------
 
   /**
    * record execution metrics associated with a final result
    *
    * @param gather
    */
-  def recordFinalMetricsOnMaster(gather: FabricDataGather): Unit
+  def recordFinalMetricsOnSupervisor(gather: FabricDataGather): Unit
 
   final override
   def toString: String =
@@ -278,10 +278,10 @@ class FabricExecutionMetricsContext() extends FabricExecutionMetrics with KryoSe
     _cacheHits = 0
   }
 
-  //------------------ MASTER SIDE -----------------------------
+  //------------------ SUPERVISOR SIDE -----------------------------
 
   override
-  def recordFinalMetricsOnMaster(gather: FabricDataGather): Unit = {
+  def recordFinalMetricsOnSupervisor(gather: FabricDataGather): Unit = {
     _queryCount = gather.queryCount
     _rowCount = gather.rowCount
     _succeeded = gather.successCount
@@ -290,7 +290,7 @@ class FabricExecutionMetricsContext() extends FabricExecutionMetrics with KryoSe
   }
 
   override
-  def finalizeWaveMetricsOnMaster(sliceMetrics: Array[FabricExecutionMetrics]): Unit = {
+  def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[FabricExecutionMetrics]): Unit = {
     val scanTimes = sliceMetrics.map(_.scanTime)
     _scanTimeSkew = stdSkewStat(scanTimes.min, scanTimes.max)
     val scanWorks = sliceMetrics.map(_.scanWork)

@@ -22,7 +22,7 @@ The Catalog implements a metadata types and basic semantics as defined
 in the [Fabric](../burst-fabric/readme.md) module. These types are
 used throughout the Burst ecosystem, however the Catalog is where
 these data structures are accessible via external APIs and are persisted.
-The Burst Master hosts the Catalog server and the Catalog client is used internally
+The Burst Supervisor hosts the Catalog server and the Catalog client is used internally
 and made available externally.
 
 #### Cross Cell

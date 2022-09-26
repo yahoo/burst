@@ -51,7 +51,7 @@ class HydraScanner() extends FabricPlaneScannerContext with FabricPlaneScanner {
   lazy val _runtime: ThreadLocal[HydraRuntime] = new ThreadLocal[HydraRuntime]
 
   /////////////////////////////////////
-  // master/worker (serialized) side private state
+  // supervisor/worker (serialized) side private state
   /////////////////////////////////////
 
   private[this]

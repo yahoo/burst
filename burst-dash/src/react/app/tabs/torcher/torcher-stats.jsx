@@ -67,7 +67,7 @@ class TorcherStats extends Component {
         const runClock = `${fmt(hours)}:${fmt(minutes)}:${fmt(seconds)}`;
 
         const dlLink = (
-            <a href="/api/master/torcher/getColdLoadStatisticsTableCSV" download="cold-load-statistics.csv">
+            <a href="/api/supervisor/torcher/getColdLoadStatisticsTableCSV" download="cold-load-statistics.csv">
                 Cold Loads CSV
             </a>
         );

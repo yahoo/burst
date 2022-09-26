@@ -19,9 +19,9 @@ From the root of the project run the following command:
     
         
         java -cp ./burst-services/target/burst-services-3.15.0-SNAPSHOT.jar 
-             -Dburst.master.jsonfilemanager.watchdirectory=./doc/playground/json 
+             -Dburst.supervisor.jsonfilemanager.watchdirectory=./doc/playground/json 
              -Dburst.liaison.port=4443
-             org.burstsys.master.server.container.BurstMasterMain 
+             org.burstsys.supervisor.server.container.BurstSupervisorMain 
              -s -w 1 --jsonSampleStore
 
 The administration console is accessable at [using your local web browser](https://localhost:4443/waves).

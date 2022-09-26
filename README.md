@@ -71,7 +71,7 @@ In order to stand up a Burst compute cell and use it to analyze your data
 you will need these basics:
 1. **A Burst Compute Cell:** One or more nodes of linux server hardware
 each with some sort of Java runtime deployment
-environment to set up a suitable Burst Master/Worker
+environment to set up a suitable Burst Supervisor/Worker
 process or container topology e.g. [Kubernetes](https://kubernetes.io/).
 The Burst runtime deployment is at its core a
 small number of uber jar binary artifacts.  These can be placed into virtual

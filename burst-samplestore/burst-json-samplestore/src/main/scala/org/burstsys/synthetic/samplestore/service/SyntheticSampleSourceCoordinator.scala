@@ -2,7 +2,7 @@
 package org.burstsys.synthetic.samplestore.service
 
 import org.burstsys.nexus
-import org.burstsys.samplesource.service.SampleSourceMasterService
+import org.burstsys.samplesource.service.SampleSourceSupervisorService
 import org.burstsys.samplestore.api
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
 import org.burstsys.samplestore.api.SampleStoreDataLocus
@@ -16,10 +16,10 @@ import org.burstsys.vitals.uid.newBurstUid
 
 import scala.concurrent.Future
 
-case class SyntheticSampleSourceCoordinator() extends SampleSourceMasterService {
+case class SyntheticSampleSourceCoordinator() extends SampleSourceSupervisorService {
 
   /**
-   * @return The name of this sample source master.
+   * @return The name of this sample source supervisor.
    */
   override def name: String = SynteticSampleSourceName
 

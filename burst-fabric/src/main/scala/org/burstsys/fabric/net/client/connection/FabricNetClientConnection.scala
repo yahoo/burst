@@ -15,7 +15,7 @@ import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink}
 import org.burstsys.fabric.topology.model.node
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
-import org.burstsys.fabric.topology.model.node.master.FabricMasterNode
+import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import io.netty.channel.Channel
@@ -169,8 +169,5 @@ class FabricNetClientConnectionContext(
   )
 
   override
-  lazy val serverKey: FabricNode = FabricMasterNode(
-    masterId = UnknownFabricNodeId, masterNodeAddress = remoteAddress,
-    masterPort = UnknownFabricNodePort
-  ) // unknown at first
+  lazy val serverKey: FabricNode = FabricSupervisorNode(supervisorId = UnknownFabricNodeId, supervisorNodeAddress = remoteAddress, supervisorPort = UnknownFabricNodePort) // unknown at first
 }

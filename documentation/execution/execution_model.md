@@ -16,7 +16,7 @@ The phases are:
 ![](language_pipeline.svg "")
 
 Behavioral analysis queries are written in **EQL** which is transpiled to **Hydra** on the
-`master-node`. The **Hydra** is parsed and validated on the `master-node` and then sent
+`supervisor-node`. The **Hydra** is parsed and validated on the `supervisor-node` and then sent
 to the active `worker-node` instances. The **Hydra** is reparsed, validated, on the
 `worker-node`
 and then goes through a code generation phase, resulting in **Scala** code, which results in
@@ -40,7 +40,7 @@ the `single-pass-scan`, parallel,  distributed, partitioned,
 `scatter-gather` model of Burst  is _activated_. The **EQL** statements become
 **Hydra** types and behavior that directs the system
 as it collects and processes data on the worker node and sends it back to the
-master node.
+supervisor node.
 
 ### `phase 3 -- the scala language`
 Hydra generates [Scala](https://www.scala-lang.org/) source language

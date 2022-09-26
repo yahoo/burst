@@ -29,21 +29,4 @@ package object sweep {
     final override def collectors: FeltCollectorProviders = ZapCollectorProviders
   }
 
-
-  /**
-   * the base class for code generated hydra runtime (contained within the code generated sweep)
-   *
-   * @param invocation
-   */
-  abstract
-  class HydraRuntime(invocation: FabricInvocation)
-    extends FeltPlaneRuntimeContext(invocation)
-      with FeltRuntime with GinsuRuntime {
-
-    @inline override implicit def threadRuntime: BrioThreadRuntime = this
-
-    final val binding: FeltBinding = HydraFeltBinding
-
-  }
-
 }

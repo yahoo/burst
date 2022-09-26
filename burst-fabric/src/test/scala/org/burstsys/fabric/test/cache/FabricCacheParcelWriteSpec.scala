@@ -11,7 +11,7 @@ import org.burstsys.fabric.data.model.snap.getSnapFile
 import org.burstsys.fabric.data.worker.cache.{burstModuleName => _}
 import org.burstsys.fabric.data.worker.pump.FabricCacheIntake
 import org.burstsys.fabric.data.worker.store.FabricWorkerLoader
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
 import org.burstsys.fabric.test.mock.mockDatasource
 import org.burstsys.fabric.topology.model.node.UnknownFabricNodeId
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
@@ -25,7 +25,7 @@ import scala.language.postfixOps
 
 /**
  */
-class FabricCacheParcelWriteSpec extends FabricMasterWorkerBaseSpec with FabricWorkerLoader {
+class FabricCacheParcelWriteSpec extends FabricSupervisorWorkerBaseSpec with FabricWorkerLoader {
 
   private val itemsToGenerate = 3e2.toInt
 

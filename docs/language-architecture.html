@@ -74,7 +74,7 @@
                 <div class="row">
                     <div class="col-md-12 col-lg-12"><p id="architectural-themes" style="font-size: 18px;padding-top: 40px;"><span style="color: rgb(36, 41, 47);">The sequence of operations as depicted above are:</span><br /><br /></p>
                         <ol style="font-size: 18px;">
-                            <li><strong><span style="color: rgb(36, 41, 47);">MASTER:</span></strong><br>
+                            <li><strong><span style="color: rgb(36, 41, 47);">SUPERVISOR:</span></strong><br>
                                 <ul>
                                     <li><span style="color: rgb(36, 41, 47);">EQL source is received via the client library</span><br></li>
                                     <li><span style="color: rgb(36, 41, 47);">EQL&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">parses</span><span style="color: rgb(36, 41, 47);">&nbsp;the source and&nbsp;</span><span style="color: rgb(36, 41, 47); background-color: var(--color-neutral-muted);">validates</span><span style="color: rgb(36, 41, 47);">&nbsp;against the schema</span><br></li>
@@ -101,10 +101,10 @@
                             </li>
                             <li><strong><span style="color: rgb(36, 41, 47);">NETWORK:</span></strong><br>
                                 <ul>
-                                    <li><span style="color: rgb(36, 41, 47);">all worker slice merge results are serialized and sent back to master node</span><br></li>
+                                    <li><span style="color: rgb(36, 41, 47);">all worker slice merge results are serialized and sent back to supervisor node</span><br></li>
                                 </ul>
                             </li>
-                            <li><strong><span style="color: rgb(36, 41, 47);">MASTER:</span></strong><br>
+                            <li><strong><span style="color: rgb(36, 41, 47);">SUPERVISOR:</span></strong><br>
                                 <ul>
                                     <li><span style="color: rgb(36, 41, 47);">slice results from all workers are merged together</span><br></li>
                                     <li><span style="color: rgb(36, 41, 47);">final result is sent back via the client library</span><br></li>

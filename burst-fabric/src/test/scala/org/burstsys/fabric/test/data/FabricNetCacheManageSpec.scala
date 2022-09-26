@@ -11,12 +11,12 @@ import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
 import org.burstsys.fabric.net.message.cache.{FabricNetCacheOperationReqMsg, FabricNetCacheOperationRespMsg, FabricNetSliceFetchReqMsg, FabricNetSliceFetchRespMsg}
 import org.burstsys.fabric.net.server.FabricNetServerListener
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
-import org.burstsys.fabric.test.FabricMasterWorkerBaseSpec
-import org.burstsys.fabric.topology.master.FabricTopologyListener
+import org.burstsys.fabric.test.FabricSupervisorWorkerBaseSpec
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.vitals.uid._
 
-class FabricNetCacheManageSpec extends FabricMasterWorkerBaseSpec
+class FabricNetCacheManageSpec extends FabricSupervisorWorkerBaseSpec
   with FabricNetServerListener with FabricNetClientListener with FabricTopologyListener {
 
   override protected def wantsContainers = true
@@ -24,8 +24,8 @@ class FabricNetCacheManageSpec extends FabricMasterWorkerBaseSpec
   override protected
   def beforeAll(): Unit = {
     data.worker.cache.instance.start
-    masterContainer.netServer.talksTo(this)
-    masterContainer.topology.talksTo(this)
+    supervisorContainer.netServer.talksTo(this)
+    supervisorContainer.topology.talksTo(this)
     workerContainer1.netClient.talksTo(this)
     super.beforeAll()
   }
@@ -49,11 +49,11 @@ class FabricNetCacheManageSpec extends FabricMasterWorkerBaseSpec
     val key = FabricGenerationKey()
 
     log info s"----------------------- cacheOperation"
-    masterContainer.data.cacheGenerationOp(guid, FabricCacheSearch, key, None)
+    supervisorContainer.data.cacheGenerationOp(guid, FabricCacheSearch, key, None)
     operationGate.await(30, TimeUnit.SECONDS) should equal(true)
 
     log info s"----------------------- sliceFetch"
-    masterContainer.data.cacheSliceOp(guid, key)
+    supervisorContainer.data.cacheSliceOp(guid, key)
     sliceFetchGate.await(30, TimeUnit.SECONDS) should equal(true)
   }
 

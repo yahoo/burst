@@ -333,9 +333,9 @@ object CatalogService {
   )
 
   /**
-    * A catalog server residing in Master JVM
+    * A catalog server residing in Supervisor JVM
     */
-  object CatalogMasterConfig extends CatalogConfiguration(
+  object CatalogSupervisorConfig extends CatalogConfiguration(
     modality = VitalsStandardServer,
     dialect = RelateMySqlDialect,
     executeDDL = false,
@@ -369,7 +369,7 @@ object CatalogService {
   )
 
   /**
-    * specialized worker config for when master and worker
+    * specialized worker config for when supervisor and worker
     * are in the same JVM
     */
   object CatalogUnitTestWorkerConfig extends CatalogConfiguration(

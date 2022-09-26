@@ -27,9 +27,9 @@
 * [Burst Hydra](../burst-hydra/readme.md)  -- `parallel distributed scan oriented execution language`
 * [Burst Felt](../burst-felt/readme.md)  -- `distributed code generating language basis`
 
-### `Master Process`
-* [Burst Dash](../burst-dash/readme.md) -- `react based UI for burst master process`
-* [Burst Master](../burst-master/readme.md)    -- `master process in a Burst cell`
+### `Supervisor Process`
+* [Burst Dash](../burst-dash/readme.md) -- `react based UI for burst supervisor process`
+* [Burst Supervisor](../burst-supervisor/readme.md)    -- `supervisor process in a Burst cell`
 
 ### `Communication`
 * [Burst Api](../burst-api/readme.md)  -- `Thrift API primitives`

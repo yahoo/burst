@@ -22,7 +22,7 @@ trait FabricNetTetherMsg extends FabricNetMsg {
 }
 
 /**
-  * sent from client to server to initiate a worker->master relation
+  * sent from client to server to initiate a worker->supervisor relation
   */
 object FabricNetTetherMsg {
 

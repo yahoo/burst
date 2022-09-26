@@ -81,16 +81,16 @@ envConfig="${envConfig} -Dburst.cell.name=${cellName}"
 envConfig="${envConfig} -DdeploymentName=${cellName}"
 
 if [ "${WORKLOAD}" = "supervisor" ]; then
-    mainClass="org.burstsys.master.server.container.BurstMasterMain"
-    envConfig="${envConfig} -Dburst.fabric.master.host=${POD_IP}"
+    mainClass="org.burstsys.supervisor.server.container.BurstSupervisorMain"
+    envConfig="${envConfig} -Dburst.fabric.supervisor.host=${POD_IP}"
     envConfig="${envConfig} -Dburst.samplestore.api.host=${SAMPLESTORE_HOST}"
-    envConfig="${envConfig} -Dburst.master.properties.file=supervisor.properties"
+    envConfig="${envConfig} -Dburst.supervisor.properties.file=supervisor.properties"
     envConfig="${envConfig} -Dburst.liaison.keystore.password=${KEYSTORE_PASS}"
 
 elif [ "${WORKLOAD}" = "worker" ]; then
     mainClass="org.burstsys.worker.BurstWorkerMain"
     envConfig="${envConfig} -Dburst.fabric.worker.core.count=${CPU_REQUEST}"
-    envConfig="${envConfig} -Dburst.cell.master.host=${BURST_SUPERVISOR_HOST}"
+    envConfig="${envConfig} -Dburst.cell.supervisor.host=${BURST_SUPERVISOR_HOST}"
     envConfig="${envConfig} -Dburst.catalog.api.host=${BURST_SUPERVISOR_HOST}"
     envConfig="${envConfig} -Dburst.agent.api.host=${BURST_SUPERVISOR_HOST}"
     envConfig="${envConfig} -Dburst.fabric.net.host=${BURST_SUPERVISOR_HOST}"

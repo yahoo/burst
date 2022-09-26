@@ -30,11 +30,11 @@ import org.burstsys.zap.cube2.state._
  * <ol>
  * <li>This design relies a very high row limit (large cube sizes) to accommodate finding the ``complete`` set
  * within a given Item that is then reverse sorted, and truncated before being merged with the TopK
- * from other Items, and then serialized back to the master for further merging. We do truncate the size of the cube
+ * from other Items, and then serialized back to the supervisor for further merging. We do truncate the size of the cube
  * before serialization to just the final rows, so this is only a local problem.
  * </li>
  * <li>This design is a pseudo TopK in that the topK subsets are performed locally in each Item and then merged
- * with all other items. A true topK would have to calculate the complete set, return all candidate rows to the master,
+ * with all other items. A true topK would have to calculate the complete set, return all candidate rows to the supervisor,
  * and then sort/truncate that final set.
  * </li>
  * </ol>

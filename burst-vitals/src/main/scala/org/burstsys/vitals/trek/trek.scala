@@ -20,7 +20,7 @@ package object trek extends VitalsLogger {
     override def toString: VitalsUid = name
   }
 
-  object VitalsTrekMaster extends VitalsTrekRole("master")
+  object VitalsTrekSupervisor extends VitalsTrekRole("supervisor")
 
   object VitalsTrekWorker extends VitalsTrekRole("worker")
 

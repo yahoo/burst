@@ -2,17 +2,11 @@
 package org.burstsys.fabric
 
 import org.apache.commons.io.FileUtils
-import org.burstsys.fabric
-import org.burstsys.fabric.metadata.ViewCacheEraseTtlMsProperty
-import org.burstsys.fabric.metadata.ViewCacheEvictTtlMsProperty
-import org.burstsys.fabric.metadata.ViewCacheFlushTtlMsProperty
+import org.burstsys.fabric.metadata.{ViewCacheEraseTtlMsProperty, ViewCacheEvictTtlMsProperty, ViewCacheFlushTtlMsProperty}
 import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
 import org.burstsys.tesla.configuration.burstTeslaWorkerThreadCountProperty
 import org.burstsys.vitals.io.GB
-import org.burstsys.vitals.net.VitalsHostAddress
-import org.burstsys.vitals.net.VitalsHostPort
-import org.burstsys.vitals.net.getPublicHostAddress
-import org.burstsys.vitals.net.getPublicHostName
+import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort, getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties._
 
 import java.lang.Runtime.getRuntime
@@ -31,7 +25,7 @@ package object configuration extends VitalsPropertyRegistry {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * maximum number of concurrent waves allowed through the master
+   * maximum number of concurrent waves allowed through the supervisor
    */
   val burstFabricWaveConcurrencyProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
     key = "burst.fabric.wave.concurrency",
@@ -96,8 +90,8 @@ package object configuration extends VitalsPropertyRegistry {
   )
 
   val burstFabricHostProperty: VitalsPropertySpecification[VitalsHostAddress] = VitalsPropertySpecification[VitalsHostAddress](
-    key = "burst.fabric.master.host",
-    description = "host/address for fabric master",
+    key = "burst.fabric.supervisor.host",
+    description = "host/address for fabric supervisor",
     default = Some(getPublicHostAddress)
   )
 
@@ -108,14 +102,14 @@ package object configuration extends VitalsPropertyRegistry {
   )
 
   val burstFabricPortProperty: VitalsPropertySpecification[VitalsHostPort] = VitalsPropertySpecification[VitalsHostPort](
-    key = "burst.fabric.master.port",
-    description = "port for fabric master",
+    key = "burst.fabric.supervisor.port",
+    description = "port for fabric supervisor",
     default = Some(37040)
   )
 
-  val burstFabricMasterStandaloneProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
-    key = "burst.fabric.master.standalone",
-    description = "enable standalone master container world",
+  val burstFabricSupervisorStandaloneProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
+    key = "burst.fabric.supervisor.standalone",
+    description = "enable standalone supervisor container world",
     default = Some(false)
   )
 

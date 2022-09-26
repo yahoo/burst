@@ -18,7 +18,7 @@ import scala.util.{Failure, Success}
 import org.burstsys.vitals.logging._
 
 /**
- * A single return of a wave result from a worker (client) to the master (server)
+ * A single return of a wave result from a worker (client) to the supervisor (server)
  */
 trait FabricNetClientParticleHandler extends FabricPipelineEventListener {
 
@@ -76,7 +76,7 @@ trait FabricNetClientParticleHandler extends FabricPipelineEventListener {
 
     } catch safely {
 
-      // transmit back fabric related exception for master to sort out
+      // transmit back fabric related exception for supervisor to sort out
       case t: FabricException =>
         log error burstStdMsg(s"FAIL $t $tag", t)
         FabricWorkerRequestTrekMark.fail(guid)

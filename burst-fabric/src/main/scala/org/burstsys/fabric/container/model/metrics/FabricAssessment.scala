@@ -6,10 +6,10 @@ import com.esotericsoftware.kryo.{Kryo, KryoSerializable}
 
 /**
   * A message that is sent from [[org.burstsys.fabric.topology.model.node.worker.FabricWorker]] to
- * [[org.burstsys.fabric.topology.model.node.master.FabricMaster]] to provide a coarse grained
+ * [[org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisor]] to provide a coarse grained
  * overall 'health' and 'performance' metric that can be used to determine if a worker is alive and
  * appropriately responsive/healthy.
-  * @param ping round trip message time from master to worker to master
+  * @param ping round trip message time from supervisor to worker to supervisor
   * @param qps current waves per second
   * @param wls
   * @param cls

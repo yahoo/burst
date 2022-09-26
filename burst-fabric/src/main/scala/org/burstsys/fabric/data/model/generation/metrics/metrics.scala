@@ -65,7 +65,7 @@ package object metrics {
 
     override def finalizeSliceMetricsOnWorker(): Unit = jsonMethodException
 
-    override def finalizeWaveMetricsOnMaster(sliceMetrics: Array[FabricGenerationMetrics]): Unit = jsonMethodException
+    override def finalizeWaveMetricsOnSupervisor(sliceMetrics: Array[FabricGenerationMetrics]): Unit = jsonMethodException
   }
 
 }

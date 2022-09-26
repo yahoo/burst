@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.data.model
 
-import org.burstsys.fabric.data.master.store.FabricStoreMaster
+import org.burstsys.fabric.data.supervisor.store.FabricStoreSupervisor
 import org.burstsys.fabric.data.worker.store.FabricStoreWorker
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.logging._
@@ -20,7 +20,7 @@ package object store extends VitalsLogger {
   final val FabricStoreNameProperty: VitalsPropertyKey = "burst.store.name"
 
   /**
-   * A master or worker store implementation
+   * A supervisor or worker store implementation
    */
   trait FabricStore extends VitalsService {
 
@@ -40,7 +40,7 @@ package object store extends VitalsLogger {
   /**
    * Fabric Store Plugin API
    */
-  trait FabricStoreProvider[M <: FabricStoreMaster, W <: FabricStoreWorker] extends Any {
+  trait FabricStoreProvider[M <: FabricStoreSupervisor, W <: FabricStoreWorker] extends Any {
 
     /**
      * @return the name of this store
@@ -48,9 +48,9 @@ package object store extends VitalsLogger {
     def storeName: FabricStoreName
 
     /**
-     * @return The master-side implementation of this store
+     * @return The supervisor-side implementation of this store
      */
-    def masterClass: Class[M]
+    def supervisorClass: Class[M]
 
     /**
      * @return The worker-side implementation of this store

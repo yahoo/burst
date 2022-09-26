@@ -86,11 +86,11 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
   ////////////////////////////////////////////////////////////////////////////////////
 
   override def write(kryo: Kryo, output: Output): Unit = {
-    // we do not serialize route results from worker to masters yet
+    // we do not serialize route results from worker to supervisors yet
   }
 
   override def read(kryo: Kryo, input: Input): Unit = {
-    // we do not serialize route results from worker to masters yet
+    // we do not serialize route results from worker to supervisors yet
   }
 
 

@@ -1,14 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.test.cache.ops
 
-import org.burstsys.fabric.container.master.MockMasterContainer
+import org.burstsys.fabric.container.supervisor.MockSupervisorContainer
 import org.burstsys.fabric.container.worker.MockWorkerContainer
 import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.metadata.model.view.FabricView
 import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricGenerationClock, FabricMetadataLookup, FabricViewKey}
-import org.burstsys.fabric.topology.master.FabricTopologyListener
-import org.burstsys.fabric.topology.model.node.master.FabricMaster
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
+import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisor
 import org.burstsys.fabric.topology.model.node.worker.{FabricWorker, FabricWorkerNode}
 import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
 import org.burstsys.vitals.errors.VitalsException
@@ -40,7 +40,7 @@ abstract class FabricCacheOpsBaseSpec extends AnyFlatSpec with Suite with org.sc
 
   val healthCheckPort: Int = burstVitalsHealthCheckPortProperty.getOrThrow
 
-  protected var masterContainer: MockMasterContainer = MockMasterContainer(logFile = "fabric", containerId = 1)
+  protected var supervisorContainer: MockSupervisorContainer = MockSupervisorContainer(logFile = "fabric", containerId = 1)
 
   protected var workerContainer1: MockWorkerContainer = {
     val worker = MockWorkerContainer(logFile = "fabric", containerId = 2)
@@ -55,9 +55,9 @@ abstract class FabricCacheOpsBaseSpec extends AnyFlatSpec with Suite with org.sc
   }
 
   override protected def beforeAll(): Unit = {
-    masterContainer.metadata withLookup this
-    masterContainer.topology.talksTo(this)
-    masterContainer.start
+    supervisorContainer.metadata withLookup this
+    supervisorContainer.topology.talksTo(this)
+    supervisorContainer.start
     workerContainer1.start
     workerContainer2.start
 
@@ -67,7 +67,7 @@ abstract class FabricCacheOpsBaseSpec extends AnyFlatSpec with Suite with org.sc
    * Stops any started containers
    */
   override protected def afterAll(): Unit = {
-    masterContainer.stop
+    supervisorContainer.stop
     workerContainer1.stop
     workerContainer2.stop
   }
