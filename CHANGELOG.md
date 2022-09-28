@@ -1,15 +1,6 @@
-# 4.1
+# 5.0.0
 ## Breaking changes
-Java 11 required
+- Burst cell runs on Java 11
 
 ## Features
-Flex Collectors
-
-## Fixes
-
-# 4.0
-## Breaking changes
-
-## Features
-
-## Fixes
+- Flex Collectors
