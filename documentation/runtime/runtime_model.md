@@ -2,8 +2,7 @@
 
 # `Burst Runtime Model`
 
-## `supervisor slave topology`
-
+## `supervisor worker topology`
 
 ### `supervisor resiliency`
 
