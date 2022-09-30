@@ -42,36 +42,41 @@ class FabricParticleRequest(worker: FabricWorkerProxy, particle: FabricParticle)
   def execute: Future[Unit] = {
     val guid = slot.scatter.guid
     lazy val tag = s"FabricParticleRequest.execute(guid=$guid, ruid=$ruid, host=$destinationHostName)"
-    val promise = Promise[Unit]()
     slot.slotBegin()
     FabricSupervisorParticleTrekMark.begin(guid)
-    worker.connection.executeParticle(slot, particle) onComplete {
+    worker.connection.executeParticle(slot, particle) transform {
       case Success(r) =>
-        promise.success((): Unit)
         FabricSupervisorParticleTrekMark.end(guid)
         result = r
-        // scatters are closed when they fail or time out. Closing a scatter closes all its requests;
-        // closing a request clears out the request's `slot` field. Additionally, only gathers that are received during
-        // an active FabricWaveLoop will get merged together (and therefore release their resources)
-        val resultsWillNotBeProcessed = slot == null || // indicates that the request was cancelled
-          slot.slotState == TeslaScatterSlotZombie // update outside of active FabricWaveLoop, will probably never happen since slot probably == null
-        if (resultsWillNotBeProcessed) {
-          // TODO: figure out how to release the correct resource here
-          // log info s"$tag releasing resources for timed-out request slot=$slot result=$result"
-          // result.releaseResourcesOnSupervisor()
-        } else {
-          slot.slotSuccess()
+
+        /* scatters are closed when they fail or time out. Closing a scatter closes all its requests;
+         * closing a request clears out the request's `slot` field. Additionally, only gathers that are received during
+         * an active fabric wave will get merged together (and therefore release their resources) */
+        slot match {
+          // indicates that the request was cancelled
+          case null =>
+            log info s"$tag releasing resources for timed-out request slot=$slot result=$result"
+            result.releaseResourcesOnSupervisor()
+          // update outside of active merge loop, will probably never happen since slot probably == null
+          case slot if slot.slotState == TeslaScatterSlotZombie =>
+            log info s"$tag releasing resources for timed-out request slot=$slot result=$result"
+            result.releaseResourcesOnSupervisor()
+            /* calling success on a zombie slot doesn't give a success message to the scatter,
+             * it removes the slot from the zombie list and marks it as idle */
+            slot.slotSuccess()
+          case slot =>
+            slot.slotSuccess()
         }
+        Success((): Unit)
 
       case Failure(t) =>
         log error burstStdMsg(s"FAB_PARTICLE_REQUEST_FAIL $t $tag", t)
-        promise.failure(t)
         FabricSupervisorParticleTrekMark.fail(guid)
         if (slot != null) {
           slot.slotFailed(t)
         }
+        throw t
     }
-    promise.future
   }
 
   /**
