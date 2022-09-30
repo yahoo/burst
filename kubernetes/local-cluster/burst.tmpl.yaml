@@ -1,0 +1,309 @@
+# This deployment file contains:
+# - a namespace
+# - a service for the cell supervisor
+# - a service for the catalog sql server
+# - a deployment for the supervisor
+# - a deployment for the worker
+# - a deployment for the catalog mysql
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+    labels:
+        name: burst-local
+    name: burst-local
+
+# Service burst-supervisor
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: burst-supervisor
+    namespace: burst-local
+spec:
+    type: LoadBalancer
+    ports:
+        -   name: https
+            port: 4443
+        -   name: fabric
+            port: 37060
+    selector:
+        appName: burst
+        workload: supervisor
+
+# Service catalog
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: catalog
+    namespace: burst-local
+spec:
+    type: ClusterIP
+    ports:
+        -   name: mysql
+            port: 3306
+    selector:
+        workload: catalog
+
+# Deployment burst-supervisor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        appName: burst
+        workload: supervisor
+    name: burst-supervisor
+    namespace: burst-local
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            appName: burst
+            workload: supervisor
+    template:
+        metadata:
+            labels:
+                appName: burst
+                workload: supervisor
+            name: burst-supervisor
+        spec:
+            containers:
+                -   name: supervisor
+                    image: burst-cell:IMAGE_VERSION # TODO replace with script
+                    env:
+                        -   name: POD_NAME
+                            valueFrom: { fieldRef: { fieldPath: metadata.name } }
+                        -   name: POD_IP
+                            valueFrom: { fieldRef: { fieldPath: status.podIP } }
+                        -   name: HOST_IP
+                            valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+                        -   name: CPU_REQUEST
+                            valueFrom: { resourceFieldRef: { resource: requests.cpu } }
+                        -   name: MEM_REQUEST
+                            valueFrom: { resourceFieldRef: { resource: limits.memory } }
+                        -   name: BURST_RELATE_MYSQL_CONN_OPTS
+                            value: verifyServerCertificate=false
+                        -   name: BURST_CATALOG_CANNED_IMPORTSTANDALONEONLY
+                            value: 'true'
+                        -   name: BURST_AGENT_API_SSL_ENABLE
+                            value: 'false'
+                        -   name: BURST_CATALOG_API_SSL_ENABLE
+                            value: 'false'
+                        -   name: DB_HOST
+                            value: catalog.burst-local
+                        -   name: DB_PASS
+                            value: burst-catalog-password
+                        -   name: JVM_DIRECT
+                            value: '1'
+                        -   name: JVM_HEAP
+                            value: '1'
+                        -   name: KEYSTORE_PASS
+                            value: burstburstburst
+                        -   name: SAMPLESTORE_HOST
+                            value: localhost
+                        -   name: SSL_CERT_PATH
+                            value: /var/run/certs/cert.pem
+                        -   name: SSL_KEY_PATH
+                            value: /var/run/certs/key.pem
+                        -   name: SSL_CERT_BUNDLE_PATH
+                            value: /var/run/certs/rootCA.pem
+                        -   name: WORKLOAD
+                            value: supervisor
+                    ports:
+                        -   name: https
+                            containerPort: 4443
+                        -   name: fabric
+                            containerPort: 37060
+                    resources:
+                        limits:
+                            memory: CELL_SUPER_MEM
+                        requests:
+                            cpu: CELL_SUPER_CPU
+                    volumeMounts:
+                        -   name: app-logs-0
+                            mountPath: /app/burst/logs/
+                        -   name: data1
+                            mountPath: /app/burst/data1/burst
+                        -   name: certs-volume
+                            mountPath: /var/run/certs
+                -   name: syntetic-samplesource-supervisor
+                    image: burst-synthetic-samplesource:IMAGE_VERSION # TODO replace with script
+                    env:
+                        -   name: WORKLOAD
+                            value: supervisor
+                        -   name: BURST_SAMPLESTORE_API_PORT
+                            value: '50515'
+                    ports:
+                        -   name: thrift
+                            containerPort: 50515
+                    resources:
+                        limits:
+                            memory: SAMPLE_SUPER_MEM
+                            cpu: SAMPLE_SUPER_CPU
+
+            volumes:
+                -   name: app-logs-0
+                    emptyDir: { }
+                -   name: data1
+                    emptyDir: { }
+                -   name: certs-volume
+                    hostPath:
+                        path: CERT_HOST_PATH # TODO replace with script
+                        type: Directory
+
+# worker deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        appName: burst
+        workload: worker
+    name: burst-worker
+    namespace: burst-local
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            appName: burst
+            workload: worker
+    template:
+        metadata:
+            labels:
+                appName: burst
+                workload: worker
+            name: burst-worker
+        spec:
+            containers:
+                -   name: worker
+                    image: burst-cell:IMAGE_VERSION # TODO replace with script
+                    env:
+                        -   name: POD_NAME
+                            valueFrom: { fieldRef: { fieldPath: metadata.name } }
+                        -   name: POD_IP
+                            valueFrom: { fieldRef: { fieldPath: status.podIP } }
+                        -   name: HOST_IP
+                            valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+                        -   name: CPU_REQUEST
+                            valueFrom: { resourceFieldRef: { resource: requests.cpu } }
+                        -   name: MEM_REQUEST
+                            valueFrom: { resourceFieldRef: { resource: limits.memory } }
+                        -   name: BURST_RELATE_MYSQL_CONN_OPTS
+                            value: verifyServerCertificate=false
+                        -   name: DB_HOST
+                            value: catalog.burst-local
+                        -   name: DB_PASS
+                            value: burst-catalog-password
+                        -   name: JVM_DIRECT
+                            value: '1'
+                        -   name: JVM_HEAP
+                            value: '1'
+                        -   name: KEYSTORE_PASS
+                            value: burstburstburst
+                        -   name: BURST_SUPERVISOR_HOST
+                            value: burst-supervisor.burst-local
+                        -   name: SSL_CERT_PATH
+                            value: /var/run/certs/cert.pem
+                        -   name: SSL_KEY_PATH
+                            value: /var/run/certs/key.pem
+                        -   name: SSL_CERT_BUNDLE_PATH
+                            value: /var/run/certs/rootCA.pem
+                        -   name: WORKLOAD
+                            value: worker
+                    ports:
+                        -   name: https
+                            containerPort: 4443
+                        -   name: fabric
+                            containerPort: 37060
+                    resources:
+                        limits:
+                            memory: CELL_WORKER_MEM
+                        requests:
+                            cpu: CELL_WORKER_CPU
+                    volumeMounts:
+                        -   name: app-logs-0
+                            mountPath: /app/burst/logs/
+                        -   name: data1
+                            mountPath: /app/burst/data1/burst
+                        -   name: certs-volume
+                            mountPath: /var/run/certs
+                -   name: synthetic-samplesource-worker
+                    image: burst-synthetic-samplesource:IMAGE_VERSION # TODO replace with script
+                    env:
+                        -   name: WORKLOAD
+                            value: worker
+                    ports:
+                        -   name: nexus
+                            containerPort: 1270
+                    resources:
+                        limits:
+                            memory: SAMPLE_WORKER_MEM
+                            cpu: SAMPLE_WORKER_CPU
+
+            volumes:
+                -   name: app-logs-0
+                    emptyDir: { }
+                -   name: data1
+                    emptyDir: { }
+                -   name: certs-volume
+                    hostPath:
+                        path: CERT_HOST_PATH # TODO replace with script
+                        type: Directory
+# mysql deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        workload: catalog
+    name: catalog
+    namespace: burst-local
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            workload: catalog
+    template:
+        metadata:
+            labels:
+                workload: catalog
+            name: catalog
+        spec:
+            containers:
+                -   name: mysql
+                    image: mysql:8
+                    ports:
+                        -   name: mysql
+                            containerPort: 3306
+                    resources:
+                        requests:
+                            cpu: 50m
+                            memory: 128Mi
+                        limits:
+                            cpu: 500m
+                            memory: 512Mi
+                    env:
+                        -   name: MYSQL_ROOT_PASSWORD
+                            value: mysql-root-password
+                        -   name: MYSQL_DATABASE
+                            value: burst_catalog
+                        -   name: MYSQL_USER
+                            value: burst
+                        -   name: MYSQL_PASSWORD
+                            value: burst-catalog-password
+                    volumeMounts:
+                        -   name: init-db
+                            mountPath: /docker-entrypoint-initdb.d
+                        -   name: mysql-data
+                            mountPath: /var/lib/mysql
+            volumes:
+                -   name: init-db
+                    hostPath:
+                        path: DB_INIT_HOST_PATH # TODO replace with script
+                        type: Directory
+                -   name: mysql-data
+                    hostPath:
+                        path: DB_DATA_HOST_PATH # TODO replace with script
+                        type: Directory

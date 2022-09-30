@@ -41,7 +41,6 @@ case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
     val tag = s"AlloySampleSourceWorkerService.feedStream(guid=$guid)"
     TeslaRequestFuture {
       log info s"$tag start"
-      stream.startHeartbeat(burstSampleStoreHeartbeatInterval.getOrThrow)
       try {
         JsonLoadThrottle(guid, pressToStream(stream))
       } catch safely {
@@ -50,7 +49,6 @@ case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
           stream.completeExceptionally(e)
       } finally {
         log info burstStdMsg(s"stopping heartbeat")
-        stream.stopHeartbeat()
       }
     }
   }

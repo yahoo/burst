@@ -6,6 +6,7 @@ import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry._
 import org.burstsys.samplestore.api._
+import org.burstsys.samplestore.api.configuration.burstSampleStoreHeartbeatInterval
 import org.burstsys.tesla.parcel
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors._
@@ -35,13 +36,15 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder {
       val handler = SampleSourceHandlerRegistry.getWorker(sourceName)
       // call handler
       log info burstStdMsg(s"Sending feed request to handler ${handler.name} for parcel stream $stream")
-      handler.feedStream(stream) onComplete {
+      stream.startHeartbeat(burstSampleStoreHeartbeatInterval.getOrThrow)
+      handler.feedStream(stream) andThen {
+        case _ =>
+          stream.stopHeartbeat()
+      } onComplete {
         case Failure(t) =>
-          log warn burstStdMsg(s"$handler failed to process parcel stream ")
-          throw t
+          log warn burstStdMsg(s"$handler failed to process parcel stream", t)
         case Success(_) =>
-          val duration = System.nanoTime() - start
-          log info burstStdMsg(s"$handler finished processing parcel stream in $duration nanos")
+          log info burstStdMsg(s"$handler finished processing parcel stream in ${System.nanoTime() - start} nanos")
       }
     }
   }

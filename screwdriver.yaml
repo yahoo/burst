@@ -2,7 +2,7 @@
 annotations:
     screwdriver.cd/restrictPR: fork
 shared:
-    image: openjdk:8
+    image: openjdk:11
     environment:
         MAVEN_OPTS: -Xmx3G -Dscalatest.jvm.args='-Xmx9G'
         REVISION: ''
@@ -14,7 +14,7 @@ shared:
         screwdriver.cd/cpu: HIGH
         screwdriver.cd/ram: HIGH
     steps:
-        -   compute-context: &compute-context |
+        -   compute-context: |
                 export SHORT_GIT_COMMIT=$(echo $SD_BUILD_SHA | cut -c1-7)
                 export BURST_BRANCH=$(echo $GIT_BRANCH | awk -F/ '{print $NF}')
                 if [ "$GIT_BRANCH" != "origin/main" ] && [ "$REVISION" == "" ]; then
@@ -27,18 +27,20 @@ shared:
                 echo "VERSION_LBL=$VERSION_LBL"
                 echo "BRANCH=$BURST_BRANCH"
                 echo "TIMESTAMP=$TIMESTAMP"
-        -   set-build-label: &set-build-label |
+        -   set-build-label: |
                 meta set label "${VERSION_LBL}"
                 echo "Build label: ${VERSION_LBL}"
-        -   build: &build-and-deploy |
+        -   build: |
                 echo "./mvnw $MVN_FLAGS $MVN_EXTRA_FLAGS $MVN_TARGETS"
                 ./mvnw $MVN_FLAGS $MVN_EXTRA_FLAGS $MVN_TARGETS
 jobs:
     pr:
         requires: [ ~pr ]
+        environment:
+            REVISION: -alpha-$SD_PULL_REQUEST.$SD_BUILD_ID
 
     main:
-        requires: [ ~commit, build-base-image ]
+        requires: [ ~commit ]
 
     base-image: &build-base-image
         requires: [ ~commit ]
@@ -47,24 +49,20 @@ jobs:
         annotations:
             screwdriver.cd/dockerEnabled: true
         environment:
-            JAVA_VERSION: 8
+            JAVA_VERSION: 11
         steps:
             -   setup: &docker-setup |
                     export TIMESTAMP=$(date +%s)
-
                     # explain why we are building
                     echo Build triggered by source=$SD_SOURCE_PATH
             -   build: &docker-build |
-                    echo "docker build docker/corretto --progress=plain \
+                    docker_cmd="docker build docker/corretto --progress=plain \
                         --build-arg JAVA_VERSION=${JAVA_VERSION} \
-                        -t burst/corretto-burst:${JAVA_VERSION} \
-                        -t burst/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}"
-                    docker build docker/corretto --progress=plain \
-                        --build-arg JAVA_VERSION=${JAVA_VERSION} \
-                        -t burst/corretto-burst:${JAVA_VERSION} \
-                        -t burst/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}
+                        -t burstsys/corretto-burst:${JAVA_VERSION} \
+                        -t burstsys/corretto-burst:${JAVA_VERSION}-${TIMESTAMP}"
+                    $docker_cmd
             -   push: |
-                    echo 'docker image push --all-tags burst/corretto-burst'
+                    echo 'docker image push --all-tags burstsys/corretto-burst'
 
     base-image-pr-build:
         <<: *build-base-image

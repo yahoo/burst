@@ -1,3 +1,8 @@
+# Synthetic Unity Configuration
+
+The if the following properties are found in the stream properties then the value from the stream will be used instead
+of the default value listed below.
+
 | property | type | description | default value |
 | -------- | ---- | ----------- | ------------- |
 | `synthetic.unity.applicationId` | `Long` | the user.applicationId value | `12345` |

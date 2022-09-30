@@ -5,6 +5,7 @@ import org.burstsys.nexus
 import org.burstsys.samplesource.service.SampleSourceSupervisorService
 import org.burstsys.samplestore.api
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
+import org.burstsys.samplestore.api.SampleStoreApiRequestInvalidException
 import org.burstsys.samplestore.api.SampleStoreDataLocus
 import org.burstsys.samplestore.api.SampleStoreGeneration
 import org.burstsys.synthetic.samplestore.configuration
@@ -42,11 +43,13 @@ case class SyntheticSampleSourceCoordinator() extends SampleSourceSupervisorServ
 
       val properties = mergeProperties(dataSource, listenerProperties)
       val extended = properties.extend
-      val lociCount = extended.getValueOrProperty[Int](configuration.lociCountProperty, configuration.defaultLociCountProperty)
-      val useLocalHost = extended.getValueOrProperty[Boolean](configuration.useLocalHostProperty, configuration.defaultUseLocalHostProperty)
-      val (host, addr) = if (useLocalHost) ("localhost", "127.0.0.1") else (vitals.net.getLocalHostName, vitals.net.getLocalHostAddress)
+      val lociCount = extended.getValueOrProperty(configuration.defaultLociCountProperty)
+      val useLocalHost = extended.getValueOrProperty(configuration.defaultUseLocalHostProperty)
+      val (host, addr) = if (useLocalHost) ("localhost", "127.0.0.1") else {
+        throw SampleStoreApiRequestInvalidException("Only localhost mode is currently supported", null)
+      }
       val loci = for (_ <- 1 to lociCount) yield SampleStoreDataLocus(newBurstUid, addr, host, nexus.port, properties)
-      val hashIsInvariant = extended.getValueOrProperty(configuration.persistentHashProperty, configuration.defaultPersistentHashProperty)
+      val hashIsInvariant = extended.getValueOrProperty(configuration.defaultPersistentHashProperty)
       val hash = if (hashIsInvariant) InvariantHash else newBurstUid
 
       SampleStoreGeneration(guid, hash, loci.toArray, dataSource.view.schemaName, Some(dataSource.view.viewMotif))

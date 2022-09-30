@@ -48,10 +48,11 @@ yarn-debug.log*
 yarn-error.log*
 
 /certs/
-/kubernetes/certs/*
-/kubernetes/mysql/data/*
-!/kubernetes/certs/.gitkeep
-!/kubernetes/mysql/data/.gitkeep
+/kubernetes/local-cluster/certs/*
+/kubernetes/local-cluster/generated/*
+/kubernetes/local-cluster/mysql/data/*
+!/kubernetes/local-cluster/certs/.gitkeep
+!/kubernetes/local-cluster/mysql/data/.gitkeep
 
 
 /burst-dash/src/react/node_modules/

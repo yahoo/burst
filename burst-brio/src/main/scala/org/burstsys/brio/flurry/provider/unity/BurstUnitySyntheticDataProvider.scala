@@ -212,14 +212,14 @@ object BurstUnitySyntheticDataProvider {
   /** `Int` - The number of event parameters that exist */
   val eventParametersCountKey = "synthetic.unity.eventParametersCount"
 
-  /** Default value for `eventParametersCountKey` */
+  /** Default value for `eventParametersCountKey`: 5 */
   val eventParametersCountDefault: Int = 5
 
   /** `Array[Int]` - The number of parameters to for each event */
   val eventParametersPerEventKey = "synthetic.unity.eventParametersPerEvent"
 
-  /** Default value for `eventParametersPerEventKey`: [1, 2, 3, 4, 5] */
-  val eventParametersPerEventDefault: Array[Int] = Array(1 to eventParametersCountDefault: _*)
+  /** Default value for `eventParametersPerEventKey`: [0, 1, 2, 3, 4, 5] */
+  val eventParametersPerEventDefault: Array[Int] = Array(0 to eventParametersCountDefault: _*)
 
 }
 
@@ -316,7 +316,7 @@ case class BurstUnitySyntheticDataProvider() extends BrioSyntheticDataProvider {
                   startTime = installTime + sessionIdx * sessionInterval + eventIdx * eventInterval,
                   duration = eventDuration,
                   standardEventId = unspecified,
-                  parameters = (1 to eventParametersPerEvent.value(eventIdx)).flatMap(eventParameters.value).toMap
+                  parameters = (0 to eventParametersPerEvent.value(eventIdx)).flatMap(eventParameters.value).toMap
                 )).iterator,
               variants = Array.empty.iterator,
               sessionType = unspecified.toByte,

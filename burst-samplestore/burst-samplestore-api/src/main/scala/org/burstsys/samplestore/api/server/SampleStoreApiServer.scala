@@ -37,9 +37,9 @@ class SampleStoreApiServer(delegate: SampleStoreApiServerDelegate) extends Burst
   def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource): twitter.util.Future[BurstSampleStoreApiViewGenerator] = {
     ensureRunning
     try {
-      scalaToTwitterFuture(delegate.getViewGenerator(guid, dataSource)) map { generator =>
+      scalaToTwitterFuture(delegate.getViewGenerator(guid, dataSource)) map { generation =>
         BurstSampleStoreApiViewGenerator(
-          BurstSampleStoreApiRequestContext(guid), generator.generationHash, Some(generator.loci), generator.motifFilter
+          BurstSampleStoreApiRequestContext(guid), generation.generationHash, Some(generation.loci), generation.motifFilter
         )
       } handle {
         case t: Throwable =>

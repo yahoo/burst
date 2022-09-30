@@ -9,9 +9,6 @@ import org.burstsys.samplesource.service.SampleSourceWorkerService
 import org.burstsys.synthetic.samplestore.configuration.defaultItemCountProperty
 import org.burstsys.synthetic.samplestore.configuration.defaultMaxItemSizeProperty
 import org.burstsys.synthetic.samplestore.configuration.defaultPressTimeoutProperty
-import org.burstsys.synthetic.samplestore.configuration.itemCountProperty
-import org.burstsys.synthetic.samplestore.configuration.maxItemSizeProperty
-import org.burstsys.synthetic.samplestore.configuration.pressTimeoutProperty
 import org.burstsys.synthetic.samplestore.configuration.syntheticDatasetProperty
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
@@ -25,8 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.Future
 import scala.concurrent.TimeoutException
 import scala.language.postfixOps
-import scala.util.Failure
-import scala.util.Success
 
 case class SyntethicSampleSourceWorker() extends SampleSourceWorkerService {
 
@@ -43,7 +38,8 @@ case class SyntethicSampleSourceWorker() extends SampleSourceWorkerService {
    */
   override def feedStream(stream: NexusStream): Future[Unit] = {
     TeslaRequestFuture {
-      val timeout = stream.getOrDefault(pressTimeoutProperty, defaultPressTimeoutProperty.getOrThrow)
+      val props = stream.properties.extend
+      val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
       try {
         val modelName = stream.get[String](syntheticDatasetProperty)
         val dataProvider = BrioSyntheticDataProvider.providerNamed(modelName) // invoke data model with item count
@@ -52,8 +48,8 @@ case class SyntethicSampleSourceWorker() extends SampleSourceWorkerService {
         }
 
         val schema = BrioSchema(dataProvider.schemaName)
-        val maxItemSize = stream.getOrDefault(maxItemSizeProperty, defaultMaxItemSizeProperty.getOrThrow)
-        val itemCount = stream.getOrDefault(itemCountProperty, defaultItemCountProperty.getOrThrow)
+        val maxItemSize = props.getValueOrProperty(defaultMaxItemSizeProperty)
+        val itemCount = props.getValueOrProperty(defaultItemCountProperty)
         val rejectedItemCounter = new AtomicInteger()
 
         val start = System.nanoTime

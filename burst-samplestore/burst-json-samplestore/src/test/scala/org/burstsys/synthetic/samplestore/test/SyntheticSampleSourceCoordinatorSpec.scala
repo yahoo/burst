@@ -9,19 +9,20 @@ import org.burstsys.samplestore.api.SampleStoreGeneration
 import org.burstsys.samplestore.test.BaseSampleStoreTest
 import org.burstsys.synthetic
 import org.burstsys.synthetic.samplestore.service
-import org.burstsys.synthetic.samplestore.service
 import org.burstsys.synthetic.samplestore.service.SyntheticSampleSourceCoordinator
 import org.burstsys.synthetic.samplestore.{configuration => syntheticConfig}
 import org.burstsys.vitals
 import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.scalatest.Inspectors.forAll
+import org.scalatest.TryValues
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.dynamics
 import scala.language.postfixOps
+import scala.util.Try
 
-class SyntheticSampleSourceCoordinatorTest extends BaseSampleStoreTest {
+class SyntheticSampleSourceCoordinatorSpec extends BaseSampleStoreTest with TryValues {
 
   private val domain = BurstSampleStoreDomain(1)
   private val view = BurstSampleStoreView(1, "unity", "view foo {}")
@@ -33,7 +34,7 @@ class SyntheticSampleSourceCoordinatorTest extends BaseSampleStoreTest {
 
   it should "generate loci using defaults" in {
     val emptyDataSource = BurstSampleStoreDataSource(domain, view)
-    val generator = buildGenerator(emptyDataSource, Map.empty, "guid")
+    val generator = buildGenerator(emptyDataSource, Map.empty, "guid").get
     generator.guid shouldBe "guid"
     generator.loci should have length syntheticConfig.defaultLociCountProperty.getOrThrow
     forAll(generator.loci.toSeq)(locusValidator()(_))
@@ -55,21 +56,22 @@ class SyntheticSampleSourceCoordinatorTest extends BaseSampleStoreTest {
     generationForView(view.copy(viewProperties = tenLoci)).loci should have length 10
 
     locusValidator(localHost = true)(generationForView(view.copy(viewProperties = asLocalHost)).loci.head)
-    locusValidator(localHost = false)(generationForView(view.copy(viewProperties = trueHostname)).loci.head)
+    val badGeneration = buildGenerator(BurstSampleStoreDataSource(domain, view.copy(viewProperties = trueHostname)), Map.empty, "guid")
+    badGeneration.failure.exception should have message "Only localhost mode is currently supported"
 
     generationForView(view.copy(viewProperties = staticHash)).generationHash shouldBe service.InvariantHash
     generationForView(view.copy(viewProperties = dynamichash)).generationHash should not be service.InvariantHash
   }
 
   private def generationForView(view: BurstSampleStoreView): SampleStoreGeneration =
-    buildGenerator(BurstSampleStoreDataSource(domain, view), Map.empty, "guid")
+    buildGenerator(BurstSampleStoreDataSource(domain, view), Map.empty, "guid").get
 
   private def buildGenerator(
                             dataSource: BurstSampleStoreDataSource,
                             properties: VitalsPropertyMap,
                             guid: String,
-                          ): SampleStoreGeneration =
-    Await.result(SyntheticSampleSourceCoordinator().getViewGenerator(guid, dataSource, properties), 1 second)
+                          ): Try[SampleStoreGeneration] =
+    Await.ready(SyntheticSampleSourceCoordinator().getViewGenerator(guid, dataSource, properties), 1 second).value.get
 
   private def locusValidator(localHost: Boolean = syntheticConfig.defaultUseLocalHostProperty.getOrThrow)(locus: SampleStoreDataLocus): Unit = {
     locus.hostAddress shouldBe (if (localHost) "127.0.0.1" else vitals.net.getLocalHostAddress)
