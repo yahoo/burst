@@ -2,11 +2,11 @@
 package org.burstsys.agent.test
 
 import org.burstsys.brio.types.BrioTypes
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.parameters.{FabricCall, FabricMapForm, FabricParameterValue, FabricScalarForm, FabricVectorForm}
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.metadata.model.over
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.parameters.{FabricCall, FabricMapForm, FabricParameterValue, FabricScalarForm, FabricVectorForm}
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.metadata.model.over
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors.VitalsException
 

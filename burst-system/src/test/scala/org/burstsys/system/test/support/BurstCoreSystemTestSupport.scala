@@ -4,10 +4,10 @@ package org.burstsys.system.test.support
 import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.fabric.configuration
+import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.system.test.supervisor.BurstSystemTestSupervisorContainer
-import org.burstsys.system.test.worker.BurstSystemTestWorkerContainer
+import org.burstsys.system.test.worker.BurstSystemTestWaveWorkerContainer
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
@@ -29,25 +29,25 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   vitals.configuration.configureForUnitTests()
   tesla.configuration.configureForUnitTests()
-  fabric.configuration.configureForUnitTests()
+  fabric.wave.configuration.configureForUnitTests()
   configuration.burstFabricSupervisorStandaloneProperty.set(true)
   configuration.burstFabricWorkerStandaloneProperty.set(true)
   git.turnOffBuildValidation()
 
   final
-  val supervisorContainer: BurstSystemTestSupervisorContainer = fabric.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
+  val supervisorContainer: BurstSystemTestSupervisorContainer = fabric.wave.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
 
   final
-  val workerContainer: BurstSystemTestWorkerContainer = {
+  val workerContainer: BurstSystemTestWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
     val port = vitals.configuration.burstVitalsHealthCheckPortProperty.getOrThrow
     vitals.configuration.burstVitalsHealthCheckPortProperty.set(port + 1)
-    fabric.container.workerContainer.asInstanceOf[BurstSystemTestWorkerContainer]
+    fabric.wave.container.workerContainer.asInstanceOf[BurstSystemTestWaveWorkerContainer]
   }
 
   val workerGainGate = new CountDownLatch(1)
 
-  override def onTopologyWorkerGain(worker: FabricWorkerNode): Unit = {
+  override def onTopologyWorkerGain(worker: FabricTopologyWorker): Unit = {
     log info s"worker ${worker.nodeId} gain"
     workerGainGate.countDown()
   }

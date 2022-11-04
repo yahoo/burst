@@ -2,14 +2,15 @@
 package org.burstsys.json.samplestore.supervisor
 
 import org.burstsys.json.samplestore.JsonBrioSampleSourceName
-import org.burstsys.samplesource.nexus.SampleSourceNexusServer
-import org.burstsys.samplesource.service.SampleSourceSupervisorService
-import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreApiRequestInvalidException, SampleStoreDataLocus, SampleStoreGeneration}
 import org.burstsys.json.samplestore.configuration.{alloySkipIndexStreamPropertyKey, jsonLociCountProperty}
+import org.burstsys.samplesource.SampleStoreTopology
+import org.burstsys.samplesource.nexus.SampleSourceNexusServer
+import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceSupervisorService}
+import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreApiRequestInvalidException, SampleStoreDataLocus, SampleStoreGeneration}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.net.{VitalsHostName, convertHostAddressToHostname, convertLocalAddressToExternal, getLocalHostAddress, getLocalHostName, isIpv4Address}
-import org.burstsys.vitals.properties.{VitalsPropertyKey, VitalsPropertyMap, propertyMapToString}
+import org.burstsys.vitals.net.{convertHostAddressToHostname, convertLocalAddressToExternal, getLocalHostAddress, getLocalHostName, isIpv4Address}
+import org.burstsys.vitals.properties.{VitalsPropertyMap, propertyMapToString}
 import org.burstsys.vitals.uid.{md5, newBurstUid}
 
 import scala.concurrent.{Future, Promise}
@@ -19,26 +20,25 @@ case class JsonSampleSourceSupervisorService() extends SampleSourceSupervisorSer
   override def name: String = JsonBrioSampleSourceName
 
   override
-  def onSampleStoreDataLocusAdded(hostName: VitalsHostName): Unit = {
-    log info burstStdMsg(s"locus added $hostName")
+  def onSampleStoreDataLocusAdded(locus: SampleStoreDataLocus): Unit = {
+    log info burstStdMsg(s"locus added $locus")
   }
 
   override
-  def onSampleStoreDataLocusRemoved(hostName: VitalsHostName): Unit = {
-    log info burstStdMsg(s"locus removed $hostName")
+  def onSampleStoreDataLocusRemoved(locus: SampleStoreDataLocus): Unit = {
+    log info burstStdMsg(s"locus removed $locus")
   }
 
   override
-  def getBroadcastVars: Map[VitalsPropertyKey, java.io.Serializable] = {
-    val broadcastVars = Map[VitalsPropertyKey, java.io.Serializable]()
-    broadcastVars
+  def getBroadcastVars: MetadataParameters = {
+    Map.empty
   }
 
   override
-  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, listenerProperties: VitalsPropertyMap): Future[SampleStoreGeneration] = {
+  def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, topology: SampleStoreTopology, listenerProperties: VitalsPropertyMap): Future[SampleStoreGeneration] = {
     val promise = Promise[SampleStoreGeneration]()
     try {
-      val loci: Array[SampleStoreDataLocus] = fetchLoci(mergeProperties(guid, dataSource, listenerProperties))
+      val loci: Array[SampleStoreDataLocus] = fetchLoci(mergeProperties(guid, dataSource, listenerProperties), topology)
       val generationMapping: String = loci.map(l => (l.hostAddress, l.partitionProperties(alloySkipIndexStreamPropertyKey)))
         .sortBy(_._2).sortBy(_._1).map(l => s"${l._1}=${l._2}").mkString("\n")
       log debug s"Bucket distribution guid=$guid\n$generationMapping"
@@ -67,7 +67,7 @@ case class JsonSampleSourceSupervisorService() extends SampleSourceSupervisorSer
    * @param mergedProperties All properties combined
    * @return
    */
-  def fetchLoci(mergedProperties: VitalsPropertyMap): Array[SampleStoreDataLocus] = {
+  def fetchLoci(mergedProperties: VitalsPropertyMap, loci: SampleStoreTopology): Array[SampleStoreDataLocus] = {
     // pretty basic loci lister
     // TODO get loci list from an external provider
     val lociRepeat = Math.max(1, jsonLociCountProperty.getOrThrow)

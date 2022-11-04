@@ -2,12 +2,12 @@
 package org.burstsys.alloy.store.mini.worker
 
 import org.burstsys.alloy.store.mini
-import org.burstsys.fabric.container.worker.FabricWorkerContainer
-import org.burstsys.fabric.data.model.store.FabricStoreName
-import org.burstsys.fabric.data.worker.store.FabricStoreWorker
+import org.burstsys.fabric.wave.data.model.store.FabricStoreName
+import org.burstsys.fabric.wave.data.worker.store.FabricStoreWorker
+import org.burstsys.fabric.wave.container.worker.FabricWaveWorkerContainer
 
 final case
-class MiniStoreWorker(container: FabricWorkerContainer) extends FabricStoreWorker with MiniInitializer {
+class MiniStoreWorker(container: FabricWaveWorkerContainer) extends FabricStoreWorker with MiniInitializer {
 
   override lazy val storeName: FabricStoreName = mini.MiniStoreName
 

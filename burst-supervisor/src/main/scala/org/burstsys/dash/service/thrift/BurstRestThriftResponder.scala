@@ -6,7 +6,7 @@ import org.burstsys.catalog.CatalogExceptions.CatalogNotFoundException
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.model.view.CatalogView
 import org.burstsys.client.util.DatumValue
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.gen.thrift.api.client.BTBurstService
 import org.burstsys.gen.thrift.api.client.BTDataFormat
 import org.burstsys.gen.thrift.api.client.domain.BTDomain

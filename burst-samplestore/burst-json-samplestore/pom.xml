@@ -34,6 +34,11 @@
             <groupId>org.burstsys</groupId>
             <artifactId>burst-samplesource</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-base-samplestore</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -67,7 +72,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.burstsys.synthetic.samplestore.main.ChooseWorkload</mainClass>
+                            <mainClass>org.burstsys.samplestore.store.ChooseWorkload</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -5,11 +5,11 @@ import org.burstsys.alloy.store.mini.supervisor.MiniStoreSupervisor
 import org.burstsys.alloy.store.mini.worker.MiniStoreWorker
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.press.{BrioPressSink, BrioPresser}
-import org.burstsys.fabric.data.model.slice.data.FabricSliceData
-import org.burstsys.fabric.data.model.store.FabricStoreProvider
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view.FabricView
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
+import org.burstsys.fabric.wave.data.model.slice.data.FabricSliceData
+import org.burstsys.fabric.wave.data.model.store.FabricStoreProvider
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricViewKey}
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.instrument.prettyTimeFromNanos

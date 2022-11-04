@@ -26,7 +26,7 @@ object BurstWorkerMain {
 
     parser.parse(args.toSeq, defaultArguments) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         System.exit(-1)
       case Some(arguments) =>
         if (arguments.standalone) {
@@ -39,7 +39,7 @@ object BurstWorkerMain {
          */
         VitalsLog.configureLogging(WorkerLog4JPropertiesFileName)
         loadSystemPropertiesFromJavaPropertiesFile(burstWorkerPropertiesFileProperty.getOrThrow)
-        fabric.container.workerContainer.start.run.stop
+        fabric.wave.container.workerContainer.start.run.stop
     }
 
   }

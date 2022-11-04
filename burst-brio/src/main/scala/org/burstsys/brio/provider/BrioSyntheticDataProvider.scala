@@ -47,7 +47,7 @@ trait BrioSyntheticDataProvider {
   def pressSource(root: BrioPressInstance): BrioPressSource
 
   protected def propertyAsRepeatedValue[C: ClassTag](properties: VitalsRichExtendedPropertyMap, key: String, default: Array[C]): SyntheticRepeatedValue[C] = {
-    SyntheticRepeatedValue(properties.getValueOrDefault(key, default): _*)
+    SyntheticRepeatedValue(properties.getValueOrDefault(key, default).toIndexedSeq: _*)
   }
 
 }

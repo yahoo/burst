@@ -52,7 +52,6 @@
                                     <portNames>
                                         <portName>burst.agent.api.port</portName>
                                         <portName>burst.catalog.api.port</portName>
-                                        <portName>burst.fabric.supervisor.port</portName>
                                         <portName>burst.fabric.net.port</portName>
                                         <portName>burst.liaison.port</portName>
                                         <portName>burst.nexus.server.port</portName>
@@ -106,7 +105,6 @@
                                 <burst.nexus.server.port>${burst.nexus.server.port}</burst.nexus.server.port>
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
-                                <burst.fabric.supervisor.port>${burst.fabric.supervisor.port}</burst.fabric.supervisor.port>
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
                                 <burst.liaison.port>${burst.liaison.port}</burst.liaison.port>
                             </systemProperties>
@@ -224,7 +222,7 @@
         <scalacompat.version>2.6.0</scalacompat.version>
         <scalatest.version>3.2.11</scalatest.version>
         <scalikejdbc.version>3.5.0</scalikejdbc.version>
-        <scopt.version>3.7.1</scopt.version> <!-- command line argument parsing -->
+        <scopt.version>4.0.1</scopt.version> <!-- command line argument parsing -->
         <slf4j.version>1.7.36</slf4j.version>
         <snappy.version>1.1.8.4</snappy.version> <!-- snappy compression-->
         <sourcecode.version>0.2.8</sourcecode.version>
@@ -329,6 +327,16 @@
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
+                <artifactId>burst-fabric-net</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
+                <artifactId>burst-fabric-wave</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
                 <artifactId>burst-felt</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -340,6 +348,11 @@
             <dependency>
                 <groupId>org.burstsys</groupId>
                 <artifactId>burst-hydra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
+                <artifactId>burst-base-samplestore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

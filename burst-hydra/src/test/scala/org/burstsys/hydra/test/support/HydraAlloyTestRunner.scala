@@ -5,11 +5,10 @@ import org.burstsys.alloy.AlloyDatasetSpec
 import org.burstsys.alloy.alloy.store.AlloyView
 import org.burstsys.alloy.alloy.usecase.AlloyJsonUseCaseRunner
 import org.burstsys.alloy.alloy.views.AlloyJsonUseCaseViews
-import org.burstsys.brio
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.execution.model.result.set.FabricResultSet
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.hydra.HydraService
 import org.burstsys.hydra.runtime.{SerializeTraversal, StaticSweep}
 import org.burstsys.hydra.sweep.HydraSweep

@@ -7,14 +7,14 @@ import org.burstsys.agent.model.cache.generation.metrics._
 import org.burstsys.agent.model.execution.group.key._
 import org.burstsys.agent.model.execution.metrics._
 import org.burstsys.agent.model.execution.result.status._
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.data.model.generation.metrics.FabricGenerationMetrics
-import org.burstsys.fabric.data.model.mode._
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupKey
-import org.burstsys.fabric.execution.model.metrics.FabricExecutionMetrics
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroupMetrics
-import org.burstsys.fabric.execution.model.result.status._
-import org.burstsys.fabric.execution.model.result.group
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.generation.metrics.FabricGenerationMetrics
+import org.burstsys.fabric.wave.data.model.mode._
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupKey
+import org.burstsys.fabric.wave.execution.model.metrics.FabricExecutionMetrics
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroupMetrics
+import org.burstsys.fabric.wave.execution.model.result.status._
+import org.burstsys.fabric.wave.execution.model.result.group
 
 import scala.language.implicitConversions
 

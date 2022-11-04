@@ -3,7 +3,7 @@ package org.burstsys.felt.model.sweep
 
 import org.burstsys.brio.types.BrioPath.BrioPathName
 import org.burstsys.brio.types.BrioTypes.{BrioTypeName, BrioVersionKey}
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
 import org.burstsys.felt.model.collectors.FeltCollectorSymbols
 import org.burstsys.felt.model.control.generate.FeltCtlSymbols
 import org.burstsys.felt.model.lattice.FeltLatSymbols

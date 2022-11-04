@@ -1,8 +1,14 @@
 *.settings
+*.swp
 .idea
 logs/
 tmp/
 target/
+project/
+.bsp/
+.bloop/
+.metals/
+.vscode/
 
 .metadata
 *.jfr

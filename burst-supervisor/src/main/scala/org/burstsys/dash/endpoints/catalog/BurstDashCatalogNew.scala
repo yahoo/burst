@@ -9,7 +9,7 @@ import org.burstsys.catalog.model.query._
 import org.burstsys.catalog.model.view._
 import org.burstsys.dash.application.BurstDashEndpointBase
 import org.burstsys.fabric
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
 import org.burstsys.motif.Metadata
 import org.burstsys.samplestore.api.{SampleStoreSourceNameProperty, SampleStoreSourceVersionProperty}
 import org.burstsys.vitals.errors.VitalsException
@@ -77,7 +77,7 @@ trait BurstDashCatalogNew {
   )
 
   def defaultPropertiesForView: Map[String, String] = Map(
-    fabric.metadata.ViewNextLoadStaleMsProperty -> (1 day).toMillis.toString
+    fabric.wave.metadata.ViewNextLoadStaleMsProperty -> (1 day).toMillis.toString
   )
 
   def defaultMotifForSchema(schema: String): String = {

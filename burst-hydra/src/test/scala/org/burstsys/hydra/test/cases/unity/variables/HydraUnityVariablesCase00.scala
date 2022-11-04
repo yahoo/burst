@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra.test.cases.unity.variables
 
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
 import org.burstsys.hydra.test.cases.quo.timegrain.HydraQuoDayGrain.{expected, frameName}
 import org.burstsys.hydra.test.cases.support.HydraUseCase
 import org.burstsys.hydra.test.cases.unity.splits.HydraUnitySplitCase00.{analysisName, frameName}

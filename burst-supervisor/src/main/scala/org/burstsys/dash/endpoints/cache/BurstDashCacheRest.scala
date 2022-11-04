@@ -3,9 +3,9 @@ package org.burstsys.dash.endpoints.cache
 
 import org.burstsys.dash.application.BurstDashEndpointBase
 import org.burstsys.dash.endpoints._
-import org.burstsys.fabric.data.model.generation.FabricGeneration
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.data.model.ops.{FabricCacheEvict, FabricCacheFlush, FabricCacheSearch}
+import org.burstsys.fabric.wave.data.model.generation.FabricGeneration
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.ops.{FabricCacheEvict, FabricCacheFlush, FabricCacheSearch}
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.uid._

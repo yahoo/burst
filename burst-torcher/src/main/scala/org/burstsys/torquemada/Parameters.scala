@@ -92,7 +92,7 @@ object Parameters {
 
     parser.parse(args.toSeq, torcherParameters) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         None
       case Some(p) =>
         Some(p)

@@ -6,12 +6,12 @@ import org.burstsys.catalog.api.BurstCatalogApiView
 import org.burstsys.catalog.cannedDataLabel
 import org.burstsys.catalog.persist.ScopedUdkCatalogEntity
 import org.burstsys.fabric
-import org.burstsys.fabric.data.model.generation.FabricGenerationIdentity
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.metadata.model.FabricDomainKey
-import org.burstsys.fabric.metadata.model.FabricGenerationClock
-import org.burstsys.fabric.metadata.model.FabricViewKey
-import org.burstsys.fabric.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.data.model.generation.FabricGenerationIdentity
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.FabricGenerationClock
+import org.burstsys.fabric.wave.metadata.model.FabricViewKey
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.relate.RelateEntity
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.json.VitalsJsonSanatizers._
@@ -59,10 +59,10 @@ package object view {
      */
     private val loadProps: Set[String] = Set(
       ViewLoadTimeoutMsProperty,
-      fabric.metadata.ViewNextLoadStaleMsProperty,
-      fabric.metadata.ViewLastLoadStaleMsProperty,
-      fabric.metadata.ViewEarliestLoadAtProperty,
-      fabric.metadata.ViewLastColdLoadAtProperty
+      fabric.wave.metadata.ViewNextLoadStaleMsProperty,
+      fabric.wave.metadata.ViewLastLoadStaleMsProperty,
+      fabric.wave.metadata.ViewEarliestLoadAtProperty,
+      fabric.wave.metadata.ViewLastColdLoadAtProperty
     )
   }
 

@@ -1,7 +1,7 @@
 # This deployment file contains:
 # - a namespace
-# - a service for the cell supervisor
-# - a service for the catalog sql server
+# - a source for the cell supervisor
+# - a source for the catalog sql server
 # - a deployment for the supervisor
 # - a deployment for the worker
 # - a deployment for the catalog mysql
@@ -27,6 +27,8 @@ spec:
             port: 4443
         -   name: fabric
             port: 37060
+        -   name: store
+            port: 37061
     selector:
         appName: burst
         workload: supervisor
@@ -128,20 +130,29 @@ spec:
                             mountPath: /app/burst/data1/burst
                         -   name: certs-volume
                             mountPath: /var/run/certs
-                -   name: syntetic-samplesource-supervisor
+                -   name: synthetic-samplesource-supervisor
                     image: burst-synthetic-samplesource:IMAGE_VERSION # TODO replace with script
                     env:
                         -   name: WORKLOAD
                             value: supervisor
                         -   name: BURST_SAMPLESTORE_API_PORT
                             value: '50515'
+                        -   name: BURST_STORE_FABRIC_PORT
+                            value: '37061'
+                        -   name: BURST_STORE_SUPERVISOR_HOST
+                            value: burst-supervisor.burst-local
                     ports:
                         -   name: thrift
                             containerPort: 50515
+                        -   name: store
+                            containerPort: 37061
                     resources:
                         limits:
                             memory: SAMPLE_SUPER_MEM
                             cpu: SAMPLE_SUPER_CPU
+                    volumeMounts:
+                        -   name: app-logs-0
+                            mountPath: /app/burst/logs/
 
             volumes:
                 -   name: app-logs-0
@@ -234,6 +245,10 @@ spec:
                     env:
                         -   name: WORKLOAD
                             value: worker
+                        -   name: BURST_STORE_FABRIC_PORT
+                            value: '37061'
+                        -   name: BURST_STORE_SUPERVISOR_HOST
+                            value: burst-supervisor.burst-local
                     ports:
                         -   name: nexus
                             containerPort: 1270

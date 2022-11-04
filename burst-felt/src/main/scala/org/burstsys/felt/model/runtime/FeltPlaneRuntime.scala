@@ -2,9 +2,9 @@
 package org.burstsys.felt.model.runtime
 
 import org.burstsys.brio.blob.BrioBlob
-import org.burstsys.fabric.data.model.snap.FabricSnap
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlaneGather
+import org.burstsys.fabric.wave.data.model.snap.FabricSnap
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlaneGather
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorPlane
 import org.burstsys.felt.model.sweep.FeltSweep
 

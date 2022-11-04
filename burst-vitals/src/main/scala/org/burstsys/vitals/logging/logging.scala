@@ -1,10 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
-import java.lang.management.{ManagementFactory, ThreadInfo}
-
 import org.burstsys.vitals.errors.messageFromException
 
+import java.lang.management.{ManagementFactory, ThreadInfo}
+import scala.annotation.unused
+import scala.collection.mutable
 import scala.language.implicitConversions
 
 package object logging extends VitalsLogger {
@@ -35,6 +36,7 @@ package object logging extends VitalsLogger {
     trace match {
       case None => s"$burstModuleName '$msg' unknown source location on $burstHost"
       case Some(location) =>
+        @unused
         val className = location.getClassName match {
           case null => "(unknown class)"
           case name => name.split('.').last.stripSuffix("$class").stripSuffix("$").replaceAll("\\$\\$anonfun\\$", ".")
@@ -85,12 +87,14 @@ package object logging extends VitalsLogger {
     Some(stack.head)
   }
 
+  @unused
   final
   def getAllThreadsDump: Array[String] = {
     val threadMxBean = ManagementFactory.getThreadMXBean
     for (ti <- threadMxBean.dumpAllThreads(true, true)) yield verboseThreadToString(ti)
   }
 
+  @unused
   final
   def getPrunedThreadsDump(f: ThreadInfo => Option[ThreadInfo]): Array[ThreadInfo] = {
     val threadMxBean = ManagementFactory.getThreadMXBean
@@ -98,6 +102,7 @@ package object logging extends VitalsLogger {
   }
 
 
+  @unused
   final
   def getThisThreadDump: String = {
     val threadMxBean = ManagementFactory.getThreadMXBean
@@ -106,7 +111,7 @@ package object logging extends VitalsLogger {
 
   final
   def verboseThreadToString(thread: ThreadInfo): String = {
-    val sb = new StringBuilder("\"" + thread.getThreadName + "\"" + " Id=" + thread.getThreadId + " " + thread.getThreadState)
+    val sb = new mutable.StringBuilder("\"" + thread.getThreadName + "\"" + " Id=" + thread.getThreadId + " " + thread.getThreadState)
     if (thread.getLockName != null) sb.append(" on " + thread.getLockName)
     if (thread.getLockOwnerName != null) sb.append(" owned by \"" + thread.getLockOwnerName + "\" Id=" + thread.getLockOwnerId)
     if (thread.isSuspended) sb.append(" (suspended)")
@@ -142,10 +147,7 @@ package object logging extends VitalsLogger {
         }
       }
 
-      {
-        i += 1;
-        i - 1
-      }
+        i += 1
     }
     if (i < stackTrace.length) {
       sb.append("\t...")

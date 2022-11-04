@@ -10,6 +10,7 @@ import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reflection
 
+import java.util
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
@@ -39,7 +40,12 @@ object SampleSourceHandlerRegistry extends VitalsService {
   def getSupervisor(name: String): SampleSourceSupervisorService = {
     ensureRunning
     _supervisors.computeIfAbsent(name,
-      _ => _services.get(name).coordinatorClass.getDeclaredConstructor().newInstance().asInstanceOf[SampleSourceSupervisorService].start)
+      _ => _services.get(name).supervisorClass.getDeclaredConstructor().newInstance().asInstanceOf[SampleSourceSupervisorService].start)
+  }
+
+  def getSources: Iterator[String] = {
+    ensureRunning
+    _services.keys().asScala
   }
 
   def getWorker(name: String): SampleSourceWorkerService = {

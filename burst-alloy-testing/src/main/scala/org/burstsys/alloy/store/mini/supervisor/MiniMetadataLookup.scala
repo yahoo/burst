@@ -3,11 +3,11 @@ package org.burstsys.alloy.store.mini.supervisor
 
 import org.burstsys.alloy
 import org.burstsys.alloy.store.mini.{MiniView, domainMap, viewMap}
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey, domain}
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey, domain}
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties.VitalsPropertyMap

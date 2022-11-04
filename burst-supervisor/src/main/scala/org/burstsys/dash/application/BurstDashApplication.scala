@@ -22,7 +22,7 @@ import org.burstsys.dash.endpoints.torcher.BurstDashTorcherRest
 import org.burstsys.dash.provider.profiler.BurstDashProfilerService
 import org.burstsys.dash.provider.torcher.BurstDashTorcherService
 import org.burstsys.dash.service.thrift
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.gen.thrift.api.client.BTBurstService
 import org.burstsys.gen.thrift.api.client.BTBurstService.Iface
 import org.glassfish.jersey.internal.inject.AbstractBinder
@@ -32,7 +32,7 @@ import org.glassfish.jersey.server.internal.monitoring.MonitoringFeature
 class BurstDashApplication(
                             agent: AgentService,
                             catalog: CatalogService,
-                            supervisor: FabricSupervisorContainer,
+                            supervisor: FabricWaveSupervisorContainer,
                             profiler: BurstDashProfilerService,
                             torcher: BurstDashTorcherService
                           ) extends ResourceConfig {
@@ -42,7 +42,7 @@ class BurstDashApplication(
       bind(catalog).to(classOf[CatalogService])
       bind(torcher).to(classOf[BurstDashTorcherService])
       bind(agent).to(classOf[AgentService])
-      bind(supervisor).to(classOf[FabricSupervisorContainer])
+      bind(supervisor).to(classOf[FabricWaveSupervisorContainer])
       bind(profiler).to(classOf[BurstDashProfilerService])
       bindFactory(() => thrift.processor(catalog, agent)).to(classOf[BTBurstService.Processor[Iface]])
       bindFactory(() => new TBinaryProtocol.Factory()).to(classOf[TProtocolFactory])

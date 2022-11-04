@@ -2,8 +2,8 @@
 package org.burstsys.dash.endpoints
 
 import org.burstsys.dash.application.GenericParam
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.data.model.ops._
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.ops._
 import org.burstsys.vitals.logging._
 
 import scala.language.implicitConversions

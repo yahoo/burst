@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.burstsys</groupId>
+        <artifactId>burst-samplestore</artifactId>
+        <version>5.0.0${revision}-SNAPSHOT</version>
+    </parent>
+    <artifactId>burst-base-samplestore</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-vitals</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-tesla</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-brio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-nexus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-fabric-net</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-samplestore-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.burstsys</groupId>
+            <artifactId>burst-samplesource</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.burstsys.samplestore.store.ChooseWorkload</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

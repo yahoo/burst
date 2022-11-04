@@ -2,7 +2,7 @@
 package org.burstsys.felt.test.mock
 
 import org.burstsys.brio.runtime.BrioThreadRuntime
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
 import org.burstsys.felt.binding.FeltBinding
 import org.burstsys.felt.model.runtime.{FeltPlaneRuntimeContext, FeltRuntime}
 import org.burstsys.ginsu.runtime.GinsuRuntime

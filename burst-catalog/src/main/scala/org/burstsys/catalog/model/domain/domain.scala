@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.burstsys.catalog.api.BurstCatalogApiDomain
 import org.burstsys.catalog.cannedDataLabel
 import org.burstsys.catalog.persist.UdkCatalogEntity
-import org.burstsys.fabric.metadata.model.FabricDomainKey
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.relate.RelateEntity
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.json.VitalsJsonSanatizers._

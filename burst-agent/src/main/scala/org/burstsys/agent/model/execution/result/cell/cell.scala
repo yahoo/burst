@@ -6,7 +6,7 @@ import org.burstsys.agent.api.{BurstQueryApiResultCell, BurstQueryDataType}
 import org.burstsys.agent.model.execution.result.cell.tipe._
 import org.burstsys.brio.types.BrioTypes
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.result.row._
+import org.burstsys.fabric.wave.execution.model.result.row._
 import org.burstsys.vitals.errors.VitalsException
 
 import scala.collection.mutable.ArrayBuffer

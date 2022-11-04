@@ -3,14 +3,14 @@ package org.burstsys.dash.service.thrift
 
 import org.burstsys.brio.types.BrioTypes
 import org.burstsys.brio.types.BrioTypes.BrioDataType
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.execution.model.result.row
-import org.burstsys.fabric.execution.model.result.row.FabricResultCell
-import org.burstsys.fabric.execution.model.result.row.FabricResultCellType
-import org.burstsys.fabric.execution.model.result.row.FabricResultRow
-import org.burstsys.fabric.execution.model.result.set.FabricResultSet
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetIndex
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetMetrics
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.row
+import org.burstsys.fabric.wave.execution.model.result.row.FabricResultCell
+import org.burstsys.fabric.wave.execution.model.result.row.FabricResultCellType
+import org.burstsys.fabric.wave.execution.model.result.row.FabricResultRow
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetIndex
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetMetrics
 import org.burstsys.gen.thrift.api.client.BTDataType
 import org.burstsys.gen.thrift.api.client.BTDatum
 import org.burstsys.gen.thrift.api.client.query.BTCell

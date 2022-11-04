@@ -19,7 +19,7 @@ defined in [BurstCatalogApi.thrift](src/main/thrift/catalogService.thrift)
 
 ## Model
 The Catalog implements a metadata types and basic semantics as defined
-in the [Fabric](../burst-fabric/readme.md) module. These types are
+in the [Fabric](../burst-fabric/burst-fabric-wave/readme.md) module. These types are
 used throughout the Burst ecosystem, however the Catalog is where
 these data structures are accessible via external APIs and are persisted.
 The Burst Supervisor hosts the Catalog server and the Catalog client is used internally

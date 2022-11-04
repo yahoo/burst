@@ -13,7 +13,6 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reflection._
 import scalikejdbc.DBSession
 
-import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**

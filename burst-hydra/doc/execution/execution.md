@@ -9,9 +9,9 @@ __Execution__ for Hydra is a pipeline consists of the following processing seque
    1. Receive language processing request from the [`Burst Agent`](../../../burst-agent/readme.md)
    2. Parse/validate the attached _analysis_ source
       1. return error messages if necessary...
-   3. Create a [`FabricWave`](../../../burst-fabric/doc/waves.md) to manage the execution
-   4. Attach one [`FabricParticle`](../../../burst-fabric/doc/waves.md) for each data slice/worker node in the target dataset
-   5. Attach the appropriate [`FabricSlice`](../../../burst-fabric/doc/slice.md) data specification to each Particle
+   3. Create a [`FabricWave`](../../../burst-fabric/burst-fabric-wave/doc/waves.md) to manage the execution
+   4. Attach one [`FabricParticle`](../../../burst-fabric/burst-fabric-wave/doc/waves.md) for each data slice/worker node in the target dataset
+   5. Attach the appropriate [`FabricSlice`](../../../burst-fabric/burst-fabric-wave/doc/slice.md) data specification to each Particle
    6. Attach the `HydraScanner` with the _normalized source_ version of the resulting [`FeltTree`](../../../burst-felt/readme.md) to all the particles
    7. Serialize and transmit all the `FabricParticle` instances in the `FabricWave` to the appropriate Worker nodes via the `Fabric Protocol`
 2. **Worker Node**

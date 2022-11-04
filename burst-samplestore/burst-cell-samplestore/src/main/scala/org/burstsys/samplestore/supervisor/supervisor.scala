@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore
 
-import org.burstsys.fabric.data.model.store.FabricStoreProvider
+import org.burstsys.fabric.wave.data.model.store.FabricStoreProvider
 import org.burstsys.samplestore.api.SampleStoreGeneration
 import org.burstsys.samplestore.worker.SampleStoreWorker
 import org.burstsys.{samplestore, vitals}

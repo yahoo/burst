@@ -3,7 +3,7 @@ package org.burstsys.dash.service
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong, LongAdder}
 
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.vitals.logging._
 
 package object profiler extends VitalsLogger {

@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.service.profiler
 
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.status.FabricNotReadyResultStatus
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.status.FabricNotReadyResultStatus
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging.burstStdMsg

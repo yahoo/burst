@@ -8,12 +8,12 @@ import org.burstsys.alloy.alloy.store.AlloyView
 import org.burstsys.alloy.alloy.{AlloyJsonFileProperty, AlloyJsonRootVersionProperty}
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.types.BrioTypes.BrioVersionKey
-import org.burstsys.fabric.data.model.generation.metrics.FabricGenerationMetrics
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view.FabricView
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
+import org.burstsys.fabric.wave.data.model.generation.metrics.FabricGenerationMetrics
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricViewKey}
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
 final case

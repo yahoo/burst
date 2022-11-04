@@ -2,7 +2,7 @@
 package org.burstsys.agent.model.cache.generation
 
 import org.burstsys.agent.api.{BurstQueryApiGenerationKey, BurstQueryCacheGenerationKey}
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
 
 import scala.language.implicitConversions
 

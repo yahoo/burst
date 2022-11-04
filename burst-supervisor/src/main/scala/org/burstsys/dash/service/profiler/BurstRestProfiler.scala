@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.dash.provider.profiler._
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.errors._

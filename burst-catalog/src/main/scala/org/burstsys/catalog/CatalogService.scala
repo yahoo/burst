@@ -14,7 +14,7 @@ import org.burstsys.catalog.model.query._
 import org.burstsys.catalog.model.view._
 import org.burstsys.catalog.persist.CatalogSqlProvider
 import org.burstsys.catalog.provider._
-import org.burstsys.fabric.metadata.model.FabricMetadataLookup
+import org.burstsys.fabric.wave.metadata.model.FabricMetadataLookup
 import org.burstsys.relate.RelatePk
 import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateDialect, RelateMySqlDialect}
 import org.burstsys.vitals.VitalsService

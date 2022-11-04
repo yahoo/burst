@@ -3,9 +3,9 @@ package org.burstsys.dash.websocket
 
 import org.burstsys.dash.application.websocket.{BurstDashWebSocketListener, BurstWebSocket, BurstWebSocketGroup, BurstWebSocketService}
 import org.burstsys.fabric.configuration.burstFabricTopologyHomogeneous
-import org.burstsys.fabric.topology.supervisor.{FabricSupervisorTopology, FabricTopologyListener}
+import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.model.node.worker.JsonFabricWorker
-import org.burstsys.fabric.topology.model.node.worker.{FabricWorkerNode, FabricWorkerProxy}
+import org.burstsys.fabric.topology.supervisor.{FabricSupervisorTopology, FabricTopologyListener}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.logging.burstStdMsg
 
@@ -62,18 +62,18 @@ final case class BurstRestFabricTopologyRelay(topology: FabricSupervisorTopology
   /**
    * called to let listeners know that other listeners now know about the worker
    */
-  override def onTopologyWorkerGained(worker: FabricWorkerNode): Unit =
+  override def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit =
     _socketGroup.broadcastJson(FabricTopologyMessage(workersJson))
 
   /**
    * called to let listeners know that other listeners know the worker was lost
    */
-  override def onTopologyWorkerLost(worker: FabricWorkerNode): Unit =
+  override def onTopologyWorkerLost(worker: FabricTopologyWorker): Unit =
     _socketGroup.broadcastJson(FabricTopologyMessage(workersJson))
 
   /**
    * a significant change has happened to a worker other than gain or loss
    */
-  override def onTopologyWorkerChange(worker: FabricWorkerNode): Unit =
+  override def onTopologyWorkerChange(worker: FabricTopologyWorker): Unit =
     _socketGroup.broadcastJson(FabricTopologyMessage(workersJson))
 }

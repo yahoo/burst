@@ -224,7 +224,7 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
 
   private def updateGenerationClock(entity: CatalogView): (Long, VitalsPropertyMap) = {
     val now = System.currentTimeMillis()
-    (now, entity.viewProperties.concat(Array(fabric.metadata.ViewEarliestLoadAtProperty -> s"$now")))
+    (now, entity.viewProperties.concat(Array(fabric.wave.metadata.ViewEarliestLoadAtProperty -> s"$now")))
   }
 
   def updateGenClockAtomically(entity: CatalogView, minNewGenClock: Long)(implicit session: DBSession): CatalogView = {

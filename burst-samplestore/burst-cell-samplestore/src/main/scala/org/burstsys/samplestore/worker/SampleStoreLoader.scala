@@ -4,9 +4,9 @@ package org.burstsys.samplestore.worker
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.LongAdder
 
-import org.burstsys.fabric.data.model.slice.metadata.FabricSliceMetadata
-import org.burstsys.fabric.data.model.slice.state.{FabricDataFailed, FabricDataNoData, FabricDataState, FabricDataWarm}
-import org.burstsys.fabric.data.model.snap.FabricSnap
+import org.burstsys.fabric.wave.data.model.slice.metadata.FabricSliceMetadata
+import org.burstsys.fabric.wave.data.model.slice.state.{FabricDataFailed, FabricDataNoData, FabricDataState, FabricDataWarm}
+import org.burstsys.fabric.wave.data.model.snap.FabricSnap
 import org.burstsys.nexus
 import org.burstsys.nexus.client.NexusClient
 import org.burstsys.nexus.stream.NexusStream

@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.service.thrift
 
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroupMetrics
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroupMetrics
 import org.burstsys.gen.thrift.api.client.query.BTExecutionMetrics
 import org.burstsys.gen.thrift.api.client.query.BTGenerationMetrics
 

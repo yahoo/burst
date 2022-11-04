@@ -3,7 +3,7 @@ package org.burstsys.hydra.runtime
 
 import com.esotericsoftware.kryo.io.{Input, Output}
 import com.esotericsoftware.kryo.{Kryo, KryoSerializable}
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlaneGather
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlaneGather
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorGather
 import org.burstsys.tesla.pool.{TeslaPoolId, TeslaPooledResource}
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler

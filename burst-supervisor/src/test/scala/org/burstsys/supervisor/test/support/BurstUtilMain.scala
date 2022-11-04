@@ -92,7 +92,7 @@ object BurstUtilMain {
     VitalsLog.configureLogging("Util", consoleOnly = true)
     parser.parse(args.toSeq, defaultArguments) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         System.exit(-1)
       case Some(arguments) =>
         burstCatalogDbHostProperty.set(arguments.dbHost)
@@ -111,7 +111,7 @@ object BurstUtilMain {
                 System.exit(-1)
             }
           case _ =>
-            parser.showUsage()
+            parser.usage
         }
     }
   }

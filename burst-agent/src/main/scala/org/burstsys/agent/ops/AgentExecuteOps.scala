@@ -12,12 +12,12 @@ import org.burstsys.agent.model.execution.result._
 import org.burstsys.agent.transform.AgentTransform
 import org.burstsys.agent.{AgentLanguage, AgentService, AgentServiceContext, transform}
 import org.burstsys.api._
-import org.burstsys.fabric.exception.FabricQueryProcessingException
-import org.burstsys.fabric.execution.model.execute.group.{FabricGroupUid, sanitizeGuid}
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.status.{FabricFaultResultStatus, FabricInvalidResultStatus, FabricNotReadyResultStatus, FabricTimeoutResultStatus}
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
+import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupUid, sanitizeGuid}
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.status.{FabricFaultResultStatus, FabricInvalidResultStatus, FabricNotReadyResultStatus, FabricTimeoutResultStatus}
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.{VitalsException, messageFromException}
 

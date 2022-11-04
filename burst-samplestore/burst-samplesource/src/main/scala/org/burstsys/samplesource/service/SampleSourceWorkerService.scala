@@ -42,5 +42,12 @@ trait SampleSourceWorkerService extends VitalsService {
    */
   def feedStream(stream: NexusStream): Future[Unit]
 
+  /**
+   * Accept new broadcast parameters that may be needed for processing
+   * @param metadata
+   */
+  def putBroadcastVars(metadata: MetadataParameters): Unit = {
+
+  }
 }
 

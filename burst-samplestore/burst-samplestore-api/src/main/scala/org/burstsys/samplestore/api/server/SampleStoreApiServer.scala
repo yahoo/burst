@@ -25,8 +25,6 @@ import org.burstsys.vitals.errors.safely
 
 /**
  * samplesource side implementation of the sample store Thrift server
- *
- * @param service
  */
 final case
 class SampleStoreApiServer(delegate: SampleStoreApiServerDelegate) extends BurstApiServer with SampleStoreApi {

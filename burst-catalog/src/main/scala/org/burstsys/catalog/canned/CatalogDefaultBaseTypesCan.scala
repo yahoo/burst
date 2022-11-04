@@ -42,7 +42,7 @@ final class CatalogDefaultBaseTypesCan extends CatalogCan {
 
   override def views: Array[CatalogCannedView] = {
     val timingProperties = Map(
-      fabric.metadata.ViewNextLoadStaleMsProperty -> (1 day).toMillis.toString,
+      fabric.wave.metadata.ViewNextLoadStaleMsProperty -> (1 day).toMillis.toString,
       ViewLoadTimeoutMsProperty -> (10 minutes).toMillis.toString
     )
     Array(

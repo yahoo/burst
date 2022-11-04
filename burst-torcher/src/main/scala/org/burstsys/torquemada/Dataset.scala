@@ -4,7 +4,7 @@ package org.burstsys.torquemada
 import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
 import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import com.codahale.metrics.{Counter, Timer}
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroupMetrics
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroupMetrics
 
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions

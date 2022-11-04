@@ -2,9 +2,9 @@
 package org.burstsys.hydra.test.cases.support
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.execution.model.result.set.FabricResultSet
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricViewKey}
 import org.burstsys.hydra.sweep.HydraSweep
 import org.burstsys.vitals.errors.VitalsException
 import org.scalatest.matchers.should.Matchers

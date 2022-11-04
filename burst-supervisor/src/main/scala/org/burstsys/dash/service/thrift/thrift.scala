@@ -6,9 +6,9 @@ import org.burstsys.catalog.CatalogExceptions.CatalogNotFoundException
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.catalog.model.view.CatalogView
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.status.FabricResultStatus
-import org.burstsys.fabric.execution.model.result.{status => fStatus}
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.status.FabricResultStatus
+import org.burstsys.fabric.wave.execution.model.result.{status => fStatus}
 import org.burstsys.gen.thrift.api.client.BTBurstService
 import org.burstsys.gen.thrift.api.client.BTBurstService.Iface
 import org.burstsys.gen.thrift.api.client.BTRequestOutcome

@@ -6,9 +6,9 @@ import org.burstsys.catalog.CatalogService
 import org.burstsys.dash.endpoints
 import org.burstsys.dash.provider.profiler.BurstDashProfilerService
 import org.burstsys.dash.provider.torcher.BurstDashTorcherService
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.container.supervisorContainer
-import org.burstsys.supervisor.server.container.BurstSupervisorContainer
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
+import org.burstsys.fabric.wave.container.supervisorContainer
+import org.burstsys.supervisor.server.container.BurstWaveSupervisorContainer
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import jakarta.inject.Inject
@@ -39,7 +39,7 @@ abstract class BurstDashEndpointBase {
   @Context
   var security: SecurityContext = _
 
-  final var container: BurstSupervisorContainer = supervisorContainer.asInstanceOf[BurstSupervisorContainer]
+  final var container: BurstWaveSupervisorContainer = supervisorContainer.asInstanceOf[BurstWaveSupervisorContainer]
 
   @Inject
   var catalog: CatalogService = _
@@ -48,7 +48,7 @@ abstract class BurstDashEndpointBase {
   var agent: AgentService = _
 
   @Inject
-  var supervisor: FabricSupervisorContainer = _
+  var supervisor: FabricWaveSupervisorContainer = _
 
   @Inject
   var torcher: BurstDashTorcherService = _

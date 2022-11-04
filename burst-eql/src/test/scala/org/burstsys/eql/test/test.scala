@@ -2,10 +2,10 @@
 package org.burstsys.eql
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view
-import org.burstsys.fabric.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
 
 import scala.language.postfixOps

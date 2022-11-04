@@ -10,7 +10,7 @@ import org.burstsys.eql.planning.funnels.Funnel
 import org.burstsys.eql.planning.queries.Query
 import org.burstsys.eql.planning.segments.Segment
 import org.burstsys.eql.trek.{EqlSupervisorQueryGenerate, EqlSupervisorQueryParse, EqlSupervisorQueryPlan}
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
 import org.burstsys.vitals.errors.VitalsException
 
 import scala.language.postfixOps

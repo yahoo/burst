@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.collectors.cube.result
 
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.result.row.{FabricColumnCell, FabricResultCell, FabricResultRow, FeltCubeRowData}
+import org.burstsys.fabric.wave.execution.model.result.row.{FabricColumnCell, FabricResultCell, FabricResultRow, FeltCubeRowData}
 import org.burstsys.felt.model.collectors.cube.plane.FeltCubePlane
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._

@@ -5,11 +5,11 @@ import org.burstsys.agent.api.BurstQueryCacheGeneration
 import org.burstsys.agent.model.cache.generation.key._
 import org.burstsys.agent.model.cache.generation.metrics._
 import org.burstsys.agent.model.cache.slice.state._
-import org.burstsys.fabric.data.model.generation.FabricGeneration
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.data.model.generation.metrics.FabricGenerationMetrics
-import org.burstsys.fabric.metadata.model
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.data.model.generation.FabricGeneration
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.generation.metrics.FabricGenerationMetrics
+import org.burstsys.fabric.wave.metadata.model
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 
 import scala.language.implicitConversions
 

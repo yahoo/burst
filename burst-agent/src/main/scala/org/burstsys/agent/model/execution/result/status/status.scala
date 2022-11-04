@@ -3,7 +3,7 @@ package org.burstsys.agent.model.execution.result
 
 import org.burstsys.agent.api.BurstQueryApiResultStatus
 import org.burstsys.agent.api.BurstQueryApiResultStatus._
-import org.burstsys.fabric.execution.model.result.status._
+import org.burstsys.fabric.wave.execution.model.result.status._
 
 import scala.language.implicitConversions
 

@@ -5,8 +5,8 @@ import org.burstsys.agent.api.BurstQueryApiResultSet
 import org.burstsys.agent.model.execution.group.datum._
 import org.burstsys.agent.model.execution.result.row._
 import org.burstsys.agent.model.execution.result.set.metrics._
-import org.burstsys.fabric.execution.model.result.row.FabricResultRow
-import org.burstsys.fabric.execution.model.result.set.{FabricResultSet, FabricResultSetIndex}
+import org.burstsys.fabric.wave.execution.model.result.row.FabricResultRow
+import org.burstsys.fabric.wave.execution.model.result.set.{FabricResultSet, FabricResultSetIndex}
 
 import scala.collection.IterableOnce.iterableOnceExtensionMethods
 import scala.collection.Map

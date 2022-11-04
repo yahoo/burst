@@ -145,4 +145,10 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some("/akamai,/status.html")
   )
 
+  val burstVitalsReflectionScanPrefixProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.reflections.scan.prefix",
+    description = "An additional package prefix for reflection scans",
+    default = None
+  )
+
 }

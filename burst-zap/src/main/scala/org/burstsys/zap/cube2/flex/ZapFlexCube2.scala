@@ -6,7 +6,7 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.brio.dictionary.flex.BrioFlexDictionary
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
-import org.burstsys.fabric.execution.model.result.row.FeltCubeResultData
+import org.burstsys.fabric.wave.execution.model.result.row.FeltCubeResultData
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.flex

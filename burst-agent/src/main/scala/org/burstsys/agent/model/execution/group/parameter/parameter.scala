@@ -6,7 +6,7 @@ import org.burstsys.agent.api.{BurstQueryApiDataForm, BurstQueryApiDatum, BurstQ
 import org.burstsys.agent.model.execution.group.datum._
 import org.burstsys.brio.types.BrioTypes
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.execute.parameters.{FabricMapForm, FabricParameterValue, FabricScalarForm, FabricVectorForm}
+import org.burstsys.fabric.wave.execution.model.execute.parameters.{FabricMapForm, FabricParameterValue, FabricScalarForm, FabricVectorForm}
 import org.burstsys.vitals.errors.VitalsException
 
 import scala.language.implicitConversions

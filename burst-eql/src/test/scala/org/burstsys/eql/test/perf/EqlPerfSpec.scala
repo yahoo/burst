@@ -7,7 +7,7 @@ import org.burstsys.alloy.alloy.views.AlloyJsonUseCaseViews.generateAlloy
 import org.burstsys.alloy.views.unity.UnityGenerator.generateIterator
 import org.burstsys.alloy.views.unity.UnityUseCaseViews.unitySchema
 import org.burstsys.eql.test.support.EqlAlloyTestRunner
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
 import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyTimeFromNanos}
 import org.burstsys.vitals.logging.log
 

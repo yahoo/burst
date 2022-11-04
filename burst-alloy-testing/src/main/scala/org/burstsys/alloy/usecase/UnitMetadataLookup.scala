@@ -2,10 +2,10 @@
 package org.burstsys.alloy.usecase
 
 import org.burstsys.alloy.store.mini.MiniView
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view.FabricView
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey}
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.properties.VitalsPropertyMap
 

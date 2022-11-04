@@ -11,7 +11,7 @@ import org.burstsys.json.samplestore.configuration.alloySkipIndexStreamPropertyK
 import org.burstsys.json.samplestore.configuration.jsonLociCountProperty
 import org.burstsys.json.samplestore.configuration.jsonVersionProperty
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplesource.service.SampleSourceWorkerService
+import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.samplestore.api.configuration.burstSampleStoreHeartbeatInterval
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
@@ -116,4 +116,5 @@ case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
     }
   }
 
+  override def putBroadcastVars(metadata: MetadataParameters): Unit = {}
 }

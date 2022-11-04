@@ -2,7 +2,7 @@
 package org.burstsys.eql.test
 
 import org.burstsys.eql.test.support.EqlAlloyTestRunner
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
 import org.burstsys.vitals.errors.VitalsException
 
 final

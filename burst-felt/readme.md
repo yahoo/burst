@@ -18,7 +18,7 @@ Hydra acts as the internal execution API for submitting Hydra/Felt
 scans and has an [Antlr](https://www.antlr.org/) based parser that is used to
 construct Felt semantic object models from string representations
 as well as submit the **Wave** (distributed execution)
-requests to the [Fabric](../burst-fabric/readme.md)
+requests to the [Fabric](../burst-fabric/burst-fabric-wave/readme.md)
 process layer. Additionally Felt has the inherent ability to generate
 any Felt semantic model as Hydra source. More on this later...
 
@@ -33,7 +33,7 @@ front end for Hydra. The future may hold provide other front ends and
 there might be some who want to program directly in Hydra/Felt.
 
 ### Felt and Fabric
-[Fabric](../burst-fabric/readme.md) is the Burst distributed execution
+[Fabric](../burst-fabric/burst-fabric-wave/readme.md) is the Burst distributed execution
 framework. Hydra/Felt generate Fabric compatible execution artifacts
 and rely on Fabric dataset management to load data appropriately
 on workers, and perform the appropriate scans on workers,

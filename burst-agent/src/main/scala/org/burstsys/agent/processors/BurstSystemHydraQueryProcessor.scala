@@ -2,10 +2,10 @@
 package org.burstsys.agent.processors
 
 import org.burstsys.agent.{AgentLanguage, AgentService}
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.hydra.HydraService
 import org.burstsys.tesla.thread.request._
 

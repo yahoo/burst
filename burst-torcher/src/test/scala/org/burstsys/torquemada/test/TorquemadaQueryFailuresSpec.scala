@@ -4,10 +4,10 @@ package org.burstsys.torquemada.test
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.torquemada.{Driver, Parameters}
 
 import scala.concurrent.{Future, Promise}

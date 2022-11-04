@@ -64,7 +64,7 @@ object NexusBenchmarkMain {
 
     parser.parse(args.toSeq, defaultArguments) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         System.exit(-1)
       case Some(args) => executeBwRun(args)
     }

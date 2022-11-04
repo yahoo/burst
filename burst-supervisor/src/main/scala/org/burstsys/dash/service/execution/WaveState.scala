@@ -7,8 +7,8 @@ import java.util.function
 import org.burstsys.dash.endpoints.ClientJsonObject
 import org.burstsys.dash.websocket.ExecutionState
 import org.burstsys.dash.websocket.ExecutionState.{ExecutionState, inProgress}
-import org.burstsys.fabric.execution.supervisor.wave.FabricWaveSeqNum
-import org.burstsys.fabric.execution.model.gather.metrics.FabricGatherMetrics
+import org.burstsys.fabric.wave.execution.supervisor.wave.FabricWaveSeqNum
+import org.burstsys.fabric.wave.execution.model.gather.metrics.FabricGatherMetrics
 import org.burstsys.vitals.uid.VitalsUid
 
 import scala.jdk.CollectionConverters._

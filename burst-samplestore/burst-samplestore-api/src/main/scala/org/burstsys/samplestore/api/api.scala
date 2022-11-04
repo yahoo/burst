@@ -22,6 +22,7 @@ package object api extends VitalsLogger {
   object SampleStoreDataLocus {
     def apply(locus: SampleStoreDataLocus): SampleStoreDataLocus =
       BurstSampleStoreApiDataLocus(locus.suid, locus.hostAddress, locus.hostName, locus.port, locus.partitionProperties)
+
     def apply(
                suid: VitalsUid,
                ipAddress: String,

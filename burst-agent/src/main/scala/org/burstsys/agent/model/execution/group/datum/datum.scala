@@ -5,7 +5,7 @@ import org.burstsys.agent.api.BurstQueryApiDatum._
 import org.burstsys.agent.api.BurstQueryDataType.BooleanType
 import org.burstsys.agent.api.{BurstQueryApiDataForm, BurstQueryApiDatum, BurstQueryDataType}
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.execute.parameters.{FabricMapForm, FabricParameterForm, FabricScalarForm, FabricVectorForm}
+import org.burstsys.fabric.wave.execution.model.execute.parameters.{FabricMapForm, FabricParameterForm, FabricScalarForm, FabricVectorForm}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 

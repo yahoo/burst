@@ -11,6 +11,9 @@ cp "$(mkcert -CAROOT)/rootCA.pem" kubernetes/local-cluster/certs/rootCA.pem
 mkcert -cert-file kubernetes/local-cluster/certs/cert.pem -key-file kubernetes/local-cluster/certs/key.pem localhost 127.0.0.1 ::1
 ```
 
+The docker images for the burst cell and the synthetic sample source must be uploaded to the local docker repository.
+This can happen during a build cycle by adding `-P build-local-docker` and
+`-D dockerRepo="<a repo with a corretto image>"`
 ## Starting a Local Cell
 
 Once you have generated certs in the `kubernetes/local-cluster/certs` directory you can generate and deploy the

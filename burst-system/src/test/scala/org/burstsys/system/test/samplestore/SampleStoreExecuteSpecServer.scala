@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test.samplestore
 
-import org.burstsys.fabric.execution.model.result.status.FabricSuccessResultStatus
-import org.burstsys.fabric.metadata.model
+import org.burstsys.fabric.wave.execution.model.result.status.FabricSuccessResultStatus
+import org.burstsys.fabric.wave.metadata.model
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.system.test.support.BurstSystemTestSpecSupport
 import org.burstsys.tesla.parcel._

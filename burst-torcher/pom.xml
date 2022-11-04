@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>org.burstsys</groupId>
-            <artifactId>burst-fabric</artifactId>
+            <artifactId>burst-fabric-wave</artifactId>
         </dependency>
         <dependency>
             <groupId>org.burstsys</groupId>

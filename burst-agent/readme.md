@@ -12,7 +12,7 @@ defined in  [BurstAgentApi.thrift](src/main/thrift/agentService.thrift)
 
 ## Model
 The Agent implements execution/result types and basic semantics as defined
-in the [Fabric](../burst-fabric/readme.md) module. These types are
+in the [Fabric](../burst-fabric/burst-fabric-wave/readme.md) module. These types are
 used throughout the Burst ecosystem, however the Agent is where
 these data structures are accessible via external APIs.
 The Burst Supervisor hosts the Agent server and the Agent client is used internally
@@ -37,7 +37,7 @@ Execute a group query. This could be [Eql](../burst-eql/readme.md),
 or [Hydra](../burst-hydra/readme.md) language source text with optional parameters as well as
 an identifying GUID for troubleshooting.
 Results are in a form compatible
-with the [Fabric](../burst-fabric/readme.md) results model
+with the [Fabric](../burst-fabric/burst-fabric-wave/readme.md) results model
 
 	BurstQueryApiExecuteResult groupExecute(
 		1: required QueryLanguageSource source

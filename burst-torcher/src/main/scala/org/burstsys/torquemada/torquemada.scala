@@ -2,7 +2,7 @@
 package org.burstsys
 
 import org.burstsys.catalog.model.view.CatalogView
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
 import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
 import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
 import org.burstsys.vitals.logging._

@@ -3,10 +3,10 @@ package org.burstsys.dash.endpoints.query
 
 import org.burstsys.dash.application.BurstDashEndpointBase
 import org.burstsys.dash.endpoints._
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.status.FabricInvalidResultStatus
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.status.FabricInvalidResultStatus
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.time.timeZoneNameList
 import org.burstsys.vitals.uid._

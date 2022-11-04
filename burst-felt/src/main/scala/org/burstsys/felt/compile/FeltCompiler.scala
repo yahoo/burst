@@ -247,7 +247,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
     "org.burstsys.vitals.VitalsService",
     "org.burstsys.brio.model.BrioPathBuilder",
     "org.burstsys.ginsu.functions.coerce.GinsuCoerceFunctions",
-    "org.burstsys.fabric.execution.model.runtime.FabricRuntime",
+    "org.burstsys.fabric.wave.execution.model.runtime.FabricRuntime",
     "org.burstsys.tesla.director.TeslaDirector",
     "org.burstsys.zap.cube2.ZapCube2",
     "org.burstsys.hydra.HydraService",

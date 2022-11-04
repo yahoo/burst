@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.sweep
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
 import org.burstsys.felt.compile.FeltCompileEngine
 import org.burstsys.felt.compile.artifact.{FeltArtifact, FeltArtifactKey, FeltArtifactTag, FeltArtifactory}
 import org.burstsys.felt.configuration.{burstFeltMaxCachedSweepProperty, burstFeltSweepCleanSecondsProperty}

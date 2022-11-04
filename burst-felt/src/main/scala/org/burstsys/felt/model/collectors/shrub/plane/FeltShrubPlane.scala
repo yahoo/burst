@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.collectors.shrub.plane
 
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorPlane, FeltCollectorPlaneContext}
 import org.burstsys.felt.model.collectors.shrub.runtime.FeltShrubFactory
 import org.burstsys.felt.model.collectors.shrub.{FeltShrubBuilder, FeltShrubCollector}

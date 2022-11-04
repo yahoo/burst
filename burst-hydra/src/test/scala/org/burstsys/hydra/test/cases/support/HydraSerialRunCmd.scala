@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra.test.cases.support
 
-import org.burstsys.fabric.metadata.model.over
+import org.burstsys.fabric.wave.metadata.model.over
 import org.burstsys.hydra.runtime.SerializeTraversal
 import org.burstsys.hydra.runtime.StaticSweep
 import org.burstsys.tesla.thread.request._

@@ -3,7 +3,7 @@ package org.burstsys.alloy.alloy
 
 import org.burstsys.alloy.alloy.store.supervisor.AlloyJsonStoreSupervisor
 import org.burstsys.alloy.alloy.store.worker.AlloyJsonStoreWorker
-import org.burstsys.fabric.data.model.store.FabricStoreProvider
+import org.burstsys.fabric.wave.data.model.store.FabricStoreProvider
 
 package object store {
 

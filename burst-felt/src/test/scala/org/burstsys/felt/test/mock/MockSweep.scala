@@ -2,7 +2,7 @@
 package org.burstsys.felt.test.mock
 
 import org.burstsys.brio.types.BrioPath.BrioPathKey
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
 import org.burstsys.felt.binding.FeltBinding
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorBuilder
 import org.burstsys.felt.model.runtime.FeltRuntime

@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 
-mainClass="org.burstsys.synthetic.samplestore.main.ChooseWorkload"
+mainClass="org.burstsys.samplestore.store.ChooseWorkload"
 
 envConfig="-Dburst.home=${BURST_HOME}" # set this so log files go to the correct place
 envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL:=INFO}"
 envConfig="${envConfig} -Dburst.cell.name=${DEPLOYMENT_NAME:=synthetic-samplesource}"
 envConfig="${envConfig} -DdeploymentName=${DEPLOYMENT_NAME}"
+envConfig="${envConfig} -Dburst.samplestore.api.host=${SAMPLESTORE_HOST}"
+envConfig="${envConfig} -Dburst.fabric.net.port=${BURST_STORE_FABRIC_PORT}"
 
 if [ "${WORKLOAD}" = "supervisor" ]; then
-    mainClass="org.burstsys.synthetic.samplestore.main.SyntheitcSampleSourceSupervisorMain"
-
+    mainClass="org.burstsys.samplestore.store.SampleStoreSupervisorMain"
+    envConfig="${envConfig} -Dburst.fabric.net.host=${POD_IP}"
 elif [ "${WORKLOAD}" = "worker" ]; then
-    mainClass="org.burstsys.synthetic.samplestore.main.SyntheticSampleSourceWorkerMain"
-
+    mainClass="org.burstsys.samplestore.store.SampleStoreWorkerMain"
+    envConfig="${envConfig} -Dburst.fabric.net.host=${BURST_STORE_SUPERVISOR_HOST}"
 fi
 
 JAVA_OPTS="-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"

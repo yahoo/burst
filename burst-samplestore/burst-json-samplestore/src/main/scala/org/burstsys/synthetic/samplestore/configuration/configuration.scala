@@ -13,27 +13,11 @@ package object configuration {
   // Slice Generation
   ///////////////////////////////////////////////////////////////////
 
-  val lociCountProperty: String = "synthetic.samplestore.loci.count"
-
   val persistentHashProperty: String = "synthetic.samplestore.variable-hash"
-
-  val useLocalHostProperty: String = "synthetic.samplestore.use-localhost"
-
-  val defaultLociCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = lociCountProperty,
-    description = "number of samplestore loci to generate",
-    default = Some(0)
-  )
 
   val defaultPersistentHashProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
     key = persistentHashProperty,
     description = "whether the generated hash should change or not",
-    default = Some(true)
-  )
-
-  val defaultUseLocalHostProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
-    key = useLocalHostProperty,
-    description = "if the loci should use `localhost:127.0.0.1` for the hostname/ip address",
     default = Some(true)
   )
 

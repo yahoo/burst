@@ -1,10 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.worker
 
-import org.burstsys.fabric.data.model.slice.state.FabricDataState
-import org.burstsys.fabric.data.model.snap.FabricSnap
-import org.burstsys.fabric.data.worker.store.FabricWorkerLoader
-import org.burstsys.fabric.execution.model.pipeline.publishPipelineEvent
+import org.burstsys.fabric.wave.data.model.slice.state.FabricDataState
+import org.burstsys.fabric.wave.data.model.snap.FabricSnap
+import org.burstsys.fabric.wave.data.worker.store.FabricWorkerLoader
+import org.burstsys.fabric.wave.execution.model.pipeline.publishPipelineEvent
 import org.burstsys.samplestore.model.SampleStoreSlice
 import org.burstsys.samplestore.trek._
 import org.burstsys.vitals.errors._

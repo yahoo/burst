@@ -30,7 +30,6 @@
             <groupId>org.burstsys</groupId>
             <artifactId>burst-nexus</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>

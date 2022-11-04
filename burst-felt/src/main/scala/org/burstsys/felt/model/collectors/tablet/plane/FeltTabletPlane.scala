@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.collectors.tablet.plane
 
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorPlane, FeltCollectorPlaneContext}
 import org.burstsys.felt.model.collectors.tablet.runtime.FeltTabletFactory
 import org.burstsys.felt.model.collectors.tablet.{FeltTabletBuilder, FeltTabletCollector}

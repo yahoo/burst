@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test.alloy
 
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.set.FabricResultSet
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
 import org.burstsys.json.samplestore.JsonSampleStoreContainer
 import org.burstsys.json.samplestore.configuration.JsonSamplestoreDistributedConfiguration
 import org.burstsys.system.test.support.BurstCoreSystemTestSupport

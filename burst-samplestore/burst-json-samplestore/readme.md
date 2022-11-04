@@ -4,11 +4,15 @@ The JSON Samplestore package includes two utility-style sample stores to make it
 
 ## JSON Samplestore
 
-The JSON Samplestore will load a local json file (optionally gzipped) and press it into a dataset.
+The JSON Samplestore will load a local json file (optionally gzipped) and press it into a dataset.  It reads the
+Json file directly from storage on the cell worker.  There is no nexus interaction with a remote store in this implementation.
+It's mainly used for testing, but could be the basis for using the cell workers to do loading.
 
 ## Synthetic Samplestore
 
-The Syntetic Samplestore will use a generator to materialize a dataset on demand.
+The Syntetic Samplestore will use a generator to materialize a dataset on demand.  It uses the basic sample store client
+to talk to a remote sample store using the nexus protocol. The remote synthetic samplestore supervisor and workers generate
+content on demand and stream it back to the cell via the nexus streams.
 
 | Property | Description | Default |
 | -------- | ----------- | ------- |

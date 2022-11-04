@@ -13,6 +13,7 @@
         <module>burst-cell-samplestore</module>
         <module>burst-samplestore-api</module>
         <module>burst-samplesource</module>
+        <module>burst-base-samplestore</module>
         <module>burst-json-samplestore</module>
     </modules>
 </project>

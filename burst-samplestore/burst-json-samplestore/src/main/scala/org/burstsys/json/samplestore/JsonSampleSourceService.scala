@@ -13,7 +13,7 @@ class JsonSampleSourceService()
   /**
    * @return the class responsible for computing view generations
    */
-  override def coordinatorClass: Class[JsonSampleSourceSupervisorService] = classOf[JsonSampleSourceSupervisorService]
+  override def supervisorClass: Class[JsonSampleSourceSupervisorService] = classOf[JsonSampleSourceSupervisorService]
 
   /**
    * @return the class responsible for feeding streams sent to cell workers

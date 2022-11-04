@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra.test.cases.unity.conditional
 
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
 import org.burstsys.hydra.test.cases.support.HydraUseCase
 
 object HydraUnityCase06 extends HydraUseCase(100, 100, "unity") {

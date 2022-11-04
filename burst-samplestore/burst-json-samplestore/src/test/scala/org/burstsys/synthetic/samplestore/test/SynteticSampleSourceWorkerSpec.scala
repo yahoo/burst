@@ -7,7 +7,7 @@ import org.burstsys.nexus.NexusSliceKey
 import org.burstsys.nexus.NexusStreamUid
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplestore.test.BaseSampleStoreTest
-import org.burstsys.synthetic.samplestore.service.SyntethicSampleSourceWorker
+import org.burstsys.synthetic.samplestore.source.SyntheticSampleSourceWorker
 import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel.TeslaParcel
@@ -32,7 +32,7 @@ class SynteticSampleSourceWorkerSpec extends BaseSampleStoreTest {
         "synthetic.unity.sessionCount" -> "0",
       )
       val stream = MockNexusStream("unity", props)
-      val worker = SyntethicSampleSourceWorker()
+      val worker = SyntheticSampleSourceWorker()
       Await.result(worker.feedStream(stream), 5.seconds)
 
       stream.expectedItemCount shouldEqual count

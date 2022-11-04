@@ -2,14 +2,14 @@
 package org.burstsys.hydra.execute
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.exception.FabricQueryProcessingException
-import org.burstsys.fabric.execution.supervisor.group.FabricGroupExecuteContext
-import org.burstsys.fabric.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
+import org.burstsys.fabric.wave.execution.supervisor.group.FabricGroupExecuteContext
+import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.hydra.parser.parse
 import org.burstsys.hydra.runtime.HydraScanner
 import org.burstsys.hydra.trek.{HydraSupervisorParse, HydraSupervisorSchemaLookup}

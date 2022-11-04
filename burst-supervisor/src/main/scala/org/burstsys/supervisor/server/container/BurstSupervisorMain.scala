@@ -78,7 +78,7 @@ object BurstSupervisorMain {
 
     parser.parse(args.toSeq, defaultArguments) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         System.exit(-1)
       case Some(arguments) =>
         /**
@@ -120,14 +120,14 @@ object BurstSupervisorMain {
       // fabric.configuration.burstFabricSslEnableProperty.set(true) // this doesn't exist yet
     }
 
-    val supervisor = fabric.container.supervisorContainer
+    val supervisor = fabric.wave.container.supervisorContainer
 
     supervisor.start
 
     log info s"Starting ${args.cellWorkers} workers"
     val workers = (1 to args.cellWorkers).map(id => {
       Thread.sleep(id * 100)
-      val worker = fabric.container.getWorkerContainer(id, 0)
+      val worker = fabric.wave.container.getWorkerContainer(id, 0)
       TeslaWorkerFuture {
         worker.start
       }
@@ -148,7 +148,7 @@ object BurstSupervisorMain {
        else
         null
 
-    val supervisor = fabric.container.supervisorContainer.start
+    val supervisor = fabric.wave.container.supervisorContainer.start
     if (alloyContainer != null)
       alloyContainer.start
     supervisor.run.stop

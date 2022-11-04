@@ -1,11 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.model.collectors.result
 
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupKey
-import org.burstsys.fabric.execution.model.gather.data.FabricDataGather
-import org.burstsys.fabric.execution.model.result.group.{FabricResultGroup, FabricResultGroupMetrics}
-import org.burstsys.fabric.execution.model.result.set.{FabricResultSet, FabricResultSetIndex}
-import org.burstsys.fabric.execution.model.result.status.FabricResultStatus
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupKey
+import org.burstsys.fabric.wave.execution.model.gather.data.FabricDataGather
+import org.burstsys.fabric.wave.execution.model.result.group.{FabricResultGroup, FabricResultGroupMetrics}
+import org.burstsys.fabric.wave.execution.model.result.set.{FabricResultSet, FabricResultSetIndex}
+import org.burstsys.fabric.wave.execution.model.result.status.FabricResultStatus
 import org.burstsys.felt.model.collectors.cube.plane.FeltCubePlane
 import org.burstsys.felt.model.collectors.cube.result.FeltCubeResultSet
 import org.burstsys.felt.model.collectors.route.plane.FeltRoutePlane

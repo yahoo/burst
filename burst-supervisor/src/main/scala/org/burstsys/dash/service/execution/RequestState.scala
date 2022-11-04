@@ -3,9 +3,9 @@ package org.burstsys.dash.service.execution
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.burstsys.dash.endpoints.ClientJsonObject
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.status.{FabricInProgressResultStatus, FabricResultStatus}
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.status.{FabricInProgressResultStatus, FabricResultStatus}
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.vitals.json.VitalsJsonSanatizers.Values
 import org.burstsys.vitals.uid.VitalsUid
 

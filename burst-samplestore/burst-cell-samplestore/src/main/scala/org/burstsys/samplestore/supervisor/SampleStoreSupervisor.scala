@@ -2,11 +2,11 @@
 package org.burstsys.samplestore.supervisor
 
 import org.burstsys.api._
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.data.supervisor.store._
-import org.burstsys.fabric.data.model.slice.FabricSlice
-import org.burstsys.fabric.data.model.store._
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
+import org.burstsys.fabric.wave.data.supervisor.store._
+import org.burstsys.fabric.wave.data.model.slice.FabricSlice
+import org.burstsys.fabric.wave.data.model.store._
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.samplestore.SampleStoreName
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiNotReady
@@ -32,7 +32,7 @@ import scala.concurrent.Future
 import scala.language.implicitConversions
 
 final case
-class SampleStoreSupervisor(container: FabricSupervisorContainer) extends FabricStoreSupervisor with VitalsHealthMonitoredService {
+class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends FabricStoreSupervisor with VitalsHealthMonitoredService {
 
   override val storeName: FabricStoreName = SampleStoreName
 
@@ -95,6 +95,8 @@ class SampleStoreSupervisor(container: FabricSupervisorContainer) extends Fabric
              BurstSampleStoreApiRequestInvalid |
              BurstSampleStoreApiNotReady =>
           throw VitalsException(s"Got ${response.context.state} from samplestore master")
+        case r =>
+          throw VitalsException(s"Got unrecognized $r from samplestore master")
       }
     } recover {
       case t =>

@@ -5,30 +5,22 @@ import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.catalog.model.view.CatalogView
 import org.burstsys.fabric.configuration
+import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
-import org.burstsys.supervisor.server.container.BurstSupervisorContainer
 import org.burstsys.nexus.newNexusUid
-import org.burstsys.nexus.server.NexusServer
-import org.burstsys.nexus.server.NexusStreamFeeder
+import org.burstsys.nexus.server.{NexusServer, NexusStreamFeeder}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplestore.api.BurstSampleStoreDataSource
-import org.burstsys.samplestore.api.SampleStoreApiServerDelegate
-import org.burstsys.samplestore.api.SampleStoreDataLocus
-import org.burstsys.samplestore.api.SampleStoreGeneration
-import org.burstsys.samplestore.api.SampleStoreSourceNameProperty
-import org.burstsys.samplestore.api.SampleStoreSourceVersionProperty
+import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreApiServerDelegate, SampleStoreDataLocus, SampleStoreGeneration, SampleStoreSourceNameProperty, SampleStoreSourceVersionProperty}
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
+import org.burstsys.supervisor.server.container.BurstWaveSupervisorContainer
 import org.burstsys.tesla.parcel
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
-import org.burstsys.vitals.net.getPublicHostAddress
-import org.burstsys.vitals.net.getPublicHostName
-import org.burstsys.vitals.properties.VitalsPropertyMap
-import org.burstsys.vitals.properties._
-import org.burstsys.worker.BurstWorkerContainer
+import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
+import org.burstsys.vitals.properties.{VitalsPropertyMap, _}
+import org.burstsys.worker.BurstWaveWorkerContainer
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -49,7 +41,7 @@ trait BurstSupervisorSpecSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   vitals.configuration.configureForUnitTests()
   tesla.configuration.configureForUnitTests()
-  fabric.configuration.configureForUnitTests()
+  fabric.wave.configuration.configureForUnitTests()
   configuration.burstFabricSupervisorStandaloneProperty.set(true)
   configuration.burstFabricWorkerStandaloneProperty.set(true)
   git.turnOffBuildValidation()
@@ -61,14 +53,14 @@ trait BurstSupervisorSpecSupport extends AnyFlatSpec with Matchers with BeforeAn
   vitals.configuration.burstVitalsHealthCheckPeriodMsProperty.set((5 seconds).toMillis)
 
   final
-  val supervisorContainer: BurstSupervisorContainer = fabric.container.supervisorContainer.asInstanceOf[BurstSupervisorContainer]
+  val supervisorContainer: BurstWaveSupervisorContainer = fabric.wave.container.supervisorContainer.asInstanceOf[BurstWaveSupervisorContainer]
 
   final
-  val workerContainer: BurstWorkerContainer = {
+  val workerContainer: BurstWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
     val port = vitals.configuration.burstVitalsHealthCheckPortProperty.getOrThrow
     vitals.configuration.burstVitalsHealthCheckPortProperty.set(port + 1)
-    fabric.container.workerContainer.asInstanceOf[BurstWorkerContainer]
+    fabric.wave.container.workerContainer.asInstanceOf[BurstWaveWorkerContainer]
   }
 
   final
@@ -76,7 +68,7 @@ trait BurstSupervisorSpecSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   val workerGainGate = new CountDownLatch(1)
 
-  override def onTopologyWorkerGain(worker: FabricWorkerNode): Unit = {
+  override def onTopologyWorkerGain(worker: FabricTopologyWorker): Unit = {
     log info s"worker ${worker.nodeId} gain"
     workerGainGate.countDown()
   }

@@ -3,12 +3,12 @@ package org.burstsys.alloy.alloy.store.supervisor
 
 import org.burstsys.alloy.alloy
 import org.burstsys.alloy.store.mini.MiniSlice
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.data.model.slice.{FabricSlice, FabricSliceKey}
-import org.burstsys.fabric.data.model.store.FabricStoreName
-import org.burstsys.fabric.data.supervisor.store.FabricStoreSupervisor
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.data.model.slice.{FabricSlice, FabricSliceKey}
+import org.burstsys.fabric.wave.data.model.store.FabricStoreName
+import org.burstsys.fabric.wave.data.supervisor.store.FabricStoreSupervisor
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.uid.VitalsUid
 
@@ -19,7 +19,7 @@ import scala.language.postfixOps
  *
  */
 final case
-class AlloyJsonStoreSupervisor(container: FabricSupervisorContainer) extends FabricStoreSupervisor {
+class AlloyJsonStoreSupervisor(container: FabricWaveSupervisorContainer) extends FabricStoreSupervisor {
 
   override lazy val storeName: FabricStoreName = alloy.store.AlloyJsonStoreName
 

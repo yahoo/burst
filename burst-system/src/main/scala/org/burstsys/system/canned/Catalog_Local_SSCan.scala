@@ -5,7 +5,7 @@ import org.burstsys.catalog.canned
 import org.burstsys.catalog.canned.CatalogCan
 import org.burstsys.catalog.model.domain.CatalogCannedDomain
 import org.burstsys.catalog.model.view.CatalogCannedView
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
 import org.burstsys.samplestore.api.{SampleStoreSourceNameProperty, SampleStoreSourceVersionProperty}
 
 final class Catalog_Local_SSCan extends CatalogCan {

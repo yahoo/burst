@@ -4,8 +4,8 @@ package org.burstsys.agent.model.execution
 import org.burstsys.agent.api.{BurstQueryApiExecuteResult, BurstQueryApiResultGroup, BurstQueryApiResultStatus}
 import org.burstsys.agent.model.execution.result.group._
 import org.burstsys.agent.model.execution.result.status._
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
 
 import scala.language.implicitConversions
 

@@ -5,13 +5,9 @@ import org.apache.logging.log4j.Logger
 import org.burstsys.samplestore.api.client.SampleStoreApiClient
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
-import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
-import org.burstsys.vitals.VitalsService.VitalsStandardClient
-import org.burstsys.vitals.logging.VitalsLog
-import org.burstsys.vitals.logging.VitalsLogger
+import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
 import org.burstsys.vitals.metrics.VitalsMetricsRegistry
-import org.burstsys.vitals.net.getLocalHostAddress
-import org.burstsys.vitals.net.getLocalHostName
+import org.burstsys.vitals.net.{getLocalHostAddress, getLocalHostName}
 import org.burstsys.vitals.properties._
 import org.burstsys.vitals.uid.newBurstUid
 import org.scalatest.BeforeAndAfterAll

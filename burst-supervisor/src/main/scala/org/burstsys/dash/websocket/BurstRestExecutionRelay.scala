@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentHashMap
 import org.burstsys.agent.event.{AgentRequestFailed, AgentRequestStarted, AgentRequestSucceeded}
 import org.burstsys.dash.application.websocket.{BurstDashWebSocketListener, BurstWebSocket, BurstWebSocketGroup, BurstWebSocketService}
 import org.burstsys.dash.service.execution.{RequestState, requests}
-import org.burstsys.fabric.execution.supervisor.wave.{ParticleCancelled, ParticleDispatched, ParticleFailed, ParticleProgress, ParticleSucceeded, ParticleTardy, WaveBegan, WaveFailed, WaveSucceeded, WaveTimeout}
-import org.burstsys.fabric.execution.model.pipeline.{FabricPipelineEvent, FabricPipelineEventListener}
+import org.burstsys.fabric.wave.execution.supervisor.wave.{ParticleCancelled, ParticleDispatched, ParticleFailed, ParticleProgress, ParticleSucceeded, ParticleTardy, WaveBegan, WaveFailed, WaveSucceeded, WaveTimeout}
+import org.burstsys.fabric.wave.execution.model.pipeline.{FabricPipelineEvent, FabricPipelineEventListener}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.uid.VitalsUid
 

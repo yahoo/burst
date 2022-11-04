@@ -8,8 +8,8 @@ import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.CatalogService.CatalogSupervisorConfig
 import org.burstsys.catalog.CatalogService.CatalogUnitTestServerConfig
 import org.burstsys.fabric.container.FabricSupervisorContainerProvider
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainerContext
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainerContext
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.hydra.HydraService
 import org.burstsys.nexus
@@ -21,7 +21,7 @@ import org.burstsys.zap
 
 import scala.language.postfixOps
 
-trait BurstSystemTestSupervisorContainer extends FabricSupervisorContainer {
+trait BurstSystemTestSupervisorContainer extends FabricWaveSupervisorContainer {
 
   /**
    * TODO
@@ -40,7 +40,7 @@ trait BurstSystemTestSupervisorContainer extends FabricSupervisorContainer {
 }
 
 @FabricSupervisorContainerProvider final case
-class BurstSystemTestSupervisorContainerContext() extends FabricSupervisorContainerContext(defaultFabricNetworkServerConfig)
+class BurstSystemTestSupervisorContainerContext() extends FabricWaveSupervisorContainerContext(defaultFabricNetworkServerConfig)
   with BurstSystemTestSupervisorContainer with BurstSystemTestSupervisorStartup {
 
   override def serviceName: String = s"burst-system-test-supervisor-container"

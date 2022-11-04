@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplesource.test
 
+import org.burstsys.samplesource.SampleStoreTopology
 import org.burstsys.samplesource.service.SampleSourceSupervisorService
 import org.burstsys.samplestore.api
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
@@ -17,7 +18,7 @@ class SupervisorServiceSpec extends BaseSpec {
   case class ExampleSupervisorService() extends SampleSourceSupervisorService {
     override def name: String = "Example"
 
-    override def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, listenerProperties: VitalsPropertyMap): Future[api.SampleStoreGeneration] = {
+    override def getViewGenerator(guid: String, dataSource: BurstSampleStoreDataSource, topology: SampleStoreTopology, listenerProperties: VitalsPropertyMap): Future[api.SampleStoreGeneration] = {
       TeslaRequestFuture {
         SampleStoreGeneration(guid, "", Array.empty, "", Some(""))
       }

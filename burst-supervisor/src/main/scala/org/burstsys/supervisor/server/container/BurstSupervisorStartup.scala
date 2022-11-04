@@ -18,7 +18,7 @@ import scala.language.postfixOps
  */
 trait BurstSupervisorStartup extends Any {
 
-  self: BurstSupervisorContainerContext =>
+  self: BurstWaveSupervisorContainerContext =>
 
   final
   def startForeground: this.type = {

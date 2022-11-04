@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.service.thrift
 
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.execute.parameters.FabricParameterValue
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricParameterValue
 import org.burstsys.gen.thrift.api.client.BTDataFormat
 import org.burstsys.gen.thrift.api.client.BTDataType
 import org.burstsys.gen.thrift.api.client.BTDataType.BoolType

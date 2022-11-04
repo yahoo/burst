@@ -3,12 +3,12 @@ package org.burstsys.alloy.store.exceptional.supervisor
 
 import org.burstsys.alloy.store.exceptional
 import org.burstsys.alloy.store.exceptional.{ExceptionalSlice, FailureMode, StoreFailureMode, log}
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.data.model.slice.FabricSlice
-import org.burstsys.fabric.data.model.store.FabricStoreName
-import org.burstsys.fabric.data.supervisor.store.FabricStoreSupervisor
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.data.model.slice.FabricSlice
+import org.burstsys.fabric.wave.data.model.store.FabricStoreName
+import org.burstsys.fabric.wave.data.supervisor.store.FabricStoreSupervisor
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.uid._
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.Future
 import scala.util.Random
 
-final case class ExceptionalStoreSupervisor(container: FabricSupervisorContainer) extends FabricStoreSupervisor {
+final case class ExceptionalStoreSupervisor(container: FabricWaveSupervisorContainer) extends FabricStoreSupervisor {
 
   override
   def slices(guid: VitalsUid, workers: Array[FabricWorkerNode], datasource: FabricDatasource): Future[Array[FabricSlice]] = {

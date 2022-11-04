@@ -7,7 +7,7 @@ import org.burstsys.brio
 import org.burstsys.brio.dictionary.flex
 import org.burstsys.brio.dictionary.flex.BrioFlexDictionary
 import org.burstsys.brio.dictionary.mutable.{BrioMutableDictionary, BrioMutableDictionaryAnyVal}
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.cube.runtime.FeltCubeFactory
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorBuilder, FeltCollectorPlane, FeltCollectorPlaneContext}

@@ -2,12 +2,12 @@
 package org.burstsys.alloy.alloy.store.worker
 
 import org.burstsys.alloy.alloy
-import org.burstsys.fabric.container.worker.FabricWorkerContainer
-import org.burstsys.fabric.data.model.store.FabricStoreName
-import org.burstsys.fabric.data.worker.store.FabricStoreWorker
+import org.burstsys.fabric.wave.data.model.store.FabricStoreName
+import org.burstsys.fabric.wave.data.worker.store.FabricStoreWorker
+import org.burstsys.fabric.wave.container.worker.FabricWaveWorkerContainer
 
 final case
-class AlloyJsonStoreWorker(container: FabricWorkerContainer) extends FabricStoreWorker
+class AlloyJsonStoreWorker(container: FabricWaveWorkerContainer) extends FabricStoreWorker
   with AlloyJsonStoreInitializer {
 
   override lazy val storeName: FabricStoreName = alloy.store.AlloyJsonStoreName

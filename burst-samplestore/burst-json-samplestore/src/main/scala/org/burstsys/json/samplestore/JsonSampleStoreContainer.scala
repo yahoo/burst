@@ -3,6 +3,7 @@ package org.burstsys.json.samplestore
 
 import org.burstsys.json.samplestore.configuration.JsonSamplestoreConfiguration
 import org.burstsys.json.samplestore.configuration.JsonSamplestoreDefaultConfiguration
+import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.handler.SimpleSampleStoreApiServerDelegate
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
@@ -18,16 +19,19 @@ import org.burstsys.vitals.git
 
 /**
  */
-final case class JsonSampleStoreContainer(
-                                           configuration: JsonSamplestoreConfiguration = JsonSamplestoreDefaultConfiguration(),
-                                           modality: VitalsServiceModality
-                                    ) extends VitalsService {
+final case class JsonSampleStoreContainer
+  (
+    configuration: JsonSamplestoreConfiguration = JsonSamplestoreDefaultConfiguration(),
+    modality: VitalsServiceModality
+  )
+  extends VitalsService
+  with SampleStoreTopologyProvider {
 
   ////////////////////////////////////////////////////////////////////////////////
   // private state
   ////////////////////////////////////////////////////////////////////////////////
 
-  var apiServer: SampleStoreApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(configuration.properties))
+  var apiServer: SampleStoreApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(this, configuration.properties))
 
   protected
   var _healthCheck: VitalsHealthCheckService = VitalsHealthCheckService(serviceName)
@@ -76,5 +80,10 @@ final case class JsonSampleStoreContainer(
 
   def run: this.type = {
     this
+  }
+
+  override def getTopology: SampleStoreTopology = {
+    // this doesn't know it's topology
+    SampleStoreTopology(Iterable.empty)
   }
 }

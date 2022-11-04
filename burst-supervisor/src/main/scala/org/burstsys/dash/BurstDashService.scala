@@ -16,7 +16,7 @@ import org.burstsys.dash.websocket.BurstRestFabricTopologyRelay
 import org.burstsys.dash.websocket.BurstRestProfilerRelay
 import org.burstsys.dash.websocket.BurstRestTorcherRelay
 import org.burstsys.fabric
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.net.VitalsHostName
@@ -65,7 +65,7 @@ object BurstDashService {
              modality: VitalsServiceModality,
              agent: AgentService,
              catalog: CatalogService,
-             supervisor: FabricSupervisorContainer,
+             supervisor: FabricWaveSupervisorContainer,
              torcher: BurstDashTorcherService
            ): BurstDashService = RestServiceContext(modality, agent, catalog, supervisor, torcher)
 
@@ -76,7 +76,7 @@ class RestServiceContext(
                           modality: VitalsServiceModality,
                           agent: AgentService,
                           catalog: CatalogService,
-                          supervisor: FabricSupervisorContainer,
+                          supervisor: FabricWaveSupervisorContainer,
                           torcher: BurstDashTorcherService
                         ) extends VitalsService with BurstDashSsl with BurstDashService {
 
@@ -99,7 +99,7 @@ class RestServiceContext(
     supervisor.topology talksTo fabricRelay
 
     executionRelay = BurstRestExecutionRelay(webSocketService)
-    fabric.execution.model.pipeline.addPipelineSubscriber(executionRelay)
+    fabric.wave.execution.model.pipeline.addPipelineSubscriber(executionRelay)
 
     torcherRelay = BurstRestTorcherRelay(torcher, webSocketService)
     torcher.talksTo(torcherRelay)
