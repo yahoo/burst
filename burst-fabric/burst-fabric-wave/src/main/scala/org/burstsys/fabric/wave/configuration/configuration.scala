@@ -60,7 +60,7 @@ package object configuration extends VitalsPropertyRegistry {
   )
 
   def cacheSpindleFolders: Array[String] = {
-    burstFabricCacheSpindleFoldersProperty.getOrThrow.split(";")
+    burstFabricCacheSpindleFoldersProperty.get.split(";")
   }
 
   /**
@@ -69,7 +69,7 @@ package object configuration extends VitalsPropertyRegistry {
    * worker threads to share in the processing. In the future this may be configurable, but it requires more testing
    * to verify what values would be reasonable.
    */
-  val burstFabricCacheRegionCount: Int = burstTeslaWorkerThreadCountProperty.getOrThrow
+  val burstFabricCacheRegionCount: Int = burstTeslaWorkerThreadCountProperty.get
 
   /**
    * the number of impellers per spindle. Basically this is how hard you want to hit disk IO on a single
@@ -185,17 +185,17 @@ package object configuration extends VitalsPropertyRegistry {
 
   final def evictTtlMsFromDatasource(datasource: FabricDatasource): Long =
     datasource.view.viewProperties.extend.getValueOrDefault(
-      metadata.ViewCacheEvictTtlMsProperty, burstViewCacheEvictTtlMsPropertyDefault.getOrThrow
+      metadata.ViewCacheEvictTtlMsProperty, burstViewCacheEvictTtlMsPropertyDefault.get
     )
 
   final def flushTtlMsFromDatasource(datasource: FabricDatasource): Long =
     datasource.view.viewProperties.extend.getValueOrDefault(
-      metadata.ViewCacheFlushTtlMsProperty, burstViewCacheFlushTtlMsPropertyDefault.getOrThrow
+      metadata.ViewCacheFlushTtlMsProperty, burstViewCacheFlushTtlMsPropertyDefault.get
     )
 
   final def eraseTtlMsFromDatasource(datasource: FabricDatasource): Long =
     datasource.view.viewProperties.extend.getValueOrDefault(
-      metadata.ViewCacheEraseTtlMsProperty, burstViewCacheEraseTtlMsPropertyDefault.getOrThrow
+      metadata.ViewCacheEraseTtlMsProperty, burstViewCacheEraseTtlMsPropertyDefault.get
     )
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +210,7 @@ package object configuration extends VitalsPropertyRegistry {
 
   final def maxDatasetSizeFromDatasource(datasource: FabricDatasource): Long =
     datasource.view.viewProperties.extend.getValueOrDefault(
-      metadata.ViewNextDatasetSizeMaxProperty, burstFabricDatasourceMaxSizeProperty.getOrThrow
+      metadata.ViewNextDatasetSizeMaxProperty, burstFabricDatasourceMaxSizeProperty.get
     )
 
 }

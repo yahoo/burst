@@ -17,7 +17,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
   private var healthCheckPeriod: Long = _
 
   override protected def beforeAll(): Unit = {
-    healthCheckPeriod = configuration.burstVitalsHealthCheckPeriodMsProperty.getOrThrow
+    healthCheckPeriod = configuration.burstVitalsHealthCheckPeriodMsProperty.get
     // make the container update its healthcheck cache every 100 ms
     configuration.burstVitalsHealthCheckPeriodMsProperty.set(100)
     super.beforeAll()
@@ -30,7 +30,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
 
   it should "see if supervisor responds to health check" in {
     val port = this.supervisorContainer.health.healthCheckPort
-    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
+    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.get.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
     val client = HttpClients.createDefault()
@@ -45,7 +45,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
 
   it should "see if worker responds to health check" in {
     val port = this.workerContainer.health.healthCheckPort
-    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
+    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.get.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
     val client = HttpClients.createDefault()
@@ -60,7 +60,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
 
   it should "see if supervisor expires health check after a set duration" in {
     val port = this.supervisorContainer.health.healthCheckPort
-    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
+    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.get.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
     // put a lifetime on the process
@@ -94,7 +94,7 @@ class HealthCheckDeploySpec extends BurstSystemTestSpecSupport {
 
   it should "see if supervisor expires health check at a set time" in {
     val port = this.supervisorContainer.health.healthCheckPort
-    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
+    val paths = org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty.get.split(",")
     val checkPath = s"http://localhost:$port${paths.last}"
 
     val client = HttpClients.createDefault()

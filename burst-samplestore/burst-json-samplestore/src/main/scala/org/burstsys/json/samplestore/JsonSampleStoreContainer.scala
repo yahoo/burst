@@ -44,7 +44,7 @@ final case class JsonSampleStoreContainer
   def start: this.type = {
     ensureNotRunning
     // this should be done before any other systems start up
-    VitalsLog.configureLogging(burstLog4j2NameProperty.getOrThrow)
+    VitalsLog.configureLogging(burstLog4j2NameProperty.get)
     log info startingMessage
     log info burstStdMsg(s"BRANCH: '${git.branch}'   COMMIT: '${git.commitId}'  ")
 

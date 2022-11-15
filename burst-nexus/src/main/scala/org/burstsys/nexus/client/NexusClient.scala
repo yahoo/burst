@@ -136,7 +136,7 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
 
   override def toString: String = serviceName
 
-  override def serviceName: String = s"nexus-client(#$clientId, SSL=${burstNexusSslEnableProperty.getOrThrow} $serverHost:$serverPort)"
+  override def serviceName: String = s"nexus-client(#$clientId, SSL=${burstNexusSslEnableProperty.get} $serverHost:$serverPort)"
 
   val modality: VitalsServiceModality = VitalsPojo
 
@@ -281,7 +281,7 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
   private
   def connectToServer: ChannelFuture = {
 
-    if (burstNexusSslEnableProperty.getOrThrow) {
+    if (burstNexusSslEnableProperty.get) {
       val certificate = new File(certPath)
       val privateKey = new File(keyPath)
       val caChain = new File(caPath)

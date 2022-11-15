@@ -276,7 +276,7 @@ trait CatalogViewReactor extends CatalogService {
   private
   def updateGenClockAndEarliestLoadTimeIfStale(view: CatalogView)(implicit session: DBSession): CatalogView = {
     val gc = view.generationClock
-    val staleDurationMs: Long = burstCatalogGenerationStaleMsProperty.getOrThrow
+    val staleDurationMs: Long = burstCatalogGenerationStaleMsProperty.get
 
     // check staleness
     if (checkGenerationClock(gc, staleDurationMs))

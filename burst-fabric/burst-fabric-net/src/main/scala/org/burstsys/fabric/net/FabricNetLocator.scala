@@ -26,7 +26,7 @@ trait FabricNetLocator extends Any {
    */
   final
   def netSupervisorAddress: VitalsHostAddress = {
-    burstFabricNetHostProperty.getOrThrow
+    burstFabricNetHostProperty.get
   }
 
   /**
@@ -36,7 +36,7 @@ trait FabricNetLocator extends Any {
    */
   final
   def netSupervisorPort: VitalsHostPort = {
-    burstFabricNetPortProperty.getOrThrow
+    burstFabricNetPortProperty.get
   }
 
   final

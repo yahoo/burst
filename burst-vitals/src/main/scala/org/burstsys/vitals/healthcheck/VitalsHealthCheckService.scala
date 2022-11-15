@@ -84,7 +84,7 @@ class VitalsHealthCheckServiceContext(system: String) extends VitalsService
   ///////////////////////////////////////////////////////////
 
   private[this]
-  var _healthCheckPort: Option[Int] = burstVitalsHealthCheckPortProperty.get.orElse(Some(0))
+  var _healthCheckPort: Option[Int] = burstVitalsHealthCheckPortProperty.asOption.orElse(Some(0))
 
   private[this] final
   val emptyStringArray = Array.empty[String]
@@ -111,7 +111,7 @@ class VitalsHealthCheckServiceContext(system: String) extends VitalsService
   var _netAddress: InetSocketAddress = _
 
   private[this]
-  lazy val _paths: Array[String] = burstVitalsHealthCheckPathsProperty.getOrThrow.split(",")
+  lazy val _paths: Array[String] = burstVitalsHealthCheckPathsProperty.get.split(",")
 
   private[this]
   lazy val parameters = s"system=$system, binding=${_netAddress}, paths=${_paths.mkString("{", ", ", "}")}"

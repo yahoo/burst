@@ -84,7 +84,7 @@ object BurstSupervisorMain {
         /**
          * first get a set of basic config properties - this will eventually just be catalog DB connection info...
          */
-        loadSystemPropertiesFromJavaPropertiesFile(burstSupervisorPropertiesFileProperty.getOrThrow)
+        loadSystemPropertiesFromJavaPropertiesFile(burstSupervisorPropertiesFileProperty.get)
         if (arguments.standalone) {
           runLocally(arguments)
         } else {

@@ -12,7 +12,7 @@ import jakarta.ws.rs.ext.Provider
 @Provider
 class BurstDashCorsFilter extends ContainerResponseFilter {
 
-  private val portNum = burstRestPortProperty.getOrThrow
+  private val portNum = burstRestPortProperty.get
 
   override def filter(request: ContainerRequestContext, response: ContainerResponseContext): Unit = {
     response.getHeaders.add("Access-Control-Allow-Origin", s"https://localhost:$portNum")

@@ -57,7 +57,7 @@ object FabricCacheIntake extends VitalsService {
       log info startingMessage
       var spindleId = 0
       val spindleCount = cacheSpindleFolders.length
-      val totalImpellers = burstFabricCacheImpellersProperty.getOrThrow * spindleCount
+      val totalImpellers = burstFabricCacheImpellersProperty.get * spindleCount
       for (_ <- 0 until totalImpellers) {
         val folder = cacheSpindleFolders(spindleId) // round robin through spindles
         val impellerId = impellerIdGenerator.getAndIncrement

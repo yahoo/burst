@@ -16,7 +16,7 @@ import scala.jdk.CollectionConverters._
 
 package object rest extends Matchers with VitalsLogger {
 
-  val port: Int =  configuration.burstRestPortProperty.getOrThrow
+  val port: Int =  configuration.burstRestPortProperty.get
   val basicAuth: RequestAuth.Basic = RequestAuth.implicitBasic("burst", "burstomatic")
   val jsonMapper: ObjectMapper = {
     val mapper = new ObjectMapper

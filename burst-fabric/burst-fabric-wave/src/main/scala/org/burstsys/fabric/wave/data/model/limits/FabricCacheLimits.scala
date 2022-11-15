@@ -27,7 +27,7 @@ trait FabricSnapCacheLimits extends Any {
    *
    * @return
    */
-  def tendPeriod: Duration = Duration(burstFabricCacheTendMinutesProperty.getOrThrow, TimeUnit.MINUTES)
+  def tendPeriod: Duration = Duration(burstFabricCacheTendMinutesProperty.get, TimeUnit.MINUTES)
 
   /**
    * is memory usage below the low water mark
@@ -71,10 +71,10 @@ class FabricSnapCachePropertyLimits() extends AnyRef with FabricSnapCacheLimits 
   // private state
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private val highWaterMemoryMark: Double = burstFabricCacheMemoryHighMarkPercentProperty.getOrThrow
-  private val lowWaterMemoryMark: Double = burstFabricCacheMemoryLowMarkPercentProperty.getOrThrow
-  private val highWaterDiskMark: Double = burstFabricCacheDiskHighMarkPercentProperty.getOrThrow
-  private val lowWaterDiskMark: Double = burstFabricCacheDiskLowMarkPercentProperty.getOrThrow
+  private val highWaterMemoryMark: Double = burstFabricCacheMemoryHighMarkPercentProperty.get
+  private val lowWaterMemoryMark: Double = burstFabricCacheMemoryLowMarkPercentProperty.get
+  private val highWaterDiskMark: Double = burstFabricCacheDiskHighMarkPercentProperty.get
+  private val lowWaterDiskMark: Double = burstFabricCacheDiskLowMarkPercentProperty.get
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // API

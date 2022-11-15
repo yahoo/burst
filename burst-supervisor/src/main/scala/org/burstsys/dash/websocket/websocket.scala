@@ -32,7 +32,7 @@ package object websocket extends VitalsLogger {
   object FabricTopologyMessage {
 
     def apply(workers: Array[JsonFabricWorker]): ClientWebsocketMessage =
-      FabricWorkersMessageContext(workers = workers, homogeneous = burstFabricTopologyHomogeneous.getOrThrow)
+      FabricWorkersMessageContext(workers = workers, homogeneous = burstFabricTopologyHomogeneous.get)
 
   }
 

@@ -155,7 +155,7 @@ trait FabricTopologyTender extends AnyRef with FabricSupervisorListener {
     if (debugTopology)
       log info tag
     val commitId = git.commitId
-    val homogeneityRequired = newValue.getOrElse(burstFabricTopologyHomogeneous.getOrThrow)
+    val homogeneityRequired = newValue.getOrElse(burstFabricTopologyHomogeneous.get)
 
     _healthyWorkers.synchronized {
       val workers = allWorkers
@@ -184,7 +184,7 @@ trait FabricTopologyTender extends AnyRef with FabricSupervisorListener {
     if (debugTopology)
       log info s"TOPO_FETCH_WORKER $tag"
     val workerKey = connection.clientKey
-    val requireHomogeneity = burstFabricTopologyHomogeneous.getOrThrow
+    val requireHomogeneity = burstFabricTopologyHomogeneous.get
 
     _healthyWorkers.synchronized {
       _healthyWorkers.get(workerKey) match {

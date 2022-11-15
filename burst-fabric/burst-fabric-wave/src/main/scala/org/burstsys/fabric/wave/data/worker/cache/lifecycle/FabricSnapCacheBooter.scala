@@ -33,7 +33,7 @@ trait FabricSnapCacheBooter extends AnyRef  {
       try {
         getPersistedSnapFiles foreach {
           file =>
-            if (burstFabricCacheBootFlushProperty.getOrThrow) {
+            if (burstFabricCacheBootFlushProperty.get) {
               FileUtils.deleteQuietly(file.toFile)
               deleteCount += 1
             } else {

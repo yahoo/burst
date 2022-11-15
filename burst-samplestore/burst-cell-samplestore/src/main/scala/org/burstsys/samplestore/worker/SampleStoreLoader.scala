@@ -77,7 +77,7 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
     val tag = s"SampleStoreLoader.initializeLoader($parameters)"
     try {
       log info burstStdMsg(tag)
-      val depth = configuration.burstNexusPipeSizeProperty.getOrThrow
+      val depth = configuration.burstNexusPipeSizeProperty.get
       val timeout = 3 * burstSampleStoreHeartbeatDuration // no parcels in a 3 heartbeat interval means it's dead Jim
       _pipe = TeslaParcelPipe(s"samplestore.mux n=${slice.loci.length}", snap.guid, _suids, depth, timeout)
       _pipe.start

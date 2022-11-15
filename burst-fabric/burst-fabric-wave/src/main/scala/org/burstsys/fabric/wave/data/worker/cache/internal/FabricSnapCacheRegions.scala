@@ -26,7 +26,7 @@ trait FabricSnapCacheRegions extends Any {
   def initializeRegionFiles(): Unit = {
     lazy val tag = s"FabricSnapCacheRegions.initializeRegionFiles"
     try {
-      if (burstFabricCacheBootFlushProperty.getOrThrow)
+      if (burstFabricCacheBootFlushProperty.get)
         cleanAllRegionFiles()
       else
         loadRegionFiles()

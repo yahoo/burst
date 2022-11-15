@@ -10,11 +10,11 @@ import scala.concurrent.duration.Duration
 
 trait CatalogApiProperties extends Any with SslGlobalProperties with CatalogSqlProperties {
 
-  final def apiHost: VitalsHostAddress = configuration.burstCatalogApiHostProperty.getOrThrow
+  final def apiHost: VitalsHostAddress = configuration.burstCatalogApiHostProperty.get
 
-  final def apiPort: VitalsHostPort = configuration.burstCatalogApiPortProperty.getOrThrow
+  final def apiPort: VitalsHostPort = configuration.burstCatalogApiPortProperty.get
 
-  final def enableSsl: Boolean = configuration.burstCatalogApiSslEnableProperty.getOrThrow
+  final def enableSsl: Boolean = configuration.burstCatalogApiSslEnableProperty.get
 
   final def maxConnectionIdleTime: Duration = burstCatalogServerConnectionIdleDuration
 

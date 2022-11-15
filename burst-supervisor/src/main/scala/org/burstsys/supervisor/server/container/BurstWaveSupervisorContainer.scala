@@ -142,7 +142,7 @@ class BurstWaveSupervisorContainerContext() extends FabricWaveSupervisorContaine
         ensureNotRunning
 
         // this should be done before any other systems start up
-        VitalsLog.configureLogging(burstLog4j2NameProperty.getOrThrow)
+        VitalsLog.configureLogging(burstLog4j2NameProperty.get)
 
         /*
          * the critical first step is to start up the catalog - eventually all other config info comes from this
@@ -160,8 +160,8 @@ class BurstWaveSupervisorContainerContext() extends FabricWaveSupervisorContaine
         /////////////////////////////////////////////////////////////////
 
         // install sample store
-        if (burstSupervisorJsonWatchDirectoryProperty.get.isDefined && burstSupervisorPropertiesFileProperty.get.get.nonEmpty){
-          log info s"Starting JSON File Manager for directory ${burstSupervisorJsonWatchDirectoryProperty.get.get}"
+        if (burstSupervisorJsonWatchDirectoryProperty.asOption.isDefined && burstSupervisorPropertiesFileProperty.asOption.get.nonEmpty){
+          log info s"Starting JSON File Manager for directory ${burstSupervisorJsonWatchDirectoryProperty.asOption.get}"
           _jsonFileManager.start
         }
 

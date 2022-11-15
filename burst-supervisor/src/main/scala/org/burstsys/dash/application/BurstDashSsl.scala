@@ -18,13 +18,13 @@ trait BurstDashSsl {
   final val KEYSTORE_SERVER_FILE = "/.keystore"
 
   def restSslContext: SSLContext = {
-    val keystorePath = configuration.burstRestSslKeystorePath.get.getOrElse("")
+    val keystorePath = configuration.burstRestSslKeystorePath.asOption.getOrElse("")
     val keyStore = keystorePath match {
       case path if path != null && path.nonEmpty => new FileInputStream(new File(path))
       case _ => defaultInsecureKeystore
     }
     val keystoreBytes = IOUtils.toByteArray(keyStore)
-    val keystorePassword = configuration.burstRestSslKeystorePassword.getOrThrow
+    val keystorePassword = configuration.burstRestSslKeystorePassword.get
 
     val sslConfigurator: SslConfigurator = SslConfigurator.newInstance()
       .keyStoreBytes(keystoreBytes)

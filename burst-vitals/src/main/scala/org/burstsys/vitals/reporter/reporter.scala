@@ -71,7 +71,7 @@ package object reporter extends VitalsLogger {
   // API
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  final def enabled: Boolean = configuration.burstVitalsEnableReporting.getOrThrow
+  final def enabled: Boolean = configuration.burstVitalsEnableReporting.get
 
   final def enabled_=(value: Boolean): Unit = configuration.burstVitalsEnableReporting.set(value)
 

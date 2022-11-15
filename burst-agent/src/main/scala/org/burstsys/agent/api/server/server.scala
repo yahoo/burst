@@ -9,7 +9,7 @@ import org.burstsys.vitals.logging._
 package object server extends VitalsLogger {
 
   // lazy so that when we're reading config from the db we have a chance to set the system properties
-  lazy val maxConcurrency: Int = burstAgentApiMaxConcurrencyProperty.getOrThrow
+  lazy val maxConcurrency: Int = burstAgentApiMaxConcurrencyProperty.get
 
   final val maxConcurrencyGate = new AtomicInteger()
 

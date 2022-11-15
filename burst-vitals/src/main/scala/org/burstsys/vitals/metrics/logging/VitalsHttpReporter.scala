@@ -44,9 +44,9 @@ class VitalsHttpReporterContext(
 
   lazy val proxy: java.net.Proxy = {
     try {
-      if (burstVitalsMetricsHttpProxyHostProperty.get.isDefined) {
-        val host = burstVitalsMetricsHttpProxyHostProperty.getOrThrow
-        val port = burstVitalsMetricsHttpProxyPortProperty.getOrThrow
+      if (burstVitalsMetricsHttpProxyHostProperty.asOption.isDefined) {
+        val host = burstVitalsMetricsHttpProxyHostProperty.get
+        val port = burstVitalsMetricsHttpProxyPortProperty.get
         new java.net.Proxy(Type.HTTP, new InetSocketAddress(host, port))
       } else {
         java.net.Proxy.NO_PROXY
@@ -69,12 +69,12 @@ class VitalsHttpReporterContext(
             ): Unit = {
     var payload = mutable.Map[String, Any]()
     payload += "application" -> "burst"
-    payload += "dimensions" -> Map("host" -> net.getPublicHostName, "cell" -> burstCellNameProperty.getOrThrow)
+    payload += "dimensions" -> Map("host" -> net.getPublicHostName, "cell" -> burstCellNameProperty.get)
     payload += "timestamp" -> System.currentTimeMillis / 1000
     payload += "metrics" -> metrics(gauges, counters, histograms, meters, timers)
 
     val json = mapper.writeValueAsBytes(payload)
-    val url = new URL(burstVitalsMetricsHttpUrlProperty.getOrThrow)
+    val url = new URL(burstVitalsMetricsHttpUrlProperty.get)
     val connection = url.openConnection(proxy).asInstanceOf[HttpURLConnection]
     connection.setRequestMethod("POST")
     connection.setRequestProperty("Content-Type", "application/json")

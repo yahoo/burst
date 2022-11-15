@@ -102,7 +102,7 @@ trait FabricWorkerROProxy extends FabricWorkerNode with VitalsJsonRepresentable[
 
   def state: FabricWorkerState = {
     if (isConnected) {
-      val homogeneous = burstFabricTopologyHomogeneous.getOrThrow
+      val homogeneous = burstFabricTopologyHomogeneous.get
       if (homogeneous && mismatched) FabricWorkerStateExiled else FabricWorkerStateLive
     }
     else FabricWorkerStateDead

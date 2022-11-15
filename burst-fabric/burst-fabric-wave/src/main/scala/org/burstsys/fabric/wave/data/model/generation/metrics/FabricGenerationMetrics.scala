@@ -541,7 +541,7 @@ class FabricGenerationMetricsContext() extends KryoSerializable with FabricGener
     var allNonEmptyInMemory = true
     var sizeMax: Long = 0
     var sizeMin = Long.MaxValue
-    val maxLoadBytes = configuration.burstFabricDatasourceMaxSizeProperty.getOrThrow
+    val maxLoadBytes = configuration.burstFabricDatasourceMaxSizeProperty.get
 
     var itemCountTally: Long = 0
     var byteCountTally: Long = 0

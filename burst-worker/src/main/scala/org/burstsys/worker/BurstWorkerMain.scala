@@ -38,7 +38,7 @@ object BurstWorkerMain {
          * first get a set of basic config properties - this will eventually just be catalog DB connection info...
          */
         VitalsLog.configureLogging(WorkerLog4JPropertiesFileName)
-        loadSystemPropertiesFromJavaPropertiesFile(burstWorkerPropertiesFileProperty.getOrThrow)
+        loadSystemPropertiesFromJavaPropertiesFile(burstWorkerPropertiesFileProperty.get)
         fabric.wave.container.workerContainer.start.run.stop
     }
 

@@ -70,7 +70,7 @@ case class JsonSampleSourceSupervisorService() extends SampleSourceSupervisorSer
   def fetchLoci(mergedProperties: VitalsPropertyMap, loci: SampleStoreTopology): Array[SampleStoreDataLocus] = {
     // pretty basic loci lister
     // TODO get loci list from an external provider
-    val lociRepeat = Math.max(1, jsonLociCountProperty.getOrThrow)
+    val lociRepeat = Math.max(1, jsonLociCountProperty.get)
 
     // list yourself as many times as the repeat property specifies
     val hostName =

@@ -32,7 +32,7 @@ FabricWorkerContainerContext[T <: FabricWorkerListener] extends FabricContainerC
   /////////////////////////////////////////////////////
 
   final lazy
-  val bootModality: VitalsServiceModality = if (configuration.burstFabricWorkerStandaloneProperty.getOrThrow)
+  val bootModality: VitalsServiceModality = if (configuration.burstFabricWorkerStandaloneProperty.get)
     VitalsStandaloneServer else VitalsStandardServer
 
   protected[this]

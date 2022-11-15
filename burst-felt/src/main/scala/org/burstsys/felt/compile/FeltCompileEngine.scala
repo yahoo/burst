@@ -117,10 +117,10 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
       log info startingMessage
       val start = System.nanoTime
       removePathFilesAndDirsRecursively(generatedBindingsJarFolder)
-      for (i <- 0 until burstFeltCompileThreadsProperty.getOrThrow) {
+      for (i <- 0 until burstFeltCompileThreadsProperty.get) {
         _compilerQueue put FeltCompilerContext(_versionClock.get)
       }
-      log debug s"$serviceName start up took ${prettyTimeFromNanos(System.nanoTime - start)} with ${burstFeltCompileThreadsProperty.getOrThrow} worker(s)"
+      log debug s"$serviceName start up took ${prettyTimeFromNanos(System.nanoTime - start)} with ${burstFeltCompileThreadsProperty.get} worker(s)"
       markRunning
     }
     this

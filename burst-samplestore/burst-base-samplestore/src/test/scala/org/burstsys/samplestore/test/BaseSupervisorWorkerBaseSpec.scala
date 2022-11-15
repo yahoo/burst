@@ -33,7 +33,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
 
   protected var workerContainer1: FabricStoreWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstVitalsHealthCheckPortProperty.getOrThrow
+    val port = burstVitalsHealthCheckPortProperty.get
     burstVitalsHealthCheckPortProperty.set(port + 1)
     new FabricStoreWorkerContainerContext()
   }
@@ -56,7 +56,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
     } else {
       workerContainers = (1 until workerCount + 1).indices.map({ _ =>
         // we are adding multiple workers in the same JVM so move the health port
-        val port = burstVitalsHealthCheckPortProperty.getOrThrow
+        val port = burstVitalsHealthCheckPortProperty.get
         burstVitalsHealthCheckPortProperty.set(port + 1)
 
         val worker = new FabricStoreWorkerContainerContext()

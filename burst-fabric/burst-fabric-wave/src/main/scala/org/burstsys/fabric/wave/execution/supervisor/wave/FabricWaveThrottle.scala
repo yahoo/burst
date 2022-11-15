@@ -19,7 +19,7 @@ object FabricWaveThrottle {
   def apply[ResultType <: Any](wave: => ResultType): ResultType = {
     _gate synchronized {
       //noinspection LoopVariableNotUpdated
-      while (_currentWaveConcurrency >= burstFabricWaveConcurrencyProperty.getOrThrow) _gate.wait()
+      while (_currentWaveConcurrency >= burstFabricWaveConcurrencyProperty.get) _gate.wait()
       _currentWaveConcurrency += 1
     }
     try {

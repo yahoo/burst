@@ -13,13 +13,13 @@ trait SampleStoreApiProperties extends BurstApi with SslGlobalProperties {
     *
     * @return
     */
-  final def apiHost: VitalsHostAddress = burstSampleStoreApiHostProperty.getOrThrow
+  final def apiHost: VitalsHostAddress = burstSampleStoreApiHostProperty.get
 
   /**
     *
     * @return
     */
-  final def enableSsl: Boolean = burstSampleStoreApiSslEnableProperty.getOrThrow
+  final def enableSsl: Boolean = burstSampleStoreApiSslEnableProperty.get
 
   /**
     *
@@ -37,7 +37,7 @@ trait SampleStoreApiProperties extends BurstApi with SslGlobalProperties {
     *
     * @return
     */
-  final def apiPort: VitalsHostPort = burstSampleStoreApiPortProperty.getOrThrow
+  final def apiPort: VitalsHostPort = burstSampleStoreApiPortProperty.get
 
   /**
     * TODO

@@ -36,7 +36,7 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder {
       val handler = SampleSourceHandlerRegistry.getWorker(sourceName)
       // call handler
       log info burstStdMsg(s"Sending feed request to handler ${handler.name} for parcel stream $stream")
-      stream.startHeartbeat(burstSampleStoreHeartbeatInterval.getOrThrow)
+      stream.startHeartbeat(burstSampleStoreHeartbeatInterval.get)
       handler.feedStream(stream) andThen {
         case _ =>
           stream.stopHeartbeat()

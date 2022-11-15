@@ -37,7 +37,7 @@ object VitalsMetricsRegistry {
         case null =>
           _registry = new MetricRegistry
           if (!disabled) {
-            val url = burstVitalsMetricsHttpUrlProperty.get
+            val url = burstVitalsMetricsHttpUrlProperty.asOption
             if (url.isDefined && !url.get.trim.isEmpty) {
               _httpReporter = Option(VitalsHttpReporter(_registry, burstVitalsMetricsHttpPeriodDuration))
             }

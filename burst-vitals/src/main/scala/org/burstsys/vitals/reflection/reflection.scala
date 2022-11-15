@@ -15,9 +15,9 @@ import scala.jdk.CollectionConverters._
 
 package object reflection {
   private val urls: Iterable[URL] = {
-    val aux: Iterable[URL] = if (burstVitalsReflectionScanPrefixProperty.get.isDefined) {
-      log info s"Reflection prefix '${burstVitalsReflectionScanPrefixProperty.get.get}'"
-      ClasspathHelper.forPackage(burstVitalsReflectionScanPrefixProperty.get.get).asScala
+    val aux: Iterable[URL] = if (burstVitalsReflectionScanPrefixProperty.asOption.isDefined) {
+      log info s"Reflection prefix '${burstVitalsReflectionScanPrefixProperty.asOption.get}'"
+      ClasspathHelper.forPackage(burstVitalsReflectionScanPrefixProperty.asOption.get).asScala
     } else {
       Iterable.empty
     }

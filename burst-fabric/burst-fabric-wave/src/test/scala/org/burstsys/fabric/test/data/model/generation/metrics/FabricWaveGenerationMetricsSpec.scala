@@ -92,7 +92,7 @@ class FabricWaveGenerationMetricsSpec extends FabricWaveBaseSpec {
   }
 
   it should "compute SSR if data exceeded size limits" in {
-    val maxBytes = configuration.burstFabricDatasourceMaxSizeProperty.getOrThrow
+    val maxBytes = configuration.burstFabricDatasourceMaxSizeProperty.get
     val size = (maxBytes.toDouble / 4).toLong
     val items = 100
     val expectedItems = 100

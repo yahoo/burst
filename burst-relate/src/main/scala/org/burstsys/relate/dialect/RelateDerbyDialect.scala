@@ -24,11 +24,11 @@ object RelateDerbyDialect extends RelateDialect  {
   final def jdbcDriver: Class[_] = classOf[org.apache.derby.jdbc.EmbeddedDriver]
 
   final def jdbcUrl(jdbcHost: String, jdbcPort: Int, databaseName: String): String = {
-    s"jdbc:derby:memory:$databaseName;${configuration.burstRelateDerbyConnectionOpts.getOrThrow}"
+    s"jdbc:derby:memory:$databaseName;${configuration.burstRelateDerbyConnectionOpts.get}"
   }
 
   final def jdbcSystemUrl(jdbcHost: String, jdbcPort: Int): String = {
-    s"jdbc:derby:memory:system;${configuration.burstRelateDerbyConnectionOpts.getOrThrow}"
+    s"jdbc:derby:memory:system;${configuration.burstRelateDerbyConnectionOpts.get}"
   }
 
   final override

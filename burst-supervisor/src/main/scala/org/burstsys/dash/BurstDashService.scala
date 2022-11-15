@@ -39,17 +39,17 @@ trait BurstDashService extends VitalsService {
   /**
    * hostname for the REST api
    */
-  final def hostname: VitalsHostName = configuration.burstRestHostProperty.getOrThrow
+  final def hostname: VitalsHostName = configuration.burstRestHostProperty.get
 
   /**
    * port for the REST api
    */
-  final def port: VitalsHostPort = configuration.burstRestPortProperty.getOrThrow
+  final def port: VitalsHostPort = configuration.burstRestPortProperty.get
 
   /**
    * if the webservice should use https
    */
-  final def useHttps: Boolean = configuration.burstRestUsesHttpsProperty.getOrThrow
+  final def useHttps: Boolean = configuration.burstRestUsesHttpsProperty.get
 
   final def scheme: String = if (useHttps) "https" else "http"
   /**

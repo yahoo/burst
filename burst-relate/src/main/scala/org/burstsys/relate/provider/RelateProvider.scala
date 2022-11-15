@@ -98,7 +98,7 @@ abstract class RelateProvider extends AnyRef with RelateService with RelateScrip
       return this
     log info s"RELATE_PROVIDER_START '$serviceName' @ '${dialect.jdbcUrl(dbHost, dbPort, dbName)}' $tag"
 
-    if (burstRelateDebugProperty.getOrThrow && dialect == RelateDerbyDialect) {
+    if (burstRelateDebugProperty.get && dialect == RelateDerbyDialect) {
       System.setProperty("derby.stream.error.method", "java.sql.DriverManager.getLogStream")
       //      System.setProperty("derby.language.logQueryPlan", "true")
       System.setProperty("derby.language.logStatementText", "true")

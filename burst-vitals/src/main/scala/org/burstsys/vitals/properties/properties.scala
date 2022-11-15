@@ -439,7 +439,7 @@ package object properties extends VitalsLogger {
     final def getValueOrProperty[C <: VitalsPropertyComplexDataType : ClassTag](property: VitalsPropertySpecification[C]): C = {
       lazy val tag = s"VitalsRichExtendedPropertyMap.getValueOrDefault(key=$property)"
       map.get(property.key) match {
-        case None => property.getOrThrow
+        case None => property.get
         case Some(v) => castValue(tag, v)
       }
     }

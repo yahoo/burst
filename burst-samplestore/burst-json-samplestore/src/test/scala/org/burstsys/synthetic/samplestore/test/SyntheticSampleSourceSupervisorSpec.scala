@@ -32,7 +32,7 @@ class SyntheticSampleSourceSupervisorSpec extends BaseSampleStoreTest with TryVa
     generator.guid shouldBe "guid"
     generator.loci should have length 1
     forAll(generator.loci.toSeq)(locusValidator)
-    if (syntheticConfig.defaultPersistentHashProperty.getOrThrow)
+    if (syntheticConfig.defaultPersistentHashProperty.get)
       generator.generationHash shouldBe source.InvariantHash
     else
       vitals.uid.isBurstUid(generator.generationHash) shouldBe true

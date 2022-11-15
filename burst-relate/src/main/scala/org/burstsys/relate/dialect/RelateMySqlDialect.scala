@@ -36,9 +36,9 @@ object RelateMySqlDialect extends RelateDialect  {
   final def jdbcDriver: Class[_] = classOf[com.mysql.cj.jdbc.Driver]
 
   final def jdbcUrl(jdbcHost: String, jdbcPort: Int, databaseName: String): String =
-    s"jdbc:mysql://$jdbcHost:$jdbcPort/$databaseName?${configuration.burstRelateMysqlConnectionOpts.getOrThrow}"
+    s"jdbc:mysql://$jdbcHost:$jdbcPort/$databaseName?${configuration.burstRelateMysqlConnectionOpts.get}"
 
   final def jdbcSystemUrl(jdbcHost: String, jdbcPort: Int): String =
-    s"jdbc:mysql://$jdbcHost:$jdbcPort?${configuration.burstRelateMysqlConnectionOpts.getOrThrow}"
+    s"jdbc:mysql://$jdbcHost:$jdbcPort?${configuration.burstRelateMysqlConnectionOpts.get}"
 
 }

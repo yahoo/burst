@@ -91,7 +91,7 @@ class FabricContainerContext extends FabricContainer {
         VitalsLog.configureLogging(log4JPropertiesFileName)
         VitalsPropertyRegistry.logReport
 
-        log info s"FABRIC_CELL_NAME: '${burstCellNameProperty.getOrThrow}'"
+        log info s"FABRIC_CELL_NAME: '${burstCellNameProperty.get}'"
         log info s"FABRIC_GIT_BRANCH: '${git.branch}'   FABRIC_GIT_COMMIT: '${git.commitId}'"
         TeslaFactoryBoss.startIfNotAlreadyStarted
 

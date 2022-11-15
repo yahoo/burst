@@ -81,9 +81,9 @@ final case class BurstJsonFileManager( catalog: CatalogService, modality: Vitals
     ensureNotRunning
 
     // this should be done before any other systems start up
-    VitalsLog.configureLogging(burstLog4j2NameProperty.getOrThrow)
+    VitalsLog.configureLogging(burstLog4j2NameProperty.get)
     log info startingMessage
-    watchDirectory = new File(burstSupervisorJsonWatchDirectoryProperty.getOrThrow)
+    watchDirectory = new File(burstSupervisorJsonWatchDirectoryProperty.get)
     setupDefaultMetadata()
     scanForJsonFiles()
     addWatcher()

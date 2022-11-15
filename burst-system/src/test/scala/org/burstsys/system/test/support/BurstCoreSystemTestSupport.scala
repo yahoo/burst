@@ -40,7 +40,7 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
   final
   val workerContainer: BurstSystemTestWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = vitals.configuration.burstVitalsHealthCheckPortProperty.getOrThrow
+    val port = vitals.configuration.burstVitalsHealthCheckPortProperty.get
     vitals.configuration.burstVitalsHealthCheckPortProperty.set(port + 1)
     fabric.wave.container.workerContainer.asInstanceOf[BurstSystemTestWaveWorkerContainer]
   }

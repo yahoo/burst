@@ -37,7 +37,7 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
 
   protected var workerContainer1: MockWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstVitalsHealthCheckPortProperty.getOrThrow
+    val port = burstVitalsHealthCheckPortProperty.get
     burstVitalsHealthCheckPortProperty.set(port + 1)
     MockWaveWorkerContainer(logFile = "fabric", containerId = 1)
   }
@@ -65,7 +65,7 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
     } else {
       workerContainers = (1 until workerCount + 1).indices.map({ i =>
         // we are adding multiple workers in the same JVM so move the health port
-        val port = burstVitalsHealthCheckPortProperty.getOrThrow
+        val port = burstVitalsHealthCheckPortProperty.get
         burstVitalsHealthCheckPortProperty.set(port + 1)
         val worker = MockWaveWorkerContainer(logFile = "fabric", containerId = i)
         configureWorker(worker)

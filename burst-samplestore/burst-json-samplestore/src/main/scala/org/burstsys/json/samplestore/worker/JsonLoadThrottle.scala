@@ -16,7 +16,7 @@ import scala.language.postfixOps
 object JsonLoadThrottle {
 
   private val MaxPressScheduleWait = 1 minute
-  private val MaxConcurrentLoads = jsonLoadConcurrencyProperty.getOrThrow
+  private val MaxConcurrentLoads = jsonLoadConcurrencyProperty.get
   private[this] val _loadGate = new Semaphore(MaxConcurrentLoads, true)
 
   private def freeResourcesAvailableForLoad: Boolean = false

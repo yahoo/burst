@@ -38,12 +38,12 @@ trait BrioPressPipeline extends AnyRef {
   private[this]
   lazy val pressJobQueue = new LinkedBlockingQueue[BrioPressPipelineJob] {
 
-    log info burstStdMsg(s"start ${brioPressThreadsProperty.getOrThrow} press worker thread(s)")
+    log info burstStdMsg(s"start ${brioPressThreadsProperty.get} press worker thread(s)")
 
     /**
      * startup a fixed worker pool for parallel pressing
      */
-    (0 until brioPressThreadsProperty.getOrThrow).foreach {
+    (0 until brioPressThreadsProperty.get).foreach {
       i =>
         TeslaRequestFuture { // for waiting around
           Thread.currentThread setName f"brio-presser-$i%02d"

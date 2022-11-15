@@ -465,7 +465,7 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
       }
 
       // load the canned data
-      if (burstCatalogCannedImportStandaloneOnlyProperty.get.isDefined) {
+      if (burstCatalogCannedImportStandaloneOnlyProperty.asOption.isDefined) {
         loadCannedData(queryOnly = true, addSecurity = true)
       } else if (configuration.loadAllCans || configuration.loadOnlyQueryCans) {
         loadCannedData(queryOnly = configuration.loadOnlyQueryCans)

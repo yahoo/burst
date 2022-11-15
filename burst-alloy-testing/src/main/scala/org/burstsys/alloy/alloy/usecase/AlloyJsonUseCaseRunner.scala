@@ -29,7 +29,7 @@ abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
   val supervisorContainer: MockWaveSupervisorContainer = MockWaveSupervisorContainer(logFile = "unit", containerId = 1)
   protected var workerContainer: MockWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstVitalsHealthCheckPortProperty.getOrThrow
+    val port = burstVitalsHealthCheckPortProperty.get
     burstVitalsHealthCheckPortProperty.set(port + 1)
     MockWaveWorkerContainer(logFile = "unit", containerId = 1)
   }

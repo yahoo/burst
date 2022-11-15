@@ -23,7 +23,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some(10.seconds)
   )
 
-  def burstSampleStoreHeartbeatDuration: Duration = burstSampleStoreHeartbeatInterval.getOrThrow
+  def burstSampleStoreHeartbeatDuration: Duration = burstSampleStoreHeartbeatInterval.get
 
   /////////////////////////////////////////////
   // Sample Store API properties
@@ -56,7 +56,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[samplestore]
-  def burstSampleStoreApiTimeoutDuration: Duration = Duration(burstSampleStoreApiTimeoutMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstSampleStoreApiTimeoutDuration: Duration = Duration(burstSampleStoreApiTimeoutMsProperty.get, TimeUnit.MILLISECONDS)
 
   private[samplestore]
   val burstSampleStoreServerConnectionLifeMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
@@ -66,7 +66,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[samplestore]
-  def burstSampleStoreServerConnectionLifeDuration: Duration = Duration(burstSampleStoreServerConnectionLifeMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstSampleStoreServerConnectionLifeDuration: Duration = Duration(burstSampleStoreServerConnectionLifeMsProperty.get, TimeUnit.MILLISECONDS)
 
   private[samplestore]
   val burstSampleStoreServerConnectionIdleMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
@@ -76,7 +76,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[samplestore]
-  def burstSampleStoreServerConnectionIdleDuration: Duration = Duration(burstSampleStoreServerConnectionIdleMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstSampleStoreServerConnectionIdleDuration: Duration = Duration(burstSampleStoreServerConnectionIdleMsProperty.get, TimeUnit.MILLISECONDS)
 
 
 }

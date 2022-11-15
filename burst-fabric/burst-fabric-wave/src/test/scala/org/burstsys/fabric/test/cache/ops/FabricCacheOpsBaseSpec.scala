@@ -35,7 +35,7 @@ abstract class FabricCacheOpsBaseSpec extends AnyFlatSpec with Suite with org.sc
     newWorkerGate.countDown()
   }
 
-  val healthCheckPort: Int = burstVitalsHealthCheckPortProperty.getOrThrow
+  val healthCheckPort: Int = burstVitalsHealthCheckPortProperty.get
 
   protected var supervisorContainer: MockWaveSupervisorContainer = MockWaveSupervisorContainer(logFile = "fabric", containerId = 1)
 

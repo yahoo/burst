@@ -13,21 +13,21 @@ trait AgentApiProperties extends Any with SslGlobalProperties {
    *
    * @return
    */
-  final def apiHost: VitalsHostAddress = burstAgentApiHostProperty.getOrThrow
+  final def apiHost: VitalsHostAddress = burstAgentApiHostProperty.get
 
   /**
    * The port for this api
    *
    * @return
    */
-  final def apiPort: VitalsHostPort = burstAgentApiPortProperty.getOrThrow
+  final def apiPort: VitalsHostPort = burstAgentApiPortProperty.get
 
   /**
    * enable SSL socket connections
    *
    * @return
    */
-  final def enableSsl: Boolean = burstAgentApiSslEnableProperty.getOrThrow
+  final def enableSsl: Boolean = burstAgentApiSslEnableProperty.get
 
   /**
    *

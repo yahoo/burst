@@ -128,9 +128,9 @@ object FeltSweep extends FeltArtifactory[FeltAnalysisDecl, FeltSweepArtifact] {
 
   override val lruEnabled: Boolean = true
 
-  override lazy val cleanDuration: Duration = Duration(burstFeltSweepCleanSecondsProperty.getOrThrow, TimeUnit.SECONDS)
+  override lazy val cleanDuration: Duration = Duration(burstFeltSweepCleanSecondsProperty.get, TimeUnit.SECONDS)
 
-  override protected lazy val maxCount: Int = burstFeltMaxCachedSweepProperty.getOrThrow
+  override protected lazy val maxCount: Int = burstFeltMaxCachedSweepProperty.get
 
   override protected def onCacheHit(): Unit = FeltReporter.recordSweepCacheHit()
 

@@ -103,7 +103,7 @@ class NexusServerContext(
                         ) extends NexusServer with NexusServerNetty with SslGlobalProperties {
   override def toString: String = serviceName
 
-  override def serviceName: String = s"nexus-server(#$serverId, SSL=${burstNexusSslEnableProperty.getOrThrow} $serverHost:$serverPort)"
+  override def serviceName: String = s"nexus-server(#$serverId, SSL=${burstNexusSslEnableProperty.get} $serverHost:$serverPort)"
 
   val modality: VitalsServiceModality = VitalsPojo
 
@@ -219,7 +219,7 @@ class NexusServerContext(
       try {
         setupIoMode()
 
-        if (burstNexusSslEnableProperty.getOrThrow) {
+        if (burstNexusSslEnableProperty.get) {
           val certificate = new File(certPath)
           val privateKey = new File(keyPath)
           val caChain = new File(caPath)

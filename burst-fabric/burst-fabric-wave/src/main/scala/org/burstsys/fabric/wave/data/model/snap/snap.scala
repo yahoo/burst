@@ -104,7 +104,7 @@ package object snap extends VitalsLogger {
   final
   lazy val snapSpindleFolders: Array[String] = {
     // TODO unify this with reqion cache eventually
-    burstFabricCacheSpindleFoldersProperty.getOrThrow split ";"
+    burstFabricCacheSpindleFoldersProperty.get split ";"
   }
 
   /**

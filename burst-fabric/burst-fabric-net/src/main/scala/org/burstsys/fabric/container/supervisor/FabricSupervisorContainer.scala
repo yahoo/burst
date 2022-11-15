@@ -46,7 +46,7 @@ class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig:
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final lazy
-  val bootModality: VitalsServiceModality = if (configuration.burstFabricSupervisorStandaloneProperty.getOrThrow)
+  val bootModality: VitalsServiceModality = if (configuration.burstFabricSupervisorStandaloneProperty.get)
     VitalsStandaloneServer else VitalsStandardServer
 
   private[this]

@@ -17,7 +17,7 @@ package object worker {
 
   private lazy
   val teslaCommonWorkerPool: TeslaWorkerThreadPool = TeslaWorkerThreadPool(
-    poolName = "tesla-worker", configuration.burstTeslaWorkerThreadCountProperty.getOrThrow
+    poolName = "tesla-worker", configuration.burstTeslaWorkerThreadCountProperty.get
   )
 
   private implicit lazy

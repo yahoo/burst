@@ -18,7 +18,7 @@ class ThriftSpec extends BurstSupervisorSpecSupport {
   private var useHttps = true
 
   override def beforeAll(): Unit = {
-    useHttps = configuration.burstRestUsesHttpsProperty.getOrThrow
+    useHttps = configuration.burstRestUsesHttpsProperty.get
     configuration.burstRestUsesHttpsProperty.set(false)
     super.beforeAll()
   }
@@ -29,8 +29,8 @@ class ThriftSpec extends BurstSupervisorSpecSupport {
   }
 
   private lazy val client = BurstSyncClient.httpClient(
-    dash.configuration.burstRestHostProperty.getOrThrow,
-    dash.configuration.burstRestPortProperty.getOrThrow
+    dash.configuration.burstRestHostProperty.get,
+    dash.configuration.burstRestPortProperty.get
   )
 
   private def getFirstRowFromThrift(query: String, args: Option[Array[BParameter]] = None): List[BCell] = {

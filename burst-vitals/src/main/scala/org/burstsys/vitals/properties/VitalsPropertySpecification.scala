@@ -38,6 +38,7 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
 
   def useDefault(): Unit = {
     System.clearProperty(key)
+    setProgrammatically = false
   }
 
   def set(value: C): Unit = {
@@ -46,10 +47,9 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
       setProgrammatically = true
     } else {
       useDefault()
-      setProgrammatically = false
     }
 
-    val current = get
+    val current = asOption
     listeners.foreach(l => l(current))
   }
 
@@ -57,14 +57,14 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
    * @return the value of this property
    * @throws VitalsException if the property is not set and has a default of `None`
    */
-  def getOrThrow: C = {
-    get match {
+  def get: C = {
+    asOption match {
       case None => throw VitalsException(s"label=$key not found and no default provided")
       case Some(value) => value
     }
   }
 
-  def get: Option[C] = {
+  def asOption: Option[C] = {
     System.getenv(environmentVariableKey) match {
       case null => System.getProperty(key) match {
         case null => default
@@ -118,7 +118,7 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
     val keyName = s"$key".padded(keyPadding)
     val sourceStr = s"[$source]".padded(sourcePadding)
     val desc = s"${description.initialCase}".padded(descriptionPadding)
-    s" $typeStr $keyName $sourceStr - $desc [ ${get.map(v => if (sensitive) "REDACTED" else v).getOrElse("None")} ]"
+    s" $typeStr $keyName $sourceStr - $desc [ ${asOption.map(v => if (sensitive) "REDACTED" else v).getOrElse("None")} ]"
   }
 
   private def propertyToEnvironment(key: String): String = {

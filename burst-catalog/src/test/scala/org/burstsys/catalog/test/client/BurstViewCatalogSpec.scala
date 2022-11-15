@@ -188,7 +188,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
 
   it should "expire genclock after stale" in {
 
-    val oldDuration = catalog.configuration.burstCatalogGenerationStaleMsProperty.getOrThrow
+    val oldDuration = catalog.configuration.burstCatalogGenerationStaleMsProperty.get
     val view = {
       catalogServer.findViewByMoniker("Domain1View2") match {
         case Failure(t) => throw t

@@ -42,7 +42,7 @@ class BurstWaveWorkerContainerContext() extends FabricWaveWorkerContainerContext
       ensureNotRunning
 
       // this should be done before any other systems start up
-      VitalsLog.configureLogging(burstLog4j2NameProperty.getOrThrow)
+      VitalsLog.configureLogging(burstLog4j2NameProperty.get)
 
       log info startingMessage
 

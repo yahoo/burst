@@ -6,21 +6,21 @@ trait SslGlobalProperties extends Any {
   /**
     * the path to the X509 certificate to present to clients
     */
-  def certPath: String = burstSslCertPath.getOrThrow
+  def certPath: String = burstSslCertPath.get
 
   /**
     * the path to the private key for `certPath`
     */
-  def keyPath: String = burstSslKeyPath.getOrThrow
+  def keyPath: String = burstSslKeyPath.get
 
   /**
     * if you want a global location for SSL CA
     * @return
     */
-  def caPath: String = burstTrustedCaPath.getOrThrow
+  def caPath: String = burstTrustedCaPath.get
 
   /**
     * disables validation on SSL connections (should only be used in local development)
     */
-  def enableCompositeTrust: Boolean = burstEnableCompositeTrust.getOrThrow
+  def enableCompositeTrust: Boolean = burstEnableCompositeTrust.get
 }

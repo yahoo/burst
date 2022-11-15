@@ -35,8 +35,8 @@ object VitalsLog {
 
     // set for workers
     burstLog4j2NameProperty.set(logName)
-    val logFile = burstLog4j2FileProperty.getOrThrow
-    val burstHome = org.burstsys.vitals.configuration.burstHomeProperty.getOrThrow
+    val logFile = burstLog4j2FileProperty.get
+    val burstHome = org.burstsys.vitals.configuration.burstHomeProperty.get
     log info s"INITIALIZING LOG FROM `$logFile` USING CONTEXT `$logName`"
     System.setProperty("burst.log.location", logName)
     System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")

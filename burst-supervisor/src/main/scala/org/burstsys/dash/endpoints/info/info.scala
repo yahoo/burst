@@ -28,7 +28,7 @@ package object info extends VitalsLogger {
   class BurstHostInfoJson(
                            hostName: String = getPublicHostName,
                            hostAddress: String = getPublicHostAddress,
-                           restPort: Int = configuration.burstRestPortProperty.getOrThrow,
+                           restPort: Int = configuration.burstRestPortProperty.get,
                            osName: String = host.osName,
                            osArchitecture: String = host.osArch,
                            osVersion: String = host.osVersion,

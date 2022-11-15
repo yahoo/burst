@@ -6,7 +6,7 @@ import org.burstsys.vitals.uid.VitalsUid
 
 package object trek extends VitalsLogger {
 
-  lazy val trekEnable: Boolean = configuration.vitalsEnableTrekProperty.getOrThrow
+  lazy val trekEnable: Boolean = configuration.vitalsEnableTrekProperty.get
 
   case class VitalsTrekCluster(name: String) {
     override def toString: VitalsUid = name

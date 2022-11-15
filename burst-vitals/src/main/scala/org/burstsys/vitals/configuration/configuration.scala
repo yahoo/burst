@@ -69,7 +69,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some((1 minute).toMillis)
   )
 
-  def burstVitalsMetricsHttpPeriodDuration: Duration = Duration(burstVitalsMetricsHttpPeriodMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstVitalsMetricsHttpPeriodDuration: Duration = Duration(burstVitalsMetricsHttpPeriodMsProperty.get, TimeUnit.MILLISECONDS)
 
   val burstVitalsMetricsHttpUrlProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.metrics.http.url",
@@ -131,7 +131,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some((5 seconds).toMillis)
   )
 
-  def burstVitalsHealthCheckPeriodDuration: Duration = Duration(burstVitalsHealthCheckPeriodMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstVitalsHealthCheckPeriodDuration: Duration = Duration(burstVitalsHealthCheckPeriodMsProperty.get, TimeUnit.MILLISECONDS)
 
   val burstVitalsHealthCheckPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
     key = "burst.healthcheck.http.port",

@@ -19,7 +19,7 @@ trait NexusServerParcelHandler extends AnyRef {
 
   protected final
   def initiateStream(initiateMsg: NexusStreamInitiateMsg, guid: NexusGlobalUid, suid: NexusStreamUid): Unit = {
-    val pipe = TeslaParcelPipe(name = "nexus.server.stream", guid = guid, suid = suid, depth = burstNexusPipeSizeProperty.getOrThrow).start
+    val pipe = TeslaParcelPipe(name = "nexus.server.stream", guid = guid, suid = suid, depth = burstNexusPipeSizeProperty.get).start
     _stream = NexusStream(connection = this, guid, suid, initiateMsg, pipe)
     log info s"NEXUS_STREAM_INITIATE NexusServerParcelHandler.initiateStream($link, ${msgIds(initiateMsg)}) "
     transmitter.transmitControlMessage(NexusStreamInitiatedMsg(initiateMsg, suid))

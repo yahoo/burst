@@ -38,7 +38,7 @@ class VitalsLogReporterContext(
   extends ScheduledReporter(registry, "burst-log-reporter", MetricFilter.ALL, rateUnit, durationUnit)
     with VitalsLogReporter {
 
-  lazy final val cellName = burstCellNameProperty.getOrThrow
+  lazy final val cellName = burstCellNameProperty.get
   override def
   report(
           gauges: util.SortedMap[String, Gauge[_]],

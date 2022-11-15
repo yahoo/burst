@@ -249,7 +249,7 @@ class NexusStreamContext(
     ensureNotRunning
     //    log info startingMessage
     if (parcelPackingEnabled) {
-      _parcelPackerConcurrency = burstNexusStreamParcelPackerConcurrencyProperty.getOrThrow
+      _parcelPackerConcurrency = burstNexusStreamParcelPackerConcurrencyProperty.get
       if (_parcelPackerConcurrency > 0) {
         log info burstStdMsg(s"Grabbing ${_parcelPackerConcurrency} parcel packers for $this")
         for (_ <- 0 until _parcelPackerConcurrency) {

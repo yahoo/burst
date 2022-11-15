@@ -30,7 +30,7 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some((1 hour).toMillis)
   )
 
-  def burstNexusClientStaleDuration: Duration = Duration(burstNexusClientPoolStaleProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstNexusClientStaleDuration: Duration = Duration(burstNexusClientPoolStaleProperty.get, TimeUnit.MILLISECONDS)
 
   val burstNexusClientCacheTenderProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
     key = "burst.nexus.client.cache.tender.ms",
@@ -38,7 +38,7 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some((10 minute).toMillis)
   )
 
-  def burstNexusClientCacheTenderDuration: Duration = Duration(burstNexusClientCacheTenderProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstNexusClientCacheTenderDuration: Duration = Duration(burstNexusClientCacheTenderProperty.get, TimeUnit.MILLISECONDS)
 
   val burstNexusServerPortProperty: VitalsPropertySpecification[VitalsHostPort] = VitalsPropertySpecification[VitalsHostPort](
     key = "burst.nexus.server.port",
@@ -58,7 +58,7 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some((20 seconds).toMillis)
   )
 
-  def burstNexusStreamTimeoutDuration: Duration = Duration(burstNexusStreamTimeoutProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstNexusStreamTimeoutDuration: Duration = Duration(burstNexusStreamTimeoutProperty.get, TimeUnit.MILLISECONDS)
 
   val burstNexusStreamParcelPackerConcurrencyProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
     key = "burst.nexus.stream.parcel.packer.concurrency",

@@ -39,9 +39,9 @@ object BurstUtilMain {
 
   final case class BurstUtilArguments(
                                        /* sql connection info*/
-                                       dbHost: String = burstCatalogDbHostProperty.getOrThrow,
-                                       dbUser: String = burstCatalogDbUserProperty.getOrThrow,
-                                       dbPassword: String = burstCatalogDbPasswordProperty.getOrThrow,
+                                       dbHost: String = burstCatalogDbHostProperty.get,
+                                       dbUser: String = burstCatalogDbUserProperty.get,
+                                       dbPassword: String = burstCatalogDbPasswordProperty.get,
                                        dbDropTables: Boolean = false,
                                        /* command */
                                        command: String = "",
@@ -51,7 +51,7 @@ object BurstUtilMain {
 
     val defaultArguments = BurstUtilArguments()
 
-    loadSystemPropertiesFromJavaPropertiesFile(burstSupervisorPropertiesFileProperty.getOrThrow)
+    loadSystemPropertiesFromJavaPropertiesFile(burstSupervisorPropertiesFileProperty.get)
 
     val parser = new scopt.OptionParser[BurstUtilArguments]("BurstUtilMain") {
       cmd("catalog")

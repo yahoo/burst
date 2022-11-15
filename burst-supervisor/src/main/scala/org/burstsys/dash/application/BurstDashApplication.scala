@@ -49,7 +49,7 @@ class BurstDashApplication(
     }
   }
 
-  setApplicationName(configuration.burstRestNameProperty.getOrThrow)
+  setApplicationName(configuration.burstRestNameProperty.get)
 
   // setup DI
   registerInstances(binder)
