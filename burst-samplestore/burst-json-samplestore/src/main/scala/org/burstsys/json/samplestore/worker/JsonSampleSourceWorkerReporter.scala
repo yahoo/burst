@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.json.samplestore.worker
 
-import org.burstsys.vitals.instrument.{VitalsElapsedTimer, prettySizeString}
 import org.burstsys.vitals.reporter.VitalsReporter
+import org.burstsys.vitals.reporter.instrument.prettySizeString
 import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFixedValueMetric}
 
 import java.util.concurrent.atomic.LongAdder
@@ -50,14 +50,14 @@ object JsonSampleSourceWorkerReporter extends VitalsReporter {
     _workerCount.increment()
   }
 
-  def onWorkerCompletion(bytes: Long, timer: VitalsElapsedTimer): Unit = {
+  def onWorkerCompletion(bytes: Long, elapsedTime: Long): Unit = {
     newSample()
-    _succeedMetric.recordOpWithTimeAndSize(timer.elapsedTime, bytes)
+    _succeedMetric.recordOpWithTimeAndSize(elapsedTime, bytes)
   }
 
-  def onWorkerFailure(timer: VitalsElapsedTimer): Unit = {
+  def onWorkerFailure(elapsedTime: Long): Unit = {
     newSample()
-    _failMetric.recordOpWithTime(timer.elapsedTime)
+    _failMetric.recordOpWithTime(elapsedTime)
   }
 
   def recordConcurrency(concurrency: Int): Unit = {

@@ -9,7 +9,7 @@ import org.burstsys.fabric.wave.data.worker.cache.{FabricSnapCache, FabricSnapCa
 import org.burstsys.fabric.wave.data.worker.store.getWorkerStore
 import org.burstsys.fabric.wave.metadata.model.datasource
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
 
 import scala.language.postfixOps

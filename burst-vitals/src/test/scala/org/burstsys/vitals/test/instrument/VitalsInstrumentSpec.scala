@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.test.instrument
 
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.test.VitalsAbstractSpec
 
 

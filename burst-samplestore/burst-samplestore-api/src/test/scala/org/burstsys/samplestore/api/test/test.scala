@@ -6,7 +6,6 @@ import org.burstsys.samplestore.api.client.SampleStoreApiClient
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.burstsys.vitals.net.{getLocalHostAddress, getLocalHostName}
 import org.burstsys.vitals.properties._
 import org.burstsys.vitals.uid.newBurstUid
@@ -22,8 +21,6 @@ package object test extends VitalsLogger {
   )
 
   trait SampleStoreSpecLog {
-
-    VitalsMetricsRegistry.disable()
 
     VitalsLog.configureLogging("samplestore", true)
 

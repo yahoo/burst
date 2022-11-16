@@ -2,7 +2,7 @@
 package org.burstsys.json.samplestore.worker
 
 import org.burstsys.json.samplestore.configuration.jsonLoadConcurrencyProperty
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.uid.VitalsUid
 
 import java.util.concurrent.{Semaphore, TimeUnit, TimeoutException}

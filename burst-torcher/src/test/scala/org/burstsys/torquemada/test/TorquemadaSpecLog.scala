@@ -2,12 +2,9 @@
 package org.burstsys.torquemada.test
 
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.apache.logging.log4j.Logger
 
 trait TorquemadaSpecLog {
-
-  VitalsMetricsRegistry.disable()
 
   VitalsLog.configureLogging("torcher", consoleOnly = true)
 

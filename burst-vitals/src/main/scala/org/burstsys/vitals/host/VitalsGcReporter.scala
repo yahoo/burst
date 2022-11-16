@@ -2,7 +2,7 @@
 package org.burstsys.vitals.host
 
 import java.lang.management.ManagementFactory
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.VitalsReporterPercentValueMetric
 

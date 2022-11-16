@@ -5,7 +5,6 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.felt.FeltService
 import org.burstsys.hydra.parser.HydraParser
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterAll
@@ -15,7 +14,6 @@ abstract class HydraSpecSupport extends AnyFlatSpec with Suite with Matchers wit
 
 
   VitalsLog.configureLogging("hydra", consoleOnly = true)
-  VitalsMetricsRegistry.disable()
 
   def parallelism: Int = 1
 

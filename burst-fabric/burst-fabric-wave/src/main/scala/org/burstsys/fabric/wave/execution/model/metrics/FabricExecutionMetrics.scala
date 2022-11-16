@@ -7,7 +7,7 @@ import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.KryoSerializable
 import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.wave.execution.model.gather.data.FabricDataGather
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.stats.stdSkewStat
 
 /**

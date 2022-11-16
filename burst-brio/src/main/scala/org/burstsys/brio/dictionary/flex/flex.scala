@@ -5,7 +5,7 @@ import org.burstsys.brio.dictionary
 import org.burstsys.brio.dictionary.mutable.{BrioMutableDictionary, BrioMutableDictionaryAnyVal}
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.flex.{TeslaFlexCoupler, TeslaFlexSlotIndex}
-import org.burstsys.vitals.instrument.MB
+import org.burstsys.vitals.reporter.instrument.MB
 import org.burstsys.vitals.logging._
 
 import scala.language.postfixOps

@@ -4,7 +4,7 @@ package org.burstsys.zap.mutable.valset
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.flex.{TeslaFlexCoupler, TeslaFlexSlotIndex}
 import org.burstsys.tesla.part.teslaBuilderUseDefaultSize
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
 import org.burstsys.zap.mutable.valset
 

@@ -18,7 +18,7 @@ import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
 import org.burstsys.vitals.uid._
 
 import scala.concurrent.{Future, Promise}

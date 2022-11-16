@@ -10,7 +10,7 @@ import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsSingleton}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.file.removePathFilesAndDirsRecursively
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 
 import java.net.URL
 import java.nio.file.Paths

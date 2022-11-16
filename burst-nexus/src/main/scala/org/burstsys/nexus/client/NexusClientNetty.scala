@@ -2,7 +2,7 @@
 package org.burstsys.nexus.client
 
 import org.burstsys.nexus.{NexusIoMode => _}
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import io.netty.bootstrap.Bootstrap
 import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel._

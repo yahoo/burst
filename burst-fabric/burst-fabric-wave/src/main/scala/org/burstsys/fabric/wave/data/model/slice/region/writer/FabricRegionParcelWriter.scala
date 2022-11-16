@@ -8,7 +8,7 @@ import org.burstsys.tesla
 import org.burstsys.tesla.parcel.{TeslaEndMarkerParcel, TeslaParcel}
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.vitals.errors.{VitalsException, _}
-import org.burstsys.vitals.instrument.{prettyRateString, prettyTimeFromNanos}
+import org.burstsys.vitals.reporter.instrument.{prettyRateString, prettyTimeFromNanos}
 import org.burstsys.vitals.logging._
 
 /**

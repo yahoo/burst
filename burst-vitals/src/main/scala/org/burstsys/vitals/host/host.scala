@@ -2,7 +2,7 @@
 package org.burstsys.vitals
 
 import com.sun.management.{HotSpotDiagnosticMXBean, OperatingSystemMXBean, UnixOperatingSystemMXBean}
-import org.burstsys.vitals.instrument.prettyTimeFromMillis
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromMillis
 import org.burstsys.vitals.logging._
 import oshi.SystemInfo
 

@@ -6,8 +6,8 @@ import org.burstsys.hydra.runtime.SerializeTraversal
 import org.burstsys.hydra.runtime.StaticSweep
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.prettyPeriodString
-import org.burstsys.vitals.instrument.prettyRateString
+import org.burstsys.vitals.reporter.instrument.prettyPeriodString
+import org.burstsys.vitals.reporter.instrument.prettyRateString
 import org.burstsys.vitals.uid._
 
 import scala.concurrent.Await

@@ -7,7 +7,6 @@ import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.burstsys.{fabric, tesla, vitals}
 
 /**
@@ -67,7 +66,6 @@ class MockWaveWorkerContainerContext(logFile: String) extends FabricWaveWorkerCo
       ensureNotRunning
 
       git.turnOffBuildValidation()
-      VitalsMetricsRegistry.disable()
 
       VitalsLog.configureLogging(log4JPropertiesFileName, consoleOnly = true)
 

@@ -6,31 +6,21 @@ import org.burstsys.brio.json.JsonPressSource
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.pipeline
 import org.burstsys.json.samplestore.JsonBrioSampleSourceName
-import org.burstsys.json.samplestore.configuration.alloyLocationPropertyKey
-import org.burstsys.json.samplestore.configuration.alloySkipIndexStreamPropertyKey
-import org.burstsys.json.samplestore.configuration.jsonLociCountProperty
-import org.burstsys.json.samplestore.configuration.jsonVersionProperty
+import org.burstsys.json.samplestore.configuration.{alloyLocationPropertyKey, alloySkipIndexStreamPropertyKey, jsonLociCountProperty, jsonVersionProperty}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
-import org.burstsys.samplestore.api.configuration.burstSampleStoreHeartbeatInterval
-import org.burstsys.tesla.thread.request.TeslaRequestFuture
-import org.burstsys.tesla.thread.request.teslaRequestExecutor
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.instrument.VitalsElapsedTimer
+import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
+import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.logging.burstStdMsg
 
-import java.io.FileInputStream
-import java.io.InputStream
+import java.io.{FileInputStream, InputStream}
 import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-import scala.concurrent.Await
-import scala.concurrent.Future
 import scala.language.postfixOps
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
 
@@ -57,9 +47,8 @@ case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
     val tag = s"AlloySampleSourceWorkerService.feedStream(guid=${stream.guid}, suid=${stream.suid})"
     log info burstStdMsg(s"$tag started")
     try {
-      val timer = VitalsElapsedTimer("AlloySampleSourceFeedTimer")
+      var timer = System.nanoTime()
       try {
-        timer.start
         val itemReplication: Integer = Math.max(stream.getOrDefault[Int](jsonLociCountProperty.key, 0), 0)
         val itemSkip: Integer = Math.max(stream.getOrDefault[Int](alloySkipIndexStreamPropertyKey, 0), 0)
         val dataLocation = stream.get[String](alloyLocationPropertyKey)
@@ -76,7 +65,6 @@ case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
         }
         val schema = BrioSchema(stream.schema.toLowerCase)
 
-        var skipCount = itemSkip
         var totalBytes = 0
         val itemCount = new AtomicInteger(0)
         val rejectedCount = new AtomicInteger(0)
@@ -88,21 +76,21 @@ case class JsonSampleSourceWorkerService() extends SampleSourceWorkerService {
               totalBytes += buffer.currentUsedMemory
               itemCount.incrementAndGet()
               stream put buffer
-            case Failure(t) =>
+            case Failure(_) =>
               log debug burstStdMsg(s"discarding item")
               rejectedCount.incrementAndGet()
           }
           f
         }
-        Await.result(Future.sequence(futures), (1 minute))
+        Await.result(Future.sequence(futures), 1 minute)
 
-        timer.stop
+        timer = System.nanoTime() - timer
         log info burstStdMsg(s"$tag completed itemCount=$itemCount totalBytes=$totalBytes")
         stream.complete(itemCount.intValue(), expectedItemCount = futures.size, potentialItemCount = futures.size, rejectedCount.intValue())
         JsonSampleSourceWorkerReporter.onWorkerCompletion(totalBytes, timer)
       } catch safely {
         case t: Throwable =>
-          timer.stop
+          timer = System.nanoTime() - timer
           log info burstStdMsg(s"$tag failed", t)
           stream.completeExceptionally(t)
           JsonSampleSourceWorkerReporter.onWorkerFailure(timer)

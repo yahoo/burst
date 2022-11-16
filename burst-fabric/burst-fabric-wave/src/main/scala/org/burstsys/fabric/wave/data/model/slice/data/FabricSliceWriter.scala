@@ -4,7 +4,7 @@ package org.burstsys.fabric.wave.data.model.slice.data
 import org.burstsys.fabric.wave.data.model.slice.region.hose.FabricWriteMetrics
 import org.burstsys.tesla.parcel.TeslaParcel
 import org.burstsys.vitals.errors.{VitalsException, _}
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
 
 import scala.language.postfixOps

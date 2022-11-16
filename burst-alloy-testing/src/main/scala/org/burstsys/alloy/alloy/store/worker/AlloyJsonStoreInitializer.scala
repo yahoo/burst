@@ -13,7 +13,7 @@ import org.burstsys.tesla
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.prettyByteSizeString
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.logging._
 
 /**

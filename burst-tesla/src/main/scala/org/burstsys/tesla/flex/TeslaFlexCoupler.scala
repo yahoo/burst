@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyFixedNumber}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyFixedNumber}
 import org.burstsys.vitals.uid._
 import org.jctools.queues.MpmcArrayQueue
 

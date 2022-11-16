@@ -2,17 +2,14 @@
 package org.burstsys.samplestore.test
 
 import org.apache.logging.log4j.Logger
-import org.burstsys.samplesource.nexus.SampleSourceNexusServer
 import org.burstsys.samplestore.test
 import org.burstsys.vitals.logging.VitalsLog
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class BaseSampleStoreTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
-  VitalsMetricsRegistry.disable()
   VitalsLog.configureLogging("samplestores", consoleOnly = true)
 
   def log: Logger = test.log

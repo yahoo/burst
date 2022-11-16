@@ -3,7 +3,7 @@ package org.burstsys.fabric.net
 
 import java.util.concurrent.atomic.LongAdder
 
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFixedValueMetric}
 

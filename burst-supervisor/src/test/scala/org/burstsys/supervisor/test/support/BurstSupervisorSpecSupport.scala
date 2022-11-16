@@ -17,7 +17,6 @@ import org.burstsys.tesla.parcel
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties.{VitalsPropertyMap, _}
 import org.burstsys.worker.BurstWaveWorkerContainer
@@ -36,8 +35,6 @@ trait BurstSupervisorSpecSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   final def domain: CatalogDomain = supervisorContainer.catalog.findDomainByMoniker("BurstSupervisorTestDomain").get
   final def views: Array[CatalogView] = supervisorContainer.catalog.allViewsForDomain(domain.pk).get
-
-  VitalsMetricsRegistry.disable()
 
   vitals.configuration.configureForUnitTests()
   tesla.configuration.configureForUnitTests()

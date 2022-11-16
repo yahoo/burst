@@ -8,7 +8,7 @@ import org.burstsys.brio.types.BrioTypes.{BrioDictionaryKey, BrioDictionaryNotFo
 import org.burstsys.tesla.TeslaTypes.TeslaMemoryOffset
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument.prettyFixedNumber
+import org.burstsys.vitals.reporter.instrument.prettyFixedNumber
 import org.burstsys.vitals.text.VitalsTextCodec
 import org.burstsys.vitals.logging._
 

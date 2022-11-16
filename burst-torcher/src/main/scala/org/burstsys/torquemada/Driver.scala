@@ -1,10 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.torquemada
 
-import java.util
-import java.util.concurrent._
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
-
+import org.apache.logging.log4j.Level
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.CatalogService.CatalogRemoteClientConfig
@@ -13,14 +10,15 @@ import org.burstsys.torquemada.TorcherJob.JobListener
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.metrics.VitalsMetricsAgent
+import org.burstsys.vitals.logging._
 import org.burstsys.vitals.threading.burstThreadGroupGlobal
 import org.burstsys.{agent, catalog}
-import org.apache.logging.log4j.Level
 
+import java.util
+import java.util.concurrent._
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import org.burstsys.vitals.logging._
 
 object Driver  {
   def apply(parameters: TorcherParameters, agentClient: AgentService, catalogClient: CatalogService): Driver = {
@@ -44,7 +42,7 @@ object Driver  {
 }
 
 class Driver(val torcherParameters: TorcherParameters, val agentClient: AgentService, val catalogClient: CatalogService)
-  extends VitalsService with VitalsMetricsAgent {
+  extends VitalsService {
   override def modality: VitalsServiceModality = agentClient.modality
 
   /**

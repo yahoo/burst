@@ -17,7 +17,7 @@ package org.burstsys.fabric.wave.data.worker.cache.bench
 //import org.burstsys.tesla.thread.request._
 //import org.burstsys.vitals.errors.VitalsException
 //import org.burstsys.vitals.errors._
-//import org.burstsys.vitals.instrument._
+//import org.burstsys.vitals.reporter.instrument._
 //import org.burstsys.vitals.net.getPublicHostAddress
 //import org.burstsys.vitals.uid.{VitalsUid, newBurstUid}
 //

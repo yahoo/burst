@@ -8,7 +8,7 @@ import org.burstsys.system.test.support.BurstSystemTestSpecSupport
 import org.burstsys.tesla.parcel._
 import org.burstsys.tesla.thread.worker.TeslaWorkerFuture
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
 import org.scalatest.Ignore
 

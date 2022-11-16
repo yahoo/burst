@@ -8,7 +8,6 @@ import org.burstsys.fabric.net.server.unitFabricNetworkServerConfig
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.burstsys.{fabric, tesla, vitals}
 
 /**
@@ -58,7 +57,6 @@ class MockWaveSupervisorContainerContext(logFile: String, netConfig: FabricNetwo
     synchronized {
       ensureNotRunning
       git.turnOffBuildValidation()
-      VitalsMetricsRegistry.disable()
 
       System.setProperty("tesla.parts.tender.frequency", 30.toString)
 

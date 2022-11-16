@@ -9,7 +9,7 @@ import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.uid._
 
 import scala.concurrent.Future

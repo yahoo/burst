@@ -18,7 +18,7 @@ import org.burstsys.alloy.views.unity.UnityGeneratedDataset
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.host
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyRateString, prettySizeString, prettyTimeFromNanos}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettySizeString, prettyTimeFromNanos}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}

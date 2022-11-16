@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference
 import scala.jdk.CollectionConverters._
 
 package object reflection {
-  private val urls: Iterable[URL] = {
+  private def urls: Iterable[URL] = {
     val aux: Iterable[URL] = if (burstVitalsReflectionScanPrefixProperty.asOption.isDefined) {
       log info s"Reflection prefix '${burstVitalsReflectionScanPrefixProperty.asOption.get}'"
       ClasspathHelper.forPackage(burstVitalsReflectionScanPrefixProperty.asOption.get).asScala
@@ -24,7 +24,7 @@ package object reflection {
     ClasspathHelper.forPackage(burstPackage).asScala ++ aux
   }
 
-  private val reflectConfig: ConfigurationBuilder = ConfigurationBuilder.build()
+  private def reflectConfig: ConfigurationBuilder = ConfigurationBuilder.build()
     .setExpandSuperTypes(false) // we limit the package search for speed
     .addUrls(urls.asJavaCollection)
 

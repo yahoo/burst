@@ -13,7 +13,7 @@ import org.burstsys.fabric.wave.execution.model.metrics.FabricMetrics
 import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.stats.stdSkewStat
 
 import scala.language.implicitConversions

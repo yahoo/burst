@@ -11,7 +11,7 @@ import org.burstsys.fabric.wave.execution.model.scanner.FabricPlaneScanner
 import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Future, Promise}

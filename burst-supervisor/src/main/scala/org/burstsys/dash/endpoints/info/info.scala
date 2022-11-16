@@ -2,7 +2,7 @@
 package org.burstsys.dash.endpoints
 
 import org.burstsys.dash.configuration
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyTimeFromMillis}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyTimeFromMillis}
 import org.burstsys.vitals.json.VitalsJsonObject
 import org.burstsys.vitals.{git, host}
 import org.burstsys.vitals.json.VitalsJsonRepresentable

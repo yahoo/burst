@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.LongAdder
 
 import org.burstsys.fabric.wave.data.model.limits
 import org.burstsys.fabric.wave.data.model.snap.FabricSnap
-import org.burstsys.vitals.instrument.prettyByteSizeString
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFixedValueMetric, VitalsReporterPercentValueMetric}
 

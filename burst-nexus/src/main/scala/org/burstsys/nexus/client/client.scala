@@ -3,7 +3,7 @@ package org.burstsys.nexus
 
 import org.burstsys.nexus.bench.NexusNetBench
 import org.burstsys.tesla.thread.request._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
 
 import scala.concurrent.duration._

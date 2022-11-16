@@ -17,7 +17,7 @@ import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.parcel.{TeslaAbortMarkerParcel, TeslaEndMarkerParcel, TeslaExceptionMarkerParcel, TeslaHeartbeatMarkerParcel, TeslaNoDataMarkerParcel, TeslaParcelStatus, TeslaTimeoutMarkerParcel}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.net.{convertHostAddressToHostname, getPublicHostName}
 
 import scala.collection.mutable.ArrayBuffer

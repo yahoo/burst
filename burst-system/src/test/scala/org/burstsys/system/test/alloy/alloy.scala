@@ -10,7 +10,6 @@ import org.burstsys.vitals.VitalsService.VitalsStandardClient
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging.VitalsLog
 import org.burstsys.vitals.logging.VitalsLogger
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -19,7 +18,6 @@ package object alloy extends VitalsLogger {
 
   trait AlloySampleSourceSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
-    VitalsMetricsRegistry.disable()
     git.turnOffBuildValidation()
     VitalsLog.configureLogging("alloy-samplesource", consoleOnly = true)
 

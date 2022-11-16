@@ -10,7 +10,6 @@ import org.burstsys.tesla.thread.worker.TeslaWorkerFuture
 import org.burstsys.vitals.VitalsService.{VitalsStandaloneServer, VitalsStandardServer}
 import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 
 import scala.concurrent.Future
 
@@ -134,7 +133,6 @@ object BurstSupervisorMain {
       worker
     }).toArray
 
-    VitalsMetricsRegistry.disable()
 
     supervisor.run.stop
     workers.foreach(_.stopIfNotAlreadyStopped)

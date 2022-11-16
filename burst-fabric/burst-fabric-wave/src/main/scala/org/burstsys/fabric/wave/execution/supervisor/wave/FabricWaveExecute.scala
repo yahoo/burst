@@ -12,7 +12,7 @@ import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.fabric.wave.trek.FabricSupervisorWaveTrekMark
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.tesla.thread.request._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
 
 import scala.concurrent.{Await, Future}

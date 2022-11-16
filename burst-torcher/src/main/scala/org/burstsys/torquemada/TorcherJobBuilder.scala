@@ -9,7 +9,6 @@ import org.burstsys.catalog.model.view._
 import org.burstsys.motif.Motif
 import org.burstsys.torquemada.Parameters.TorcherParameters
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsAgent
 
 import java.util.concurrent.TimeUnit
 import scala.jdk.CollectionConverters._
@@ -19,7 +18,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 
-trait TorcherJobBuilder extends VitalsMetricsAgent {
+trait TorcherJobBuilder {
   this: TorcherJob =>
 
   val mapper = new ObjectMapper()

@@ -7,7 +7,7 @@ import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetA
 import org.burstsys.tesla.offheap
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument.prettyByteSizeString
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.{git, host}
 

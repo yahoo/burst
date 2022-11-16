@@ -13,7 +13,7 @@ import org.burstsys.fabric.wave.metadata.model.FabricViewKey
 import org.burstsys.hydra.HydraService
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.uid._
 
 import java.util.concurrent.atomic.AtomicLong

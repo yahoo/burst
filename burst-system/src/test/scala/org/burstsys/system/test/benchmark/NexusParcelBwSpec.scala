@@ -4,7 +4,6 @@ package org.burstsys.system.test.benchmark
 import org.burstsys.system.benchmark.NexusBenchmarkMain
 import org.burstsys.system.benchmark.NexusBenchmarkMain.NexusBenchmarkerArguments
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.Ignore
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -13,8 +12,6 @@ import scala.language.postfixOps
 
 @Ignore
 class NexusParcelBwSpec extends AnyFlatSpec with Matchers {
-
-  VitalsMetricsRegistry.disable()
 
   VitalsLog.configureLogging("supervisor", true)
 

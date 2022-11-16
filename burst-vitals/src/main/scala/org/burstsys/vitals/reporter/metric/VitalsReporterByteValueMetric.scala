@@ -2,9 +2,7 @@
 package org.burstsys.vitals.reporter.metric
 
 import com.codahale.metrics.Histogram
-import com.codahale.metrics.SlidingTimeWindowArrayReservoir
-import org.burstsys.vitals.instrument.prettyByteSizeString
-import org.burstsys.vitals.reporter
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 
 import scala.language.implicitConversions
 

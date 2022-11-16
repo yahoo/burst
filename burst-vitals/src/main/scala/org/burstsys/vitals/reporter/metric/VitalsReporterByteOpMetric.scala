@@ -1,10 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.reporter.metric
 
-import java.util.concurrent.atomic.AtomicBoolean
+import com.codahale.metrics.{Histogram, Meter}
+import org.burstsys.vitals.reporter.instrument._
 
-import com.codahale.metrics.{ExponentiallyDecayingReservoir, Histogram, Meter}
-import org.burstsys.vitals.instrument._
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * measures all aspects of a recurring operation that takes a certain amount of time and has a varying byte size.

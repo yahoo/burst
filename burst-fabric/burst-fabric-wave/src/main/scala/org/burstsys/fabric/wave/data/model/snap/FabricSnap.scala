@@ -11,7 +11,7 @@ import org.burstsys.fabric.wave.data.model.slice.data.FabricSliceData
 import org.burstsys.fabric.wave.data.model.slice.metadata.FabricSliceMetadata
 import org.burstsys.vitals.errors
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.time.printTimeInPast
 import org.burstsys.vitals.uid.{VitalsUid, newBurstUid}

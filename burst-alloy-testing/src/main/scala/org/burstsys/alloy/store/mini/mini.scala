@@ -12,7 +12,7 @@ import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricViewKey}
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
 import org.burstsys.{brio, tesla}
 

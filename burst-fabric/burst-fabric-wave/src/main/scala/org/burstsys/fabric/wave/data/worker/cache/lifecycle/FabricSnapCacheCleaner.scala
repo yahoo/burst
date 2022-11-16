@@ -4,7 +4,7 @@ package org.burstsys.fabric.wave.data.worker.cache.lifecycle
 import org.burstsys.fabric.wave.data.model.snap.{ColdSnap, FabricSnap, FailedSnap, HotSnap, NoDataSnap, WarmSnap}
 import org.burstsys.fabric.wave.data.worker.cache.FabricSnapCacheContext
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.instrument.{prettyTimeFromMillis, prettyTimeFromNanos}
+import org.burstsys.vitals.reporter.instrument.{prettyTimeFromMillis, prettyTimeFromNanos}
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.time.printTimeInPast
 

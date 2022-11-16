@@ -9,7 +9,7 @@ import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.topology.model.node.FabricNode
 import org.burstsys.fabric.topology.model.node.worker.{FabricWorkerNode, FabricWorkerProxy}
 import org.burstsys.vitals.git
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
 
 import java.util.concurrent.ConcurrentHashMap

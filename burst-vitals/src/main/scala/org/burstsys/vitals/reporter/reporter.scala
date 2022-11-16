@@ -85,6 +85,8 @@ package object reporter extends VitalsLogger {
                                  samplePeriod: Duration = defaultSamplePeriod,
                                  stalePeriod: Duration = defaultStalePeriod
                                ): Unit = {
+
+
     if (!enabled) {
       log info burstStdMsg(s"VITALS REPORTING DISABLED")
       return

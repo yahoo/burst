@@ -3,7 +3,7 @@ package org.burstsys.vitals.reporter
 
 import java.util.concurrent.atomic.LongAdder
 
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettySizeString}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettySizeString}
 
 import scala.language.postfixOps
 

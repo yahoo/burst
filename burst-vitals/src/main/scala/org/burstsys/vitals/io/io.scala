@@ -69,7 +69,7 @@ package object io extends VitalsLogger {
     }
 
 
-    override def toString: String = vitals.instrument.prettyByteSizeString(data)
+    override def toString: String = vitals.reporter.instrument.prettyByteSizeString(data)
   }
 
   implicit def intToBytesSize(size: Int): ByteSize = new ByteSize(size)

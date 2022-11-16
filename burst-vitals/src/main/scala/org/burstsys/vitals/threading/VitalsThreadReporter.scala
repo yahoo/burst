@@ -2,7 +2,7 @@
 package org.burstsys.vitals.threading
 
 import org.burstsys.vitals.host.{osTotalCores, threadsCurrent, threadsPeak, threadsTotalCpuTime, threadsUserCpuTime}
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.reporter.VitalsReporter
 
 /**

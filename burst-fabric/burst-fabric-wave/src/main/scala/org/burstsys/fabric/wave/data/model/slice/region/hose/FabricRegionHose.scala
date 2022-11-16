@@ -13,7 +13,7 @@ import org.burstsys.tesla
 import org.burstsys.tesla.parcel.{TeslaParcel, _}
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.{VitalsException, _}
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging._
 
 import scala.concurrent.duration._

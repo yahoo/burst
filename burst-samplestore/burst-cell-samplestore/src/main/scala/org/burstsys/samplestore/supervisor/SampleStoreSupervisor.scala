@@ -22,7 +22,7 @@ import org.burstsys.samplestore.model._
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.healthcheck._
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.uid.VitalsUid
 

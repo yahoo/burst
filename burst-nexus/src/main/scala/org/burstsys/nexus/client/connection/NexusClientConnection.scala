@@ -18,7 +18,7 @@ import org.burstsys.tesla.thread
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}
 import org.burstsys.vitals.uid._

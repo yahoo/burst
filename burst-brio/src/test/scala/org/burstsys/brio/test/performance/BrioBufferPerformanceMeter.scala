@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object BrioBufferPerformanceMeter extends BrioAbstractSpec {
 
-  import org.burstsys.vitals.instrument._
+  import org.burstsys.vitals.reporter.instrument._
 
   def main(args: Array[String]): Unit = {
     BrioBufferPerformanceMeter.executeRun()

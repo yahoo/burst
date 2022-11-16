@@ -5,7 +5,7 @@ import java.nio.file.Paths
 import org.burstsys.fabric.wave.data.model.snap.snapFolders
 import org.burstsys.tesla.offheap
 import org.burstsys.vitals.host
-import org.burstsys.vitals.instrument.prettyByteSizeString
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.logging._
 
 package object limits extends VitalsLogger {

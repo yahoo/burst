@@ -4,7 +4,7 @@ package org.burstsys.nexus.client
 import java.util.concurrent.atomic.LongAdder
 
 import org.burstsys.nexus.NexusSliceKey
-import org.burstsys.vitals.instrument.prettySizeString
+import org.burstsys.vitals.reporter.instrument.prettySizeString
 import org.burstsys.vitals.reporter.VitalsReporter
 import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFloatValueMetric, VitalsReporterPercentValueMetric, VitalsReporterUnitOpMetric}
 

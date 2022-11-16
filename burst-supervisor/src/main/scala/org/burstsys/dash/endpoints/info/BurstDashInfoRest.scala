@@ -6,7 +6,7 @@ import org.burstsys.dash.application.BurstDashEndpointBase
 import org.burstsys.dash.configuration
 import org.burstsys.dash.endpoints._
 import org.burstsys.vitals
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyTimeFromMillis}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyTimeFromMillis}
 import org.burstsys.vitals.json.VitalsJsonRepresentable
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net._

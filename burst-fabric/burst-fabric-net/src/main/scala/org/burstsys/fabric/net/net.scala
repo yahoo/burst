@@ -3,7 +3,7 @@ package org.burstsys.fabric
 
 import java.util.concurrent.atomic.AtomicLong
 
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
 
 import scala.language.postfixOps

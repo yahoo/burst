@@ -4,7 +4,7 @@ package org.burstsys.tesla.scatter
 import java.util.concurrent.atomic.LongAdder
 
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlot
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFloatValueMetric}
 import org.burstsys.vitals.stats.stdSkewStat

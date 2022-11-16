@@ -14,9 +14,8 @@ import org.burstsys.hydra.runtime.{SerializeTraversal, StaticSweep}
 import org.burstsys.hydra.sweep.HydraSweep
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument
 import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
+import org.burstsys.vitals.reporter.instrument
 import org.burstsys.vitals.uid._
 
 import scala.concurrent.duration._
@@ -32,8 +31,6 @@ abstract class HydraAlloyTestRunner extends AlloyJsonUseCaseRunner with VitalsLo
   final val CubeFrame = "myCube"
   final val TabletFrame = "myTablet"
   final val RouteFrame = "myRoute"
-
-  VitalsMetricsRegistry.disable()
 
   VitalsLog.configureLogging(logName = "hydra", consoleOnly = true)
 

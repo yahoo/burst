@@ -22,14 +22,14 @@ class ZapCube2DistributionSpec extends ZapCube2Spec {
       defineRandom(cubeA, rows)
       val bucketStdDeviation = cubeA.bucketStdDeviation
       val bucketListLengthMax = cubeA.bucketListLengthMax
-      log info s"RANDOM  $rows rows, $buckets buckets ($bucketListLengthMax, ${vitals.instrument.prettyFloatNumber(bucketStdDeviation)}) (length, deviation)"
+      log info s"RANDOM  $rows rows, $buckets buckets ($bucketListLengthMax, ${vitals.reporter.instrument.prettyFloatNumber(bucketStdDeviation)}) (length, deviation)"
       //      distribution should be(8.0 +- 2.0)
     }
     CubeTest {
       defineAscending(cubeA, rows)
       val bucketStdDeviation = cubeA.bucketStdDeviation
       val bucketListLengthMax = cubeA.bucketListLengthMax
-      log info s"ASCEND  $rows rows, $buckets buckets ($bucketListLengthMax, ${vitals.instrument.prettyFloatNumber(bucketStdDeviation)}) (length, deviation)"
+      log info s"ASCEND  $rows rows, $buckets buckets ($bucketListLengthMax, ${vitals.reporter.instrument.prettyFloatNumber(bucketStdDeviation)}) (length, deviation)"
       //      distribution should be(8.0 +- 2.0)
     }
   }

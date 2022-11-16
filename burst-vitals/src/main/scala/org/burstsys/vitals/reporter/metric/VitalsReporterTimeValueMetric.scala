@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.reporter.metric
 
-import com.codahale.metrics.{ExponentiallyDecayingReservoir, Histogram}
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import com.codahale.metrics.Histogram
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 
 import scala.language.implicitConversions
 

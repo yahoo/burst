@@ -10,7 +10,6 @@ import org.burstsys.system.test.supervisor.BurstSystemTestSupervisorContainer
 import org.burstsys.system.test.worker.BurstSystemTestWaveWorkerContainer
 import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -24,8 +23,6 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   final
   def domain: CatalogDomain = supervisorContainer.catalog.findDomainByMoniker("BurstSupervisorTestDomain").get
-
-  VitalsMetricsRegistry.disable()
 
   vitals.configuration.configureForUnitTests()
   tesla.configuration.configureForUnitTests()

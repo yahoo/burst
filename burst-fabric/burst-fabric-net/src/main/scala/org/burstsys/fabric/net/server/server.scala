@@ -2,7 +2,6 @@
 package org.burstsys.fabric.net
 
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.{OpsMetricType, VitalsMetricsAgent, VitalsMetricsGauge}
 
 import scala.language.postfixOps
 

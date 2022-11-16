@@ -190,6 +190,7 @@
         <commons-math3.version>3.6.1</commons-math3.version> <!-- apache math libraries -->
         <derby.version>10.14.2.0</derby.version>
         <dropwizard-metrics.version>4.2.9</dropwizard-metrics.version>
+        <opentelemetry.version>1.20.0</opentelemetry.version>
         <findbugs.version>3.0.2</findbugs.version>
         <grizzly.version>3.0.1</grizzly.version>
         <guava.version>31.1-jre</guava.version>
@@ -211,13 +212,13 @@
         <kryo.version>5.3.0</kryo.version>
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.17.2</log4j2.version>
-        <mysql.version>8.0.28</mysql.version>
+        <mysql.version>8.0.31</mysql.version>
         <netty.version>4.1.75.Final</netty.version>
         <oshi.version>6.1.5</oshi.version><!-- hardware information -->
         <owasp-html-sanitizer.version>20211018.2</owasp-html-sanitizer.version>
         <reflections.version>0.10.2</reflections.version>
         <scala-major.version>2.13</scala-major.version>
-        <scala-minor.version>8</scala-minor.version>
+        <scala-minor.version>10</scala-minor.version>
         <scala.version>${scala-major.version}.${scala-minor.version}</scala.version>
         <scalacompat.version>2.6.0</scalacompat.version>
         <scalatest.version>3.2.11</scalatest.version>
@@ -231,6 +232,7 @@
         <trove.version>3.0.3</trove.version> <!-- high performance collections -->
         <twitter-library.version>20.1.0</twitter-library.version>
         <jib.maven-plugin.version>3.2.1</jib.maven-plugin.version>
+        <protobuf.version>3.21.9</protobuf.version><!-- transitive dependency but need to remove vulnerability -->
     </properties>
 
     <modules>
@@ -506,6 +508,13 @@
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${dropwizard-metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -1173,6 +1182,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- added to remove transitive vulnerability-->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
         </dependency>
     </dependencies>
 

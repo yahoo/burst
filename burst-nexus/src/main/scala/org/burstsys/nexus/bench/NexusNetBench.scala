@@ -13,7 +13,7 @@ import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.net.{VitalsHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.burstsys.vitals.uid.newBurstUid
