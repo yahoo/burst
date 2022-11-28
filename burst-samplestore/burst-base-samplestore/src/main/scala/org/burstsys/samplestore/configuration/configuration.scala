@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.synthetic.samplestore
+package org.burstsys.samplestore
 
 import org.burstsys.vitals.properties.VitalsPropertySpecification
 
@@ -8,6 +8,16 @@ import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 package object configuration {
+
+  ///////////////////////////////////////////////////////////////////
+  // Sample Store Configuration
+  ///////////////////////////////////////////////////////////////////
+
+  val sampleStoreRestPort: VitalsPropertySpecification[Int] = VitalsPropertySpecification(
+    key = "burst.samplestore.rest.port",
+    description = "the port that the rest UI runs on",
+    default = Some(4443)
+  )
 
   ///////////////////////////////////////////////////////////////////
   // Slice Generation

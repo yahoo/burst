@@ -1,6 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.dash.application
 
+import jakarta.inject.Inject
+import jakarta.servlet.ServletContext
+import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core._
+import org.apache.logging.log4j.Logger
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.dash.endpoints
@@ -11,14 +16,8 @@ import org.burstsys.fabric.wave.container.supervisorContainer
 import org.burstsys.supervisor.server.container.BurstWaveSupervisorContainer
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import jakarta.inject.Inject
-import jakarta.servlet.ServletContext
-
-import jakarta.servlet.ServletContext
-import jakarta.ws.rs.WebApplicationException
-import jakarta.ws.rs.core._
-import org.apache.logging.log4j.Logger
-import sourcecode.{Enclosing, Line}
+import sourcecode.Enclosing
+import sourcecode.Line
 
 import scala.collection.mutable
 

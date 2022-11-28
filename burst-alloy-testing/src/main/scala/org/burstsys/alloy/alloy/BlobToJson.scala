@@ -3,7 +3,6 @@ package org.burstsys.alloy.alloy
 
 import java.io.FileOutputStream
 import java.util.zip.GZIPOutputStream
-
 import com.fasterxml.jackson.core.{JsonFactory, JsonGenerator}
 import org.burstsys.brio.blob.BrioBlob
 import org.burstsys.brio.dictionary.BrioDictionary
@@ -12,6 +11,8 @@ import org.burstsys.brio.model.schema._
 import org.burstsys.brio.model.schema.types._
 import org.burstsys.brio.types.BrioTypes._
 import org.burstsys.tesla.buffer.TeslaBufferReader
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.text.VitalsTextCodec
 
 final case
@@ -153,9 +154,9 @@ class BlobToJson(schemaName: BrioSchemaName = "Quo", fileName: String) {
             }
             writer.writeEndArray()
           case _ =>
-            val msg = s"$burstModuleName bad relation for key=$i fieldKey=$i"
-            log error msg
-            throw new RuntimeException(msg)
+            val msg = s"bad relation for key=$i fieldKey=$i"
+            log error burstStdMsg(msg)
+            throw VitalsException(msg)
 
         }
       }

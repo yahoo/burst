@@ -9,6 +9,9 @@
     </parent>
     <artifactId>burst-base-samplestore</artifactId>
 
+    <properties>
+        <burst.test.loglevel>info</burst.test.loglevel>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.burstsys</groupId>

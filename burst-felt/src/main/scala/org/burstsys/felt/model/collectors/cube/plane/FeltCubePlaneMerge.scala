@@ -2,11 +2,20 @@
 package org.burstsys.felt.model.collectors.cube.plane
 
 import org.burstsys.fabric.wave.execution.model.gather.FabricMerge
-import org.burstsys.fabric.wave.execution.model.{FabricMergeLevel, FabricRegionMergeLevel, FabricSliceMergeLevel, FabricWaveMergeLevel}
-import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.take.{FeltCubeAggTakeSemRt, FeltCubeBottomTakeSemMode, FeltCubeTopTakeSemMode}
-import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
-import org.burstsys.vitals.errors.{VitalsException, printStack, safely}
-import org.burstsys.vitals.logging.{burstStdMsg, log}
+import org.burstsys.fabric.wave.execution.model.FabricMergeLevel
+import org.burstsys.fabric.wave.execution.model.FabricRegionMergeLevel
+import org.burstsys.fabric.wave.execution.model.FabricSliceMergeLevel
+import org.burstsys.fabric.wave.execution.model.FabricWaveMergeLevel
+import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.take.FeltCubeAggTakeSemRt
+import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.take.FeltCubeBottomTakeSemMode
+import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.take.FeltCubeTopTakeSemMode
+import org.burstsys.felt.model.collectors.cube.FeltCubeBuilder
+import org.burstsys.felt.model.collectors.cube.FeltCubeCollector
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.errors.printStack
+import org.burstsys.vitals.errors.safely
+import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.log
 
 trait FeltCubePlaneMerge extends FeltCubePlane {
 
@@ -88,7 +97,8 @@ trait FeltCubePlaneMerge extends FeltCubePlane {
 
   /**
    * Do the merge of two cube planes
-   * @param that the plane to merge into this plane
+   *
+   * @param that  the plane to merge into this plane
    * @param level what level at which the merge is happening, used for topK
    */
   @inline private
@@ -141,12 +151,10 @@ trait FeltCubePlaneMerge extends FeltCubePlane {
     val dictionaryOverflow = if (this.dictionaryOverflow || that.dictionaryOverflow) {
       if (true)
         log warn printStack(VitalsException(burstStdMsg(
-          s"""
-             |DICTIONARY OVERFLOW:
-             |this.cube.rowCount=${this.planeCollector.itemCount}, that.cube.rowCount=${that.planeCollector.itemCount}"
-             |this.dictionary.slotOverflowed=${this.planeDictionary.slotOverflowed}, that.dictionary.slotOverflowed=${that.planeDictionary.slotOverflowed}
-             |this.dictionary.keyOverflowed=${this.planeDictionary.keyOverflowed}, that.dictionary.words=${that.planeDictionary.keyOverflowed}
-         """.stripMargin
+          s"""|DICTIONARY OVERFLOW:
+              |this.cube.rowCount=${this.planeCollector.itemCount}, that.cube.rowCount=${that.planeCollector.itemCount}"
+              |this.dictionary.slotOverflowed=${this.planeDictionary.slotOverflowed}, that.dictionary.slotOverflowed=${that.planeDictionary.slotOverflowed}
+              |this.dictionary.keyOverflowed=${this.planeDictionary.keyOverflowed}, that.dictionary.words=${that.planeDictionary.keyOverflowed}""".stripMargin
         )).fillInStackTrace())
       this.flagDictionaryOverflow()
       this.clearCollector() // don't want any rows if dictionary gets thrown

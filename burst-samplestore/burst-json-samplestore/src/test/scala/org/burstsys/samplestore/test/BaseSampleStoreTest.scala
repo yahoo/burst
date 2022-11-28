@@ -2,6 +2,7 @@
 package org.burstsys.samplestore.test
 
 import org.apache.logging.log4j.Logger
+import org.burstsys.samplestore.configuration.sampleStoreRestPort
 import org.burstsys.samplestore.test
 import org.burstsys.vitals.logging.VitalsLog
 import org.scalatest.BeforeAndAfterAll
@@ -16,6 +17,7 @@ class BaseSampleStoreTest extends AnyFlatSpec with Matchers with BeforeAndAfterA
 
   override def beforeAll(): Unit = {
     super.beforeAll()
+    sampleStoreRestPort.set(0)
   }
 
   override def afterAll(): Unit = {

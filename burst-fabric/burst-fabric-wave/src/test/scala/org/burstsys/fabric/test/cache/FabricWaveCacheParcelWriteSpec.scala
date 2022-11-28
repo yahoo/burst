@@ -8,7 +8,6 @@ import org.burstsys.fabric.wave.data.model.slice.state.FabricDataState
 import org.burstsys.fabric.wave.data.model.slice.state.FabricDataWarm
 import org.burstsys.fabric.wave.data.model.snap.FabricSnap
 import org.burstsys.fabric.wave.data.model.snap.getSnapFile
-import org.burstsys.fabric.wave.data.worker.cache.{burstModuleName => _}
 import org.burstsys.fabric.wave.data.worker.pump.FabricCacheIntake
 import org.burstsys.fabric.wave.data.worker.store.FabricWorkerLoader
 import org.burstsys.fabric.test.FabricWaveSupervisorWorkerBaseSpec

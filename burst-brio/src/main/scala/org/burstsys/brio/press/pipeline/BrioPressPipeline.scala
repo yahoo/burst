@@ -132,7 +132,7 @@ trait BrioPressPipeline extends AnyRef {
         p.complete(Success(blobBuffer))
       } catch safely {
         case t: Throwable =>
-          log warn burstStdMsg(s"BrioPressPipelineJob.press() jobId=$jobId, guid=$guid -- discarding press job... $t", t)
+          log warn burstLocMsg(s"jobId=$jobId, guid=$guid -- discarding press job... $t", t)
           BrioReporter.onPressReject()
           releaseBuffer(blobBuffer)
           p.failure(t)

@@ -24,8 +24,7 @@ trait FabricNetLink extends Any {
   /**
     * remote address for this connection
     */
-  final
-  def remoteAddress: VitalsHostAddress = {
+  final def remoteAddress: VitalsHostAddress = {
     if (channel.remoteAddress == null) "unknown"
     else channel.remoteAddress.asInstanceOf[InetSocketAddress].getAddress.getHostAddress
   }
@@ -33,8 +32,7 @@ trait FabricNetLink extends Any {
   /**
     * remote port for this connection
     */
-  final
-  def remotePort: VitalsHostPort = {
+  final def remotePort: VitalsHostPort = {
     if (channel.remoteAddress == null) -1
     else channel.remoteAddress.asInstanceOf[InetSocketAddress].getPort
   }
@@ -42,8 +40,7 @@ trait FabricNetLink extends Any {
   /**
     * local address for this connection
     */
-  final
-  def localAddress: VitalsHostAddress = {
+  final def localAddress: VitalsHostAddress = {
     if (channel.remoteAddress == null) "unknown"
     else channel.localAddress.asInstanceOf[InetSocketAddress].getAddress.getHostAddress
   }

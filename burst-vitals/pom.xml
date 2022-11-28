@@ -75,6 +75,13 @@
         </dependency>
         <!-- ***************************************************** -->
 
+        <!-- ***************************************************** -->
+        <!-- source location macros -->
+        <dependency>
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>sourcecode_${scala-major.version}</artifactId>
+        </dependency>
+        <!-- ***************************************************** -->
 
         <!-- ***************************************************** -->
         <!-- our serde stuff -->
@@ -132,11 +139,6 @@
             <artifactId>owasp-java-html-sanitizer</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.lihaoyi</groupId>
-            <artifactId>sourcecode_${scala-major.version}</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

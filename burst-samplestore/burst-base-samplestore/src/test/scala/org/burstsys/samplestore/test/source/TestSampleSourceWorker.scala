@@ -3,7 +3,7 @@ package org.burstsys.samplestore.test.source
 
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
-import org.burstsys.synthetic.samplestore.configuration.defaultPressTimeoutProperty
+import org.burstsys.samplestore.configuration.defaultPressTimeoutProperty
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.properties._

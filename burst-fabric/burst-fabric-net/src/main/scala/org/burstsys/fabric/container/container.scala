@@ -4,6 +4,7 @@ package org.burstsys.fabric
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.{VitalsService, reflection}
 
@@ -16,14 +17,14 @@ package object container extends VitalsLogger {
   /**
     * All services that are supervisor side
     */
-  trait FabricSupervisorService extends VitalsService {
+  trait FabricSupervisorService extends VitalsHealthMonitoredService {
     def container: FabricSupervisorContainer[_]
   }
 
   /**
     * All services that are worker side
     */
-  trait FabricWorkerService extends VitalsService {
+  trait FabricWorkerService extends VitalsHealthMonitoredService {
     def container: FabricWorkerContainer[_]
   }
 

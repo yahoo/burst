@@ -4,16 +4,28 @@ package org.burstsys.fabric.net.server.connection
 import io.netty.channel.Channel
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
-import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetMsg, FabricNetTetherMsgType}
+import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
+import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
+import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
+import org.burstsys.fabric.net.message.FabricNetAssessRespMsgType
+import org.burstsys.fabric.net.message.FabricNetMsg
+import org.burstsys.fabric.net.message.FabricNetTetherMsgType
+import org.burstsys.fabric.net.newRequestId
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.FabricNetServerListener
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
-import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter, message}
+import org.burstsys.fabric.net.FabricNetConnection
+import org.burstsys.fabric.net.FabricNetLink
+import org.burstsys.fabric.net.FabricNetReporter
+import org.burstsys.fabric.net.message
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
-import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
-import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
+import org.burstsys.fabric.topology.model.node.FabricNode
+import org.burstsys.fabric.topology.model.node.UnknownFabricNodeId
+import org.burstsys.fabric.topology.model.node.UnknownFabricNodePort
+import org.burstsys.vitals.VitalsService.VitalsPojo
+import org.burstsys.vitals.VitalsService.VitalsServiceModality
+import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.mutable
@@ -48,9 +60,7 @@ class FabricNetServerConnectionContext(
                                         transmitter: FabricNetTransmitter,
                                         receiver: FabricNetReceiver
                                       ) extends AnyRef
-  with FabricNetServerConnection with FabricNetLink with FabricNetServerAssessHandler
-  // with FabricNetServerCacheHandler with FabricNetServerParticleHandler
-  {
+  with FabricNetServerConnection with FabricNetLink {
 
   override def serviceName: String = s"fabric-net-server-connection(containerId=${container.containerIdGetOrThrow}, $link)"
 
@@ -82,6 +92,7 @@ class FabricNetServerConnectionContext(
   def stop: this.type = {
     ensureRunning
     log info stoppingMessage
+    backgroundAssessor -= assessorFunction
     markNotRunning
     this
   }
@@ -103,8 +114,9 @@ class FabricNetServerConnectionContext(
         val msg = FabricNetTetherMsg(buffer)
         log debug s"FabricNetServerConnection.onNetServerTetherMsg $this $msg"
         clientKey.nodeId = msg.senderKey.nodeId
+
         _listenerSet foreach (_.onNetServerTetherMsg(this, msg))
-        assessorTether(msg)
+        backgroundAssessor += assessorFunction
 
       /////////////////// ASSESSMENT /////////////////
       case FabricNetAssessRespMsgType =>
@@ -117,6 +129,24 @@ class FabricNetServerConnectionContext(
         _listenerSet foreach (_.onNetMessage(this, messageId, buffer))
     }
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // Assessment
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  private val assessorFunction: BackgroundFunction = () => {
+    transmitter transmitControlMessage FabricNetAssessReqMsg(newRequestId, serverKey, clientKey)
+  }
+
+  private def assessResponse(msg: FabricNetAssessRespMsg): Unit = {
+    lazy val hdr = s"FabricNetServerConnection.assessResponse"
+    FabricNetReporter.recordPing(msg.elapsedNanos)
+    log debug s"$hdr $msg"
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // events
+  ////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * The callback for handling channel disconnect messages

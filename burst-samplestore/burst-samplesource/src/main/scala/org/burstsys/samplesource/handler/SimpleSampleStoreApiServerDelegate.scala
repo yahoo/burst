@@ -14,8 +14,8 @@ case class SimpleSampleStoreApiServerDelegate(topoProvider: SampleStoreTopologyP
     val sourceName = dataSource.view.storeProperties.getValueOrThrow[String](SampleStoreSourceNameProperty)
     log info s"Handling view generation request guid=$guid sourceName=$sourceName"
     try {
-      val spvsr = SampleSourceHandlerRegistry.getSupervisor(sourceName)
-      spvsr.getViewGenerator(guid, dataSource, topoProvider.getTopology, listenerProperties)
+      val supervisor = SampleSourceHandlerRegistry.getSupervisor(sourceName)
+      supervisor.getViewGenerator(guid, dataSource, topoProvider.getTopology, listenerProperties)
     } catch safely {
       case e =>
         log error("View generation request failed guid=$guid", e)

@@ -9,7 +9,7 @@ import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
   */
 trait FabricSupervisorListener extends AnyRef {
   /**
-   * connection is disconnecting
+   * fabric worker connection is disconnecting
    */
   def onDisconnect(connection:FabricNetServerConnection): Unit ={}
 

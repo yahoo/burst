@@ -30,8 +30,8 @@ package object errors  {
   /**
    * many standard exceptions do a really bad job of printing themselves out consistently.
    * try to do the best we can to normalize...
-   * @param t
-   * @return
+   * @param t the throwable to print
+   * @return a normalized exception string
    */
   implicit def messageFromException(t: Throwable): String = {
     val tMsg = t match {

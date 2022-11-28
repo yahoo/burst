@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.container.supervisor
 
+import com.sun.net.httpserver.HttpServer
 import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.model.{FabricContainer, FabricContainerContext}
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
@@ -87,6 +88,7 @@ class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig:
       // start up the network and topology manager
       _net.start
       _topology.start
+      health.registerService(_topology)
 
       markRunning
     }
@@ -120,7 +122,6 @@ class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig:
   }
 
   override def onNetMessage(connection: FabricNetServerConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
-
     messageId match {
       case mt =>
         log warn burstStdMsg(s"Unknown message type $mt")

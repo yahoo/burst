@@ -8,7 +8,7 @@ import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.wave.data.model.limits.FabricSnapCacheLimits
 import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.wave.data.worker.cache.{FabricSnapCache, FabricSnapCacheListener, burstModuleName => _}
+import org.burstsys.fabric.wave.data.worker.cache.{FabricSnapCache, FabricSnapCacheListener}
 import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupKey
 import org.burstsys.fabric.wave.execution.model.gather.FabricGather
 import org.burstsys.fabric.wave.execution.model.wave.{FabricParticle, FabricWave}

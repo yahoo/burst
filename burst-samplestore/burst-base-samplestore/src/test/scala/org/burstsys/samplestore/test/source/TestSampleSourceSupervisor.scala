@@ -5,7 +5,7 @@ import org.burstsys.samplesource.SampleStoreTopology
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceSupervisorService}
 import org.burstsys.samplestore.api
 import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreDataLocus, SampleStoreGeneration}
-import org.burstsys.synthetic.samplestore.configuration
+import org.burstsys.samplestore.configuration
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.properties._
 import org.burstsys.vitals.uid.newBurstUid

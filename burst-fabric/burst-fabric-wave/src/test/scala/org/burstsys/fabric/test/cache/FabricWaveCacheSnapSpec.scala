@@ -5,7 +5,6 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 import org.burstsys.fabric.wave.data.model.snap.FabricSnap
-import org.burstsys.fabric.wave.data.worker.cache.{burstModuleName => _}
 import org.burstsys.fabric.wave.data.worker.pump.FabricCacheIntake
 import org.burstsys.fabric.wave.metadata.model
 import org.burstsys.fabric.test.FabricWaveSupervisorWorkerBaseSpec

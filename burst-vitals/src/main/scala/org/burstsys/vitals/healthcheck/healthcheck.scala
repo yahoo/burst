@@ -36,7 +36,10 @@ package object healthcheck extends VitalsLogger {
   }
 
   final case class VitalsComponentHealth(status: VitalsHealthStatus = VitalsHealthHealthy, message: String = "ok") {
-    def asJson: String = s"""{"health": "$status", "msg": "${message.replace("\n", "\\n").replace("\"", "\\\"")}"}"""
+    def asJson: Map[String, String] = Map[String, String](
+      ("health", status.toString),
+      ("message", message)
+    )
   }
 
   lazy val threadFactory: ThreadFactory = new ThreadFactory {

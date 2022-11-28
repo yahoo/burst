@@ -142,7 +142,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   val burstVitalsHealthCheckPathsProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.healthcheck.http.paths",
     description = "The paths the health check responds to. This is a comma separated list",
-    default = Some("/akamai,/status.html")
+    default = Some("/akamai,/status.html,/health")
   )
 
   val burstVitalsReflectionScanPrefixProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](

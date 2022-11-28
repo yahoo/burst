@@ -3,9 +3,11 @@ package org.burstsys.tesla.parcel.internal
 
 import org.burstsys.tesla.TeslaTypes.TeslaMemoryPtr
 import org.burstsys.tesla.parcel.state.TeslaParcelState
-import org.burstsys.tesla.parcel.{TeslaParcel, log}
-import org.burstsys.vitals.errors.{VitalsException, safely}
+import org.burstsys.tesla.parcel.TeslaParcel
+import org.burstsys.tesla.parcel.log
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.errors.safely
 import org.xerial.snappy.Snappy
 
 /**

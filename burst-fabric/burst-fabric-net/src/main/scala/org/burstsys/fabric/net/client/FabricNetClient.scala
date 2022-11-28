@@ -17,6 +17,7 @@ import org.burstsys.fabric.net.message.{AccessParameters, FabricNetInboundFrameD
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.net.{FabricNetIoMode, FabricNetLink, FabricNetLocator, FabricNetworkConfig, message}
+import org.burstsys.vitals
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
@@ -129,6 +130,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_]) extends Fabric
       _connection = FabricNetClientConnection(
         container, channel, transmitter, receiver, FabricNetClientContext.this
       )
+      container.health.registerComponent(_connection)
       connection.talksTo(FabricNetClientContext.this)
       connection.talksTo(_listenerSet.toSeq: _*)
       connection.start

@@ -136,9 +136,7 @@ class FeltCollectorResultGroupContext(
       this
     } catch safely {
       case t: Throwable =>
-        val msg = burstStdMsg(
-          s"FeltCollectorResultGroup.extractResults extraction of result(s) gather=$gather", t
-        )
+        val msg = burstLocMsg(s"extraction of result(s) gather=$gather", t)
         log error msg
         throw new RuntimeException(msg, t)
     }

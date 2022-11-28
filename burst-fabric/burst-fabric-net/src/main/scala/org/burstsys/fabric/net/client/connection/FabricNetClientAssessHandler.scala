@@ -65,8 +65,7 @@ trait FabricNetClientAssessHandler {
    *
    * @return
    */
-  private
-  def assessment(parameters: AccessParameters): FabricAssessment = {
+  private def assessment(parameters: AccessParameters): FabricAssessment = {
     FabricAssessment(
       _pingCollector.exportMetric, _lavCollector.exportMetric, _memCollector.exportMetric, _diskCollector.exportMetric,
       parameters
@@ -81,8 +80,7 @@ trait FabricNetClientAssessHandler {
 
   })
 
-  private
-  def percentUsed(name: String, total: Long, usable: Long = -1, used: Long = -1): Double = {
+  private def percentUsed(name: String, total: Long, usable: Long = -1, used: Long = -1): Double = {
     val free = if (usable > -1) usable else total - used
     val percentUsed = ((total - free).toDouble / total.toDouble) * 100.0
     log debug burstStdMsg(f"resource '$name' percentUsed=$percentUsed%.2f (free=${

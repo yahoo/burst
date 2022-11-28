@@ -13,6 +13,7 @@ import org.burstsys.fabric.wave.execution.model.gather.data.MockDataGather
 import org.burstsys.fabric.wave.execution.model.scanner.{FabricPlaneScanner, FabricPlaneScannerContext}
 import org.burstsys.tesla.buffer.TeslaBufferReader
 import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.text.VitalsTextCodec
 
 /**
@@ -87,9 +88,9 @@ class MockScanner(var schemaName: BrioSchemaName) extends FabricPlaneScannerCont
             }
 
           case _ =>
-            val msg = s"$burstModuleName bad relation for key=$i fieldKey=$i"
-            log error msg
-            throw new RuntimeException(msg)
+            val msg = s"bad relation for key=$i fieldKey=$i"
+            log error burstStdMsg(msg)
+            throw VitalsException(msg)
 
         }
       }

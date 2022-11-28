@@ -2,12 +2,12 @@
 package org.burstsys.samplestore.supervisor
 
 import org.burstsys.api._
+import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
-import org.burstsys.fabric.wave.data.supervisor.store._
 import org.burstsys.fabric.wave.data.model.slice.FabricSlice
 import org.burstsys.fabric.wave.data.model.store._
+import org.burstsys.fabric.wave.data.supervisor.store._
 import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.samplestore.SampleStoreName
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiNotReady
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestException
@@ -86,6 +86,9 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     // call the samplesource coordinator
     twitterFutureToScalaFuture(apiClient.getViewGenerator(guid, datasource)) map { response =>
       response.context.state match {
+        case BurstSampleStoreApiRequestSuccess if response.loci.isEmpty || response.loci.get.isEmpty =>
+          throw VitalsException("Got no loci from sample store supervisor")
+
         case BurstSampleStoreApiRequestSuccess =>
           val loci = response.loci.get.map(SampleStoreDataLocus(_)).toArray
           SampleStoreGeneration(guid, response.generationHash, loci, datasource.view.schemaName, response.motifFilter)
@@ -95,6 +98,7 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
              BurstSampleStoreApiRequestInvalid |
              BurstSampleStoreApiNotReady =>
           throw VitalsException(s"Got ${response.context.state} from samplestore master")
+
         case r =>
           throw VitalsException(s"Got unrecognized $r from samplestore master")
       }

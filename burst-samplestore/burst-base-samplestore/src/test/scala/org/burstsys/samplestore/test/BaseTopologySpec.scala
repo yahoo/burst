@@ -4,7 +4,7 @@ package org.burstsys.samplestore.test
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.samplestore.store.container.{NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
-import org.burstsys.samplestore.store.container.supervisor.FabricStoreSupervisorContainer
+import org.burstsys.samplestore.store.container.supervisor.SampleStoreFabricSupervisorContainer
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
@@ -16,7 +16,7 @@ class BaseTopologySpec extends BaseSupervisorWorkerBaseSpec
 
   override protected def workerCount = 10
 
-  override def configureSupervisor(supervisor: FabricStoreSupervisorContainer): Unit = {
+  override def configureSupervisor(supervisor: SampleStoreFabricSupervisorContainer): Unit = {
     supervisor.topology.talksTo(this)
   }
 

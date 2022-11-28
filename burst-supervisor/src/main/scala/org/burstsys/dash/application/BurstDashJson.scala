@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.glassfish.jersey.CommonProperties
-
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.Feature
 import jakarta.ws.rs.core.FeatureContext
@@ -15,16 +14,14 @@ import jakarta.ws.rs.ext.ContextResolver
 import jakarta.ws.rs.ext.MessageBodyReader
 import jakarta.ws.rs.ext.MessageBodyWriter
 import jakarta.ws.rs.ext.Provider
+import org.burstsys.vitals
 
 /**
  * Jackson JSON serialization types
  */
 object BurstDashJson {
-  def newJsonMapper: JsonMapper = JsonMapper.builder()
-    .addModule(DefaultScalaModule)
-    .build()
 
-  val mapper: JsonMapper = newJsonMapper
+  val mapper: JsonMapper = vitals.json.buildJsonMapper
 
   /**
    * This is the way that Jersey gets to know jackson a little better

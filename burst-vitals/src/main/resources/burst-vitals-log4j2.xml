@@ -29,25 +29,6 @@
             <AppenderRef ref="queries"/>
             <blocking>false</blocking>
         </Async>
-        <RollingFile name="metrics" fileName="${sys:log.home}/metrics/burst-metrics-${sys:burst.log.location}.log"
-            filePattern="${sys:log.home}/metrics/burst-metrics-${sys:burst.log.location}.%i.log" >
-            <!--
-            <CsvParameterLayout delimiter="," quoteMode="ALL" >
-                <quote>"</quote>
-                <header>"metric_timestamp","metric_name","_value", "cell_name"</header>
-            </CsvParameterLayout>
-            -->
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="25 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-        <Async name="asyncMetrics">
-            <AppenderRef ref="metrics"/>
-            <blocking>false</blocking>
-        </Async>
         <Fanout name="fan">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
             <AppenderRef ref="console"/>

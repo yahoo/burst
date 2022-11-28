@@ -69,9 +69,9 @@ trait MiniMetadataLookup extends AnyRef with FabricMetadataLookup {
   def domainLookup(key: FabricDomainKey): Try[FabricDomain] = {
     domainMap.get(key) match {
       case None =>
-        val msg = s"$burstModuleName domain $key not found"
-        log warn msg
-        Failure(VitalsException(msg).fillInStackTrace())
+        val msg = s"domain $key not found"
+        log warn burstStdMsg(msg)
+        Failure(VitalsException(msg))
       case Some(ds) => Success(ds)
     }
   }

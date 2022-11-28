@@ -55,6 +55,7 @@
                                         <portName>burst.fabric.net.port</portName>
                                         <portName>burst.liaison.port</portName>
                                         <portName>burst.nexus.server.port</portName>
+                                        <portName>burst.samplestore.rest.port</portName>
                                     </portNames>
                                 </configuration>
                             </execution>
@@ -101,12 +102,13 @@
                             <argLine>${scalatest.jvm.args}</argLine>
                             <logForkedProcessCommand>true</logForkedProcessCommand>
                             <systemProperties>
-                                <burst.loglevel>error</burst.loglevel>
+                                <burst.loglevel>${burst.test.loglevel}</burst.loglevel>
                                 <burst.nexus.server.port>${burst.nexus.server.port}</burst.nexus.server.port>
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
                                 <burst.liaison.port>${burst.liaison.port}</burst.liaison.port>
+                                <burst.samplestore.rest.port>${burst.samplestore.rest.port}</burst.samplestore.rest.port>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -151,6 +153,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <scalatest.jvm.args>-Xmx8G ${java-exports} -Xverify:none -XX:TieredStopAtLevel=1 -XX:-TieredCompilation
         </scalatest.jvm.args>
+        <burst.test.loglevel>error</burst.test.loglevel>
         <thrift-executable>thrift</thrift-executable>
         <copyright.text1>Copyright Yahoo, Licensed under the terms of the Apache 2.0 license</copyright.text1>
         <copyright.text2>See LICENSE file in project root for terms</copyright.text2>
@@ -226,7 +229,7 @@
         <scopt.version>4.0.1</scopt.version> <!-- command line argument parsing -->
         <slf4j.version>1.7.36</slf4j.version>
         <snappy.version>1.1.8.4</snappy.version> <!-- snappy compression-->
-        <sourcecode.version>0.2.8</sourcecode.version>
+        <sourcecode.version>0.3.0</sourcecode.version>
         <spotless.version>2.22.5</spotless.version>
         <thrift-version>0.12.0</thrift-version>
         <trove.version>3.0.3</trove.version> <!-- high performance collections -->
@@ -1403,7 +1406,7 @@
                         </execution>
                     </executions>
                     <configuration>
-<!--                        <ratchetFrom>origin/supervisor</ratchetFrom>-->
+                        <ratchetFrom>origin/main</ratchetFrom>
                         <formats>
                             <format>
                                 <includes>

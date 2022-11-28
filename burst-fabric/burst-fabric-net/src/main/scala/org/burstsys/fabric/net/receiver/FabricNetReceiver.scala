@@ -21,43 +21,38 @@ final case
 class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: Channel)
   extends SimpleChannelInboundHandler[ByteBuf] with FabricNetLink {
 
-  override def toString: String = s"FabricNetReceiver(containerId=${container.containerIdGetOrThrow}, $link)"
-
   private[this]
   var connection: Option[FabricNetConnection] = None
+
+  override def toString: String = s"FabricNetReceiver(containerId=${container.containerIdGetOrThrow}, $link)"
 
   def connectedTo(connection: FabricNetConnection): this.type = {
     this.connection = Option(connection)
     this
   }
 
-  override
-  def channelRegistered(ctx: ChannelHandlerContext): Unit = {
+  override def channelRegistered(ctx: ChannelHandlerContext): Unit = {
     log trace s"$this CHANNEL REGISTERED"
     super.channelRegistered(ctx)
   }
 
-  override
-  def channelUnregistered(ctx: ChannelHandlerContext): Unit = {
+  override def channelUnregistered(ctx: ChannelHandlerContext): Unit = {
     log trace s"$this CHANNEL UNREGISTERED"
     super.channelUnregistered(ctx)
   }
 
-  override
-  def channelActive(ctx: ChannelHandlerContext): Unit = {
+  override def channelActive(ctx: ChannelHandlerContext): Unit = {
     log debug s"$this CHANNEL ACTIVE"
     super.channelActive(ctx)
   }
 
-  override
-  def channelInactive(ctx: ChannelHandlerContext): Unit = {
+  override def channelInactive(ctx: ChannelHandlerContext): Unit = {
     super.channelInactive(ctx)
     log warn s"FAB_NET_CHANNEL_INACTIVE $this "
     connection.foreach(_.onDisconnect())
   }
 
-  override
-  def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
+  override def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
     // gather basics
     buffer.readInt() // first field is the message length
     val messageTypeKey = buffer.readInt()

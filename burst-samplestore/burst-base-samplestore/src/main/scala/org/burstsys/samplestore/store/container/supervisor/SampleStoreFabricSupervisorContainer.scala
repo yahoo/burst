@@ -1,6 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.store.container.supervisor
 
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpServer
 import org.burstsys.fabric.container.SupervisorLog4JPropertiesFileName
 import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorContainerContext, FabricSupervisorListener}
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
@@ -11,35 +13,53 @@ import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.samplesource.handler.{SampleSourceHandlerRegistry, SimpleSampleStoreApiServerDelegate}
 import org.burstsys.samplesource.service.MetadataParameters
 import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
+import org.burstsys.samplestore.api.BurstSampleStoreApiViewGenerator
+import org.burstsys.samplestore.api.BurstSampleStoreDataSource
+import org.burstsys.samplestore.api.SampleStoreAPIListener
 import org.burstsys.samplestore.api.SampleStoreDataLocus
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
+import org.burstsys.samplestore.configuration.sampleStoreRestPort
 import org.burstsys.samplestore.store.container._
 import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
+import org.burstsys.tesla
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
+import org.burstsys.vitals
 import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.logging.burstLocMsg
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.net.SimpleServerHandler
 import org.burstsys.vitals.net.VitalsHostPort
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
+import java.net.InetSocketAddress
+import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.Future
 import scala.language.postfixOps
 
 /**
  * the one per JVM top level container for a Fabric Supervisor
  */
-trait FabricStoreSupervisorContainer extends FabricSupervisorContainer[FabricStoreSupervisorListener] with FabricStoreSupervisorAPI
+trait SampleStoreFabricSupervisorContainer extends FabricSupervisorContainer[SampleStoreFabricSupervisorListener] with SampleStoreFabricSupervisorAPI
 
-class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var storeListenerProperties: VitalsPropertyMap = Map.empty)
-  extends FabricSupervisorContainerContext[FabricStoreSupervisorListener](netConfig)
-  with FabricStoreSupervisorContainer
+class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig, var storeListenerProperties: VitalsPropertyMap = Map.empty)
+  extends FabricSupervisorContainerContext[SampleStoreFabricSupervisorListener](netConfig)
+  with SampleStoreFabricSupervisorContainer
   with FabricTopologyListener
-  with SampleStoreTopologyProvider {
+  with SampleStoreTopologyProvider
+  with SampleStoreAPIListener {
 
   override def serviceName: String = s"fabric-store-supervisor-container"
 
   private val thriftApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(this, storeListenerProperties))
 
+  private val _server = HttpServer.create()
+
+  private val _requests = new ConcurrentLinkedQueue[ViewRequest]()
+
+  private lazy val _netAddress: InetSocketAddress = new InetSocketAddress(sampleStoreRestPort.asOption.getOrElse(0))
+
+  private final val TCP_BACKLOG = 0 // use system default
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -59,10 +79,30 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
       // start fabric container
       super.start
 
+      // start JSON dash
+      log info s"Starting Rest server on port ${_netAddress}"
+      _server.bind(_netAddress, TCP_BACKLOG)
+      _server.createContext("/", new SimpleServerHandler() {
+         override def doGet(path: String, exchange: HttpExchange): Unit = {
+           case class StoreInfo(name: String) {
+             val vars: MetadataParameters = SampleSourceHandlerRegistry.getSupervisor(name).getBroadcastVars
+           }
+
+           val response = Map[String, Any](
+             ("workers", topology.allWorkers.map(_.forExport)),
+             ("requests", _requests),
+             ("stores", SampleSourceHandlerRegistry.getSources.map(StoreInfo)),
+           )
+           writeJSON(exchange, mapper.writeValueAsString(response))
+        }
+      })
+      _server.setExecutor(tesla.thread.request.teslaRequestExecutorService)
+      _server.start()
+
       // monitor topology changes
       topology.talksTo(this)
 
-      thriftApiServer.start
+      thriftApiServer.talksTo(this).start
 
 
       markRunning
@@ -76,8 +116,8 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
       ensureRunning
 
       thriftApiServer.stop
+      _server.stop(1)
 
-      // stop generic container
       super.stop
 
       markNotRunning
@@ -89,13 +129,11 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
   // API
   ////////////////////////////////////////////////////////////////////////////////
 
-  final override
-  def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {
+  override def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {
     connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
   }
 
-  final override
-  def updateMetadata(sourceName: String): Future[Unit] = {
+  override def updateMetadata(sourceName: String): Future[Unit] = {
     val currentMetadata = SampleSourceHandlerRegistry.getSupervisor(sourceName).getBroadcastVars
     val updateFutures = topology.healthyWorkers.flatMap{worker =>
       topology.getWorker(worker).map{w =>
@@ -110,11 +148,11 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
       /////////////////// Metadata /////////////////
       case FabricStoreMetadataRespMsgType =>
         val msg = FabricStoreMetadataRespMsg(buffer)
-        log debug s"FabricStoreSupervisorContainer.onNetClientParticleReqMsg $msg"
-        filteredForeach[FabricStoreSupervisorListener](_.onStoreMetadataRespMsg(connection, msg))
+        log debug burstLocMsg(s"FabricStoreSupervisorContainer.onNetClientParticleReqMsg $msg")
+        filteredForeach[SampleStoreFabricSupervisorListener](_.onStoreMetadataRespMsg(connection, msg))
 
       case mt =>
-        log warn burstStdMsg(s"Unknown message type $mt")
+        log warn burstLocMsg(s"Unknown message type $mt")
         throw VitalsException(s"Supervisor receieved unknown message mt=$mt")
     }
   }
@@ -134,13 +172,12 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
   override def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = {
     topology.getWorker(worker) match {
       case Some(w) =>
-        // new worker gets broadcast of metadata for all known sources
-        // and source gets notified
+        // new worker gets broadcast of metadata for all known sources and source gets notified
         for (s <- SampleSourceHandlerRegistry.getSources) {
-          val sprvsr = SampleSourceHandlerRegistry.getSupervisor(s)
-          log debug burstStdMsg(s"FabricStoreSupervisorContainer.onTopologyWorkerGained supervisor=${sprvsr.name} worker=${w.nodeName}")
-          sprvsr.onSampleStoreDataLocusAdded(convertToLocus(worker))
-          updateMetadata(w.connection, s, sprvsr.getBroadcastVars)
+          val supervisor = SampleSourceHandlerRegistry.getSupervisor(s)
+          log debug burstLocMsg(s"supervisor=${supervisor.name} worker=${w.nodeName}")
+          supervisor.onSampleStoreDataLocusAdded(convertToLocus(worker))
+          updateMetadata(w.connection, s, supervisor.getBroadcastVars)
         }
       case None =>
     }
@@ -154,9 +191,9 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
   override def onTopologyWorkerLost(worker: FabricTopologyWorker): Unit = {
     // notified source supervisors of lots worker
     for (s <- SampleSourceHandlerRegistry.getSources) {
-      val sprvsr = SampleSourceHandlerRegistry.getSupervisor(s)
-      log debug burstStdMsg(s"FabricStoreSupervisorContainer.onTopologyWorkerLost supervisor=${sprvsr.name} worker=${worker.nodeName}")
-      sprvsr.onSampleStoreDataLocusRemoved(convertToLocus(worker))
+      val supervisor = SampleSourceHandlerRegistry.getSupervisor(s)
+      log debug burstLocMsg(s"supervisor=${supervisor.name} worker=${worker.nodeName}")
+      supervisor.onSampleStoreDataLocusRemoved(convertToLocus(worker))
     }
   }
 
@@ -173,5 +210,15 @@ class FabricStoreSupervisorContainerContext(netConfig: FabricNetworkConfig, var 
   }
 
   override def log4JPropertiesFileName: String = SupervisorLog4JPropertiesFileName
+
+  override def onViewGenerationRequest(guid: String, dataSource: BurstSampleStoreDataSource): Unit = {
+    _requests.offer(ViewRequest(guid, dataSource))
+    while (_requests.size > 10) {
+      _requests.poll()
+    }
+  }
+
+  override def onViewGeneration(guid: String, dataSource: BurstSampleStoreDataSource, result: BurstSampleStoreApiViewGenerator): Unit = {}
 }
 
+case class ViewRequest(guid: String, datasource: BurstSampleStoreDataSource, now: Long = System.currentTimeMillis)

@@ -3,7 +3,7 @@ package org.burstsys.samplestore.test
 
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.samplestore.api.client.SampleStoreApiClient
-import org.burstsys.samplestore.store.container.supervisor.{FabricStoreSupervisorContainer, FabricStoreSupervisorContainerContext}
+import org.burstsys.samplestore.store.container.supervisor.{SampleStoreFabricSupervisorContainer, SampleStoreFabricSupervisorContainerContext}
 import org.burstsys.samplestore.store.container.worker.{FabricStoreWorkerContainer, FabricStoreWorkerContainerContext}
 import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
 import org.scalatest.flatspec.AnyFlatSpec
@@ -21,12 +21,12 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
 
   protected def workerCount = 1
 
-  protected def configureSupervisor(supervisor: FabricStoreSupervisorContainer): Unit = {}
+  protected def configureSupervisor(supervisor: SampleStoreFabricSupervisorContainer): Unit = {}
 
   protected def configureWorker(@unused worker: FabricStoreWorkerContainer): Unit = {}
 
-  protected var supervisorContainer: FabricStoreSupervisorContainer = {
-    new FabricStoreSupervisorContainerContext(defaultFabricNetworkServerConfig)
+  protected var supervisorContainer: SampleStoreFabricSupervisorContainer = {
+    new SampleStoreFabricSupervisorContainerContext(defaultFabricNetworkServerConfig)
   }
 
   protected var storeServiceClient: SampleStoreApiClient = SampleStoreApiClient()

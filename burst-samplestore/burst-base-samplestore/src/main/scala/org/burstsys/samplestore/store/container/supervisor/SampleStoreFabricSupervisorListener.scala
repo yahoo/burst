@@ -6,8 +6,11 @@ import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataRespMsg
 
 /**
- * handler for supervisor container events
+ * Handle samplestore related fabric events
  */
-trait FabricStoreSupervisorListener extends FabricSupervisorListener {
+trait SampleStoreFabricSupervisorListener extends FabricSupervisorListener {
+  /**
+   * Notify the store supervisor that a worker has sent a metadata response
+   */
   def onStoreMetadataRespMsg(connection: FabricNetServerConnection, msg: FabricStoreMetadataRespMsg): Unit = {}
 }

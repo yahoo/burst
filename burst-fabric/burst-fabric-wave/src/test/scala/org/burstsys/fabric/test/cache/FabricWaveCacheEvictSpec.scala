@@ -6,7 +6,6 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import org.burstsys.fabric.wave.configuration.burstViewCacheEraseTtlMsPropertyDefault
 import org.burstsys.fabric.wave.data.model.snap.FabricSnap
-import org.burstsys.fabric.wave.data.worker.cache.{burstModuleName => _}
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 
 import scala.concurrent.duration._

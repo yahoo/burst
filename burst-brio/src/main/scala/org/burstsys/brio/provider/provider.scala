@@ -24,11 +24,11 @@ package object provider extends VitalsLogger {
       if (_loaded) return
       schemaProviders.foreach { provider =>
         try {
-          log info s"BRIO_SCHEMA_PROVIDER_LOAD: $provider"
+          log info s"BRIO_SCHEMA_PROVIDER_LOAD: provider=$provider"
           registerBrioSchema(this.getClass, provider.schemaResourcePath, provider.names.toIndexedSeq: _*)
         } catch safely {
           case t: Throwable =>
-            log error burstStdMsg(s"BRIO_SCHEMA_PROVIDER_LOAD_FAIL provider='$provider' $t", t)
+            log error burstStdMsg(s"BRIO_SCHEMA_PROVIDER_LOAD_FAIL: provider='$provider' $t", t)
         }
       }
       _loaded = true

@@ -67,7 +67,7 @@ object TeslaBlockSizes {
       case _ =>
         throw new RuntimeException(s"TESLA_BAD_BLOCK_SIZE_REQUEST: request for unsupported block size: $byteSize (${ vitals.reporter.instrument.prettyByteSizeString(byteSize)})")
     }
-    //log debug s"$burstModuleName for request size $byteSize, allocated blocksize $size"
+    //log debug burstStdMsg(s"for request size $byteSize, allocated blocksize $size")
     size
   }
 }

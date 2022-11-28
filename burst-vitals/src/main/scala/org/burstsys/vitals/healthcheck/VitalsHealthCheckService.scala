@@ -1,22 +1,26 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.healthcheck
 
-import java.net.InetSocketAddress
-import java.util
-import java.util.concurrent.ConcurrentHashMap
-
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpHandler
+import com.sun.net.httpserver.HttpServer
+import org.burstsys.vitals
 import org.burstsys.vitals.VitalsService
-import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
+import org.burstsys.vitals.VitalsService.VitalsPojo
+import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.background.VitalsBackgroundFunction
-import org.burstsys.vitals.configuration.{burstVitalsHealthCheckPathsProperty, burstVitalsHealthCheckPeriodDuration, burstVitalsHealthCheckPortProperty}
+import org.burstsys.vitals.configuration.burstVitalsHealthCheckPathsProperty
+import org.burstsys.vitals.configuration.burstVitalsHealthCheckPeriodDuration
+import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.time._
-import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
 
+import java.net.InetSocketAddress
+import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration._
-import scala.language.postfixOps
 import scala.jdk.CollectionConverters._
+import scala.language.postfixOps
 
 trait VitalsHealthCheckService extends VitalsService {
 
@@ -87,9 +91,6 @@ class VitalsHealthCheckServiceContext(system: String) extends VitalsService
   var _healthCheckPort: Option[Int] = burstVitalsHealthCheckPortProperty.asOption.orElse(Some(0))
 
   private[this] final
-  val emptyStringArray = Array.empty[String]
-
-  private[this] final
   val TCP_BACKLOG = 0 // use system default
 
   private[this]
@@ -116,7 +117,7 @@ class VitalsHealthCheckServiceContext(system: String) extends VitalsService
   private[this]
   lazy val parameters = s"system=$system, binding=${_netAddress}, paths=${_paths.mkString("{", ", ", "}")}"
 
-  def printComponents:String = _components.asScala.keys.mkString("{'", "', '", "'}")
+  def printComponents: String = _components.asScala.keys.mkString("{'", "', '", "'}")
 
   override def toString: String = parameters
 
@@ -219,14 +220,14 @@ class VitalsHealthCheckServiceContext(system: String) extends VitalsService
     val checkValues = new ConcurrentHashMap[String, VitalsComponentHealth]()
     val iter = _components.values.iterator
 
-//    log info s"HEALTH_CHECK_TEND components=$printComponents}"
+    //    log info s"HEALTH_CHECK_TEND components=$printComponents}"
     val start = System.nanoTime()
     val limit = (_period * .75).toNanos
     while (iter.hasNext) {
       val component = iter.next
       val componentStart = System.nanoTime()
       checkValues.put(component.componentName, component.componentHealth)
-      if(component.componentHealth.status.notHealthy)
+      if (component.componentHealth.status.notHealthy)
         log info s"HEALTH_CHECK_NOT_HEALTHY component=${component.componentName}} $parameters"
       val componentElapsed = System.nanoTime() - componentStart
       val componentLimit = limit / _components.size()
@@ -247,30 +248,26 @@ class VitalsHealthCheckServiceContext(system: String) extends VitalsService
   // Http handler
   ///////////////////////////////////////////////////////////
 
+  private val mapper = vitals.json.buildJsonMapper
+
   override def handle(httpExchange: HttpExchange): Unit = {
-    val method = httpExchange.getRequestMethod.toUpperCase
-    method match {
+    httpExchange.getRequestMethod.toUpperCase match {
       case "GET" =>
         val path = httpExchange.getRequestURI.getPath
 
         val overallStatus = healthStatusDelegate.overallHealth(_lastCheckValues)
-        val componentJson = new util.ArrayList[String]()
+        var response = Map[String, Any](
+          ("system", system),
+          ("health", overallStatus.status),
+          ("message", overallStatus.message),
+        )
         val iter = _lastCheckValues.entrySet.iterator
         while (iter.hasNext) {
           val entry = iter.next
-          val name = entry.getKey
-          val status = entry.getValue
-          componentJson.add(s"""  "$name": ${status.asJson}""")
+          response += (entry.getKey -> entry.getValue.asJson)
         }
         val statusCode = overallStatus.status.statusCode
-        val body =
-          s"""
-             |{
-             |  "system": "$system",
-             |  "health": "${overallStatus.status}",
-             |  "message": "${overallStatus.message}",
-             |${componentJson.toArray(emptyStringArray).mkString(",\n")}
-             |}""".stripMargin
+        val body = mapper.writeValueAsString(response)
         log info s"responding to request on $path: $statusCode - $body"
 
         val bytes = body.getBytes("UTF-8")

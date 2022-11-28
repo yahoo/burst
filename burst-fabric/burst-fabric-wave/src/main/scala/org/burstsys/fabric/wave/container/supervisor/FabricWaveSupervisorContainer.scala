@@ -147,16 +147,13 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
   // TYPES
   ////////////////////////////////////////////////////////////////////////////////
 
-  case
-  class CacheManageOperationCall(request: FabricNetCacheOperationReqMsg)
+  case class CacheManageOperationCall(request: FabricNetCacheOperationReqMsg)
     extends FabricNetCall[FabricNetCacheOperationReqMsg, FabricNetCacheOperationRespMsg, Array[FabricGeneration]]
 
-  case
-  class CacheSliceFetch(request: FabricNetSliceFetchReqMsg)
+  case class CacheSliceFetch(request: FabricNetSliceFetchReqMsg)
     extends FabricNetCall[FabricNetSliceFetchReqMsg, FabricNetSliceFetchRespMsg, Array[FabricSliceMetadata]]
 
-  case
-  class ExecutionParticleOpCall(request: FabricNetParticleReqMsg)
+  case class ExecutionParticleOpCall(request: FabricNetParticleReqMsg)
     extends FabricNetCall[FabricNetParticleReqMsg, FabricNetParticleRespMsg, FabricGather]
 
   ////////////////////////////////////////////////////////////////////////////////

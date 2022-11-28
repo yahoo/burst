@@ -27,8 +27,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
 
   override def toString: String = s"FabricNetTransmitter($link, ${if (isServer) "server" else "client"} containerId=${container.containerId})"
 
-  override
-  def disconnect(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
+  override def disconnect(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
     super.disconnect(ctx, promise)
     log warn s"$this CHANNEL DISCONNECT"
   }
@@ -39,7 +38,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
    * network write is done on a channel thread asynchronously
    */
   def transmitControlMessage(msg: FabricNetMsg): Future[Unit] = {
-    lazy val tag = s"FabricNetTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} ${remoteAddress}:${remotePort}"
+    lazy val tag = s"FabricNetTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort)"
     val promise = Promise[Unit]()
 
     if (!channel.isOpen || !channel.isActive) {
