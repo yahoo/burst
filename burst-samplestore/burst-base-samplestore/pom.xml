@@ -11,7 +11,9 @@
 
     <properties>
         <burst.test.loglevel>info</burst.test.loglevel>
+        <artifact.skip-deploy>false</artifact.skip-deploy>
     </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.burstsys</groupId>
@@ -74,5 +76,42 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>shade-samplesource</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>${deploy.maven-plugin.version}</version>
+                    </plugin>
+
+                    <!-- Shade in the burst classes for which there are no published artifacts  -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>${shade.maven-plugin.version}</version>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.burstsys:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
+                        <configuration>
+                            <updatePomFile>true</updatePomFile>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

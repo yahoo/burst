@@ -139,6 +139,20 @@
         <tag>HEAD</tag>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>burst-snapshot</id>
+            <name>burst-snapshot</name>
+            <url>${snapshot-url}</url>
+        </snapshotRepository>
+        <repository>
+            <id>burst-release</id>
+            <name>burst-release</name>
+            <url>${release-url}</url>
+        </repository>
+    </distributionManagement>
+
+
     <properties>
         <revision/> <!-- provide empty value for revision -->
         <d>$</d>
@@ -159,6 +173,8 @@
         <copyright.text2>See LICENSE file in project root for terms</copyright.text2>
         <copyright.text>${copyright.text1}. ${copyright.text2}.</copyright.text>
         <argLine/>
+        <snapshot-url/>
+        <release-url/>
 
         <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
         <build-helper.maven-plugin.version>3.3.0</build-helper.maven-plugin.version>
