@@ -1,15 +1,25 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
+import io.opentelemetry.context.propagation.ContextPropagators
+import io.opentelemetry.exporter.logging.{LoggingMetricExporter, LoggingSpanExporter}
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.metrics.SdkMeterProvider
+import io.opentelemetry.sdk.metrics.`export`.PeriodicMetricReader
+import io.opentelemetry.sdk.resources.Resource
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.strings._
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 package object reporter extends VitalsLogger {
@@ -40,14 +50,6 @@ package object reporter extends VitalsLogger {
    */
   final val defaultSamplePeriod: Duration = 10 seconds
 
-  final val SecToNs = 1e9
-
-  final val MsToSec = 1e6
-
-  final val NsToMs = 1e3
-
-  final val NsToSec = 1e9
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // private state
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +68,29 @@ package object reporter extends VitalsLogger {
 
   private
   var _samplePeriod: Duration = _
+
+  private
+  val _resource: Resource = Resource.getDefault
+
+  lazy private
+  val _sdkTracerProvider: SdkTracerProvider = SdkTracerProvider.builder()
+    .addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanExporter.create()))
+    .setResource(_resource)
+    .build()
+
+  lazy private
+  val _sdkMeterProvider:SdkMeterProvider  = SdkMeterProvider.builder()
+    .registerMetricReader(
+      PeriodicMetricReader.builder(LoggingMetricExporter.create()).build())
+    .setResource(_resource)
+    .build()
+
+  lazy private
+  val _openTelemetry: OpenTelemetry = OpenTelemetrySdk.builder()
+    .setTracerProvider(_sdkTracerProvider)
+    .setMeterProvider(_sdkMeterProvider)
+    .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+    .buildAndRegisterGlobal()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -101,7 +126,7 @@ package object reporter extends VitalsLogger {
 
     reflection.getPackageSubTypesOf(classOf[VitalsReporterSource]).asScala.foreach{
       source =>
-        log info(s"Loading reporters from ${source.getClass.getName.stripSuffix(".package$")}")
+        log info s"Loading reporters from ${source.getClass.getName.stripSuffix(".package$")}"
         source.reporters.foreach(register)
     }
 
@@ -162,7 +187,7 @@ package object reporter extends VitalsLogger {
   private def doReports(): Unit = {
     if (!enabled || _reporters.isEmpty) return
     val reporters = _reporters.toList.sortBy(_.dName)
-    val buffer = new StringBuilder
+    val buffer = new mutable.StringBuilder
     var part = 0
     reporters.foreach {
       reporter =>

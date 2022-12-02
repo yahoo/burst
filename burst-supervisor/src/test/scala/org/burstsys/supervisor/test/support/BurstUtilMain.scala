@@ -5,10 +5,9 @@ import org.burstsys.catalog.CatalogService.CatalogSupervisorConfig
 import org.burstsys.catalog.CatalogUtilManager
 import org.burstsys.catalog.configuration.{burstCatalogDbHostProperty, burstCatalogDbPasswordProperty, burstCatalogDbUserProperty}
 import org.burstsys.supervisor.configuration.burstSupervisorPropertiesFileProperty
-import org.burstsys.vitals.configuration.burstCellNameProperty
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.{VitalsLog, burstStdMsg}
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 
 /**
  * Burst Util Main is the entry point for the Command Line Interface for the system.  It is used for

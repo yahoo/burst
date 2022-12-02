@@ -42,7 +42,7 @@
                         <arg>-deprecation</arg>
                         <arg>-unchecked</arg>
                         <arg>-feature</arg>
-                        <arg>-target:8</arg>
+                        <arg>-release:8</arg>
                     </args>
                 </configuration>
             </plugin>

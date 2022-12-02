@@ -3,7 +3,7 @@ package org.burstsys.zap.cube2.algorithms
 
 import org.burstsys.brio.dictionary.flex.BrioFlexDictionary
 import org.burstsys.brio.types.BrioTypes.BrioStringKey
-import org.burstsys.vitals.io.log
+import org.burstsys.zap.log
 import org.burstsys.vitals.text.VitalsTextCodec
 import org.burstsys.zap.cube2.state.{EmptyBucket, EmptyLink, ZapCube2State}
 import org.burstsys.zap.cube2.{ZapCube2, ZapCube2Builder}

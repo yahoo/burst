@@ -2,9 +2,7 @@
 package org.burstsys.synthetic.samplestore.test
 
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
-import org.burstsys.nexus.NexusGlobalUid
-import org.burstsys.nexus.NexusSliceKey
-import org.burstsys.nexus.NexusStreamUid
+import org.burstsys.nexus.{NexusGlobalUid, NexusSliceKey, NexusStreamUid}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplestore.test.BaseSampleStoreTest
 import org.burstsys.synthetic.samplestore.source.SyntheticSampleSourceWorker
@@ -12,14 +10,11 @@ import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel.TeslaParcel
 import org.burstsys.vitals.net.VitalsHostName
-import org.burstsys.vitals.properties.BurstMotifFilter
-import org.burstsys.vitals.properties.VitalsPropertyMap
+import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}
 import org.burstsys.vitals.uid
 
 import java.util.concurrent.ConcurrentLinkedQueue
-import scala.collection.mutable
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 class SynteticSampleSourceWorkerSpec extends BaseSampleStoreTest {
@@ -108,4 +103,6 @@ case class MockNexusStream(
   override def start: MockNexusStream.this.type = this
 
   override def stop: MockNexusStream.this.type = this
+
+  override def abort(): Unit = ???
 }

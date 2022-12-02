@@ -154,13 +154,20 @@ package object parcel extends VitalsLogger {
       throw VitalsException(s"ptrToMarkerParcel($statusMarker) should not use for non marker parcels")
     else
       statusMarker match {
-        case TeslaAbortStatus.statusMarker => TeslaAbortMarkerParcel
-        case TeslaEndStatus.statusMarker => TeslaEndMarkerParcel
-        case TeslaHeartbeatStatus.statusMarker => TeslaHeartbeatMarkerParcel
-        case TeslaMockStatus.statusMarker => TeslaMockMarkerParcel
-        case TeslaNoDataStatus.statusMarker => TeslaNoDataMarkerParcel
-        case TeslaTimeoutStatus.statusMarker => TeslaTimeoutMarkerParcel
-        case TeslaExceptionStatus.statusMarker => TeslaExceptionMarkerParcel
+        case TeslaAbortStatus.statusMarker =>
+          TeslaAbortMarkerParcel
+        case TeslaEndStatus.statusMarker =>
+          TeslaEndMarkerParcel
+        case TeslaHeartbeatStatus.statusMarker =>
+          TeslaHeartbeatMarkerParcel
+        case TeslaMockStatus.statusMarker =>
+          TeslaMockMarkerParcel
+        case TeslaNoDataStatus.statusMarker =>
+          TeslaNoDataMarkerParcel
+        case TeslaTimeoutStatus.statusMarker =>
+          TeslaTimeoutMarkerParcel
+        case TeslaExceptionStatus.statusMarker =>
+          TeslaExceptionMarkerParcel
         case _ =>
           throw VitalsException(s"ptrToMarkerParcel($statusMarker) unknown marker ptr")
       }

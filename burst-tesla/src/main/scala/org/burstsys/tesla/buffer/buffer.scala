@@ -2,10 +2,9 @@
 package org.burstsys.tesla
 
 import org.burstsys.tesla.TeslaTypes._
-import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.vitals.host
-import org.burstsys.vitals.io._
 import org.burstsys.vitals.reporter.VitalsByteQuantReporter
+import org.burstsys.vitals.stats._
 
 import scala.language.postfixOps
 

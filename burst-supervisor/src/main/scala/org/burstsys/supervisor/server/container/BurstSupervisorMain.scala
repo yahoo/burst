@@ -8,7 +8,7 @@ import org.burstsys.json.samplestore.configuration.{JsonSamplestoreDefaultConfig
 import org.burstsys.supervisor.configuration.burstSupervisorPropertiesFileProperty
 import org.burstsys.tesla.thread.worker.TeslaWorkerFuture
 import org.burstsys.vitals.VitalsService.{VitalsStandaloneServer, VitalsStandardServer}
-import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
 
 import scala.concurrent.Future

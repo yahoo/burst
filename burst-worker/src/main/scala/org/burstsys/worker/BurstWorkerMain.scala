@@ -5,7 +5,7 @@ import org.burstsys.fabric
 import org.burstsys.fabric.configuration.burstFabricWorkerStandaloneProperty
 import org.burstsys.fabric.container.WorkerLog4JPropertiesFileName
 import org.burstsys.vitals.git
-import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
 import org.burstsys.worker.configuration.burstWorkerPropertiesFileProperty
 

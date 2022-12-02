@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf
 import org.burstsys.fabric.net.{FabricNetMessageId, fabricKryoOutputBufferMaxSize}
 import org.burstsys.fabric.topology.model.node.FabricNode
 import org.burstsys.vitals.errors.{VitalsException, _}
-import org.burstsys.vitals.io._
+import org.burstsys.vitals.stats._
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
 
 /**

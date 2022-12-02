@@ -13,7 +13,7 @@ class FabricWaveGenerationMetricsSpec extends FabricWaveBaseSpec {
   private val genKey = FabricGenerationKey(1, 2, 3)
 
   it should "compute SSR if data does not need to be sampled" in {
-    val size = 100 * vitals.io.MB
+    val size = 100 * vitals.reporter.instrument.MB
     val items = 100
     val expectedItems = 100
     val potentialItems = 100
@@ -40,7 +40,7 @@ class FabricWaveGenerationMetricsSpec extends FabricWaveBaseSpec {
   }
 
   it should "compute SSR if data was capped" in {
-    val size = 100 * vitals.io.MB
+    val size = 100 * vitals.reporter.instrument.MB
     val items = 100
     val expectedItems = 120
     val potentialItems = 120
@@ -66,7 +66,7 @@ class FabricWaveGenerationMetricsSpec extends FabricWaveBaseSpec {
   }
 
   it should "compute SSR if data was sampled" in {
-    val size = 100 * vitals.io.MB
+    val size = 100 * vitals.reporter.instrument.MB
     val items = 100
     val expectedItems = 100
     val potentialItems = 120

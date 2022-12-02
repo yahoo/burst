@@ -9,10 +9,10 @@ import org.burstsys.tesla.block.TeslaBlockAnyVal
 import org.burstsys.tesla.offheap
 import org.burstsys.tesla.pool.{TeslaPoolId, TeslaPooledResource}
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.io.log
 import org.burstsys.zap.cube2.key.{ZapCube2Key, ZapCube2KeyAnyVal}
 import org.burstsys.zap.cube2.row.{ZapCube2Row, ZapCube2RowAnyVal, limitExceededMarkerRow}
 import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AnyVal, ZapCube2Builder}
+import org.burstsys.zap.log
 
 /**
  * ==Off Heap G2 Cube State==

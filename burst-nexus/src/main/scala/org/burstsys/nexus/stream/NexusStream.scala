@@ -9,13 +9,7 @@ import org.burstsys.nexus.NexusStreamUid
 import org.burstsys.nexus.configuration.burstNexusStreamParcelPackerConcurrencyProperty
 import org.burstsys.nexus.message.NexusStreamInitiateMsg
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
-import org.burstsys.tesla.parcel.TeslaEndMarkerParcel
-import org.burstsys.tesla.parcel.TeslaExceptionMarkerParcel
-import org.burstsys.tesla.parcel.TeslaHeartbeatMarkerParcel
-import org.burstsys.tesla.parcel.TeslaNoDataMarkerParcel
-import org.burstsys.tesla.parcel.TeslaParcel
-import org.burstsys.tesla.parcel.TeslaTimeoutMarkerParcel
-import org.burstsys.tesla.parcel.packer
+import org.burstsys.tesla.parcel.{TeslaAbortMarkerParcel, TeslaEndMarkerParcel, TeslaExceptionMarkerParcel, TeslaHeartbeatMarkerParcel, TeslaNoDataMarkerParcel, TeslaParcel, TeslaTimeoutMarkerParcel, packer}
 import org.burstsys.tesla.parcel.packer.TeslaParcelPacker
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.vitals.VitalsService
@@ -166,6 +160,12 @@ trait NexusStream extends VitalsService {
    * @param limit the timeout used by the server
    */
   def timedOut(limit: Duration): Unit
+
+  /**
+   * Called by the server to mark the stream as aborted
+   *
+   */
+  def abort(): Unit
 
   /**
    * Called by the server to mark the stream as failed and to send the appropriate signoff to the client
@@ -324,6 +324,13 @@ class NexusStreamContext(
     log info s"$this failed to complete after $limit"
     drainParcelPackers()
     pipe.put(TeslaTimeoutMarkerParcel)
+    stop
+  }
+
+  override def abort(): Unit = {
+    log info s"$this aborted"
+    drainParcelPackers()
+    pipe.put(TeslaAbortMarkerParcel)
     stop
   }
 

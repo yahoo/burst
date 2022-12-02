@@ -3,17 +3,15 @@ package org.burstsys.alloy
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.burstsys.alloy.alloy.views.AlloyJsonUseCaseViews.mapper
-import org.burstsys.brio.blob.BrioBlob
 import org.burstsys.brio.press.BrioPressInstance
+import org.burstsys.vitals.errors.{VitalsException, safely}
+import org.burstsys.vitals.logging.VitalsLogger
+import org.burstsys.vitals.properties.VitalsPropertyKey
 
 import java.io.FileWriter
 import java.nio.file.{FileSystems, Files, Path, Paths}
-import org.burstsys.vitals.errors.{VitalsException, safely}
-import org.burstsys.vitals.io.log
-import org.burstsys.vitals.properties.VitalsPropertyKey
 
-package object alloy {
+package object alloy extends VitalsLogger {
   final val AlloyJsonFileProperty: VitalsPropertyKey = "burst.store.alloy.json.file"
   final val AlloyJsonRootVersionProperty: VitalsPropertyKey = "burst.store.alloy.json.rootVersion"
 

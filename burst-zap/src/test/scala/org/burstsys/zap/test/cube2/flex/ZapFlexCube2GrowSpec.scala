@@ -3,8 +3,8 @@ package org.burstsys.zap.test.cube2.flex
 
 import org.burstsys.brio.dictionary.flex
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
-import org.burstsys.vitals.io.log
 import org.burstsys.zap.cube2
+import org.burstsys.zap.log
 import org.burstsys.zap.cube2.ZapCube2Builder
 import org.burstsys.zap.test.cube2.ZapCube2Spec
 

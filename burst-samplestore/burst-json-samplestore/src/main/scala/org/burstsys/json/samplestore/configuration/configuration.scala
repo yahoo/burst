@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.json.samplestore
 
-import org.burstsys.vitals.io._
 import org.burstsys.vitals.logging.VitalsLogger
+import org.burstsys.vitals.properties._
 import org.burstsys.vitals.properties.{VitalsPropertyKey, VitalsPropertyMap, VitalsPropertyRegistry, VitalsPropertySpecification}
 
 package object configuration extends VitalsLogger with VitalsPropertyRegistry {

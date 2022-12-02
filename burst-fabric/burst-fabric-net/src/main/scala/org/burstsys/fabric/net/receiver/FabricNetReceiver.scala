@@ -9,7 +9,7 @@ import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetRep
 import org.burstsys.tesla.thread.request.{TeslaRequestCoupler, TeslaRequestFuture}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.io._
+import org.burstsys.vitals.stats._
 
 /**
  * receive inbound messages in the form of netty [[ByteBuf]], identity and convert
@@ -63,7 +63,13 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
       connection match {
         case None => log warn s"FAB_NET_NO_CONNECTION $messageId"
         case Some(c) =>
-          val bytes: Array[Byte] = buffer.nioBuffer()
+          val bytes: Array[Byte] = {
+            val oldPosition = buffer.nioBuffer().position()
+            val array = new Array[Byte](buffer.nioBuffer().remaining)
+            buffer.nioBuffer().get(array, 0, array.length)
+            buffer.nioBuffer().position(oldPosition)
+            array
+          }
           TeslaRequestFuture {
             try {
               c.onMessage(messageId, bytes)

@@ -5,7 +5,7 @@ import org.apache.commons.io.FileUtils
 import org.burstsys.fabric.wave.metadata.{ViewCacheEraseTtlMsProperty, ViewCacheEvictTtlMsProperty, ViewCacheFlushTtlMsProperty}
 import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.tesla.configuration.burstTeslaWorkerThreadCountProperty
-import org.burstsys.vitals.io.GB
+import org.burstsys.vitals.stats.GB
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort, getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties._
 

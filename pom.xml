@@ -528,6 +528,7 @@
                 <artifactId>metrics-core</artifactId>
                 <version>${dropwizard-metrics.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
@@ -1480,7 +1481,7 @@
                             <arg>-deprecation</arg>
                             <arg>-unchecked</arg>
                             <arg>-feature</arg>
-                            <arg>-target:${java-short.version}</arg>
+                            <arg>-release:${java-short.version}</arg>
                         </args>
                     </configuration>
                 </plugin>
@@ -1607,11 +1608,6 @@
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
-                        <configuration>
-                            <!-- work around from https://issues.apache.org/jira/browse/MSHADE-195 -->
-                            <!-- only required for shaded publications (which for now are all except for the thrift client -->
-                            <attach>${artifact.skip-deploy}</attach>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
