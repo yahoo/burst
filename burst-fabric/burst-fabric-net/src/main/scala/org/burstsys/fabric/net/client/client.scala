@@ -7,8 +7,4 @@ import scala.language.postfixOps
 
 package object client extends VitalsLogger {
 
-  final val clientConfig = FabricNetworkConfig(
-    isServer = false
-  )
-
 }

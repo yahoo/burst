@@ -3,6 +3,7 @@ package org.burstsys.fabric.wave.container.worker
 
 import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.FabricContainerId
+import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.git
@@ -49,7 +50,7 @@ object MockWaveWorkerContainer {
 }
 
 private final case
-class MockWaveWorkerContainerContext(logFile: String) extends FabricWaveWorkerContainerContext
+class MockWaveWorkerContainerContext(logFile: String) extends FabricWaveWorkerContainerContext(defaultFabricNetworkServerConfig)
   with MockWaveWorkerContainer {
 
   override def serviceName: String = s"mock-worker-container"

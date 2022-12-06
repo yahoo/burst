@@ -7,7 +7,7 @@ import org.burstsys.fabric.wave.data.model.store.FabricStoreProvider
 
 package object store {
 
-  final val AlloyJsonStoreName = "alloy-json"
+  final val AlloyJsonStoreName = "synthetic-json"
 
   final case class AlloyJsonStoreProvider() extends FabricStoreProvider[AlloyJsonStoreSupervisor, AlloyJsonStoreWorker] {
 

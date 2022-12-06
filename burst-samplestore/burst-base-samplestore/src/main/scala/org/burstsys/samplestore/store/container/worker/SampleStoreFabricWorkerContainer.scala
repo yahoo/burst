@@ -4,7 +4,7 @@ package org.burstsys.samplestore.store.container.worker
 import org.burstsys.fabric.container.WorkerLog4JPropertiesFileName
 import org.burstsys.fabric.container.worker.{FabricWorkerContainer, FabricWorkerContainerContext}
 import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
-import org.burstsys.fabric.net.message
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.net.message.AccessParameters
 import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
 import org.burstsys.nexus
@@ -19,11 +19,12 @@ import org.burstsys.vitals.logging._
 /**
  * the one per JVM top level container for a Fabric Worker
  */
-trait FabricStoreWorkerContainer extends FabricWorkerContainer[FabricStoreWorkerListener]
+trait SampleStoreFabricWorkerContainer extends FabricWorkerContainer[SampleStoreFabricWorkerListener]
 
 
 class
-FabricStoreWorkerContainerContext extends FabricWorkerContainerContext[FabricStoreWorkerListener] with FabricStoreWorkerContainer {
+SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
+  extends FabricWorkerContainerContext[SampleStoreFabricWorkerListener](netConfig) with SampleStoreFabricWorkerContainer {
 
   override def serviceName: String = s"store-worker-container"
 
@@ -75,7 +76,7 @@ FabricStoreWorkerContainerContext extends FabricWorkerContainerContext[FabricSto
       /////////////////// Metadata /////////////////
       case FabricStoreMetadataReqMsgType =>
         val msg = FabricStoreMetadataReqMsg(buffer)
-        log debug s"FabricStoreWorkerContainer.onNetClientParticleReqMsg $msg"
+        log debug s"SampleStoreFabricWorkerContainer.onNetClientParticleReqMsg $msg"
         _listener.foreach(_.onStoreMetadataReqMsg(connection, msg))
         val wkr = SampleSourceHandlerRegistry.getWorker(msg.sourceName)
         wkr.putBroadcastVars(msg.metadata)

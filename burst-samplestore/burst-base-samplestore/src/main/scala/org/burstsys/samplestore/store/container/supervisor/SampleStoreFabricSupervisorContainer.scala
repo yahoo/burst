@@ -40,7 +40,10 @@ import scala.language.postfixOps
 /**
  * the one per JVM top level container for a Fabric Supervisor
  */
-trait SampleStoreFabricSupervisorContainer extends FabricSupervisorContainer[SampleStoreFabricSupervisorListener] with SampleStoreFabricSupervisorAPI
+trait SampleStoreFabricSupervisorContainer
+  extends FabricSupervisorContainer[SampleStoreFabricSupervisorListener]
+    with SampleStoreFabricSupervisorAPI
+    with SampleStoreTopologyProvider
 
 class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig, var storeListenerProperties: VitalsPropertyMap = Map.empty)
   extends FabricSupervisorContainerContext[SampleStoreFabricSupervisorListener](netConfig)
@@ -199,7 +202,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   private def convertToLocus(worker: FabricTopologyWorker): SampleStoreDataLocus = {
     val nexusPort: VitalsHostPort = {
-      if (worker.assessment.parameters != null)
+      if (worker.assessment != null && worker.assessment.parameters != null)
         worker.assessment.parameters(NexusPortAssessParameterName).asInstanceOf[VitalsHostPort]
       else
         -1

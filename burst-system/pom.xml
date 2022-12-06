@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>org.burstsys</groupId>
-            <artifactId>burst-json-samplestore</artifactId>
+            <artifactId>burst-synthetic-samplestore</artifactId>
         </dependency>
         <dependency>
             <groupId>org.burstsys</groupId>

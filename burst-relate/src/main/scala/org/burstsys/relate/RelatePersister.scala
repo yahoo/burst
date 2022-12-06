@@ -104,8 +104,10 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
   def insertEntityStatement(entity: E): String = {
     val sqlStmt = insertEntitySql(entity)
     val values = sqlStmt.parameters.map({
-      case props: VitalsPropertyMap => propertyMapToString(props)
-      case x => x
+      case props: VitalsPropertyMap =>
+        propertyMapToString(props)
+      case x =>
+        x
     }).map({
       case str: String => s"'$str'"
       case o => o.toString

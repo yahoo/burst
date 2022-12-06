@@ -3,9 +3,9 @@ package org.burstsys.worker
 
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.CatalogService.{CatalogUnitTestWorkerConfig, CatalogWorkerConfig}
+import org.burstsys.fabric.container.{FabricWorkerContainerProvider, WorkerLog4JPropertiesFileName}
+import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.fabric.wave.container.worker.{FabricWaveWorkerContainer, FabricWaveWorkerContainerContext}
-import org.burstsys.fabric.container.WorkerLog4JPropertiesFileName
-import org.burstsys.fabric.container.FabricWorkerContainerProvider
 import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
 import org.burstsys.vitals.configuration.burstLog4j2NameProperty
 import org.burstsys.vitals.errors.safely
@@ -19,7 +19,7 @@ trait BurstWaveWorkerContainer extends FabricWaveWorkerContainer
 @FabricWorkerContainerProvider
 @unused // found by reflection
 final case
-class BurstWaveWorkerContainerContext() extends FabricWaveWorkerContainerContext() with BurstWaveWorkerContainer {
+class BurstWaveWorkerContainerContext() extends FabricWaveWorkerContainerContext(defaultFabricNetworkServerConfig) with BurstWaveWorkerContainer {
 
   override def serviceName: String = s"burst-worker-container"
 

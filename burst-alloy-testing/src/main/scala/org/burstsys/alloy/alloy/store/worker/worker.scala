@@ -12,9 +12,9 @@ package object worker extends VitalsLogger {
   private[alloy] final val bufferSize: Int = 2e7.toInt
   private[alloy] final val blobSize: Int = 2e7.toInt
 
-  final case class ParticleGotFile(guid: VitalsUid) extends FabricLoadEvent("canned", "got-alloy-file")
+  final case class ParticleGotFile(guid: VitalsUid) extends FabricLoadEvent("canned", "got-synthetic-file")
 
-  final case class ParticleReadFile(guid: VitalsUid) extends FabricLoadEvent("canned", "read-alloy-file")
+  final case class ParticleReadFile(guid: VitalsUid) extends FabricLoadEvent("canned", "read-synthetic-file")
 
   final case class ParticleWroteSlice(guid: VitalsUid) extends FabricLoadEvent("canned", "wrote-slice-file")
 }

@@ -2,30 +2,20 @@
 package org.burstsys.supervisor.server.container
 
 import org.burstsys.agent.AgentService
-import org.burstsys.agent.processors.BurstSystemEqlQueryProcessor
-import org.burstsys.agent.processors.BurstSystemHydraQueryProcessor
-import org.burstsys.brio.provider.loadBrioSchemaProviders
+import org.burstsys.agent.processors.{BurstSystemEqlQueryProcessor, BurstSystemHydraQueryProcessor}
 import org.burstsys.catalog.CatalogService
-import org.burstsys.catalog.CatalogService.CatalogSupervisorConfig
-import org.burstsys.catalog.CatalogService.CatalogUnitTestServerConfig
+import org.burstsys.catalog.CatalogService.{CatalogSupervisorConfig, CatalogUnitTestServerConfig}
 import org.burstsys.dash.BurstDashService
 import org.burstsys.fabric.container.{FabricSupervisorContainerProvider, SupervisorLog4JPropertiesFileName}
-import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
-import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainerContext
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
+import org.burstsys.fabric.wave.container.supervisor.{FabricWaveSupervisorContainer, FabricWaveSupervisorContainerContext}
 import org.burstsys.hydra.HydraService
-import org.burstsys.supervisor.configuration
-import org.burstsys.supervisor.configuration.burstSupervisorJsonWatchDirectoryProperty
-import org.burstsys.supervisor.configuration.burstSupervisorPropertiesFileProperty
 import org.burstsys.supervisor.server.torcher.BurstSupervisorTorcherService
-import org.burstsys.tesla
 import org.burstsys.vitals.VitalsService.VitalsStandardClient
-import org.burstsys.vitals.VitalsService.VitalsStandardServer
 import org.burstsys.vitals.configuration.burstLog4j2NameProperty
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 
-import java.lang.Runtime.getRuntime
 import scala.language.postfixOps
 
 trait BurstWaveSupervisorContainer extends FabricWaveSupervisorContainer {
@@ -117,9 +107,6 @@ class BurstWaveSupervisorContainerContext() extends FabricWaveSupervisorContaine
   protected
   val _catalogServer: CatalogService = CatalogService(if (bootModality.isStandalone) CatalogUnitTestServerConfig else CatalogSupervisorConfig)
 
-  protected
-  val _jsonFileManager: BurstJsonFileManager = BurstJsonFileManager(catalog = catalog, modality = VitalsStandardServer)
-
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // testing
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,18 +142,8 @@ class BurstWaveSupervisorContainerContext() extends FabricWaveSupervisorContaine
         // tell fabric layer we have basic metadata lookup capability
         metadata withLookup _catalogServer.metadataLookup
 
-        /////////////////////////////////////////////////////////////////
-        // stores
-        /////////////////////////////////////////////////////////////////
-
-        // install sample store
-        if (burstSupervisorJsonWatchDirectoryProperty.asOption.isDefined && burstSupervisorPropertiesFileProperty.asOption.get.nonEmpty){
-          log info s"Starting JSON File Manager for directory ${burstSupervisorJsonWatchDirectoryProperty.asOption.get}"
-          _jsonFileManager.start
-        }
-
         /**
-         * now that we have defined metadata lookup and stores - now we can start the underlying fabric layer container services
+         * now that we have defined metadata lookup - now we can start the underlying fabric layer container services
          */
         super.start
 

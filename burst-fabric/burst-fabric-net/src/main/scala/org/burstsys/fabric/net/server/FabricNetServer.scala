@@ -11,12 +11,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.net.FabricNetIoMode.FabricNetIoMode
+import org.burstsys.fabric.net._
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
 import org.burstsys.fabric.net.message.{FabricNetInboundFrameDecoder, FabricNetOutboundFrameEncoder}
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
-import org.burstsys.fabric.net.{FabricNetIoMode, FabricNetLink, FabricNetLocator, FabricNetReporter, FabricNetworkConfig, message}
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
@@ -34,7 +34,7 @@ import scala.language.postfixOps
  * The ''server'' binds to a port given to it by the network stack. This port is then sent to clients. This is
  * ''not'' a ''well known'' port
  */
-trait FabricNetServer extends FabricSupervisorService with FabricNetLink with FabricNetLocator {
+trait FabricNetServer extends FabricSupervisorService with FabricNetLink {
 
   /**
    *
@@ -57,11 +57,11 @@ object FabricNetServer {
  */
 private[server] final case
 class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig: FabricNetworkConfig) extends FabricNetServer
-  with FabricNetServerNetty with FabricNetLocator with FabricNetServerListener with VitalsHealthMonitoredService {
+  with FabricNetServerNetty with FabricNetServerListener with VitalsHealthMonitoredService {
 
   override def toString: String = serviceName
 
-  override def serviceName: String = s"fabric-net-server(containerId=${container.containerIdGetOrThrow}, $netSupervisorUrl)"
+  override def serviceName: String = s"fabric-net-server(containerId=${container.containerIdGetOrThrow}, ${netConfig.netSupervisorUrl})"
 
   override val modality: VitalsServiceModality = VitalsPojo
 
@@ -90,7 +90,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
   var _transportClass: Class[_ <: ServerChannel] = _
 
   private[this]
-  var _connections = new ConcurrentHashMap[(VitalsHostAddress, VitalsHostPort), FabricNetServerConnection].asScala
+  val _connections = new ConcurrentHashMap[(VitalsHostAddress, VitalsHostPort), FabricNetServerConnection].asScala
 
   ////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -172,11 +172,11 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
         val bootstrap = new ServerBootstrap
         bootstrap.group(_listenGroup, _connectionGroup).channel(_transportClass)
         setNettyOptions(bootstrap, netConfig).childHandler(initializer)
-        val channelFuture = bootstrap.bind(netSupervisorAddress, netSupervisorPort)
+        val channelFuture = bootstrap.bind(netConfig.netSupervisorAddress, netConfig.netSupervisorPort)
 
         if (!channelFuture.awaitUninterruptibly.isSuccess) {
           val cause = channelFuture.cause
-          val msg = s"$serviceName: server failed startup to $netSupervisorAddress($netSupervisorPort): ${cause.getLocalizedMessage}"
+          val msg = s"$serviceName: server failed startup to ${netConfig.netSupervisorUrl}: ${cause.getLocalizedMessage}"
           log error msg
           // log error getAllThreadsDump.mkString("\n")
           throw VitalsException(msg, cause)

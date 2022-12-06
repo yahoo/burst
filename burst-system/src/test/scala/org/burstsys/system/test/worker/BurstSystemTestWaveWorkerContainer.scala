@@ -1,10 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test.worker
 
-import org.burstsys._
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.CatalogService.{CatalogUnitTestWorkerConfig, CatalogWorkerConfig}
 import org.burstsys.fabric.container.FabricWorkerContainerProvider
+import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.fabric.wave.container.worker.{FabricWaveWorkerContainer, FabricWaveWorkerContainerContext}
 import org.burstsys.system.test.configuration
 import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
@@ -18,7 +18,8 @@ trait BurstSystemTestWaveWorkerContainer extends FabricWaveWorkerContainer
 
 @FabricWorkerContainerProvider
 final case
-class BurstSystemTestWaveWorkerContainerContext() extends FabricWaveWorkerContainerContext() with BurstSystemTestWaveWorkerContainer {
+class BurstSystemTestWaveWorkerContainerContext()
+  extends FabricWaveWorkerContainerContext(defaultFabricNetworkServerConfig) with BurstSystemTestWaveWorkerContainer {
 
   override def serviceName: String = s"burst-system-test-worker-container"
 

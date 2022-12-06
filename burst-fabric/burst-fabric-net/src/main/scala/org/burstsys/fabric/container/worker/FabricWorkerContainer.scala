@@ -5,8 +5,8 @@ import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.model.{FabricContainer, FabricContainerContext}
 import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
-import org.burstsys.fabric.net.message
 import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandaloneServer, VitalsStandardServer}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
@@ -23,8 +23,8 @@ trait FabricWorkerContainer[T <: FabricWorkerListener] extends FabricContainer w
 }
 
 abstract class
-FabricWorkerContainerContext[T <: FabricWorkerListener] extends FabricContainerContext with FabricWorkerContainer[T] {
-
+FabricWorkerContainerContext[T <: FabricWorkerListener](netConfig: FabricNetworkConfig)
+  extends FabricContainerContext with FabricWorkerContainer[T] {
   override def serviceName: String = s"fabric-worker-container"
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ FabricWorkerContainerContext[T <: FabricWorkerListener] extends FabricContainerC
     VitalsStandaloneServer else VitalsStandardServer
 
   protected[this]
-  val _netClient: FabricNetClient = FabricNetClient(this)
+  val _netClient: FabricNetClient = FabricNetClient(this, netConfig)
 
   protected[this]
   var _listener: Option[T] = None

@@ -21,7 +21,7 @@ final
 class EqlPerfSpec extends EqlAlloyTestRunner {
   var view: AlloyJsonFileView = _
   override def localAfterStartup(): Unit = {
-    log info s"Creating alloy dataset"
+    log info s"Creating synthetic dataset"
     view = generateAlloy(unitySchema, 6666, 6666, generateIterator(userCount = 200, sessionCount = 50, eventCount = 200, parameterCount = 1)).asInstanceOf[AlloyJsonFileView]
     log info s"Created JSON file ${view.source} of size ${prettyByteSizeString(Files.size(view.source))}"
   }

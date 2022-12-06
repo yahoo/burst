@@ -8,7 +8,7 @@ import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataReqMsg
 /**
  * event handler for worker container events
  */
-trait FabricStoreWorkerListener extends FabricWorkerListener {
+trait SampleStoreFabricWorkerListener extends FabricWorkerListener {
 
   def onStoreMetadataReqMsg(connection: FabricNetClientConnection, msg: FabricStoreMetadataReqMsg): Unit = {}
 

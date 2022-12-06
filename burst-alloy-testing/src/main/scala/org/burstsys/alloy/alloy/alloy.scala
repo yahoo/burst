@@ -12,8 +12,8 @@ import java.io.FileWriter
 import java.nio.file.{FileSystems, Files, Path, Paths}
 
 package object alloy extends VitalsLogger {
-  final val AlloyJsonFileProperty: VitalsPropertyKey = "burst.store.alloy.json.file"
-  final val AlloyJsonRootVersionProperty: VitalsPropertyKey = "burst.store.alloy.json.rootVersion"
+  final val AlloyJsonFileProperty: VitalsPropertyKey = "burst.store.synthetic.json.file"
+  final val AlloyJsonRootVersionProperty: VitalsPropertyKey = "burst.store.synthetic.json.rootVersion"
 
   final val resourceClassPath = "/org/burstsys/alloy/views"
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)

@@ -1,11 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric
 
-import java.util.concurrent.atomic.AtomicLong
+import org.burstsys.fabric.configuration.{burstFabricNetHostProperty, burstFabricNetPortProperty}
 
+import java.util.concurrent.atomic.AtomicLong
 import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort, VitalsUrl}
 
+import java.net.InetSocketAddress
 import scala.language.postfixOps
 
 package object net extends VitalsLogger {
@@ -16,13 +19,23 @@ package object net extends VitalsLogger {
 
   final case
   class FabricNetworkConfig(
-                             isServer: Boolean,
-                             maxConnections: Int = 10,
-                           ) {
+    maxConnections: Int = 10,
+    netSupervisorAddress: VitalsHostAddress = burstFabricNetHostProperty.get,
+    netSupervisorPort: VitalsHostPort = burstFabricNetPortProperty.get
+  ) {
+
+    /**
+     * A useful URL for the protocol
+     *
+     * @return
+     */
+    def netSupervisorUrl: VitalsUrl = s"$netSupervisorAddress:$netSupervisorPort"
+
+    def netSupervisorSocketAddress: InetSocketAddress = new InetSocketAddress(netSupervisorAddress, netSupervisorPort)
 
     override def toString: String =
       s"""FabricNetworkConfig(
-         |  isServer: Boolean  = $isServer,
+         |  supervisorURL = $netSupervisorUrl,
          |  maxConnections: Int = $maxConnections,
          |)""".stripMargin
   }

@@ -1,6 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import scala.language.implicitConversions
+
 package object stats {
 
   final val KB: Long = math.pow(2, 10).toLong
@@ -21,10 +23,6 @@ package object stats {
 
     /**
      * lower and upper bound are inclusive
-     *
-     * @param low
-     * @param high
-     * @return
      */
     def between(low: ByteSize, high: ByteSize): Boolean = {
       (data >= low.inB) && (data <= high.inB)
@@ -38,9 +36,6 @@ package object stats {
 
   /**
    * our standard way to measure skew
-   * @param min
-   * @param max
-   * @return
    */
   def stdSkewStat(min: Long, max: Long): Double = {
     if (min == Long.MaxValue) 0.0

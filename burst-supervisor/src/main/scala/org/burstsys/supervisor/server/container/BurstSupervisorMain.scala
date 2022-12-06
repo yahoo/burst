@@ -3,15 +3,10 @@ package org.burstsys.supervisor.server.container
 
 import org.burstsys._
 import org.burstsys.fabric.container.SupervisorLog4JPropertiesFileName
-import org.burstsys.json.samplestore.JsonSampleStoreContainer
-import org.burstsys.json.samplestore.configuration.{JsonSamplestoreDefaultConfiguration, JsonSamplestoreDistributedConfiguration}
 import org.burstsys.supervisor.configuration.burstSupervisorPropertiesFileProperty
 import org.burstsys.tesla.thread.worker.TeslaWorkerFuture
-import org.burstsys.vitals.VitalsService.{VitalsStandaloneServer, VitalsStandardServer}
-import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
-
-import scala.concurrent.Future
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 
 object BurstSupervisorMain {
 
@@ -140,18 +135,9 @@ object BurstSupervisorMain {
 
   def runInCluster(args: BurstSupervisorArguments): Unit = {
     VitalsLog.configureLogging(SupervisorLog4JPropertiesFileName)
-    val alloyContainer: JsonSampleStoreContainer =
-      if (args.jsonSampleStore)
-        JsonSampleStoreContainer(JsonSamplestoreDistributedConfiguration(), VitalsStandardServer)
-       else
-        null
 
     val supervisor = fabric.wave.container.supervisorContainer.start
-    if (alloyContainer != null)
-      alloyContainer.start
     supervisor.run.stop
-    if (alloyContainer != null)
-      alloyContainer.start
   }
 
 }

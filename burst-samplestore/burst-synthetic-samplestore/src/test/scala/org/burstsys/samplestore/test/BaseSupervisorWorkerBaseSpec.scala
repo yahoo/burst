@@ -1,12 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.test
 
-import org.burstsys.fabric.container.supervisor.{FabricSupervisorListener, MockSupervisorContainer}
-import org.burstsys.fabric.container.worker.{FabricWorkerListener, MockWorkerContainer}
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.samplestore.store.container.supervisor.{SampleStoreFabricSupervisorContainer, SampleStoreFabricSupervisorContainerContext}
-import org.burstsys.samplestore.store.container.worker.{FabricStoreWorkerContainer, FabricStoreWorkerContainerContext}
-import org.burstsys.synthetic.samplestore.test.{MockTestSupervisorContainer, MockTestWorkerContainer, SyntheticSpecLog}
+import org.burstsys.samplestore.store.container.worker.{SampleStoreFabricWorkerContainer, SampleStoreFabricWorkerContainerContext}
+import org.burstsys.synthetic.samplestore.test.SyntheticSpecLog
 import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -23,20 +21,20 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
 
   protected def configureSupervisor(supervisor: SampleStoreFabricSupervisorContainer): Unit = {}
 
-  protected def configureWorker(worker: FabricStoreWorkerContainer): Unit = {}
+  protected def configureWorker(worker: SampleStoreFabricWorkerContainer): Unit = {}
 
   protected var supervisorContainer: SampleStoreFabricSupervisorContainer = {
     new SampleStoreFabricSupervisorContainerContext(defaultFabricNetworkServerConfig)
   }
 
-  protected var workerContainer1: FabricStoreWorkerContainer = {
+  protected var workerContainer1: SampleStoreFabricWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
     val port = burstVitalsHealthCheckPortProperty.get
     burstVitalsHealthCheckPortProperty.set(port + 1)
-    new FabricStoreWorkerContainerContext()
+    new SampleStoreFabricWorkerContainerContext(defaultFabricNetworkServerConfig)
   }
 
-  protected var workerContainers: Array[FabricStoreWorkerContainer] = Array.empty
+  protected var workerContainers: Array[SampleStoreFabricWorkerContainer] = Array.empty
 
   /**
    * Starts the containers for the test
@@ -56,7 +54,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
         val port = burstVitalsHealthCheckPortProperty.get
         burstVitalsHealthCheckPortProperty.set(port + 1)
 
-        val worker = new FabricStoreWorkerContainerContext()
+        val worker = new SampleStoreFabricWorkerContainerContext(defaultFabricNetworkServerConfig)
         configureWorker(worker)
         worker.start
       }).toArray

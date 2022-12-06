@@ -7,7 +7,7 @@
         <artifactId>burst-samplestore</artifactId>
         <version>5.0.0${revision}-SNAPSHOT</version>
     </parent>
-    <artifactId>burst-json-samplestore</artifactId>
+    <artifactId>burst-synthetic-samplestore</artifactId>
 
     <dependencies>
         <dependency>

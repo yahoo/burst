@@ -14,6 +14,6 @@
         <module>burst-samplestore-api</module>
         <module>burst-samplesource</module>
         <module>burst-base-samplestore</module>
-        <module>burst-json-samplestore</module>
+        <module>burst-synthetic-samplestore</module>
     </modules>
 </project>

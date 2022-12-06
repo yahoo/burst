@@ -16,8 +16,7 @@ import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
 import org.burstsys.fabric.net.message.{AccessParameters, FabricNetInboundFrameDecoder, FabricNetOutboundFrameEncoder}
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
-import org.burstsys.fabric.net.{FabricNetIoMode, FabricNetLink, FabricNetLocator, FabricNetworkConfig, message}
-import org.burstsys.vitals
+import org.burstsys.fabric.net.{FabricNetIoMode, FabricNetLink, FabricNetworkConfig, message}
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
@@ -35,7 +34,7 @@ import scala.language.postfixOps
 /**
  * a fabric network client (worker side)
  */
-trait FabricNetClient extends FabricWorkerService with FabricNetLink with FabricNetLocator with FabricNetClientListener {
+trait FabricNetClient extends FabricWorkerService with FabricNetLink with FabricNetClientListener {
 
   def talksTo(listeners: FabricNetClientListener*): this.type
 
@@ -45,18 +44,18 @@ trait FabricNetClient extends FabricWorkerService with FabricNetLink with Fabric
 
 object FabricNetClient {
 
-  def apply(container: FabricWorkerContainer[_]): FabricNetClient =
-    FabricNetClientContext(container)
+  def apply(container: FabricWorkerContainer[_], netConfig: FabricNetworkConfig): FabricNetClient =
+    FabricNetClientContext(container, netConfig)
 
 }
 
 private[client] final case
-class FabricNetClientContext(container: FabricWorkerContainer[_]) extends FabricNetClient
-  with FabricNetClientNetty with FabricNetLocator with VitalsHealthMonitoredService {
+class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: FabricNetworkConfig) extends FabricNetClient
+  with FabricNetClientNetty with VitalsHealthMonitoredService {
 
   override def toString: String = serviceName
 
-  override def serviceName: String = s"fabric-net-client(containerId=${container.containerIdGetOrThrow}, $netSupervisorUrl)"
+  override def serviceName: String = s"fabric-net-client(containerId=${container.containerIdGetOrThrow}, ${netConfig.netSupervisorUrl})"
 
   val modality: VitalsServiceModality = VitalsPojo
 
@@ -65,8 +64,6 @@ class FabricNetClientContext(container: FabricWorkerContainer[_]) extends Fabric
   ////////////////////////////////////////////////////////////////////////////////////
 
   def ioMode: FabricNetIoMode = FabricNetIoMode.NioIoMode
-
-  def config: FabricNetworkConfig = clientConfig
 
   def timeout: Duration = Inf
 
@@ -81,7 +78,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_]) extends Fabric
   var _transportClass: Class[_ <: Channel] = _
 
   private[this]
-  val _socketAddress: SocketAddress = netSupervisorSocketAddress
+  val _socketAddress: SocketAddress = netConfig.netSupervisorSocketAddress
 
   private[this]
   var _eventLoopGroup: EventLoopGroup = _

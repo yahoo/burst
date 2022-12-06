@@ -8,11 +8,9 @@ import scala.language.postfixOps
 package object server extends VitalsLogger  {
 
   final val defaultFabricNetworkServerConfig = FabricNetworkConfig(
-    isServer = true,
     maxConnections = Runtime.getRuntime.availableProcessors * 2
   )
 
-  final val unitFabricNetworkServerConfig = FabricNetworkConfig(
-    isServer = true)
+  final val unitFabricNetworkServerConfig = FabricNetworkConfig()
 
 }

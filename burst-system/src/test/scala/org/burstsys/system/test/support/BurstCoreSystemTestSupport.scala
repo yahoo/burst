@@ -4,8 +4,6 @@ package org.burstsys.system.test.support
 import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.fabric.configuration
-import org.burstsys.fabric.topology.FabricTopologyWorker
-import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.system.test.supervisor.BurstSystemTestSupervisorContainer
 import org.burstsys.system.test.worker.BurstSystemTestWaveWorkerContainer
 import org.burstsys.vitals.git
@@ -14,10 +12,10 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import scala.language.postfixOps
 
-trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll with FabricTopologyListener {
+trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
   VitalsLog.configureLogging("system", consoleOnly = true)
 
@@ -42,19 +40,14 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
     fabric.wave.container.workerContainer.asInstanceOf[BurstSystemTestWaveWorkerContainer]
   }
 
-  val workerGainGate = new CountDownLatch(1)
-
-  override def onTopologyWorkerGain(worker: FabricTopologyWorker): Unit = {
-    log info s"worker ${worker.nodeId} gain"
-    workerGainGate.countDown()
-  }
+  val topoWatcher: TopologyWatcher = TopologyWatcher()
 
   override protected
   def beforeAll(): Unit = {
 
     org.burstsys.vitals.configuration.burstCellNameProperty.set("Cell1")
 
-    supervisorContainer.topology talksTo this
+    supervisorContainer.topology talksTo topoWatcher
 
     supervisorContainer.containerId = 1
     workerContainer.containerId = 1
@@ -63,7 +56,7 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
     workerContainer.start
 
     // wait for the local worker to be available before trying anything
-    workerGainGate.await()
+    topoWatcher.workerGainGate.await(30, TimeUnit.SECONDS)
     log info s"WORKER_FOUND_READY_TO_GO!"
   }
 

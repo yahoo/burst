@@ -12,7 +12,7 @@ import org.burstsys.fabric.wave.execution.model.pipeline.{FabricPipelineEvent, F
 import org.burstsys.fabric.wave.execution.worker.FabricWorkerEngine
 import org.burstsys.fabric.wave.execution.{FabricExecutionEvent, FabricExecutionException, FabricLoadEvent}
 import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
-import org.burstsys.fabric.net.message
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
 import org.burstsys.fabric.wave.message.cache.{FabricNetCacheOperationReqMsg, FabricNetCacheOperationRespMsg, FabricNetSliceFetchReqMsg, FabricNetSliceFetchRespMsg}
 import org.burstsys.fabric.wave.message.scatter.FabricNetProgressMsg
@@ -56,7 +56,8 @@ trait FabricWaveWorkerContainer extends FabricWorkerContainer[FabricWaveWorkerLi
 }
 
 abstract class
-FabricWaveWorkerContainerContext extends FabricWorkerContainerContext[FabricWaveWorkerListener] with FabricWaveWorkerContainer with FabricPipelineEventListener {
+FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
+  extends FabricWorkerContainerContext[FabricWaveWorkerListener](netConfig) with FabricWaveWorkerContainer with FabricPipelineEventListener {
 
   override def serviceName: String = s"fabric-worker-container"
 
