@@ -99,6 +99,7 @@
                                     <include>org.burstsys:*</include>
                                 </includes>
                             </artifactSet>
+                            <minimizeJar>false</minimizeJar>
                         </configuration>
                     </plugin>
 
