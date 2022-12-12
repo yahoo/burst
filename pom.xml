@@ -213,7 +213,7 @@
         <findbugs.version>3.0.2</findbugs.version>
         <grizzly.version>3.0.1</grizzly.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.14.1</jackson.version>
         <jakarta-inject.version>2.6.1</jakarta-inject.version>
         <jakarta-servlet-api.version>5.0.0</jakarta-servlet-api.version>
         <jakarta-websocket-api.version>2.0</jakarta-websocket-api.version>
@@ -232,7 +232,7 @@
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.17.2</log4j2.version>
         <mysql.version>8.0.31</mysql.version>
-        <netty.version>4.1.75.Final</netty.version>
+        <netty.version>4.1.85.Final</netty.version>
         <oshi.version>6.1.5</oshi.version><!-- hardware information -->
         <owasp-html-sanitizer.version>20211018.2</owasp-html-sanitizer.version>
         <reflections.version>0.10.2</reflections.version>
@@ -247,11 +247,12 @@
         <snappy.version>1.1.8.4</snappy.version> <!-- snappy compression-->
         <sourcecode.version>0.3.0</sourcecode.version>
         <spotless.version>2.22.5</spotless.version>
-        <thrift-version>0.12.0</thrift-version>
+        <thrift-version>0.17.0</thrift-version>
         <trove.version>3.0.3</trove.version> <!-- high performance collections -->
         <twitter-library.version>20.1.0</twitter-library.version>
         <jib.maven-plugin.version>3.3.1</jib.maven-plugin.version>
         <protobuf.version>3.21.9</protobuf.version><!-- transitive dependency but need to remove vulnerability -->
+        <httpclient.version>4.5.14</httpclient.version>
     </properties>
 
     <modules>
@@ -369,16 +370,6 @@
             <dependency>
                 <groupId>org.burstsys</groupId>
                 <artifactId>burst-hydra</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.burstsys</groupId>
-                <artifactId>burst-base-samplestore</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.burstsys</groupId>
-                <artifactId>burst-json-samplestore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1094,6 +1085,12 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-json-provider</artifactId>
                 <version>${jackson.version}</version>
@@ -1171,7 +1168,7 @@
             <dependency>
                 <groupId>com.vladsch.flexmark</groupId>
                 <artifactId>flexmark-all</artifactId>
-                <version>0.62.2</version>
+                <version>0.64.0</version>
             </dependency>
 
             <!-- plugins -->

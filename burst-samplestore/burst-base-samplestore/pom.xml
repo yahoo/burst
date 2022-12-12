@@ -85,14 +85,12 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
-                        <version>${deploy.maven-plugin.version}</version>
                     </plugin>
 
                     <!-- Shade in the burst classes for which there are no published artifacts  -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>${shade.maven-plugin.version}</version>
                         <configuration>
                             <artifactSet>
                                 <includes>

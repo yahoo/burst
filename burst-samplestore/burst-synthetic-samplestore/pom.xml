@@ -9,6 +9,11 @@
     </parent>
     <artifactId>burst-synthetic-samplestore</artifactId>
 
+    <properties>
+        <burst.test.loglevel>info</burst.test.loglevel>
+        <artifact.skip-deploy>false</artifact.skip-deploy>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.burstsys</groupId>
@@ -64,7 +69,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>${deploy.maven-plugin.version}</version>
             </plugin>
 
             <plugin>
@@ -102,8 +106,6 @@
                     <plugin>
                         <groupId>com.google.cloud.tools</groupId>
                         <artifactId>jib-maven-plugin</artifactId>
-                        <version>${jib.maven-plugin.version}</version>
-
                         <configuration>
                             <to>
                                 <image>${dockerRepo}/burst-synthetic-samplesource:${project.version}</image>
