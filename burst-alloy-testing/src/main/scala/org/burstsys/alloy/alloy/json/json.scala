@@ -3,7 +3,6 @@ package org.burstsys.alloy.alloy
 
 import org.burstsys.alloy.alloy.store.worker.bufferSize
 import org.burstsys.alloy.alloy.store.worker.blobSize
-import org.burstsys.alloy.alloy.store.worker.log
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.json.JsonPressSource
 import org.burstsys.brio.model.schema.BrioSchema

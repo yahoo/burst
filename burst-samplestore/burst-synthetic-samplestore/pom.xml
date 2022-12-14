@@ -17,42 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>org.burstsys</groupId>
-            <artifactId>burst-vitals</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.burstsys</groupId>
-            <artifactId>burst-tesla</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.burstsys</groupId>
-            <artifactId>burst-brio</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.burstsys</groupId>
-            <artifactId>burst-nexus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.burstsys</groupId>
-            <artifactId>burst-samplestore-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.burstsys</groupId>
-            <artifactId>burst-samplesource</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.burstsys</groupId>
             <artifactId>burst-base-samplestore</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
         </dependency>
 
         <!-- testing -->
