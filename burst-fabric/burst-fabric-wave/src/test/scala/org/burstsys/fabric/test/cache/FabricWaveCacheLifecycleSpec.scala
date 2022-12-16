@@ -25,24 +25,14 @@ import scala.concurrent.{Await, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-abstract class FabricWaveCacheLifecycleSpec extends FabricWaveSupervisorWorkerBaseSpec
-  with FabricSnapCacheListener with FabricTopologyListener {
-
-  val newWorkerGate = new CountDownLatch(1)
+abstract class FabricWaveCacheLifecycleSpec extends FabricWaveSupervisorWorkerBaseSpec with FabricSnapCacheListener {
 
   override def wantsContainers = true
 
   override protected
   def beforeAll(): Unit = {
     snapCache withLimits mockLimits
-    supervisorContainer.topology.talksTo(this)
     super.beforeAll()
-    newWorkerGate.await(60, TimeUnit.SECONDS) should equal(true)
-  }
-
-  override protected
-  def afterAll(): Unit = {
-    super.afterAll()
   }
 
   private val tendCount = new Semaphore(0)
@@ -159,12 +149,6 @@ abstract class FabricWaveCacheLifecycleSpec extends FabricWaveSupervisorWorkerBa
 
     // execute the wave - wait for future - get back a gather
     Await.result(promise.future, 10 minutes)
-  }
-
-  override
-  def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = {
-    log info s"$marker added worker"
-    newWorkerGate.countDown()
   }
 
   override def onSnapCacheStart(cache: FabricSnapCache): Unit = {

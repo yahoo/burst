@@ -5,7 +5,7 @@ import org.burstsys.samplestore.api.configuration.SampleStoreApiProperties
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 
-trait SampleStoreAPIListener {
+trait SampleStoreApiListener {
 
   def onViewGenerationRequest(guid: String, dataSource: BurstSampleStoreDataSource): Unit
 

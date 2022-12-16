@@ -6,7 +6,6 @@ import org.burstsys.fabric.container.FabricContainerId
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.burstsys.{fabric, tesla, vitals}
 
@@ -36,17 +35,6 @@ object MockWaveWorkerContainer {
     c
   }
 
-  /**
-    * constructor for when you do not know your container id in advance
-    *
-    * @param logFile
-    * @return
-    */
-  def apply(logFile: String): MockWaveWorkerContainer = {
-    configuration.burstFabricWorkerStandaloneProperty.set(true)
-    MockWaveWorkerContainerContext(logFile: String)
-  }
-
 }
 
 private final case
@@ -65,8 +53,6 @@ class MockWaveWorkerContainerContext(logFile: String) extends FabricWaveWorkerCo
   def start: this.type = {
     try {
       ensureNotRunning
-
-      git.turnOffBuildValidation()
 
       VitalsLog.configureLogging(log4JPropertiesFileName, consoleOnly = true)
 

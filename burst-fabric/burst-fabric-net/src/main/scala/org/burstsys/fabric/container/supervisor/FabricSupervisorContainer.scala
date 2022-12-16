@@ -1,15 +1,20 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.container.supervisor
 
-import com.sun.net.httpserver.HttpServer
 import org.burstsys.fabric.configuration
-import org.burstsys.fabric.container.model.{FabricContainer, FabricContainerContext}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.container.FabricContainer
+import org.burstsys.fabric.container.FabricContainerContext
+import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
+import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
-import org.burstsys.fabric.net.server.{FabricNetServer, FabricNetServerListener}
-import org.burstsys.fabric.net.{FabricNetworkConfig, message}
+import org.burstsys.fabric.net.server.FabricNetServer
+import org.burstsys.fabric.net.server.FabricNetServerListener
+import org.burstsys.fabric.net.FabricNetworkConfig
+import org.burstsys.fabric.net.message
 import org.burstsys.fabric.topology.supervisor.FabricSupervisorTopology
-import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandaloneServer, VitalsStandardServer}
+import org.burstsys.vitals.VitalsService.VitalsServiceModality
+import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
+import org.burstsys.vitals.VitalsService.VitalsStandardServer
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstStdMsg
 
@@ -17,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
-import scala.reflect.classTag
 
 /**
  * the one per JVM top level container for a Fabric Supervisor
@@ -36,9 +40,8 @@ trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricCon
 
 }
 
-abstract
-class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig: FabricNetworkConfig) extends FabricContainerContext
-  with FabricSupervisorContainer[T] {
+abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig: FabricNetworkConfig)
+  extends FabricContainerContext with FabricSupervisorContainer[T] {
 
   override def serviceName: String = s"fabric-supervisor-container"
 
@@ -65,15 +68,13 @@ class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig:
 
   def netServer: FabricNetServer = _net
 
-  override
-  def topology: FabricSupervisorTopology = _topology
+  override def topology: FabricSupervisorTopology = _topology
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     synchronized {
       ensureNotRunning
 
@@ -95,8 +96,7 @@ class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig:
     this
   }
 
-  override
-  def stop: this.type = {
+  override def stop: this.type = {
     synchronized {
       ensureRunning
 
@@ -115,8 +115,7 @@ class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig:
   // hookups
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def talksTo(listeners: T*): this.type = {
+  override def talksTo(listeners: T*): this.type = {
     _listenerSet ++= listeners
     this
   }

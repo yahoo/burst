@@ -3,7 +3,7 @@ package org.burstsys.fabric.net.message.assess
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
-import org.burstsys.fabric.container.model.metrics.FabricAssessment
+import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetMsg, FabricNetMsgContext}
 import org.burstsys.fabric.topology.model.node.FabricNode
 import io.netty.buffer.ByteBuf

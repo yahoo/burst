@@ -2,8 +2,8 @@
 package org.burstsys.fabric.test.cache.ops
 
 import java.util.concurrent.TimeUnit
-
 import org.burstsys.brio.model.schema.BrioSchema
+import org.burstsys.fabric.test.FabricWaveSupervisorWorkerBaseSpec
 import org.burstsys.fabric.wave.data.model.generation.FabricGeneration
 import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheSearch
@@ -22,21 +22,26 @@ import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.uid._
 
+import java.util.Date
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-class FabricCacheSpecificGenerationWithSlicesSpec extends FabricCacheOpsBaseSpec with FabricTopologyListener {
+class FabricCacheSpecificGenerationWithSlicesSpec extends FabricWaveSupervisorWorkerBaseSpec {
 
+  val domainKey: FabricDomainKey = 1
+  val viewKey: FabricViewKey = 1
+  val generationClock: FabricGenerationClock = new Date().getTime
+
+  override def wantsContainers: Boolean = true
+
+  override def workerCount: Int = 2
 
   it should "fetch all generations that match a spec with slices" in {
 
     val queryId = newBurstUid
     val promise1 = Promise[FabricGather]()
-
-    // first make sure the worker is connected
-    newWorkerGate.await(30, TimeUnit.SECONDS) should equal(true)
 
     val quo: BrioSchema = BrioSchema("quo")
 

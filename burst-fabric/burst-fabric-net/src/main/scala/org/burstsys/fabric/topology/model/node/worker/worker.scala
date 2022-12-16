@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.topology.model.node
 
-import org.burstsys.fabric.container.model.metrics.FabricAssessment
+import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.vitals.json.VitalsJsonObject
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostAddress
@@ -50,8 +50,6 @@ package object worker extends VitalsLogger {
   object FabricWorkerStateExiled extends FabricWorkerState(5)
 
   final case class FabricWorkerParameters(supervisorAddress: VitalsHostName = "", supervisorPort: VitalsHostPort = 0)
-
-  var workerParameters: FabricWorkerParameters = FabricWorkerParameters()
 
   /**
    * used for Json worker representation

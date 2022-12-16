@@ -1,8 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.kryo
 
-import org.burstsys.fabric.container.model.metrics.{FabricAssessment, FabricLastHourMetric, FabricMetricTuple}
-import org.burstsys.fabric.topology.model.node.supervisor.{FabricSupervisorContext, FabricSupervisorNodeContext}
+import org.burstsys.fabric.container.metrics.FabricAssessment
+import org.burstsys.fabric.container.model.metrics.FabricLastHourMetric
+import org.burstsys.fabric.container.model.metrics.FabricMetricTuple
+import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorContext
+import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNodeContext
 import org.burstsys.fabric.topology.model.node.worker._
 import org.burstsys.vitals.kryo._
 

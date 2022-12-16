@@ -1,12 +1,12 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="BurstSupervisorMain" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="org.burstsys.supervisor.server.container.BurstSupervisorMain" />
+    <option name="MAIN_CLASS_NAME" value="org.burstsys.supervisor.BurstSupervisorMain" />
     <module name="burst-supervisor" />
-    <option name="PROGRAM_PARAMETERS" value="-s -w 1 --jsonSampleStore" />
+    <option name="PROGRAM_PARAMETERS" value="-s -w 1" />
     <option name="VM_PARAMETERS" value="-Dburst.supervisor.jsonfilemanager.watchdirectory=./documentation/playground/json" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="org.burstsys.supervisor.server.container.*" />
+        <option name="PATTERN" value="org.burstsys.supervisor.container.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

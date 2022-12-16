@@ -27,7 +27,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class FabricWaveNetWaveSpec extends FabricWaveSupervisorWorkerBaseSpec
-  with FabricWaveSupervisorListener with FabricWaveWorkerListener with FabricTopologyListener with FabricPipelineEventListener {
+  with FabricWaveSupervisorListener with FabricWaveWorkerListener with FabricPipelineEventListener {
 
   val mockStoreSupervisor: MockStoreSupervisor = MockStoreSupervisor(supervisorContainer)
   val mockStoreWorker: MockStoreWorker = MockStoreWorker(workerContainer1)
@@ -38,7 +38,6 @@ class FabricWaveNetWaveSpec extends FabricWaveSupervisorWorkerBaseSpec
   def beforeAll(): Unit = {
     super.beforeAll()
     supervisorContainer.talksTo(this)
-    supervisorContainer.topology.talksTo(this)
     workerContainer1.talksTo(this)
     addPipelineSubscriber(this)
   }
@@ -48,7 +47,6 @@ class FabricWaveNetWaveSpec extends FabricWaveSupervisorWorkerBaseSpec
     super.afterAll()
   }
 
-  val newWorkerGate = new CountDownLatch(1)
   val waveBeginGate = new CountDownLatch(1)
   val particleBeginGate = new CountDownLatch(1)
   val particleSucceedGate = new CountDownLatch(1)
@@ -61,9 +59,6 @@ class FabricWaveNetWaveSpec extends FabricWaveSupervisorWorkerBaseSpec
   it should "do a wave execution" in {
 
     val guid = newBurstUid
-
-    // first make sure the worker is connected
-    newWorkerGate.await(10, TimeUnit.SECONDS) should equal(true)
 
     val quo = BrioSchema("quo")
     // get an appropriate datasource
@@ -128,11 +123,6 @@ class FabricWaveNetWaveSpec extends FabricWaveSupervisorWorkerBaseSpec
       log info s"################## onWaveSucceed(seqNum=${e.seqNum}, guid=${e.guid})"
       waveSucceedGate.countDown()
       true
-  }
-
-  override
-  def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = {
-    newWorkerGate.countDown()
   }
 
 }

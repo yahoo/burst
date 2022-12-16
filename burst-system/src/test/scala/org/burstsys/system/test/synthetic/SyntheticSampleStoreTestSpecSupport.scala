@@ -1,19 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test.synthetic
 
+import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
 import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
-import org.burstsys.samplestore.configuration.sampleStoreRestPort
 import org.burstsys.samplestore.store.container.supervisor.{SampleStoreFabricSupervisorContainer, SampleStoreFabricSupervisorContainerContext}
 import org.burstsys.samplestore.store.container.worker.{SampleStoreFabricWorkerContainer, SampleStoreFabricWorkerContainerContext}
 import org.burstsys.system.test.support.{BurstCoreSystemTestSupport, TopologyWatcher}
-import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
 import org.burstsys.vitals.errors.VitalsException
-import org.scalatest.time.Minute
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.Duration
 import scala.language.postfixOps
 
 trait SyntheticSampleStoreTestSpecSupport
@@ -26,9 +23,8 @@ trait SyntheticSampleStoreTestSpecSupport
 
   protected var syntheticWorkerContainer: SampleStoreFabricWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    sampleStoreRestPort.set(0)
-    val port = burstVitalsHealthCheckPortProperty.get
-    burstVitalsHealthCheckPortProperty.set(port + 1)
+    val port = burstHttpPortProperty.get
+    burstHttpPortProperty.set(port + 1)
     new SampleStoreFabricWorkerContainerContext(testFabricNetworkServerConfig)
   }
 

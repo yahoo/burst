@@ -133,18 +133,6 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
 
   def burstVitalsHealthCheckPeriodDuration: Duration = Duration(burstVitalsHealthCheckPeriodMsProperty.get, TimeUnit.MILLISECONDS)
 
-  val burstVitalsHealthCheckPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.healthcheck.http.port",
-    description = "Port to expose the health check on",
-    default = Some(37100)
-  )
-
-  val burstVitalsHealthCheckPathsProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.healthcheck.http.paths",
-    description = "The paths the health check responds to. This is a comma separated list",
-    default = Some("/akamai,/status.html,/health")
-  )
-
   val burstVitalsReflectionScanPrefixProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
     key = "burst.reflections.scan.prefix",
     description = "An additional package prefix for reflection scans",

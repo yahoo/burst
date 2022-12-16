@@ -17,7 +17,7 @@ import org.burstsys.vitals.uid._
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 class FabricWaveWaveNetCacheManageSpec extends FabricWaveSupervisorWorkerBaseSpec
-  with FabricWaveSupervisorListener with FabricWaveWorkerListener with FabricTopologyListener {
+  with FabricWaveSupervisorListener with FabricWaveWorkerListener {
 
   override protected def wantsContainers = true
 
@@ -25,7 +25,6 @@ class FabricWaveWaveNetCacheManageSpec extends FabricWaveSupervisorWorkerBaseSpe
   def beforeAll(): Unit = {
     data.worker.cache.instance.start
     supervisorContainer.talksTo(this)
-    supervisorContainer.topology.talksTo(this)
     workerContainer1.talksTo(this)
     super.beforeAll()
   }
@@ -36,15 +35,12 @@ class FabricWaveWaveNetCacheManageSpec extends FabricWaveSupervisorWorkerBaseSpe
     data.worker.cache.instance.stop
   }
 
-  val newWorkerGate = new CountDownLatch(1)
   val sliceFetchGate = new CountDownLatch(2)
   val operationGate = new CountDownLatch(2)
 
   it should "receive and reply to all messages" in {
 
     val guid = newBurstUid
-
-    newWorkerGate.await(30, TimeUnit.SECONDS) should equal(true)
 
     val key = FabricGenerationKey()
 
@@ -72,8 +68,5 @@ class FabricWaveWaveNetCacheManageSpec extends FabricWaveSupervisorWorkerBaseSpe
 
   override
   def onNetClientSliceFetchReqMsg(connection: FabricNetClientConnection, msg: FabricNetSliceFetchReqMsg): Unit = sliceFetchGate.countDown()
-
-  override
-  def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = newWorkerGate.countDown()
 
 }

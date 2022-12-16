@@ -2,7 +2,8 @@
 package org.burstsys.fabric.container.worker
 
 import org.burstsys.fabric.configuration
-import org.burstsys.fabric.container.model.{FabricContainer, FabricContainerContext}
+import org.burstsys.fabric.container.FabricContainer
+import org.burstsys.fabric.container.FabricContainerContext
 import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
 import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg

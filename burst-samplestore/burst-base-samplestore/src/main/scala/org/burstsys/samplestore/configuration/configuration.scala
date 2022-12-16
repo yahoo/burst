@@ -13,10 +13,10 @@ package object configuration {
   // Sample Store Configuration
   ///////////////////////////////////////////////////////////////////
 
-  val sampleStoreRestPort: VitalsPropertySpecification[Int] = VitalsPropertySpecification(
-    key = "burst.samplestore.rest.port",
-    description = "the port that the rest UI runs on",
-    default = Some(4443)
+  val sampleStoreViewRequestLogSize: VitalsPropertySpecification[Int] = VitalsPropertySpecification(
+    key = "burst.samplestore.request.log.size",
+    description = "how many view generation requests to retain for inspection",
+    default = Some(256)
   )
 
   ///////////////////////////////////////////////////////////////////

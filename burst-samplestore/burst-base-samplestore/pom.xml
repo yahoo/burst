@@ -10,7 +10,6 @@
     <artifactId>burst-base-samplestore</artifactId>
 
     <properties>
-        <burst.test.loglevel>info</burst.test.loglevel>
         <artifact.skip-deploy>false</artifact.skip-deploy>
     </properties>
     

@@ -4,9 +4,8 @@ package org.burstsys.worker
 import org.burstsys.fabric
 import org.burstsys.fabric.configuration.burstFabricWorkerStandaloneProperty
 import org.burstsys.fabric.container.WorkerLog4JPropertiesFileName
-import org.burstsys.vitals.git
-import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.worker.configuration.burstWorkerPropertiesFileProperty
 
 object BurstWorkerMain {
@@ -31,7 +30,6 @@ object BurstWorkerMain {
       case Some(arguments) =>
         if (arguments.standalone) {
           burstFabricWorkerStandaloneProperty.set(true)
-          git.turnOffBuildValidation()
         }
 
         /**

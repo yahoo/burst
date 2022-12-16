@@ -1,12 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.test
 
-import org.burstsys.fabric.container.supervisor.{FabricSupervisorListener, MockSupervisorContainer}
-import org.burstsys.fabric.container.worker.{FabricWorkerListener, MockWorkerContainer}
-import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
+import org.burstsys.fabric.configuration.burstHttpPortProperty
+import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
+import org.burstsys.fabric.container.supervisor.MockSupervisorContainer
+import org.burstsys.fabric.container.worker.FabricWorkerListener
+import org.burstsys.fabric.container.worker.MockWorkerContainer
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.Suite
 
 abstract class FabricSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
   with FabricSpecLog {
@@ -27,8 +31,8 @@ abstract class FabricSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite wit
 
   protected var workerContainer1: MockTestWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstVitalsHealthCheckPortProperty.get
-    burstVitalsHealthCheckPortProperty.set(port + 1)
+    val port = burstHttpPortProperty.get
+    burstHttpPortProperty.set(port + 1)
     MockWorkerContainer[FabricWorkerListener](logFile = "fabric", containerId = 1)
   }
 
@@ -49,8 +53,8 @@ abstract class FabricSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite wit
     } else {
       workerContainers = (1 until workerCount + 1).indices.map({ i =>
         // we are adding multiple workers in the same JVM so move the health port
-        val port = burstVitalsHealthCheckPortProperty.get
-        burstVitalsHealthCheckPortProperty.set(port + 1)
+        val port = burstHttpPortProperty.get
+        burstHttpPortProperty.set(port + 1)
         val worker = MockWorkerContainer[FabricWorkerListener](logFile = "fabric", containerId = i)
         configureWorker(worker)
         worker.start

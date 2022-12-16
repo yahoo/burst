@@ -1,40 +1,46 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.test.metrics
 
-import java.util.concurrent.TimeUnit
-
 import org.burstsys.brio.model.schema.BrioSchema
+import org.burstsys.fabric.test.FabricWaveSupervisorWorkerBaseSpec
+import org.burstsys.fabric.test.mock
+import org.burstsys.fabric.test.mock.MockScanner
 import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
 import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupKey
 import org.burstsys.fabric.wave.execution.model.gather.FabricGather
-import org.burstsys.fabric.wave.execution.model.wave.{FabricParticle, FabricWave}
+import org.burstsys.fabric.wave.execution.model.wave.FabricParticle
+import org.burstsys.fabric.wave.execution.model.wave.FabricWave
 import org.burstsys.fabric.wave.metadata.model
 import org.burstsys.fabric.wave.metadata.model._
 import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.wave.metadata.model.view.FabricView
-import org.burstsys.fabric.test.mock
-import org.burstsys.fabric.test.mock.MockScanner
-import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.uid._
 
+import java.util.Date
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Promise}
+import scala.concurrent.Await
+import scala.concurrent.Promise
 import scala.language.postfixOps
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-class FabricMetricsSpec extends FabricMetricsBaseSpec with FabricTopologyListener {
+class FabricMetricsSpec extends FabricWaveSupervisorWorkerBaseSpec {
 
+  val domainKey: FabricDomainKey = 1
+  val viewKey: FabricViewKey = 1
+  val generationClock: FabricGenerationClock = new Date().getTime
+
+  override def wantsContainers = true
+
+  override def workerCount = 2
 
   it should "do a wave execution and collect metrics" in {
 
     val guid = newBurstUid
     val promise = Promise[FabricGather]()
-
-
-    // first make sure the worker is connected
-    newWorkerGate.await(10, TimeUnit.SECONDS) should equal(true)
 
     val quo: BrioSchema = BrioSchema("quo")
 

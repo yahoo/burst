@@ -3,7 +3,7 @@ package org.burstsys.fabric.topology.supervisor
 
 import org.burstsys.fabric.configuration.burstFabricTopologyHomogeneous
 import org.burstsys.fabric.container.FabricSupervisorService
-import org.burstsys.fabric.container.model.metrics.FabricAssessment
+import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
 import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg

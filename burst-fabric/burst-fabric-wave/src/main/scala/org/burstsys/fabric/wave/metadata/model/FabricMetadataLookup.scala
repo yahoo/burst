@@ -43,8 +43,7 @@ trait FabricMetadataLookup extends Any {
    */
   def recordViewLoad(key: FabricGenerationKey, updatedProperties: VitalsPropertyMap): Try[Boolean]
 
-  final
-  def datasource(over: FabricOver, validate: Boolean): FabricDatasource = {
+  final def datasource(over: FabricOver, validate: Boolean): FabricDatasource = {
     FabricMetadataReporter.recordDomainLookup()
     val domain = domainLookup(over.domainKey).getOrElse(throw VitalsException(s"domain ${over.domainKey} not found"))
     FabricMetadataReporter.recordViewLookup()

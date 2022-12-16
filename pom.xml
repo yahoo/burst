@@ -205,6 +205,8 @@
         <commons-csv.version>1.9.0</commons-csv.version> <!-- apache csv libraries -->
         <commons-dbcp-pool.version>2.9.0</commons-dbcp-pool.version>
         <commons-math3.version>3.6.1</commons-math3.version> <!-- apache math libraries -->
+        <commons-net.version>3.8.0</commons-net.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
         <derby.version>10.14.2.0</derby.version>
         <dropwizard-metrics.version>4.2.9</dropwizard-metrics.version>
         <opentelemetry.version>1.20.0</opentelemetry.version>
@@ -902,6 +904,17 @@
                 <artifactId>commons-math3</artifactId>
                 <version>${commons-math3.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>org.scalikejdbc</groupId>
@@ -1038,6 +1051,11 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-framework</artifactId>
+                <version>${grizzly.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-grizzly2-http</artifactId>
                 <version>${jersey.version}</version>
@@ -1102,6 +1120,11 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.inject</groupId>
+                <artifactId>jakarta.inject-api</artifactId>
+                <version>2.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>

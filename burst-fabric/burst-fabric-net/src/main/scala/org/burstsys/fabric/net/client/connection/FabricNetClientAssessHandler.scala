@@ -1,7 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.net.client.connection
 
-import org.burstsys.fabric.container.model.metrics.{FabricAssessment, FabricLastHourMetricCollector}
+import org.burstsys.fabric.container.metrics.FabricAssessment
+import org.burstsys.fabric.container.model.metrics.FabricLastHourMetricCollector
 import org.burstsys.fabric.net.message.AccessParameters
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg}
 import org.burstsys.tesla.offheap

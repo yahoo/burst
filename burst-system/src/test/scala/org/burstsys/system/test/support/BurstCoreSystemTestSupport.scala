@@ -4,9 +4,9 @@ package org.burstsys.system.test.support
 import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.fabric.configuration
+import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.system.test.supervisor.BurstSystemTestSupervisorContainer
 import org.burstsys.system.test.worker.BurstSystemTestWaveWorkerContainer
-import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
@@ -27,7 +27,6 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
   fabric.wave.configuration.configureForUnitTests()
   configuration.burstFabricSupervisorStandaloneProperty.set(true)
   configuration.burstFabricWorkerStandaloneProperty.set(true)
-  git.turnOffBuildValidation()
 
   final
   val supervisorContainer: BurstSystemTestSupervisorContainer = fabric.wave.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
@@ -35,8 +34,8 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
   final
   val workerContainer: BurstSystemTestWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = vitals.configuration.burstVitalsHealthCheckPortProperty.get
-    vitals.configuration.burstVitalsHealthCheckPortProperty.set(port + 1)
+    val port = burstHttpPortProperty.get
+    burstHttpPortProperty.set(port + 1)
     fabric.wave.container.workerContainer.asInstanceOf[BurstSystemTestWaveWorkerContainer]
   }
 

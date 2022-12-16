@@ -12,7 +12,7 @@ import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleS
 import org.burstsys.samplestore.api.BurstSampleStoreApiViewGenerator
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
 import org.burstsys.samplestore.api.SampleStoreApi
-import org.burstsys.samplestore.api.SampleStoreAPIListener
+import org.burstsys.samplestore.api.SampleStoreApiListener
 import org.burstsys.samplestore.api.SampleStoreApiNotReadyException
 import org.burstsys.samplestore.api.SampleStoreApiRequestInvalidException
 import org.burstsys.samplestore.api.SampleStoreApiRequestTimeoutException
@@ -32,18 +32,18 @@ import java.util.concurrent.ConcurrentHashMap
 final case
 class SampleStoreApiServer(delegate: SampleStoreApiServerDelegate) extends BurstApiServer with SampleStoreApi {
 
-  private val listeners = ConcurrentHashMap.newKeySet[SampleStoreAPIListener]()
+  private val _listeners = ConcurrentHashMap.newKeySet[SampleStoreApiListener]()
 
   override def modality: VitalsService.VitalsServiceModality = VitalsStandardServer
 
-  def talksTo(listeners: SampleStoreAPIListener*): this.type = {
-    listeners.foreach(this.listeners.add)
+  def talksTo(listeners: SampleStoreApiListener*): this.type = {
+    listeners.foreach(_listeners.add)
     this
   }
 
-  private def notifyListeners(work: SampleStoreAPIListener => Unit)
+  private def notifyListeners(work: SampleStoreApiListener => Unit)
                              (implicit site: sourcecode.Enclosing, pkg: sourcecode.Pkg, file: sourcecode.FileName, line: sourcecode.Line): Unit = {
-    listeners.forEach(l => {
+    _listeners.forEach(l => {
       try {
         work(l)
       } catch safely {

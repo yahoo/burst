@@ -1,39 +1,39 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.store.container.supervisor
 
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpServer
 import org.burstsys.fabric.container.SupervisorLog4JPropertiesFileName
-import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorContainerContext, FabricSupervisorListener}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
+import org.burstsys.fabric.container.supervisor.FabricSupervisorContainerContext
+import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
+import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
+import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
-import org.burstsys.fabric.net.{FabricNetworkConfig, message}
+import org.burstsys.fabric.net.FabricNetworkConfig
+import org.burstsys.fabric.net.message
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.samplesource.handler.{SampleSourceHandlerRegistry, SimpleSampleStoreApiServerDelegate}
+import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
+import org.burstsys.samplesource.handler.SimpleSampleStoreApiServerDelegate
 import org.burstsys.samplesource.service.MetadataParameters
-import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
-import org.burstsys.samplestore.api.BurstSampleStoreApiViewGenerator
-import org.burstsys.samplestore.api.BurstSampleStoreDataSource
-import org.burstsys.samplestore.api.SampleStoreAPIListener
+import org.burstsys.samplesource.SampleStoreTopology
+import org.burstsys.samplesource.SampleStoreTopologyProvider
+import org.burstsys.samplestore.api.SampleStoreApiListener
 import org.burstsys.samplestore.api.SampleStoreDataLocus
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
-import org.burstsys.samplestore.configuration.sampleStoreRestPort
 import org.burstsys.samplestore.store.container._
+import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder
+import org.burstsys.samplestore.store.container.supervisor.http.endpoints.SampleStoreStatusEndpoint
+import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLogService
 import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
-import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
-import org.burstsys.tesla
+import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataReqMsg
+import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataRespMsg
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
-import org.burstsys.vitals
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstLocMsg
-import org.burstsys.vitals.logging.burstStdMsg
-import org.burstsys.vitals.net.SimpleServerHandler
 import org.burstsys.vitals.net.VitalsHostPort
 import org.burstsys.vitals.properties.VitalsPropertyMap
+import org.glassfish.hk2.utilities.binding.AbstractBinder
 
-import java.net.InetSocketAddress
-import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.Future
 import scala.language.postfixOps
 
@@ -49,27 +49,19 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   extends FabricSupervisorContainerContext[SampleStoreFabricSupervisorListener](netConfig)
   with SampleStoreFabricSupervisorContainer
   with FabricTopologyListener
-  with SampleStoreTopologyProvider
-  with SampleStoreAPIListener {
+  with SampleStoreTopologyProvider {
 
   override def serviceName: String = s"fabric-store-supervisor-container"
 
   private val thriftApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(this, storeListenerProperties))
 
-  private val _server = HttpServer.create()
-
-  private val _requests = new ConcurrentLinkedQueue[ViewRequest]()
-
-  private lazy val _netAddress: InetSocketAddress = new InetSocketAddress(sampleStoreRestPort.asOption.getOrElse(0))
-
-  private final val TCP_BACKLOG = 0 // use system default
+  private val requestLog = new ViewGenerationRequestLogService()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     synchronized {
       ensureNotRunning
 
@@ -82,30 +74,11 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
       // start fabric container
       super.start
 
-      // start JSON dash
-      log info s"Starting Rest server on port ${_netAddress}"
-      _server.bind(_netAddress, TCP_BACKLOG)
-      _server.createContext("/", new SimpleServerHandler() {
-         override def doGet(path: String, exchange: HttpExchange): Unit = {
-           case class StoreInfo(name: String) {
-             val vars: MetadataParameters = SampleSourceHandlerRegistry.getSupervisor(name).getBroadcastVars
-           }
-
-           val response = Map[String, Any](
-             ("workers", topology.allWorkers.map(_.forExport)),
-             ("requests", _requests),
-             ("stores", SampleSourceHandlerRegistry.getSources.map(StoreInfo)),
-           )
-           writeJSON(exchange, mapper.writeValueAsString(response))
-        }
-      })
-      _server.setExecutor(tesla.thread.request.teslaRequestExecutorService)
-      _server.start()
-
       // monitor topology changes
       topology.talksTo(this)
 
-      thriftApiServer.talksTo(this).start
+      thriftApiServer.talksTo(requestLog)
+        .start
 
 
       markRunning
@@ -113,13 +86,11 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
     this
   }
 
-  override
-  def stop: this.type = {
+  override def stop: this.type = {
     synchronized {
       ensureRunning
 
       thriftApiServer.stop
-      _server.stop(1)
 
       super.stop
 
@@ -131,6 +102,13 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   ////////////////////////////////////////////////////////////////////////////////
   // API
   ////////////////////////////////////////////////////////////////////////////////
+
+  override def httpBinder: AbstractBinder = new SampleStoreHttpBinder(this, topology, requestLog, storeListenerProperties)
+
+
+  override def httpResources: Array[Class[_]] = super.httpResources ++ Array(
+    classOf[SampleStoreStatusEndpoint],
+  )
 
   override def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {
     connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
@@ -186,7 +164,6 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
     }
   }
 
-
   override def getTopology: SampleStoreTopology = {
     SampleStoreTopology(topology.healthyWorkers.map(w => convertToLocus(w.asInstanceOf[FabricTopologyWorker])))
   }
@@ -214,14 +191,4 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   override def log4JPropertiesFileName: String = SupervisorLog4JPropertiesFileName
 
-  override def onViewGenerationRequest(guid: String, dataSource: BurstSampleStoreDataSource): Unit = {
-    _requests.offer(ViewRequest(guid, dataSource))
-    while (_requests.size > 10) {
-      _requests.poll()
-    }
-  }
-
-  override def onViewGeneration(guid: String, dataSource: BurstSampleStoreDataSource, result: BurstSampleStoreApiViewGenerator): Unit = {}
 }
-
-case class ViewRequest(guid: String, datasource: BurstSampleStoreDataSource, now: Long = System.currentTimeMillis)

@@ -1,27 +1,32 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.test
 
+import org.burstsys.fabric.configuration.burstHttpPortProperty
+import org.burstsys.fabric.topology.FabricTopologyWorker
+import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.wave.container.supervisor.MockWaveSupervisorContainer
 import org.burstsys.fabric.wave.container.worker.MockWaveWorkerContainer
 import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.wave.data.worker.cache.{FabricSnapCache, FabricSnapCacheListener}
+import org.burstsys.fabric.wave.data.worker.cache.FabricSnapCache
+import org.burstsys.fabric.wave.data.worker.cache.FabricSnapCacheListener
 import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.wave.metadata.model.view.FabricView
-import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricMetadataLookup, FabricViewKey}
-import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisor
-import org.burstsys.fabric.topology.model.node.worker.FabricWorker
-import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.FabricMetadataLookup
+import org.burstsys.fabric.wave.metadata.model.FabricViewKey
 import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.Suite
 
-import scala.util.{Failure, Success, Try}
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import scala.util.Try
 
 abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
-  with FabricSpecLog with FabricMetadataLookup with FabricSnapCacheListener {
+  with FabricSpecLog with FabricMetadataLookup with FabricSnapCacheListener with FabricTopologyListener {
 
   final val marker = "---------------------------->"
 
@@ -37,12 +42,14 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
 
   protected var workerContainer1: MockWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstVitalsHealthCheckPortProperty.get
-    burstVitalsHealthCheckPortProperty.set(port + 1)
+    val port = burstHttpPortProperty.get
+    burstHttpPortProperty.set(port + 1)
     MockWaveWorkerContainer(logFile = "fabric", containerId = 1)
   }
 
   protected var workerContainers = Array.empty[MockWaveWorkerContainer]
+
+  protected var workerConnectionGate: CountDownLatch = new CountDownLatch(workerCount)
 
   def snapCache: FabricSnapCache = workerContainer1.data.cache
 
@@ -54,24 +61,28 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
       return
 
     supervisorContainer.metadata withLookup this
+    supervisorContainer.topology talksTo this
 
     snapCache talksTo this
 
     configureSupervisor(supervisorContainer)
     supervisorContainer.start
+    workerConnectionGate = new CountDownLatch(workerCount)
+
     if (workerCount == 1) {
       configureWorker(workerContainer1)
       workerContainer1.start
     } else {
       workerContainers = (1 until workerCount + 1).indices.map({ i =>
         // we are adding multiple workers in the same JVM so move the health port
-        val port = burstVitalsHealthCheckPortProperty.get
-        burstVitalsHealthCheckPortProperty.set(port + 1)
+        val port = burstHttpPortProperty.get
+        burstHttpPortProperty.set(port + 1)
         val worker = MockWaveWorkerContainer(logFile = "fabric", containerId = i)
         configureWorker(worker)
         worker.start
       }).toArray
     }
+    workerConnectionGate.await(5, TimeUnit.SECONDS)
   }
 
   /**
@@ -88,4 +99,6 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
   override def viewLookup(key: FabricViewKey, validate: Boolean): Try[FabricView] = ???
 
   override def recordViewLoad(key: FabricGenerationKey, updatedProperties: VitalsPropertyMap): Try[Boolean] = ???
+
+  override def onTopologyWorkerGain(worker: FabricTopologyWorker): Unit = workerConnectionGate.countDown()
 }

@@ -41,6 +41,8 @@ object VitalsLog {
     if (initialized.getAndSet(true))
       return this
 
+    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
+
     // if we are a test then just use the default console error only log
     if (consoleOnly)
       return this
@@ -51,7 +53,6 @@ object VitalsLog {
     val burstHome = org.burstsys.vitals.configuration.burstHomeProperty.get
     log info s"INITIALIZING LOG FROM `$logFile` USING CONTEXT `$logName`"
     System.setProperty("burst.log.location", logName)
-    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
     System.setProperty("log.home", burstHome)
     try {
       context = Configurator.initialize(null, logFile)

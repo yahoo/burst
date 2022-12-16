@@ -6,7 +6,6 @@ import org.burstsys.fabric.container.FabricContainerId
 import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.net.server.unitFabricNetworkServerConfig
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
-import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.burstsys.{fabric, tesla, vitals}
 
@@ -56,7 +55,6 @@ class MockWaveSupervisorContainerContext(logFile: String, netConfig: FabricNetwo
   def start: this.type = {
     synchronized {
       ensureNotRunning
-      git.turnOffBuildValidation()
 
       System.setProperty("tesla.parts.tender.frequency", 30.toString)
 

@@ -2,10 +2,9 @@
 package org.burstsys.supervisor.test.rest
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.burstsys.supervisor.test.support.BurstSupervisorSpecSupport
 import org.burstsys.vitals.errors.safely
 
-class ExecuteSpec extends BurstSupervisorSpecSupport {
+class ExecuteSpec extends SupervisorRestSpecBase {
 
   private lazy val over = Map[String, String]("domain" -> s"${domain.pk}", "view" -> s"${views.head.pk}", "timezone" -> "GMT")
 

@@ -6,7 +6,6 @@ import org.burstsys.fabric.container.FabricContainerId
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.git
 import org.burstsys.vitals.logging._
 import org.burstsys.{tesla, vitals}
 
@@ -54,8 +53,6 @@ class MockWorkerContainerContext[T <: FabricWorkerListener](logFile: String) ext
   def start: this.type = {
     try {
       ensureNotRunning
-
-      git.turnOffBuildValidation()
 
       VitalsLog.configureLogging(log4JPropertiesFileName, consoleOnly = true)
 

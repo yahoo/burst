@@ -36,10 +36,10 @@ package object container extends VitalsLogger {
     */
   lazy val workerContainer: FabricWaveWorkerContainer = newWorkerContainerInstance
 
-  def getWorkerContainer(id: FabricContainerId, healthCheckPort: Int): FabricWaveWorkerContainer = {
+  def getWorkerContainer(id: FabricContainerId, httpPort: Int): FabricWaveWorkerContainer = {
     val container: FabricWaveWorkerContainer = newWorkerContainerInstance
     container.containerId = id
-    container.health.healthCheckPort = healthCheckPort
+    container.httpPort = httpPort
     container
   }
 

@@ -2,7 +2,7 @@
 package org.burstsys.fabric.topology.model.node.worker
 
 import org.burstsys.fabric.configuration._
-import org.burstsys.fabric.container.model.metrics.FabricAssessment
+import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.topology.model.node.FabricNodeId
 import org.burstsys.vitals

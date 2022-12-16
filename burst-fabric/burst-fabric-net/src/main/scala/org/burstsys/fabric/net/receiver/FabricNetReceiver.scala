@@ -3,7 +3,7 @@ package org.burstsys.fabric.net.receiver
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, SimpleChannelInboundHandler}
-import org.burstsys.fabric.container.model.FabricContainer
+import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.message._
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter}
 import org.burstsys.tesla.thread.request.{TeslaRequestCoupler, TeslaRequestFuture}

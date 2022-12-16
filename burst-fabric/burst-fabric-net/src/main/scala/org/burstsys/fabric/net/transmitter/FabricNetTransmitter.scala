@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.net.transmitter
 
-import org.burstsys.fabric.container.model.FabricContainer
 import org.burstsys.fabric.net.message.FabricNetMsg
 import org.burstsys.fabric.net.{FabricNetLink, FabricNetReporter, debugFabNet}
 import org.burstsys.tesla.thread
@@ -9,6 +8,7 @@ import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
 import io.netty.util.concurrent.{GenericFutureListener, Future => NettyFuture}
+import org.burstsys.fabric.container.FabricContainer
 
 import scala.concurrent.{Future, Promise}
 import org.burstsys.vitals.logging._

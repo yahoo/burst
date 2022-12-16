@@ -10,7 +10,7 @@ import scala.language.postfixOps
 package object configuration extends VitalsPropertyRegistry {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // NETWORK
+  // Fabric Net
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   val burstFabricNetHostProperty: VitalsPropertySpecification[VitalsHostAddress] = VitalsPropertySpecification[VitalsHostAddress](
@@ -42,6 +42,52 @@ package object configuration extends VitalsPropertyRegistry {
     description = "",
     default = Some(getRuntime.availableProcessors * 2)
   )
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // HTTP
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  final val defaultHttpPort: Int = 443
+
+  val burstHttpNameProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.liaison.name",
+    description = "user friendly name for app",
+    default = Some("burst")
+  )
+
+  val burstHttpHostProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.liaison.host",
+    description = "host/address for REST API",
+    default = Some("0.0.0.0")
+  )
+
+  val burstHttpPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+    key = "burst.liaison.port",
+    description = "port for REST API",
+    default = Some(defaultHttpPort)
+  )
+
+  val burstUseHttpsProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
+    key = "burst.liaison.https",
+    description = "if the dashboard should be served over https",
+    default = Some(true)
+  )
+
+  val burstHttpSslKeystorePath: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.liaison.keystore.path",
+    description = "the keystore for the http server",
+    default = Some("") // this is a super giant hack to get around the fact that you cannot have a default of None
+  )
+
+  private final val KEYSTORE_SERVER_PWD = "burstomatic"
+
+  val burstHttpSslKeystorePassword: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.liaison.keystore.password",
+    description = "the keystore for the http server",
+    sensitive = true,
+    default = Some(KEYSTORE_SERVER_PWD)
+  )
+
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // TOPOLOGY
