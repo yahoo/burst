@@ -69,8 +69,7 @@ trait FabricNode extends Any with Equals with Ordered[FabricNode] {
 
 }
 
-abstract
-class FabricNodeContext(override var nodeId: FabricNodeId, var nodeName: VitalsHostName, var nodeAddress: VitalsHostAddress)
+abstract class FabricNodeContext(override var nodeId: FabricNodeId, var nodeName: VitalsHostName, var nodeAddress: VitalsHostAddress)
   extends FabricNode with KryoSerializable {
 
   override

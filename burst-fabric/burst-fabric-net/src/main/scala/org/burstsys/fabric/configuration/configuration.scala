@@ -56,25 +56,25 @@ package object configuration extends VitalsPropertyRegistry {
   )
 
   val burstHttpHostProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.liaison.host",
+    key = "burst.fabric.http.host",
     description = "host/address for REST API",
     default = Some("0.0.0.0")
   )
 
   val burstHttpPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.liaison.port",
+    key = "burst.fabric.http.port",
     description = "port for REST API",
     default = Some(defaultHttpPort)
   )
 
   val burstUseHttpsProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
-    key = "burst.liaison.https",
+    key = "burst.fabric.http.secure",
     description = "if the dashboard should be served over https",
     default = Some(true)
   )
 
   val burstHttpSslKeystorePath: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.liaison.keystore.path",
+    key = "burst.fabric.http.keystore.path",
     description = "the keystore for the http server",
     default = Some("") // this is a super giant hack to get around the fact that you cannot have a default of None
   )
@@ -82,7 +82,7 @@ package object configuration extends VitalsPropertyRegistry {
   private final val KEYSTORE_SERVER_PWD = "burstomatic"
 
   val burstHttpSslKeystorePassword: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.liaison.keystore.password",
+    key = "burst.fabric.http.keystore.password",
     description = "the keystore for the http server",
     sensitive = true,
     default = Some(KEYSTORE_SERVER_PWD)

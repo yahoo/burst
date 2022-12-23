@@ -27,7 +27,7 @@ class SampleStoreStatusEndpoint {
   def status(): Response = {
     Response.ok(
       Map(
-        "workers" -> topology.allWorkers.map(_.forExport),
+        "workers" -> topology.healthyWorkers.map(_.forExport),
         "requests" -> requestLog.requests,
         "stores" -> SampleSourceHandlerRegistry.getSources.map(StoreInfo),
       )

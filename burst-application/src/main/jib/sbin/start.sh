@@ -79,13 +79,13 @@ envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL:-INFO}"
 envConfig="${envConfig} -Dburst.fabric.moniker=${FAB_MONIKER}"
 envConfig="${envConfig} -Dburst.cell.name=${cellName}"
 envConfig="${envConfig} -DdeploymentName=${cellName}"
+envConfig="${envConfig} -Dburst.fabric.http.keystore.password=${KEYSTORE_PASS}"
 
 if [ "${WORKLOAD}" = "supervisor" ]; then
-    mainClass="org.burstsys.supervisor.server.container.BurstSupervisorMain"
+    mainClass="org.burstsys.supervisor.BurstSupervisorMain"
     envConfig="${envConfig} -Dburst.fabric.supervisor.host=${POD_IP}"
     envConfig="${envConfig} -Dburst.samplestore.api.host=${SAMPLESTORE_HOST}"
     envConfig="${envConfig} -Dburst.supervisor.properties.file=supervisor.properties"
-    envConfig="${envConfig} -Dburst.liaison.keystore.password=${KEYSTORE_PASS}"
 
 elif [ "${WORKLOAD}" = "worker" ]; then
     mainClass="org.burstsys.worker.BurstWorkerMain"

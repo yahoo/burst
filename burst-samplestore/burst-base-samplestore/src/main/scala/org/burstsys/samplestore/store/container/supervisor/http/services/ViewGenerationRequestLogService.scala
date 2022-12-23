@@ -47,7 +47,7 @@ class ViewGenerationRequestLogService() extends ViewGenerationRequestLog with Sa
   }
 
   override def onViewGeneration(guid: String, dataSource: BurstSampleStoreDataSource, result: BurstSampleStoreApiViewGenerator): Unit = {
-    if (_responses.contains(guid)) {
+    if (_responses.containsKey(guid)) {
       _responses.get(guid).response = Some(result)
     }
   }

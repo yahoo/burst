@@ -1,5 +1,5 @@
 ![Burst](../documentation/burst_h_small.png "")
-# burst-services
+# burst-application-docker
 
 ## Docker
 
@@ -38,4 +38,4 @@ The directory `$BURST_HOME/classpath-files` is added to the classpath at runtime
 
 ## Shading
 
-Burst publishes `burst-services` a shaded JAR that can be directly executed.
+Burst publishes `burst-application` a shaded JAR that can be directly executed.

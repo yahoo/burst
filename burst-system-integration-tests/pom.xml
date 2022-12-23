@@ -7,7 +7,7 @@
         <artifactId>burst-root</artifactId>
         <version>5.0.0${revision}-SNAPSHOT</version>
     </parent>
-    <artifactId>burst-system</artifactId>
+    <artifactId>burst-system-integration-tests</artifactId>
 
     <dependencies>
         <dependency>

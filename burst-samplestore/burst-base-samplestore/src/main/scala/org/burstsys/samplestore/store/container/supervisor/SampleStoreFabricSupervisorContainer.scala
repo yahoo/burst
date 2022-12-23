@@ -17,12 +17,11 @@ import org.burstsys.samplesource.handler.SimpleSampleStoreApiServerDelegate
 import org.burstsys.samplesource.service.MetadataParameters
 import org.burstsys.samplesource.SampleStoreTopology
 import org.burstsys.samplesource.SampleStoreTopologyProvider
-import org.burstsys.samplestore.api.SampleStoreApiListener
-import org.burstsys.samplestore.api.SampleStoreDataLocus
+import org.burstsys.samplestore.api.{SampleStoreApiListener, SampleStoreApiServerDelegate, SampleStoreDataLocus}
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.samplestore.store.container._
 import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder
-import org.burstsys.samplestore.store.container.supervisor.http.endpoints.SampleStoreStatusEndpoint
+import org.burstsys.samplestore.store.container.supervisor.http.endpoints.{SampleStoreStatusEndpoint, SampleStoreViewRequestEndpoint}
 import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLogService
 import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
 import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataReqMsg
@@ -53,7 +52,9 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   override def serviceName: String = s"fabric-store-supervisor-container"
 
-  private val thriftApiServer = SampleStoreApiServer(SimpleSampleStoreApiServerDelegate(this, storeListenerProperties))
+  private val sampleStoreApiDelegate: SampleStoreApiServerDelegate = SimpleSampleStoreApiServerDelegate(this, storeListenerProperties)
+
+  private val thriftApiServer = SampleStoreApiServer(sampleStoreApiDelegate)
 
   private val requestLog = new ViewGenerationRequestLogService()
 
@@ -103,11 +104,11 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   // API
   ////////////////////////////////////////////////////////////////////////////////
 
-  override def httpBinder: AbstractBinder = new SampleStoreHttpBinder(this, topology, requestLog, storeListenerProperties)
-
+  override def httpBinder: AbstractBinder = new SampleStoreHttpBinder(this, topology, requestLog, sampleStoreApiDelegate)
 
   override def httpResources: Array[Class[_]] = super.httpResources ++ Array(
     classOf[SampleStoreStatusEndpoint],
+    classOf[SampleStoreViewRequestEndpoint]
   )
 
   override def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {

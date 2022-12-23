@@ -9,7 +9,7 @@ package org.burstsys.alloy.alloy.usecase
  * == Requirements ==<hr/>
  * <ol>
  * <li>An '''Alloy''' test is coded and executed in any source module at any point in the stack above and in the `burst-unit` module</li>
- * <li>An '''Alloy''' test van be executed at any layer above that source module including the `burst-system` module for a full system test</li>
+ * <li>An '''Alloy''' test van be executed at any layer above that source module including the `burst-system-integration-tests` module for a full system test</li>
  * <li>If an '''Alloy''' test is ''parameterizable'' it must be of a standard object tree JSON parameter input form </li>
  * <li>If an '''Alloy''' test is against a ''data view'', that view must be available outside the source module</li>
  * <li>An '''Alloy''' test is ''data validated'' it must be against a common  object tree JSON data model </li>

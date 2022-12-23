@@ -3,8 +3,8 @@ package org.burstsys.samplestore.store.container.supervisor.http
 
 import org.burstsys.fabric.container.http.{FabricAuthorizationProvider, FabricHttpBinder}
 import org.burstsys.fabric.topology.supervisor.FabricSupervisorTopology
-import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder.storeListenerProperties
-import org.burstsys.samplestore.store.container.supervisor.{SampleStoreFabricSupervisorContainer, SampleStoreFabricSupervisorContainerContext}
+import org.burstsys.samplestore.api.SampleStoreApiServerDelegate
+import org.burstsys.samplestore.store.container.supervisor.SampleStoreFabricSupervisorContainer
 import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLog
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
@@ -16,7 +16,7 @@ class SampleStoreHttpBinder(
                              container: SampleStoreFabricSupervisorContainer,
                              topology: FabricSupervisorTopology,
                              requestLog: ViewGenerationRequestLog,
-                             storeListenerProperties: VitalsPropertyMap,
+                             sampleStoreDelegate: SampleStoreApiServerDelegate,
                            ) extends FabricHttpBinder(container) {
 
   override protected def authorizer: FabricAuthorizationProvider = new SampleStoreHttpAuthorizer()
@@ -26,7 +26,7 @@ class SampleStoreHttpBinder(
     bind(container).to(classOf[SampleStoreFabricSupervisorContainer])
     bind(topology).to(classOf[FabricSupervisorTopology])
     bind(requestLog).to(classOf[ViewGenerationRequestLog])
-    bind(storeListenerProperties).to(classOf[VitalsPropertyMap]).named(SampleStoreHttpBinder.storeListenerProperties)
+    bind(sampleStoreDelegate).to(classOf[SampleStoreApiServerDelegate])
   }
 
 }

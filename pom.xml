@@ -51,9 +51,8 @@
                                         <portName>burst.agent.api.port</portName>
                                         <portName>burst.catalog.api.port</portName>
                                         <portName>burst.fabric.net.port</portName>
-                                        <portName>burst.liaison.port</portName>
+                                        <portName>burst.fabric.http.port</portName>
                                         <portName>burst.nexus.server.port</portName>
-                                        <portName>burst.samplestore.rest.port</portName>
                                     </portNames>
                                 </configuration>
                             </execution>
@@ -105,8 +104,7 @@
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
-                                <burst.liaison.port>${burst.liaison.port}</burst.liaison.port>
-                                <burst.samplestore.rest.port>${burst.samplestore.rest.port}</burst.samplestore.rest.port>
+                                <burst.fabric.http.port>${burst.fabric.http.port}</burst.fabric.http.port>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -278,10 +276,8 @@
         <module>burst-vitals</module>
         <module>burst-worker</module>
         <module>burst-zap</module>
-        <module>burst-system</module>
-
-        <!-- may go away as move to EQL/HYDRA -->
-        <module>burst-services</module>
+        <module>burst-system-integration-tests</module>
+        <module>burst-application</module>
     </modules>
 
     <dependencyManagement>
@@ -424,12 +420,12 @@
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
-                <artifactId>burst-services</artifactId>
+                <artifactId>burst-application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
-                <artifactId>burst-system</artifactId>
+                <artifactId>burst-system-integration-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
