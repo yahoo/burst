@@ -1,6 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.thread
 
+import io.opentelemetry.context.Context
+
 import java.util.concurrent.{ExecutorService, Executors}
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.vitals.errors.{VitalsException, _}
@@ -119,7 +121,7 @@ package object request {
       new Thread(burstThreadGroupGlobal, r, name) with TeslaRequestThread
     }
 
-    override lazy val pool: ExecutorService = Executors.newCachedThreadPool(factory)
+    override lazy val pool: ExecutorService = Context.taskWrapping(Executors.newCachedThreadPool(factory))
   }
 
 

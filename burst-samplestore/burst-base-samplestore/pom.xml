@@ -12,7 +12,7 @@
     <properties>
         <artifact.skip-deploy>false</artifact.skip-deploy>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.burstsys</groupId>

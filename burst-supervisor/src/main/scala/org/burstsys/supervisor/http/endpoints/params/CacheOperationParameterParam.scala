@@ -15,6 +15,8 @@ import org.burstsys.fabric.wave.data.model.ops.FabricCacheSizeSkew
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheSliceCount
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheTimeSkew
 
+import scala.language.implicitConversions
+
 case class CacheOperationParameterParam(override val raw: String, override val value: Option[FabricCacheOpParameter]) extends GenericParam[FabricCacheOpParameter](raw, value)
 
 object CacheOperationParameterParam {

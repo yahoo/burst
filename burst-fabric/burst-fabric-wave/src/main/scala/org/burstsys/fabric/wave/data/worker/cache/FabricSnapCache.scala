@@ -4,9 +4,8 @@ package org.burstsys.fabric.wave.data.worker.cache
 import org.burstsys.fabric.wave.data.model.limits.{FabricSnapCacheLimits, FabricSnapCachePropertyLimits}
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheOps
 import org.burstsys.fabric.wave.data.model.slice.FabricSlice
-import org.burstsys.fabric.wave.data.model.slice.region.FabricRegionReporter
 import org.burstsys.fabric.wave.data.model.snap.{FabricSnap, FailedSnap, HotSnap, NoDataSnap}
-import org.burstsys.fabric.wave.data.worker.cache.internal.{FabricSnapCacheLocks, FabricSnapCacheMap, FabricSnapCacheOps, FabricSnapCacheRegions, FabricSnapCacheTalker}
+import org.burstsys.fabric.wave.data.worker.cache.internal._
 import org.burstsys.fabric.wave.data.worker.cache.lifecycle.{FabricSnapCacheBooter, FabricSnapCacheCleaner, FabricSnapCacheLoader, FabricSnapCacheTender}
 import org.burstsys.fabric.wave.data.worker.pump.FabricCacheIntake
 import org.burstsys.vitals.VitalsService
@@ -24,7 +23,6 @@ trait FabricSnapCache extends VitalsService with FabricCacheOps {
    * return a hot (in memory) [[FabricSnap]] from cache '''with a read lock'''.
    * Snap is ready for scanning.
    *
-   * @param slice
    * @return a [[HotSnap]], [[NoDataSnap]], or [[FailedSnap]]
    */
   def loadSnapWithReadLock(slice: FabricSlice): FabricSnap
@@ -60,8 +58,6 @@ trait FabricSnapCache extends VitalsService with FabricCacheOps {
   /**
    * override the default parameter source for cache resource limits management
    * (for unit tests)
-   *
-   * @param limits
    */
   def withLimits(limits: FabricSnapCacheLimits): FabricSnapCache
 
@@ -133,8 +129,6 @@ class FabricSnapCacheContext() extends AnyRef
     log info startingMessage
 
     this talksTo FabricCacheReporter
-    FabricCacheReporter.start()
-    FabricRegionReporter.start()
 
     initializeRegionFiles()
 

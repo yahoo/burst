@@ -2,7 +2,6 @@
 package org.burstsys.tesla
 
 import org.burstsys.tesla.TeslaTypes.{SizeOfInteger, TeslaMemorySize}
-import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.VitalsByteQuantReporter
 

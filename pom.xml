@@ -201,6 +201,7 @@
         <bouncycastle.version>1.70</bouncycastle.version> <!-- Sane JDK public key|private key|certificate interface -->
         <common-io.version>2.11.0</common-io.version> <!-- apache io libraries -->
         <commons-csv.version>1.9.0</commons-csv.version> <!-- apache csv libraries -->
+        <commons-codec.version>1.15</commons-codec.version>
         <commons-dbcp-pool.version>2.9.0</commons-dbcp-pool.version>
         <commons-math3.version>3.6.1</commons-math3.version> <!-- apache math libraries -->
         <commons-net.version>3.8.0</commons-net.version>
@@ -230,7 +231,7 @@
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.17.2</log4j2.version>
         <mysql.version>8.0.31</mysql.version>
-        <netty.version>4.1.85.Final</netty.version>
+        <netty.version>4.1.86.Final</netty.version>
         <oshi.version>6.1.5</oshi.version><!-- hardware information -->
         <owasp-html-sanitizer.version>20211018.2</owasp-html-sanitizer.version>
         <reflections.version>0.10.2</reflections.version>
@@ -553,6 +554,13 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
+
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-csv</artifactId>
                 <version>${commons-csv.version}</version>
@@ -809,6 +817,16 @@
                         <artifactId>guava</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler-proxy</artifactId>
+                <version>${netty.version}</version>
             </dependency>
 
             <dependency>
@@ -1200,6 +1218,12 @@
                 <artifactId>scrooge-maven-plugin</artifactId>
                 <version>${twitter-library.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1231,7 +1255,14 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler-proxy</artifactId>
         </dependency>
     </dependencies>
 

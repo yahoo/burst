@@ -28,6 +28,7 @@ import java.util.concurrent.CountDownLatch
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import scala.util.Random
 
 trait BurstSupervisorSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll
   with SampleStoreApiServerDelegate with NexusStreamFeeder with FabricTopologyListener {
@@ -49,14 +50,18 @@ trait BurstSupervisorSpec extends AnyFlatSpec with Matchers with BeforeAndAfterA
   // override the time period to shorten the test
   vitals.configuration.burstVitalsHealthCheckPeriodMsProperty.set((5 seconds).toMillis)
 
+  private var httpPort:Int = 0
   final
-  val supervisorContainer: BurstWaveSupervisorContainer = fabric.wave.container.supervisorContainer.asInstanceOf[BurstWaveSupervisorContainer]
+  val supervisorContainer: BurstWaveSupervisorContainer = {
+    httpPort = (burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff
+    burstHttpPortProperty.set(httpPort)
+    fabric.wave.container.supervisorContainer.asInstanceOf[BurstWaveSupervisorContainer]
+  }
 
   final
   val workerContainer: BurstWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstHttpPortProperty.get
-    burstHttpPortProperty.set(port + 1)
+    burstHttpPortProperty.set(httpPort + 1)
     fabric.wave.container.workerContainer.asInstanceOf[BurstWaveWorkerContainer]
   }
 

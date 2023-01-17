@@ -24,66 +24,79 @@ trait SampleStoreInitializer extends FabricWorkerLoader {
     val slice = snap.slice.asInstanceOf[SampleStoreSlice]
     val guid = slice.guid
 
-    SampleStoreLoadTrekMark.begin(guid)
+    val sslSpan = SampleStoreLoadTrekMark.begin(guid)
     val state = try {
       snap.metadata.reset() // make sure metadata is in a clean state for the load
 
       val loader = SampleStoreLoader(snap, slice)
 
-      SampleStoreLoaderInitializeTrekMark.begin(guid)
-      loader.initializeLoader()
-      SampleStoreLoaderInitializeTrekMark.end(guid)
-
-      SampleStoreLoaderOpenTrekMark.begin(guid)
-      snap.data.openForWrites()
-      SampleStoreLoaderOpenTrekMark.end(guid)
+      {
+        val span = SampleStoreLoaderInitializeTrekMark.begin(guid)
+        loader.initializeLoader()
+        SampleStoreLoaderInitializeTrekMark.end(span)
+      }
+      {
+        val span = SampleStoreLoaderOpenTrekMark.begin(guid)
+        snap.data.openForWrites()
+        SampleStoreLoaderOpenTrekMark.end(span)
+      }
       try {
         // get nexus servers ready to feed data
-        SampleStoreLoaderAcquireTrekMark.begin(guid)
-        loader.acquireStreams()
-        SampleStoreLoaderAcquireTrekMark.end(guid)
+        {
+          val span = SampleStoreLoaderAcquireTrekMark.begin(guid)
+          loader.acquireStreams()
+          SampleStoreLoaderAcquireTrekMark.end(span)
+        }
         publishPipelineEvent(ParticleStreamsAcquired(slice.guid))
 
         try {
           // fetch stream data, this call blocks until all stream data has been received
-          SampleStoreLoaderProcessStreamTrekMark.begin(guid)
-          val state = loader.processStreamData()
-          SampleStoreLoaderProcessStreamTrekMark.end(guid)
+          val state = {
+            val span = SampleStoreLoaderProcessStreamTrekMark.begin(guid)
+            val state = loader.processStreamData()
+            SampleStoreLoaderProcessStreamTrekMark.end(span)
+            state
+          }
           publishPipelineEvent(ParticleStreamsFinished(slice.guid))
 
           // wait for fabric cache to finish writes
-          SampleStoreLoaderWaitForWritesTrekMark.begin(guid)
-          snap.data.waitForWritesToComplete()
-          SampleStoreLoaderWaitForWritesTrekMark.end(guid)
+          {
+            val span = SampleStoreLoaderWaitForWritesTrekMark.begin(guid)
+            snap.data.waitForWritesToComplete()
+            SampleStoreLoaderWaitForWritesTrekMark.end(span)
+          }
           publishPipelineEvent(ParticleWritesFinished(slice.guid))
 
           state
         } finally {
           // clean up nexus connections
-          SampleStoreLoaderReleaseStreamsTrekMark.begin(guid)
+          val span = SampleStoreLoaderReleaseStreamsTrekMark.begin(guid)
           loader.releaseStreams()
-          SampleStoreLoaderReleaseStreamsTrekMark.end(guid)
+          SampleStoreLoaderReleaseStreamsTrekMark.end(span)
         }
 
       } finally {
         // clean up fabric cache writers
-        SampleStoreLoaderCloseWritesTrekMark.begin(guid)
-        snap.data.closeForWrites()
-        SampleStoreLoaderCloseWritesTrekMark.end(guid)
+        {
+          val span = SampleStoreLoaderCloseWritesTrekMark.begin(guid)
+          snap.data.closeForWrites()
+          SampleStoreLoaderCloseWritesTrekMark.end(span)
+        }
 
-        SampleStoreLoaderProcessCompletionTrekMark.begin(guid)
-        loader.processCompletion()
-        SampleStoreLoaderProcessCompletionTrekMark.end(guid)
+        {
+          val span = SampleStoreLoaderProcessCompletionTrekMark.begin(guid)
+          loader.processCompletion()
+          SampleStoreLoaderProcessCompletionTrekMark.end(span)
+        }
       }
 
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(s"$hdr exception", t)
-        SampleStoreLoadTrekMark.fail(guid)
+        SampleStoreLoadTrekMark.fail(sslSpan)
         throw t
     }
-    SampleStoreLoadTrekMark.end(guid)
+    SampleStoreLoadTrekMark.end(sslSpan)
     state
   }
-
 }

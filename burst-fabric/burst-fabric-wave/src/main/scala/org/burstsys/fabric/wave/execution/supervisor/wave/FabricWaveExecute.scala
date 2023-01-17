@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.execution.supervisor.wave
 
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.fabric.wave.execution.model.execute.group._
 import org.burstsys.fabric.wave.execution.model.gather.control.FabricFaultGather
 import org.burstsys.fabric.wave.execution.model.gather.data.{FabricDataGather, FabricEmptyGather}
@@ -10,12 +11,11 @@ import org.burstsys.fabric.wave.execution.model.scanner._
 import org.burstsys.fabric.wave.execution.model.wave._
 import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.fabric.wave.trek.FabricSupervisorWaveTrekMark
-import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.tesla.thread.request._
-import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.reporter.instrument._
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
@@ -54,7 +54,7 @@ trait FabricWaveExecute extends Any {
     lazy val tag = s"FabricWaveExecute.waveExecute($group, $over)"
 
     val start = System.nanoTime
-    FabricSupervisorWaveTrekMark.begin(group.groupUid)
+    val swSpan = FabricSupervisorWaveTrekMark.begin(group.groupUid)
     container.data.slices(group.groupUid, scanner.datasource) map { slices =>
       FabricWave(group.groupUid, slices.map(FabricParticle(group.groupUid, _, scanner)))
     } chainWithFuture { wave =>
@@ -63,9 +63,9 @@ trait FabricWaveExecute extends Any {
       case Success(_) =>
         val elapsedNanos = System.nanoTime - start
         log info s"WAVE_EXECUTE_SUCCESS elapsedNs=elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) $tag"
-        FabricSupervisorWaveTrekMark.end(group.groupUid)
+        FabricSupervisorWaveTrekMark.end(swSpan)
       case Failure(t) =>
-        FabricSupervisorWaveTrekMark.fail(group.groupUid)
+        FabricSupervisorWaveTrekMark.fail(swSpan)
         log error burstStdMsg(s"WAVE_EXECUTE_FAIL $t $tag", t)
     } map {
       case gather: FabricFaultGather =>

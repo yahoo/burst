@@ -14,6 +14,7 @@ import org.scalatest.matchers.should.Matchers
 
 import java.util.concurrent.TimeUnit
 import scala.language.postfixOps
+import scala.util.Random
 
 trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
@@ -28,14 +29,19 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
   configuration.burstFabricSupervisorStandaloneProperty.set(true)
   configuration.burstFabricWorkerStandaloneProperty.set(true)
 
+  protected var httpPort: Int = 0
+
   final
-  val supervisorContainer: BurstSystemTestSupervisorContainer = fabric.wave.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
+  val supervisorContainer: BurstSystemTestSupervisorContainer = {
+      httpPort = (burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff
+      burstHttpPortProperty.set(httpPort)
+      fabric.wave.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
+    }
 
   final
   val workerContainer: BurstSystemTestWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstHttpPortProperty.get
-    burstHttpPortProperty.set(port + 1)
+    burstHttpPortProperty.set(httpPort + 1)
     fabric.wave.container.workerContainer.asInstanceOf[BurstSystemTestWaveWorkerContainer]
   }
 

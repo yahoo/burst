@@ -1,11 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.scatter.slot
 
-import java.util.concurrent.locks.ReentrantLock
-
-import org.burstsys.tesla.scatter.{TeslaScatter, TeslaScatterContext, TeslaScatterReporter, TeslaScatterRequest, TeslaScatterSlotId}
+import io.opentelemetry.api.trace.Span
+import org.burstsys.tesla.scatter._
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.uid._
+
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * one of n slots (requests) in a scatter
@@ -115,6 +116,10 @@ trait TeslaScatterSlot extends Any {
    */
   def failure: Throwable
 
+  def span:  Span
+
+  def setSpan(span: Span): Unit
+
 }
 
 object TeslaScatterSlot {
@@ -175,6 +180,9 @@ class TeslaScatterSlotContext(scatter: TeslaScatterContext, slotId: TeslaScatter
 
   private[this]
   val _cancelled = TeslaScatterSlotCancel(this)
+
+  private[this]
+  var _span:Span = _
 
   override
   def toString: String = s"slotId=$slotId, ruid=$ruid, destinationHostName='$destinationHostName', state=${_slotState}"
@@ -347,4 +355,11 @@ class TeslaScatterSlotContext(scatter: TeslaScatterContext, slotId: TeslaScatter
     scatter.slotCancelled(slot = this, update = _cancelled)
   }
 
+  override def span: Span = {
+    _span
+  }
+
+  override def setSpan(span: Span): Unit = {
+    _span = span
+  }
 }

@@ -199,13 +199,15 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
     val tag = s"FabricWaveSupervisorContainer.executeParticle(guid=$guid, ruid=$ruid)"
     val msg = FabricNetParticleReqMsg(guid, ruid, connection.serverKey, connection.clientKey, particle)
     val call = ExecutionParticleOpCall(msg)
+    slot.setSpan(FabricSupervisorRequestTrekMark.begin(guid, msg.ruid)) // are you there yet?
     _particleCallMap.put(msg, call)
     _particleSlotMap.put(msg, slot)
     connection.transmitControlMessage(call.request) onComplete {
       case Success(_) =>
-        FabricSupervisorRequestTrekMark.begin(guid) // are you there yet?
+        slot.span.addEvent("transmitControlMessage.success")
       case Failure(t) =>
         log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
+        FabricSupervisorRequestTrekMark.fail(slot.span)
     }
     call.receipt.future
   }
@@ -232,15 +234,16 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
         filteredForeach[FabricWaveSupervisorListener](_.onNetServerParticleRespMsg(connection, msg))
 
         val tag = s"FabricWaveSupervisorContainer.particleExecutionResp($msg)"
-        val slot = _particleCallMap.get(msg)
-        if (slot == null)
+        val call = _particleCallMap.get(msg)
+        val slot = _particleSlotMap.get(msg)
+        if (call == null)
           log warn s"$tag SLOTLESS"
         else {
-          FabricSupervisorRequestTrekMark.end(msg.guid) // are you there yet?
+          FabricSupervisorRequestTrekMark.end(slot.span) // are you there yet?
           log debug s"$tag received result"
           _particleCallMap.remove(msg)
           _particleSlotMap.remove(msg)
-          slot.receipt.complete(msg.result)
+          call.receipt.complete(msg.result)
         }
 
       /////////////////// CACHE OPERATIONS /////////////////

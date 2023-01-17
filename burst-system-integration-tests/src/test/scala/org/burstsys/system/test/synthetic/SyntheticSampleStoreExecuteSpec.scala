@@ -1,13 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test.synthetic
 
+import io.opentelemetry.api.OpenTelemetry
 import org.burstsys.fabric.wave.metadata.model
+import org.burstsys.vitals
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class SyntheticSampleStoreExecuteSpec extends SyntheticSampleStoreTestSpecSupport {
+
   it should "execute eql from synthetic sample store" in {
 
     val view = supervisorContainer.catalog.findViewByMoniker("BurstSyntheticView").get

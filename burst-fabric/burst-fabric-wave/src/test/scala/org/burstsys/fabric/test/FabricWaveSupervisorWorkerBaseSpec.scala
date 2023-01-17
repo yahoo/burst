@@ -23,7 +23,7 @@ import org.scalatest.Suite
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import scala.util.Try
+import scala.util.{Random, Try}
 
 abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
   with FabricSpecLog with FabricMetadataLookup with FabricSnapCacheListener with FabricTopologyListener {
@@ -38,11 +38,15 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
 
   protected def configureWorker(worker: MockWaveWorkerContainer): Unit = {}
 
-  protected var supervisorContainer: MockWaveSupervisorContainer = MockWaveSupervisorContainer(logFile = "fabric", containerId = 1)
+  private var port = burstHttpPortProperty.get
+  protected var supervisorContainer: MockWaveSupervisorContainer = {
+    port = (port + (Random.nextInt().abs % 1000)) & 0xffff
+    burstHttpPortProperty.set(port)
+    MockWaveSupervisorContainer(logFile = "fabric", containerId = 1)
+  }
 
   protected var workerContainer1: MockWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstHttpPortProperty.get
     burstHttpPortProperty.set(port + 1)
     MockWaveWorkerContainer(logFile = "fabric", containerId = 1)
   }

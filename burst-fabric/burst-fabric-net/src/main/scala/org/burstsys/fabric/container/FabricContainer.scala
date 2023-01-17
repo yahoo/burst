@@ -142,7 +142,26 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
         log info s"FABRIC_GIT_BRANCH: '${git.branch}'   FABRIC_GIT_COMMIT: '${git.commitId}'"
         TeslaFactoryBoss.startIfNotAlreadyStarted
 
-        startWebServer()
+        var webServerStartTries = 10
+        while (webServerStartTries > 0) {
+          try {
+            startWebServer()
+            webServerStartTries = 0
+          } catch safely {
+            case b: java.net.BindException =>
+              log warn burstStdMsg(s"waiting ($webServerStartTries) to bind to web server port ${configuration.burstHttpPortProperty.asOption}")
+              webServerStartTries = webServerStartTries - 1
+              if (webServerStartTries > 0)
+                Thread.sleep(100)
+              else {
+                log error burstStdMsg(s"Unable to bind web server port ${configuration.burstHttpPortProperty.asOption}")
+                throw b
+              }
+            case e =>
+              throw e
+          }
+
+        }
 
         reporter.startReporterSystem()
 

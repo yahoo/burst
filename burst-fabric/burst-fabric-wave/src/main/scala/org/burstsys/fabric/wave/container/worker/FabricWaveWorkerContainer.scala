@@ -281,8 +281,8 @@ FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
     val guid = msg.particle.slice.guid
     val ruid = msg.ruid
     val tag = s"FabricWaveWorkerContainer.executeParticle(guid=$guid, ruid=$ruid)"
+    val span = FabricWorkerRequestTrekMark.begin(guid)
     try {
-      FabricWorkerRequestTrekMark.begin(guid)
       _guidToRuid.put(guid, ruid)
       if (msg.particle.instrumented)
         _reportingGuids.add(guid)
@@ -292,9 +292,9 @@ FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
       // TODO - where do we compress these...
       connection.transmitDataMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, gather)) onComplete {
         case Success(_) =>
-          FabricWorkerRequestTrekMark.end(guid)
+          FabricWorkerRequestTrekMark.end(span)
         case Failure(_) =>
-          FabricWorkerRequestTrekMark.fail(guid)
+          FabricWorkerRequestTrekMark.fail(span)
       }
 
     } catch safely {
@@ -302,13 +302,13 @@ FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
       // transmit back fabric related exception for supervisor to sort out
       case t: FabricException =>
         log error burstStdMsg(s"FAIL $t $tag", t)
-        FabricWorkerRequestTrekMark.fail(guid)
+        FabricWorkerRequestTrekMark.fail(span)
         connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, t))
 
       // something unpredictable happened...
       case t: Throwable =>
         log error burstStdMsg(s"FAIL $t $tag", t)
-        FabricWorkerRequestTrekMark.fail(guid)
+        FabricWorkerRequestTrekMark.fail(span)
         connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, FabricGenericException(t)))
 
     } finally {

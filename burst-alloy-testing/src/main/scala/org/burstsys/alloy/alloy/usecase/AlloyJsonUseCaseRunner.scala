@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.alloy.usecase
 
+import org.burstsys.alloy.alloy.usecase
 import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
@@ -20,6 +21,7 @@ import org.scalatest.Suite
 
 import java.util.concurrent.CountDownLatch
 import scala.language.postfixOps
+import scala.util.Random
 
 abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
   with Suite with Matchers with BeforeAndAfterAll with FabricTopologyListener with AlloyUnitMetadataLookup {
@@ -29,12 +31,15 @@ abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
   tesla.configuration.configureForUnitTests()
   fabric.wave.configuration.configureForUnitTests()
 
-  val supervisorContainer: MockWaveSupervisorContainer = MockWaveSupervisorContainer(logFile = "unit", containerId = 1)
+
+  val supervisorContainer: MockWaveSupervisorContainer = {
+    burstHttpPortProperty.set(usecase.getNextHttpPort)
+    MockWaveSupervisorContainer(logFile = "unit", containerId = 1)
+  }
 
   protected var workerContainer: MockWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the http port
-    val port = burstHttpPortProperty.get
-    burstHttpPortProperty.set(port + 1)
+    burstHttpPortProperty.set(usecase.getNextHttpPort)
     MockWaveWorkerContainer(logFile = "unit", containerId = 1)
   }
 

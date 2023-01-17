@@ -11,6 +11,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import scala.annotation.unused
+import scala.util.Random
 
 abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
   with BaseSpecLog {
@@ -25,7 +26,11 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
 
   protected def configureWorker(@unused worker: SampleStoreFabricWorkerContainer): Unit = {}
 
+  private var httpPort:Int = 0
+
   protected var supervisorContainer: SampleStoreFabricSupervisorContainer = {
+    httpPort = (burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff
+    burstHttpPortProperty.set(httpPort)
     new SampleStoreFabricSupervisorContainerContext(defaultFabricNetworkServerConfig)
   }
 
@@ -33,8 +38,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
 
   protected var workerContainer1: SampleStoreFabricWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstHttpPortProperty.get
-    burstHttpPortProperty.set(port + 1)
+    burstHttpPortProperty.set(httpPort + 1)
     new SampleStoreFabricWorkerContainerContext(defaultFabricNetworkServerConfig)
   }
 

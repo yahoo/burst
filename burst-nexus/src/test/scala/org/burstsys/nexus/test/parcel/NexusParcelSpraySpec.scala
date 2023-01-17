@@ -40,7 +40,7 @@ class NexusParcelSpraySpec extends NexusSpec {
       val server = grabServer(getPublicHostAddress)
       server fedBy new NexusStreamFeeder {
         override def feedStream(stream: NexusStream): Unit = {
-          val itemCount: Int = math.abs(Random.nextInt() % 100)
+          val itemCount: Int = math.abs(Random.nextInt().abs % 100)
           streamCounts.put(stream.guid, itemCount)
           log info s"spraying $itemCount items(s) to ${stream.guid}"
 

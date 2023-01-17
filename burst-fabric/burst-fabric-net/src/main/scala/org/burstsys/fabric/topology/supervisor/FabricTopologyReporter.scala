@@ -1,12 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.topology.supervisor
 
+import io.opentelemetry.api.metrics.LongUpDownCounter
 import org.burstsys.fabric.topology.FabricTopologyWorker
-import org.burstsys.fabric.topology.model.node.FabricNodeId
-import org.burstsys.vitals.reporter.VitalsReporter
-import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFixedValueMetric}
-
-import java.util.concurrent.atomic.LongAdder
+import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
+import org.burstsys.vitals.reporter.{VitalsReporter, metric}
 
 private[fabric]
 object FabricTopologyReporter extends VitalsReporter with FabricTopologyListener {
@@ -18,36 +16,28 @@ object FabricTopologyReporter extends VitalsReporter with FabricTopologyListener
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _workerCountMetric = VitalsReporterFixedValueMetric("topo_worker_count")
+  val _workerGainRateMetric = VitalsReporterUnitOpMetric("topo_worker_gain_rate")
 
   private[this]
-  val _workerGainRateMetric = VitalsReporterByteOpMetric("topo_worker_gain_rate")
+  val _workerLossRateMetric = VitalsReporterUnitOpMetric("topo_worker_loss_rate")
 
   private[this]
-  val _workerLossRateMetric = VitalsReporterByteOpMetric("topo_worker_loss_rate")
+  val _workerCurrentCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"topo_current_worker_counter")
+    .setDescription(s"current active workers")
+    .setUnit("worker")
+    .build()
 
   private[this]
-  val _workerCurrentCount = new LongAdder()
+  val _workerTotalGain = metric.meter.counterBuilder(s"topo_worker_gain")
+    .setDescription("total workers gained")
+    .setUnit("worker")
+    .build()
 
   private[this]
-  val _workerTotalGain = new LongAdder()
-
-  private[this]
-  val _workerTotalLoss = new LongAdder()
-
-  this +=_workerCountMetric
-  this +=_workerGainRateMetric
-  this += _workerLossRateMetric
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // LIFECYCLE
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override def sample(sampleMs: FabricNodeId): Unit = {
-    _workerCountMetric.record(_workerCurrentCount.longValue)
-    if(_workerCurrentCount.longValue > 0) newSample() // keep it going
-    super.sample(sampleMs)
-  }
+  val _workerTotalLoss = metric.meter.counterBuilder(s"topo_worker_gain")
+    .setDescription("total workers gained")
+    .setUnit("worker")
+    .build()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -55,28 +45,15 @@ object FabricTopologyReporter extends VitalsReporter with FabricTopologyListener
 
   override
   def onTopologyWorkerGain(worker: FabricTopologyWorker): Unit = {
-    newSample()
     _workerGainRateMetric.recordOp()
-    _workerCurrentCount.increment()
-    _workerTotalGain.increment()
+    _workerCurrentCounter.add(1)
+    _workerTotalGain.add(1)
   }
 
   override
   def onTopologyWorkerLoss(worker: FabricTopologyWorker): Unit = {
-    newSample()
     _workerLossRateMetric.recordOp()
-    _workerCurrentCount.decrement()
-    _workerTotalLoss.increment()
+    _workerCurrentCounter.add(-1)
+    _workerTotalLoss.add(1)
   }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // REPORT
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override
-  def report: String = {
-    if (nullData) return ""
-    s"\ttopo_worker_current_count=${_workerCurrentCount.longValue}, topo_worker_total_loss=${_workerTotalLoss.longValue}, topo_worker_total_gain=${_workerTotalGain.longValue},\n${_workerGainRateMetric.report}${_workerLossRateMetric.report}"
-  }
-
 }

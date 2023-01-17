@@ -1,12 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.scatter
 
-import java.util.concurrent.atomic.LongAdder
-
+import io.opentelemetry.api.metrics.LongUpDownCounter
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlot
-import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.reporter._
-import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFloatValueMetric}
+import org.burstsys.vitals.reporter.instrument._
+import org.burstsys.vitals.reporter.metric.{VitalsReporterFloatValueMetric, VitalsReporterUnitOpMetric}
 import org.burstsys.vitals.stats.stdSkewStat
 import org.burstsys.vitals.uid.VitalsUid
 
@@ -21,63 +20,49 @@ object TeslaScatterReporter extends VitalsReporter {
 
   final val dName: String = "tesla-scatter"
 
-  final val warnSkew = 2.0
+  private final val warnSkew = 2.0
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // private state
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _scatterOpenRate = VitalsReporterByteOpMetric("tesla_scatter_open")
-  this += _scatterOpenRate
+  val _scatterOpenRate = VitalsReporterUnitOpMetric(s"${dName}_open")
 
   private[this]
-  val _scatterSlotOpenRate = VitalsReporterByteOpMetric("tesla_scatter_slot_open")
-  this += _scatterSlotOpenRate
+  val _scatterSlotOpenRate = VitalsReporterUnitOpMetric(s"${dName}_slot_open")
 
   private[this]
-  val _scatterSlotTardyRate = VitalsReporterByteOpMetric("tesla_scatter_slot_tardy")
-  this += _scatterSlotTardyRate
+  val _scatterSlotTardyRate = VitalsReporterUnitOpMetric(s"${dName}_slot_tardy")
 
   private[this]
-  val _scatterSlotSuccessRate = VitalsReporterByteOpMetric("tesla_scatter_slot_success")
-  this += _scatterSlotSuccessRate
+  val _scatterSlotSuccessRate = VitalsReporterUnitOpMetric(s"${dName}_slot_success")
 
   private[this]
-  val _scatterSlotFailRate = VitalsReporterByteOpMetric("tesla_scatter_slot_fail")
-  this += _scatterSlotFailRate
+  val _scatterSlotFailRate = VitalsReporterUnitOpMetric(s"${dName}_slot_fail")
 
   private[this]
-  val _scatterSkew = VitalsReporterFloatValueMetric("tesla_scatter_skew")
-  this +=  _scatterSkew
+  val _scatterSkew = VitalsReporterFloatValueMetric(s"${dName}_skew")
 
   private[this]
-  val _openScatters = new LongAdder
-
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // LIFECYCLE
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override def sample(sampleMs: Long): Unit = {
-    super.sample(sampleMs)
-  }
+  val _openScattersCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_open_scatters_counter")
+    .setDescription(s"open scatters in use")
+    .setUnit("scatters")
+    .build()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final def scatterOpen(): Unit = {
-    newSample()
     _scatterOpenRate.recordOp()
-    _openScatters.increment()
+    _openScattersCounter.add(1)
   }
 
-  final val hostCheckCount = 5
+  private final val hostCheckCount = 5
 
   final def scatterClose(guid: VitalsUid, successes: ArrayBuffer[TeslaScatterSlot], failures: ArrayBuffer[TeslaScatterSlot]): Unit = {
-    newSample()
-    _openScatters.decrement()
+    _openScattersCounter.add(-1)
     if(failures.isEmpty) {
       val skew = calcSkew(successes)
       _scatterSkew.record(skew)
@@ -94,33 +79,19 @@ object TeslaScatterReporter extends VitalsReporter {
   }
 
   final def scatterSlotOpen(): Unit = {
-    newSample()
     _scatterSlotOpenRate.recordOp()
   }
 
   final def scatterSlotTardy(): Unit = {
-    newSample()
     _scatterSlotTardyRate.recordOp()
   }
 
   final def scatterSlotFail(): Unit = {
-    newSample()
     _scatterSlotFailRate.recordOp()
   }
 
   final def scatterSlotSuccess(): Unit = {
-    newSample()
     _scatterSlotSuccessRate.recordOp()
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // REPORT
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  final override
-  def report: String = {
-    if (nullData) return ""
-    s"\ttesla_open_scatters=${_openScatters.longValue} (${prettySizeString(_openScatters.longValue)}))${_scatterOpenRate.report}${_scatterSlotOpenRate.report}${_scatterSlotTardyRate.report}${_scatterSlotSuccessRate.report}${_scatterSlotFailRate.report}${_scatterSkew.report}"
   }
 
   private

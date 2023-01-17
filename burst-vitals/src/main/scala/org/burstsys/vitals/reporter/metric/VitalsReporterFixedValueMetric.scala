@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.reporter.metric
 
-import com.codahale.metrics.Histogram
-import org.burstsys.vitals.reporter.instrument.prettySizeString
+import io.opentelemetry.api.metrics.LongHistogram
 
 import scala.language.implicitConversions
 
@@ -21,8 +20,6 @@ trait VitalsReporterFixedValueMetric extends VitalsReporterMetric {
 
   /**
    * record a long value
-   *
-   * @param value
    */
   def record(value: Long): Unit
 
@@ -43,26 +40,16 @@ class VitalsReporterFixedValueMetricContext(name: String) extends VitalsReporter
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  var _valueHistogram: Histogram = defaultHistogram()
+  val _valueHist: LongHistogram = meter.histogramBuilder(s"${name}_histo").ofLongs()
+    .setDescription(s"$name histogram")
+    .setUnit("units")
+    .build()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override def sample(sampleMs: Long): Unit = {}
-
   override def record(value: Long): Unit = {
-    newSample()
-    _valueHistogram.update(value)
+    _valueHist.record(value)
   }
-
-  override def report: String = {
-    if (nullData) return ""
-
-    val min = _valueHistogram.getSnapshot.getMin
-    val mean = _valueHistogram.getSnapshot.getMean
-    val max = _valueHistogram.getSnapshot.getMax
-    s"\t${dName}_min=$min (${prettySizeString(min)}), ${dName}_mean=$mean (${prettySizeString(mean)}), ${dName}_max=$max (${prettySizeString(max)}) \n"
-  }
-
 }

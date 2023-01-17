@@ -4,6 +4,8 @@ package org.burstsys.supervisor.http.endpoints.params
 import org.burstsys.fabric.container.http.endpoints.params.GenericParam
 import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
 
+import scala.language.implicitConversions
+
 case class GenerationKeyParam(override val raw: String, override val value: Option[FabricGenerationKey]) extends GenericParam[FabricGenerationKey](raw, value)
 
 object GenerationKeyParam {

@@ -11,7 +11,6 @@ import org.burstsys.felt.model.mutables.valmap.FeltMutableValMapProv
 import org.burstsys.felt.model.mutables.valset.FeltMutableValSetProv
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.reporter.{VitalsReporter, VitalsReporterSource}
-import org.burstsys.zap.cube.ZapCubeReporter
 import org.burstsys.zap.cube2.ZapCube2Provider
 import org.burstsys.zap.mutable.valarray.ZapValArrProvider
 import org.burstsys.zap.mutable.valmap.ZapValMapProvider
@@ -24,7 +23,6 @@ package object zap extends VitalsReporterSource with VitalsLogger {
 
   override
   def reporters: Array[VitalsReporter] = Array(
-    ZapCubeReporter,
     ZapRouteReporter,
     ZapTabletReporter
   )

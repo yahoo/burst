@@ -1,32 +1,30 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.client.connection
 
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.LongAdder
-import java.util.concurrent.locks.{Condition, ReentrantLock}
+import io.netty.channel.Channel
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
 import org.burstsys.nexus.client.{NexusClientListener, NexusClientReporter}
 import org.burstsys.nexus.message.{NexusMsg, NexusStreamCompleteMsg, NexusStreamInitiatedMsg, msgIds}
 import org.burstsys.nexus.receiver.NexusClientMsgListener
 import org.burstsys.nexus.stream.{NexusStream, streamIds}
 import org.burstsys.nexus.transmitter.NexusTransmitter
-import org.burstsys.nexus.trek.NexusClientStreamTrekMark
+import org.burstsys.nexus.trek.{NexusClientStreamStartTrekMark, NexusClientStreamTerminateTrekMark}
 import org.burstsys.nexus.{NexusConnection, NexusSliceKey, NexusStreamUid}
 import org.burstsys.tesla.parcel.TeslaParcelStatus
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
-import org.burstsys.tesla.thread
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
-import org.burstsys.vitals.reporter.instrument._
+import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.uid._
-import io.netty.channel.Channel
 
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.LongAdder
+import java.util.concurrent.locks.{Condition, ReentrantLock}
 import scala.concurrent.Promise
 import scala.language.postfixOps
-import org.burstsys.vitals.logging._
 
 /**
  * This is the client side representative of a [[NexusConnection]].
@@ -43,25 +41,11 @@ trait NexusClientConnection extends NexusConnection with NexusClientMsgListener 
 
   /**
    * optional listener for the protocol
-   *
-   * @param listener
-   * @return
    */
   def talksTo(listener: NexusClientListener): this.type
 
   /**
    * Start a stream
-   *
-   * @param guid
-   * @param suid
-   * @param properties
-   * @param schema
-   * @param filter
-   * @param pipe
-   * @param sliceKey
-   * @param clientHostname
-   * @param serverHostname
-   * @return
    */
   def startStream(guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
                   pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName): NexusStream
@@ -165,7 +149,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
   def isActive: Boolean = _isStreamingData
 
   protected def waitForStreamStart(stream: NexusStream): Unit = {
-    NexusClientStreamTrekMark.begin(stream.guid)
+    val span = NexusClientStreamStartTrekMark.begin(stream.guid, stream.suid)
     lazy val tag = s"NexusClientConnection.streamStart($transmitter, stream=$stream)"
     _gate.lock()
     var waitTimeout = false
@@ -195,12 +179,15 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       if (waitTimeout) {
         NexusClientReporter.onClientTimeout(waitElapsed)
         val msg = s"NEXUS_CLIENT_TIMEOUT waits=$waits, maxWaits=$initiateMaxWaits, elapsed=$waitElapsed (${prettyTimeFromNanos(waitElapsed)}) $tag "
+        NexusClientStreamStartTrekMark.fail(span)
         log error msg
         throw VitalsException(msg)
       }
+      NexusClientStreamStartTrekMark.end(span)
     } catch safely {
       case t: Throwable =>
         NexusClientReporter.onClientStreamFail()
+        NexusClientStreamStartTrekMark.fail(span)
         log error burstStdMsg(s"FAIL $t $tag", t)
         if (!_promise.isCompleted)
           _promise.failure(t)
@@ -248,6 +235,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
   protected
   def onStreamCompletion(update: NexusStreamCompleteMsg, stream: NexusStream): Unit = {
     lazy val tag = s"NexusClientConnection.onCompletion($link, ${msgIds(update)})"
+    val span = NexusClientStreamTerminateTrekMark.begin(stream.guid, stream.suid)
     try {
       stream.itemCount = update.itemCount
       stream.expectedItemCount = update.expectedItemCount
@@ -293,12 +281,12 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
         log info s"PROMISE_HAD_FAILED_PREVIOUSLY $tag"
       }
       NexusClientReporter.onClientStreamSucceed()
-      NexusClientStreamTrekMark.end(stream.guid)
+      NexusClientStreamTerminateTrekMark.end(span)
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(s"FAIL $t $tag", t)
         NexusClientReporter.onClientStreamFail()
-        NexusClientStreamTrekMark.fail(stream.guid)
+        NexusClientStreamTerminateTrekMark.fail(span)
         if (!_promise.isCompleted)
           _promise.failure(t)
         // clear this out

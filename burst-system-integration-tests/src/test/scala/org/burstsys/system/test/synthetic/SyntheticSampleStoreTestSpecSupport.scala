@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.test.synthetic
 
+import io.opentelemetry.api.{GlobalOpenTelemetry, OpenTelemetry}
 import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
@@ -8,23 +9,26 @@ import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
 import org.burstsys.samplestore.store.container.supervisor.{SampleStoreFabricSupervisorContainer, SampleStoreFabricSupervisorContainerContext}
 import org.burstsys.samplestore.store.container.worker.{SampleStoreFabricWorkerContainer, SampleStoreFabricWorkerContainerContext}
 import org.burstsys.system.test.support.{BurstCoreSystemTestSupport, TopologyWatcher}
+import org.burstsys.vitals
 import org.burstsys.vitals.errors.VitalsException
 
 import java.util.concurrent.TimeUnit
 import scala.language.postfixOps
+import scala.util.Random
 
 trait SyntheticSampleStoreTestSpecSupport
   extends BurstCoreSystemTestSupport {
-  protected val testFabricNetworkServerConfig: FabricNetworkConfig = FabricNetworkConfig(netSupervisorPort = 33061)
+  protected val testFabricNetworkServerConfig: FabricNetworkConfig = FabricNetworkConfig(netSupervisorPort = 33062)
 
+  final
   protected var syntheticSupervisorContainer: SampleStoreFabricSupervisorContainer = {
+    burstHttpPortProperty.set(httpPort + 2)
     new SampleStoreFabricSupervisorContainerContext(testFabricNetworkServerConfig)
   }
 
   protected var syntheticWorkerContainer: SampleStoreFabricWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstHttpPortProperty.get
-    burstHttpPortProperty.set(port + 1)
+    burstHttpPortProperty.set(httpPort + 3)
     new SampleStoreFabricWorkerContainerContext(testFabricNetworkServerConfig)
   }
 
@@ -32,6 +36,7 @@ trait SyntheticSampleStoreTestSpecSupport
 
   override protected
   def beforeAll(): Unit = {
+    val ot: OpenTelemetry = vitals.reporter.startTelemetry
     super.beforeAll()
     // burstAgentApiTimeoutMsProperty.set((60 minutes).toMillis)
     syntheticSupervisorContainer.topology.talksTo(syntheticTopoWatcher)
@@ -45,6 +50,7 @@ trait SyntheticSampleStoreTestSpecSupport
     super.afterAll()
     syntheticSupervisorContainer.stop
     syntheticWorkerContainer.stop
+    vitals.reporter.flushMetrics()
   }
 
   def checkResults(result: FabricExecuteResult): FabricResultSet = {

@@ -3,8 +3,7 @@ package org.burstsys.tesla.parcel.factory
 
 import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes._
-import org.burstsys.tesla.block.{TeslaBlock, TeslaBlockAnyVal}
-import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
+import org.burstsys.tesla.block.TeslaBlockAnyVal
 import org.burstsys.tesla.parcel.{TeslaParcel, TeslaParcelAnyVal, TeslaParcelReporter}
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.tesla.pool.TeslaPoolId

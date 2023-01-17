@@ -1,13 +1,3 @@
-# JSON Samplestore
-
-The JSON Samplestore package includes two utility-style sample stores to make it easy to take Burst for a test drive.
-
-## JSON Samplestore
-
-The JSON Samplestore will load a local json file (optionally gzipped) and press it into a dataset.  It reads the
-Json file directly from storage on the cell worker.  There is no nexus interaction with a remote store in this implementation.
-It's mainly used for testing, but could be the basis for using the cell workers to do loading.
-
 ## Synthetic Samplestore
 
 The Syntetic Samplestore will use a generator to materialize a dataset on demand.  It uses the basic sample store client

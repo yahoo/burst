@@ -1,12 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.server
 
-import java.util.concurrent.atomic.LongAdder
+import io.opentelemetry.api.metrics.LongUpDownCounter
 
+import java.util.concurrent.atomic.LongAdder
 import org.burstsys.nexus.NexusSliceKey
 import org.burstsys.vitals.reporter.instrument.prettySizeString
-import org.burstsys.vitals.reporter.VitalsReporter
-import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterUnitOpMetric}
+import org.burstsys.vitals.reporter.{VitalsReporter, metric}
+import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
 
 private[nexus]
 object NexusServerReporter extends VitalsReporter {
@@ -18,39 +19,28 @@ object NexusServerReporter extends VitalsReporter {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _serverWriteMetric = VitalsReporterByteOpMetric("nexus_server_write")
-  this += _serverWriteMetric
+  val _serverWriteMetric = VitalsReporterUnitOpMetric("nexus_server_write")
 
   private[this]
   val _serverDropMetric = VitalsReporterUnitOpMetric("nexus_server_drop")
-  this += _serverDropMetric
 
   private[this]
   val _serverSlowMetric = VitalsReporterUnitOpMetric("nexus_server_slow")
-  this += _serverSlowMetric
 
   private[this]
   val _serverHeartbeatMetric = VitalsReporterUnitOpMetric("nexus_server_heartbeat")
-  this += _serverHeartbeatMetric
 
   private[this]
   val _serverStreamSucceedMetric = VitalsReporterUnitOpMetric("nexus_server_stream_succeed")
-  this += _serverStreamSucceedMetric
 
   private[this]
   val _serverStreamFailMetric = VitalsReporterUnitOpMetric("nexus_server_stream_fail")
-  this += _serverStreamFailMetric
 
   private[this]
-  val _serverConnectionCount = new LongAdder
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // LIFECYCLE
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override def sample(sampleMs: NexusSliceKey): Unit = {
-    super.sample(sampleMs)
-  }
+  val _serverConnectionCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"nexus_server_connection_counter")
+    .setDescription(s"server connections in use")
+    .setUnit("connections")
+    .build()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -58,63 +48,41 @@ object NexusServerReporter extends VitalsReporter {
 
   final
   def onServerDrop(): Unit = {
-    newSample()
     _serverDropMetric.recordOp()
   }
 
   final
   def onServerSlow(ns: Long): Unit = {
-    newSample()
     _serverSlowMetric.recordOpWithTime(ns)
   }
 
   final
   def onServerHeartbeat(): Unit = {
-    newSample()
     _serverHeartbeatMetric.recordOp()
   }
 
   final
   def onServerStreamSucceed(): Unit = {
-    newSample()
     _serverStreamSucceedMetric.recordOp()
   }
 
   final
   def onServerStreamFail(): Unit = {
-    newSample()
     _serverStreamFailMetric.recordOp()
   }
 
   final
   def onServerWrite(bytes: Long, ns: Long): Unit = {
-    newSample()
-    _serverWriteMetric.recordOpWithTimeAndSize(ns = ns, bytes = bytes)
+    _serverWriteMetric.recordOpWithTimeAndSize(ns, bytes)
   }
 
   final
   def onServerConnectionStart(): Unit = {
-    newSample()
-    _serverConnectionCount.increment()
+    _serverConnectionCounter.add(1)
   }
 
   final
   def onServerConnectionStop(): Unit = {
-    newSample()
-    _serverConnectionCount.decrement()
+    _serverConnectionCounter.add(-1)
   }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // REPORT
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  final override
-  def report: String = {
-    if (nullData) return ""
-    val connections = s"\tnexus_server_connections=${_serverConnectionCount.longValue} (${prettySizeString(_serverConnectionCount.longValue)})\n"
-    val rates = s"${_serverWriteMetric.report}${_serverDropMetric.report}${_serverSlowMetric.report}${_serverHeartbeatMetric.report}"
-    val streams = s"${_serverStreamSucceedMetric.report}${_serverStreamFailMetric.report}"
-    s"$connections$rates$streams"
-  }
-
 }

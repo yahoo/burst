@@ -43,10 +43,10 @@ class FabricParticleRequest(container: FabricWaveSupervisorContainer, worker: Fa
     val guid = slot.scatter.guid
     lazy val tag = s"FabricParticleRequest.execute(guid=$guid, ruid=$ruid, host=$destinationHostName)"
     slot.slotBegin()
-    FabricSupervisorParticleTrekMark.begin(guid)
+    val spSpan = FabricSupervisorParticleTrekMark.begin(guid)
     container.executeParticle(worker.connection, slot, particle) transform {
       case Success(r) =>
-        FabricSupervisorParticleTrekMark.end(guid)
+        FabricSupervisorParticleTrekMark.end(spSpan)
         result = r
 
         /* scatters are closed when they fail or time out. Closing a scatter closes all its requests;
@@ -71,7 +71,7 @@ class FabricParticleRequest(container: FabricWaveSupervisorContainer, worker: Fa
 
       case Failure(t) =>
         log error burstStdMsg(s"FAB_PARTICLE_REQUEST_FAIL $t $tag", t)
-        FabricSupervisorParticleTrekMark.fail(guid)
+        FabricSupervisorParticleTrekMark.fail(spSpan)
         if (slot != null) {
           slot.slotFailed(t)
         }

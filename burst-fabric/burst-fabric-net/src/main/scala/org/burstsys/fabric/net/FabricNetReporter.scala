@@ -1,11 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.net
 
-import java.util.concurrent.atomic.LongAdder
-
-import org.burstsys.vitals.reporter.instrument._
+import io.opentelemetry.api.metrics.LongUpDownCounter
 import org.burstsys.vitals.reporter._
-import org.burstsys.vitals.reporter.metric.{VitalsReporterByteOpMetric, VitalsReporterFixedValueMetric}
+import org.burstsys.vitals.reporter.metric.{VitalsReporterFixedValueMetric, VitalsReporterUnitOpMetric}
 
 import scala.language.postfixOps
 
@@ -19,35 +17,25 @@ object FabricNetReporter extends VitalsReporter {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _messageTransmitRate = VitalsReporterByteOpMetric("fab_net_msg_xmit")
-  this += _messageTransmitRate
+  val _messageTransmitRate = VitalsReporterUnitOpMetric("fab_net_msg_xmit")
 
   private[this]
-  val _messageReceiveRate = VitalsReporterByteOpMetric("fab_net_msg_rcv")
-  this += _messageReceiveRate
+  val _messageReceiveRate = VitalsReporterUnitOpMetric("fab_net_msg_rcv")
 
   private[this]
-  val _connectOpenMetric = VitalsReporterByteOpMetric("fab_net_open")
-  this += _connectOpenMetric
+  val _connectOpenMetric = VitalsReporterUnitOpMetric("fab_net_open")
 
   private[this]
-  val _connectCloseMetric = VitalsReporterByteOpMetric("fab_net_close")
-  this += _connectCloseMetric
+  val _connectCloseMetric = VitalsReporterUnitOpMetric("fab_net_close")
 
   private[this]
   val _pingMetric = VitalsReporterFixedValueMetric("fab_net_ping_ns")
-  this += _pingMetric
 
   private[this]
-  val _connectOpenTally = new LongAdder()
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // LIFECYCLE
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override def sample(sampleMs: FabricNetMessageId): Unit = {
-    super.sample(sampleMs)
-  }
+  val _connectOpenCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_connect_open_counter")
+    .setDescription(s"open connections in use")
+    .setUnit("connections")
+    .build()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -55,46 +43,28 @@ object FabricNetReporter extends VitalsReporter {
 
   final
   def onMessageXmit(bytes: Long): Unit = {
-    newSample()
-    _messageTransmitRate.recordOpWithSize(bytes)
+        _messageTransmitRate.recordOpWithSize(bytes)
   }
 
   final
   def onMessageRecv(bytes: Long): Unit = {
-    newSample()
-    _messageReceiveRate.recordOpWithSize(bytes)
+        _messageReceiveRate.recordOpWithSize(bytes)
   }
 
   final
   def recordConnectOpen(): Unit = {
-    newSample()
-    _connectOpenTally.increment()
+    _connectOpenCounter.add(1)
     _connectOpenMetric.recordOp()
   }
 
   final
   def recordConnectClose(): Unit = {
-    newSample()
-    _connectOpenTally.decrement()
+    _connectOpenCounter.add(1)
     _connectCloseMetric.recordOp()
   }
 
   final
   def recordPing(pingNs: Long): Unit = {
-    newSample()
     _pingMetric.record(pingNs)
   }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // REPORT
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  final override
-  def report: String = {
-    if (nullData) return ""
-    val connects = s"\tfab_net_open_count=${_connectOpenTally.longValue} (${prettyFixedNumber(_connectOpenTally.longValue)}),\n${_connectOpenMetric.report}${_connectCloseMetric.report}"
-    val rates = s"${_messageTransmitRate.report}${_messageReceiveRate.report}"
-    s"$connects$rates${_pingMetric.report}\n"
-  }
-
 }

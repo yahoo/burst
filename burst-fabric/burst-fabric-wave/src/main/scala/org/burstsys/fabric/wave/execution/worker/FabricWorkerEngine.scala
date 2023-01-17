@@ -2,6 +2,7 @@
 package org.burstsys.fabric.wave.execution.worker
 
 import org.burstsys.fabric.container.FabricWorkerService
+import org.burstsys.fabric.wave.container.worker.FabricWaveWorkerContainer
 import org.burstsys.fabric.wave.data
 import org.burstsys.fabric.wave.data.model.snap.{FabricSnap, FailedSnap, HotSnap, NoDataSnap}
 import org.burstsys.fabric.wave.execution.model.gather.FabricGather
@@ -11,7 +12,6 @@ import org.burstsys.fabric.wave.execution.model.pipeline.publishPipelineEvent
 import org.burstsys.fabric.wave.execution.model.wave.FabricParticle
 import org.burstsys.fabric.wave.execution.{ParticleExecutionDataReady, ParticleExecutionFinished, ParticleExecutionStart}
 import org.burstsys.fabric.wave.trek.{FabricWorkerFetchTrekMark, FabricWorkerScanTrekMark}
-import org.burstsys.fabric.wave.container.worker.FabricWaveWorkerContainer
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandardServer}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
@@ -64,9 +64,9 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
   private def sliceFetch(particle: FabricParticle): FabricSnap = {
     val tag = s"FabricWorkerEngine.sliceFetch(guid=${particle.guid})"
     log info burstStdMsg(s"$tag start")
+    val wfSpan = FabricWorkerFetchTrekMark.begin(particle.slice.guid)
     try {
       val start = System.nanoTime
-      FabricWorkerFetchTrekMark.begin(particle.slice.guid)
       publishPipelineEvent(ParticleExecutionStart(particle.slice.guid))
 
       val snap = data.worker.cache.instance.loadSnapWithReadLock(particle.slice)
@@ -75,7 +75,7 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
 
         case HotSnap | NoDataSnap =>
           FabricEngineReporter.snapFetch(elapsedNs = System.nanoTime - start)
-          FabricWorkerFetchTrekMark.end(particle.slice.guid)
+          FabricWorkerFetchTrekMark.end(wfSpan)
           publishPipelineEvent(ParticleExecutionDataReady(particle.slice.guid))
 
         case FailedSnap => throw snap.lastFail.get
@@ -86,7 +86,7 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
       snap
     } catch safely {
       case t: Throwable =>
-        FabricWorkerFetchTrekMark.fail(particle.slice.guid)
+        FabricWorkerFetchTrekMark.fail(wfSpan)
         log error burstStdMsg(s"FAB_SLICE_FETCH_FAIL $t $tag", t)
         throw t
     }
@@ -104,7 +104,7 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
     val tag = s"FabricWorkerEngine.sliceScan(snap=${snap.guid}, guid=${particle.guid})"
     log info s"FAB_SLICE_SCAN_START $tag"
     val start = System.nanoTime
-    FabricWorkerScanTrekMark.begin(particle.slice.guid)
+    val wsSpan = FabricWorkerScanTrekMark.begin(particle.slice.guid)
     val scanner = particle.scanner
     try {
       scanner.beforeAllScans(snap)
@@ -113,7 +113,7 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
         case gather: FabricDataGather =>
           log info s"FAB_SLICE_SCAN_SUCCESS $tag"
           FabricEngineReporter.successfulScan(elapsedNs = System.nanoTime - start, gather)
-          FabricWorkerScanTrekMark.end(particle.slice.guid)
+          FabricWorkerScanTrekMark.end(wsSpan)
           publishPipelineEvent(ParticleExecutionFinished(particle.slice.guid))
           gather
       }
@@ -122,7 +122,7 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
       case t: Throwable =>
         log error burstStdMsg(s"FAB_SLICE_SCAN_FAIL ${t} $tag", t)
         publishPipelineEvent(ParticleExecutionFinished(particle.slice.guid))
-        FabricWorkerScanTrekMark.fail(particle.slice.guid)
+        FabricWorkerScanTrekMark.fail(wsSpan)
         FabricEngineReporter.failedScan()
         FabricFaultGather(particle.scanner, t)
     } finally {

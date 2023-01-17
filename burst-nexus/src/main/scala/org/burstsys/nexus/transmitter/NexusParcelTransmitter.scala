@@ -6,15 +6,14 @@ import org.burstsys.nexus.server.NexusServerReporter
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.nexus.trek.{NexusServerCompleteSendTrekMark, NexusServerParcelSendTrekMark, NexusServerStreamTrekMark}
 import org.burstsys.tesla
-import org.burstsys.tesla.thread
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors._
+import org.burstsys.vitals.logging._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
-import org.burstsys.vitals.logging._
 
 /**
  * data parcel stream transmit functionality
@@ -28,11 +27,11 @@ trait NexusParcelTransmitter {
   final
   def transmitDataStream(stream: NexusStream): Unit = {
     lazy val tag = s"NexusParcelTransmitter.transmitDataStream(id=$id, $link, stream=$stream  ${remoteAddress}:${remotePort})"
+    val stSpan = NexusServerStreamTrekMark.begin(stream.guid)
     TeslaRequestFuture {
       try {
         var lastMessageTransmit: Future[Unit] = Promise[Unit]().success((): Unit).future
 
-        NexusServerStreamTrekMark.begin(stream.guid)
         var moreToGo = true
         while (moreToGo) {
           val parcel = stream.take
@@ -42,17 +41,17 @@ trait NexusParcelTransmitter {
 
           } else if (parcel.status.isMarker) {
             NexusServerReporter.onServerStreamSucceed()
-            NexusServerCompleteSendTrekMark.begin(stream.guid)
+            val cstSpan = NexusServerCompleteSendTrekMark.begin(stream.guid)
 
             Await.ready(lastMessageTransmit, Duration.Inf)
             transmitControlMessage(NexusStreamCompleteMsg(stream, parcel.status)) onComplete {
               case Failure(t) =>
                 log error burstStdMsg(s"$tag:$t", t)
-                NexusServerStreamTrekMark.fail(stream.guid)
+                NexusServerStreamTrekMark.fail(stSpan)
                 NexusServerReporter.onServerStreamFail()
               case Success(r) =>
-                NexusServerCompleteSendTrekMark.end(stream.guid)
-                NexusServerStreamTrekMark.end(stream.guid)
+                NexusServerCompleteSendTrekMark.end(cstSpan)
+                NexusServerStreamTrekMark.end(stSpan)
             }
             moreToGo = false
 
@@ -72,11 +71,11 @@ trait NexusParcelTransmitter {
             update.encode(buffer)
             tesla.parcel.factory releaseParcel parcel
 
-            NexusServerParcelSendTrekMark.begin(stream.guid)
+            val psSpan = NexusServerParcelSendTrekMark.begin(stream.guid)
             lastMessageTransmit = transmitDataMessage(buffer, flush = false)
             lastMessageTransmit onComplete {
               case Failure(t) => log error burstStdMsg(s"$tag could not transmit parcel $t", t)
-              case Success(r) => NexusServerParcelSendTrekMark.end(stream.guid)
+              case Success(r) => NexusServerParcelSendTrekMark.end(psSpan)
             }
             // this measurement is going to take almost no time since the write is async
             NexusServerReporter.onServerWrite(parcelSize, System.nanoTime() - writeStart)
@@ -84,7 +83,7 @@ trait NexusParcelTransmitter {
         }
       } catch safely {
         case t: Throwable =>
-          NexusServerStreamTrekMark.fail(stream.guid)
+          NexusServerStreamTrekMark.fail(stSpan)
           NexusServerReporter.onServerStreamFail()
           log error burstStdMsg(s"$tag:$t", t)
       }

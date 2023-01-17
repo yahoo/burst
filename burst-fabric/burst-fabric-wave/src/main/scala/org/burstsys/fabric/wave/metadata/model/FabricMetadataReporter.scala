@@ -2,7 +2,7 @@
 package org.burstsys.fabric.wave.metadata.model
 
 import org.burstsys.vitals.reporter.VitalsReporter
-import org.burstsys.vitals.reporter.metric.VitalsReporterByteOpMetric
+import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
 
 private[fabric]
 object FabricMetadataReporter extends VitalsReporter {
@@ -14,21 +14,10 @@ object FabricMetadataReporter extends VitalsReporter {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _domainLookupTally = VitalsReporterByteOpMetric("metadata_domain_lookup")
+  val _domainLookupTally = VitalsReporterUnitOpMetric("metadata_domain_lookup")
 
   private[this]
-  val _viewLookupTally = VitalsReporterByteOpMetric("metadata_view_lookup")
-
-  this += _domainLookupTally
-  this += _viewLookupTally
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // LIFECYCLE
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override def sample(sampleMs: FabricGenerationClock): Unit = {
-    super.sample(sampleMs)
-  }
+  val _viewLookupTally = VitalsReporterUnitOpMetric("metadata_view_lookup")
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -36,24 +25,11 @@ object FabricMetadataReporter extends VitalsReporter {
 
   final
   def recordDomainLookup(): Unit = {
-    newSample()
     _domainLookupTally.recordOp()
   }
 
   final
   def recordViewLookup(): Unit = {
-    newSample()
     _viewLookupTally.recordOp()
   }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // REPORT
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  final override
-  def report: String = {
-    if (nullData) return ""
-    s"""|${_domainLookupTally.report}${_viewLookupTally.report}""".stripMargin
-  }
-
 }

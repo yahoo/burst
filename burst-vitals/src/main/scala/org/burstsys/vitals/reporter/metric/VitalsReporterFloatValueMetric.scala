@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.reporter.metric
 
-import com.codahale.metrics.Histogram
-import org.burstsys.vitals.reporter.instrument.prettyFloatNumber
+import io.opentelemetry.api.metrics.DoubleHistogram
 
 import scala.language.implicitConversions
 
@@ -21,8 +20,6 @@ trait VitalsReporterFloatValueMetric extends VitalsReporterMetric {
 
   /**
    * record a long value
-   *
-   * @param value
    */
   def record(value: Double): Unit
 
@@ -43,26 +40,16 @@ class VitalsReporterFloatValueMetricContext(name: String) extends VitalsReporter
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  var _valueHistogram: Histogram = defaultHistogram()
+  val _valueHist: DoubleHistogram = meter.histogramBuilder(s"${name}_histo")
+    .setDescription(s"${name} histogram")
+    .setUnit("units")
+    .build()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override def sample(sampleMs: Long): Unit = {}
-
   override def record(value: Double): Unit = {
-    newSample()
-    _valueHistogram.update(externalToInternal(value))
+    _valueHist.record(value)
   }
-
-  override def report: String = {
-    if (nullData) return ""
-
-    val min = internalToExternal(_valueHistogram.getSnapshot.getMin)
-    val mean = internalToExternal(_valueHistogram.getSnapshot.getMean)
-    val max = internalToExternal(_valueHistogram.getSnapshot.getMax)
-    s"\t${dName}_min=$min (${prettyFloatNumber(min)}), ${dName}_mean=$mean (${prettyFloatNumber(mean)}), ${dName}_max=$max (${prettyFloatNumber(max)}) \n"
-  }
-
 }
