@@ -3,6 +3,7 @@ package org.burstsys.system.test.synthetic
 
 import io.opentelemetry.api.{GlobalOpenTelemetry, OpenTelemetry}
 import org.burstsys.fabric.configuration.burstHttpPortProperty
+import org.burstsys.fabric.container
 import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
 import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
@@ -22,13 +23,13 @@ trait SyntheticSampleStoreTestSpecSupport
 
   final
   protected var syntheticSupervisorContainer: SampleStoreFabricSupervisorContainer = {
-    burstHttpPortProperty.set(httpPort + 2)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     new SampleStoreFabricSupervisorContainerContext(testFabricNetworkServerConfig)
   }
 
   protected var syntheticWorkerContainer: SampleStoreFabricWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    burstHttpPortProperty.set(httpPort + 3)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     new SampleStoreFabricWorkerContainerContext(testFabricNetworkServerConfig)
   }
 

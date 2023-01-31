@@ -3,7 +3,7 @@ package org.burstsys.system.test.support
 
 import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
-import org.burstsys.fabric.configuration
+import org.burstsys.fabric.{configuration, container}
 import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.system.test.supervisor.BurstSystemTestSupervisorContainer
 import org.burstsys.system.test.worker.BurstSystemTestWaveWorkerContainer
@@ -33,15 +33,14 @@ trait BurstCoreSystemTestSupport extends AnyFlatSpec with Matchers with BeforeAn
 
   final
   val supervisorContainer: BurstSystemTestSupervisorContainer = {
-      httpPort = (burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff
-      burstHttpPortProperty.set(httpPort)
-      fabric.wave.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
-    }
+    burstHttpPortProperty.set(container.getNextHttpPort)
+    fabric.wave.container.supervisorContainer.asInstanceOf[BurstSystemTestSupervisorContainer]
+  }
 
   final
   val workerContainer: BurstSystemTestWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    burstHttpPortProperty.set(httpPort + 1)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     fabric.wave.container.workerContainer.asInstanceOf[BurstSystemTestWaveWorkerContainer]
   }
 

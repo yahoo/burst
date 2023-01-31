@@ -4,7 +4,7 @@ package org.burstsys.supervisor.test.support
 import org.burstsys._
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.catalog.model.view.CatalogView
-import org.burstsys.fabric.configuration
+import org.burstsys.fabric.{configuration, container}
 import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
@@ -53,15 +53,14 @@ trait BurstSupervisorSpec extends AnyFlatSpec with Matchers with BeforeAndAfterA
   private var httpPort:Int = 0
   final
   val supervisorContainer: BurstWaveSupervisorContainer = {
-    httpPort = (burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff
-    burstHttpPortProperty.set(httpPort)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     fabric.wave.container.supervisorContainer.asInstanceOf[BurstWaveSupervisorContainer]
   }
 
   final
   val workerContainer: BurstWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    burstHttpPortProperty.set(httpPort + 1)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     fabric.wave.container.workerContainer.asInstanceOf[BurstWaveWorkerContainer]
   }
 

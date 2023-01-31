@@ -2,6 +2,7 @@
 package org.burstsys.samplestore.test
 
 import org.burstsys.fabric.configuration.burstHttpPortProperty
+import org.burstsys.fabric.container
 import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.samplestore.api.client.SampleStoreApiClient
 import org.burstsys.samplestore.store.container.supervisor.{SampleStoreFabricSupervisorContainer, SampleStoreFabricSupervisorContainerContext}
@@ -29,8 +30,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
   private var httpPort:Int = 0
 
   protected var supervisorContainer: SampleStoreFabricSupervisorContainer = {
-    httpPort = (burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff
-    burstHttpPortProperty.set(httpPort)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     new SampleStoreFabricSupervisorContainerContext(defaultFabricNetworkServerConfig)
   }
 
@@ -38,7 +38,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
 
   protected var workerContainer1: SampleStoreFabricWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    burstHttpPortProperty.set(httpPort + 1)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     new SampleStoreFabricWorkerContainerContext(defaultFabricNetworkServerConfig)
   }
 
@@ -60,8 +60,7 @@ abstract class BaseSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite with 
     } else {
       workerContainers = (1 until workerCount + 1).indices.map({ _ =>
         // we are adding multiple workers in the same JVM so move the health port
-        val port = burstHttpPortProperty.get
-        burstHttpPortProperty.set(port + 1)
+        burstHttpPortProperty.set(container.getNextHttpPort)
 
         val worker = new SampleStoreFabricWorkerContainerContext(defaultFabricNetworkServerConfig)
         configureWorker(worker)

@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric
 
+import org.burstsys.fabric.configuration.burstHttpPortProperty
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.vitals.errors.VitalsException
@@ -8,7 +9,9 @@ import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.{VitalsService, reflection}
 
+import java.util.concurrent.atomic.AtomicInteger
 import scala.jdk.CollectionConverters._
+import scala.util.Random
 
 package object container extends VitalsLogger {
 
@@ -30,5 +33,9 @@ package object container extends VitalsLogger {
 
   final val SupervisorLog4JPropertiesFileName: String = "supervisor"
   final val WorkerLog4JPropertiesFileName: String = "worker"
+
+  // For Testing
+  private val _nextHttpPort: AtomicInteger = new AtomicInteger((burstHttpPortProperty.get + (Random.nextInt().abs % 1000)) & 0xffff)
+  def getNextHttpPort: Int = _nextHttpPort.getAndIncrement() & 0xffff
 
 }

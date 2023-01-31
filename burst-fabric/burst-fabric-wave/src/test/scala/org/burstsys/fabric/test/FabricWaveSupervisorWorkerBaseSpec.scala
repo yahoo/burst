@@ -2,6 +2,7 @@
 package org.burstsys.fabric.test
 
 import org.burstsys.fabric.configuration.burstHttpPortProperty
+import org.burstsys.fabric.container
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.fabric.wave.container.supervisor.MockWaveSupervisorContainer
@@ -40,14 +41,13 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
 
   private var port = burstHttpPortProperty.get
   protected var supervisorContainer: MockWaveSupervisorContainer = {
-    port = (port + (Random.nextInt().abs % 1000)) & 0xffff
-    burstHttpPortProperty.set(port)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     MockWaveSupervisorContainer(logFile = "fabric", containerId = 1)
   }
 
   protected var workerContainer1: MockWaveWorkerContainer = {
     // we mix supervisor and worker in the same JVM so move the health port
-    burstHttpPortProperty.set(port + 1)
+    burstHttpPortProperty.set(container.getNextHttpPort)
     MockWaveWorkerContainer(logFile = "fabric", containerId = 1)
   }
 
@@ -79,8 +79,7 @@ abstract class FabricWaveSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite
     } else {
       workerContainers = (1 until workerCount + 1).indices.map({ i =>
         // we are adding multiple workers in the same JVM so move the health port
-        val port = burstHttpPortProperty.get
-        burstHttpPortProperty.set(port + 1)
+        burstHttpPortProperty.set(container.getNextHttpPort)
         val worker = MockWaveWorkerContainer(logFile = "fabric", containerId = i)
         configureWorker(worker)
         worker.start

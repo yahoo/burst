@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.system.benchmark
 
-import java.util.concurrent.atomic.LongAdder
-
+import org.burstsys.alloy.views.unity.UnityGeneratedDataset
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.press.{BrioPressSink, BrioPresser}
 import org.burstsys.nexus.client.NexusClient
@@ -14,16 +13,15 @@ import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.parcel.{TeslaEndMarkerParcel, TeslaParcelStatus, TeslaTimeoutMarkerParcel}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
-import org.burstsys.alloy.views.unity.UnityGeneratedDataset
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
+import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.host
-import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettySizeString, prettyTimeFromNanos}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{getPublicHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettySizeString, prettyTimeFromNanos}
 import org.burstsys.{brio, tesla}
 
+import java.util.concurrent.atomic.LongAdder
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
@@ -44,7 +42,7 @@ object NexusBenchmarkMain {
 
     VitalsLog.configureLogging("supervisor")
 
-    var defaultArguments = NexusBenchmarkerArguments()
+    val defaultArguments = NexusBenchmarkerArguments()
 
     val parser = new scopt.OptionParser[NexusBenchmarkerArguments]("NexusBenchmarker") {
       opt[Int]('d', "density") text s"density of sessions (default '${defaultArguments.density}')" maxOccurs 1 action {
