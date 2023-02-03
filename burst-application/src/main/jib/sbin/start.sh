@@ -2,6 +2,12 @@
 
 ERROR_DIR=${BURST_HOME}/logs/dump
 
+if [ -z "${APP_NAME}" ]; then
+  appName="burst-${WORKLOAD}"
+else
+  appName="${APP_NAME}"
+fi
+
 if [ "$CPU_REQUEST" == "" ]; then
   CPU_REQUEST="1"
 fi
@@ -47,19 +53,23 @@ eval "SPINDLE_DIR=${SPINDLE_DIR}"
 mkdir -p ${SPINDLE_DIR}
 
 # Customization hook
-if [ -f "$BURST_HOME/sbin/pre-start.sh" ]; then
-  . $BURST_HOME/sbin/pre-start.sh
+export PRESTART_HOME="$BURST_HOME/$appName-conf"
+if [ -f "${PRESTART_HOME}/pre-start.sh" ]; then
+  . ${PRESTART_HOME}/pre-start.sh
   didPrestart=$?
+else
+  didPrestart=0
 fi
 
 ######################################################
 # additional java options if desired such as heap size
 ######################################################
-containerOpts="--add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
-containerOpts="${containerOpts} -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockDiagnosticVMOptions"
+containerOpts="${containerOpts} -XX:+UseG1GC -XX:MaxGCPauseMillis=100"
+containerOpts="${containerOpts} --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
+containerOpts="${containerOpts} -XX:+UnlockDiagnosticVMOptions"
 containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/burst-crash-%p.log"
 containerOpts="${containerOpts} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ERROR_DIR}"
-containerOpts="${containerOpts} -Xss2M -Xmx${JVM_HEAP}G -XX:MaxDirectMemorySize=${JVM_DIRECT}G"
+containerOpts="${containerOpts} -Xss2M -Xmx${JVM_HEAP} -XX:MaxDirectMemorySize=${JVM_DIRECT}"
 
 if [ "$JAVA_NMT_OPTS" != "" ]; then
   containerOpts="${containerOpts} $JAVA_NMT_OPTS"
@@ -67,19 +77,18 @@ fi
 
 if [ "${WORKLOAD}" = "worker" ]; then
     containerOpts="${containerOpts} -XX:ReservedCodeCacheSize=2G -XX:+PrintCodeCache"
-    containerOpts="${containerOpts} -XX:-ResizePLAB -XX:+ParallelRefProcEnabled -XX:MetaspaceSize=256M"
+    containerOpts="${containerOpts} -XX:-ResizePLAB -XX:+ParallelRefProcEnabled -XX:MetaspaceSize=${JVM_METADATA:-256M}"
     containerOpts="${containerOpts} -XX:+UseStringDeduplication"
 fi
 
 cellName="$DEPLOY_ENV"
 mainClass="org.burstsys.main.ChooseWorkload"
 
-envConfig="-Dburst.home=${BURST_HOME}" # set this so log files go to the correct place
+envConfig="${envConfig} -Dburst.home=${BURST_HOME}" # set this so log files go to the correct place
 envConfig="${envConfig} -Dburst.loglevel=${LOG_LEVEL:-INFO}"
 envConfig="${envConfig} -Dburst.fabric.moniker=${FAB_MONIKER}"
 envConfig="${envConfig} -Dburst.cell.name=${cellName}"
 envConfig="${envConfig} -DdeploymentName=${cellName}"
-envConfig="${envConfig} -Dburst.fabric.http.keystore.password=${KEYSTORE_PASS}"
 
 if [ "${WORKLOAD}" = "supervisor" ]; then
     mainClass="org.burstsys.supervisor.BurstSupervisorMain"

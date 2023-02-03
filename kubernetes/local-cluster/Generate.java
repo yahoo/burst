@@ -63,10 +63,10 @@ public class Generate {
         }
 
         allocatableMem -= K8S_MEM_OVERHEAD; // pad the available memory
-        var sampleSupervisorMb = Math.min(250, allocatableMem / 10);
+        var sampleSupervisorMb = Math.min(500, allocatableMem / 10);
         var cellSupervisorMb = Math.min(3000, allocatableMem / 5);
-        var cellWorkerMb = (long) Math.min((allocatableMem - sampleSupervisorMb - cellSupervisorMb) / 2, 1000);
-        var sampleWorkerMb = Math.min(allocatableMem - sampleSupervisorMb - cellSupervisorMb - cellWorkerMb, 250);
+        var cellWorkerMb = (long) Math.min((allocatableMem - sampleSupervisorMb - cellSupervisorMb) / 2, 2000);
+        var sampleWorkerMb = Math.min(allocatableMem - sampleSupervisorMb - cellSupervisorMb - cellWorkerMb, 750);
 
         print("Computed memory allocation: cell-supervisor=%sMi cell-worker=%sMi samplesource-supervisor=%sMi samplesource-worker=%sMi",
               df.format(cellSupervisorMb), df.format(cellWorkerMb), df.format(sampleSupervisorMb), df.format(sampleWorkerMb));

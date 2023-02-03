@@ -16,26 +16,12 @@
         <Async name="asyncFile">
             <AppenderRef ref="file"/>
         </Async>
-        <RollingFile name="metrics" fileName="${sys:user.home}/metrics/burst-eql-metrics-test.csv">
-            <CsvParameterLayout/>
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="2 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-        <Async name="asyncMetrics">
-            <AppenderRef ref="metrics"/>
-        </Async>
     </Appenders>
     <Loggers>
         <Root level="info">
             <AppenderRef ref="console"/>
-            <AppenderRef ref="asyncFile"/>
+<!--            <AppenderRef ref="asyncFile"/>-->
         </Root>
-        <Logger name="org.burstsys.vitals.metrics" level="info" additivity="false">
-            <AppenderRef ref="asyncMetrics"/>
-        </Logger>
     </Loggers>
 </Configuration>
 

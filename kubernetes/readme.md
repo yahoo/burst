@@ -34,7 +34,7 @@ In order to explore a synthetic dataset you will need to configure a domain and 
 
 ```shell
 # create domain
-curl -k 'https://localhost:18080/api/supervisor/catalog/newDomain' \
+curl -k 'https://localhost:4443/api/supervisor/catalog/newDomain' \
   -H 'Authorization: Basic YnVyc3Q6YnVyc3RvbWF0aWM=' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   --data-raw 'moniker=Synthetic%20Data%20-%20Synthetic%20Unity' \
@@ -42,7 +42,7 @@ curl -k 'https://localhost:18080/api/supervisor/catalog/newDomain' \
 # DOMAIN_PK=PK_IN_JSON_FROM_CURL
 
 # update domain, replacing DOMAIN_PK with the appropriate value
-curl -k 'https://localhost:4443/api/master/catalog/updateDomain' \
+curl -k 'https://localhost:4443/api/supervisor/catalog/updateDomain' \
   -H 'Authorization: Basic YnVyc3Q6YnVyc3RvbWF0aWM=' \
   -H 'Content-Type: application/json' \
   -H 'Origin: https://localhost:4443' \
@@ -50,7 +50,7 @@ curl -k 'https://localhost:4443/api/master/catalog/updateDomain' \
   --compressed
 
 # create view, replacing DOMAIN_PK with the appropriate value
-curl -k 'https://localhost:18080/api/supervisor/catalog/newView' \
+curl -k 'https://localhost:4443/api/supervisor/catalog/newView' \
   -H 'Authorization: Basic YnVyc3Q6YnVyc3RvbWF0aWM=' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   --data-raw 'domainPk=DOMAIN_PK&moniker=Default%20Synthetic%20View&schemaName=unity' \
@@ -59,7 +59,7 @@ curl -k 'https://localhost:18080/api/supervisor/catalog/newView' \
 # VIEW_PK=PK_IN_JSON_FROM_CURL
 
 # update view, replacing DOMAIN_PK and VIEW_PK with the appropriate values
-curl -k 'https://localhost:4443/api/master/catalog/updateView' \
+curl -k 'https://localhost:4443/api/supervisor/catalog/updateView' \
   -H 'Authorization: Basic YnVyc3Q6YnVyc3RvbWF0aWM=' \
   -H 'Content-Type: application/json' \
   -H 'Origin: https://localhost:4443' \

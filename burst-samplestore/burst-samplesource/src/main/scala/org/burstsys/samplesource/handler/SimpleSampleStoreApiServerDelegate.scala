@@ -18,7 +18,7 @@ case class SimpleSampleStoreApiServerDelegate(topoProvider: SampleStoreTopologyP
       supervisor.getViewGenerator(guid, dataSource, topoProvider.getTopology, listenerProperties)
     } catch safely {
       case e =>
-        log error("View generation request failed guid=$guid", e)
+        log error(s"View generation request failed guid=$guid datasource=$dataSource", e)
         throw e
     }
   }

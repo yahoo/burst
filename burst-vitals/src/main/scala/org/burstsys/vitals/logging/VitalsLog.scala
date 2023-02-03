@@ -59,6 +59,7 @@ object VitalsLog {
 
       // set up Java Utils Logging
       bridgeJul
+/*
       // redirect any out or err to the logger too
       System.out.println("redirecting System.out")
       System.setOut(
@@ -74,6 +75,7 @@ object VitalsLog {
           .buildPrintStream()
       )
       System.out.println("redirected System.err")
+*/
 
       val location = System.getProperty("burst.log.location")
       log info s"INITIALIZED LOG FROM `${context.getConfiguration.getName}` USING CONTEXT `$location`"
