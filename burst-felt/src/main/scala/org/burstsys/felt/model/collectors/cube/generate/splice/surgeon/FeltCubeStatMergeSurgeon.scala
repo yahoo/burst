@@ -39,11 +39,8 @@ trait FeltCubeStatMergeSurgeon {
         |${I}if ( $currentRelation != null ) { $controlAbortCode
         |${I2}if ( !$currentRelation.isEmpty ) {
         |$I3$parentInstance.intraMerge(
-        |$I4$builder,
-        |$I4$parentInstance, // this cube (destination)
-        |$I4$dictionary,
+        |$I4$builder, $dictionary,
         |$I4$currentRelation,   // that cube (source)
-        |$I4$dictionary,
         |$I4$vitalsBitMapClass( $dimensionMask ),  $vitalsBitMapClass( $aggregationMask )
         |$I3);
         |$I2}

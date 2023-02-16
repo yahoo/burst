@@ -14,7 +14,8 @@ class ZapFlexCube2Merge1Spec extends ZapCube2Spec {
     defaultStartSize = 1e6.toInt, // no resizing yet
     dimensionCount = 2, aggregationCount = 2,
     aggregationSemantics = Array(FeltCubeAggSumSemRt(), FeltCubeAggSumSemRt()),
-    aggregationFieldTypes = Array(BrioLongKey, BrioLongKey)
+    aggregationFieldTypes = Array(BrioLongKey, BrioLongKey),
+    dimensionFieldTypes = Array(BrioLongKey, BrioLongKey)
   )
 
   it should "do a simple merge of non intersecting keys  " in {
@@ -34,7 +35,7 @@ class ZapFlexCube2Merge1Spec extends ZapCube2Spec {
         (7, 7, 7, 7)
       )
 
-      cubeA.interMerge(builder, cubeA, dictA, cubeB, dictB)
+      cubeA.interMerge(builder, cubeB)
 
       assertExplicitLong(cubeA,
         (0, 0, 0, 0),

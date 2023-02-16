@@ -42,7 +42,8 @@ trait BrioDictionaryReadAccessor extends Any with BrioDictionary with BrioDictio
       val slot = BrioDictionarySlotValue(basePtr + slotOffset)
 
       // check for a string match
-      if (slot.stringMatches(bytes)) return slot.key
+      if (slot.stringMatches(bytes))
+        return slot.key
 
       // not found - try the next one...
       slotOffset = slot.link

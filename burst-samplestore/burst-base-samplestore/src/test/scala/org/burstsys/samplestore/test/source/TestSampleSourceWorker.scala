@@ -3,7 +3,7 @@ package org.burstsys.samplestore.test.source
 
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
-import org.burstsys.samplestore.configuration.defaultPressTimeoutProperty
+import org.burstsys.samplestore.test.configuration
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.properties._
@@ -29,7 +29,7 @@ case class TestSampleSourceWorker() extends SampleSourceWorkerService {
     testListener.foreach(_.onFeedStream(stream))
     TeslaRequestFuture {
       val props = stream.properties.extend
-      val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
+      val timeout = props.getValueOrProperty(configuration.defaultPressTimeoutProperty)
       try {
         val itemCount = 0
         val rejectedItemCounter = new AtomicInteger()

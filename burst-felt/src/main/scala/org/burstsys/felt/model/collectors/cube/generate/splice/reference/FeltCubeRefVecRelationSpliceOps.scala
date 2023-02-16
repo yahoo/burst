@@ -103,9 +103,8 @@ trait FeltCubeRefVecRelationSpliceOps extends FeltSweepGenerator {
 
         s"""|
             |$I$currentRelation.intraMerge(
-            |$I2$builder,
-            |$I2$currentRelation, $dictionary,
-            |$I2$currentInstance, $dictionary,
+            |$I2$builder, $dictionary,
+            |$I2$currentInstance,
             |$I2$vitalsBitMapClass( $dimensionMask ), $vitalsBitMapClass( $aggregationMask )
             |$I);""".stripMargin
 

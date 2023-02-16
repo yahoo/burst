@@ -20,28 +20,14 @@ trait FeltCubeCollector extends Any with FeltCollector {
   /**
    * an inter merge is done across items out side of a traversal
    *
-   * @param builder
-   * @param thisCube
-   * @param thisDictionary
-   * @param thatCube
-   * @param thatDictionary
    */
-  def interMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary): Unit
+  def interMerge(builder: FeltCubeBuilder, thatCube: FeltCubeCollector)(implicit codec: VitalsTextCodec): Unit
 
   /**
    * an intra merge is done within an item traversal
    *
-   * @param builder
-   * @param thisCube
-   * @param thisDictionary
-   * @param thatCube
-   * @param thatDictionary
-   * @param dimensionMask
-   * @param aggregationMask
    */
-  def intraMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary,
+  def intraMerge(builder: FeltCubeBuilder, theDictionary: BrioMutableDictionary, thatCube: FeltCubeCollector,
                  dimensionMask: VitalsBitMapAnyVal, aggregationMask: VitalsBitMapAnyVal): Unit
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -82,34 +68,6 @@ trait FeltCubeCollector extends Any with FeltCollector {
                                       parentAggregationMask: VitalsBitMapAnyVal,
                                       childDimensionMask: VitalsBitMapAnyVal,
                                       childAggregationMask: VitalsBitMapAnyVal): Unit
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // Dictionary Normalization
-  //////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Make sure that the returned 'that' cube is normalized to the same dictionary as the 'this' cube
-   * There are four cases for the type of schema involved
-   * <ol>
-   * <li> schema has neither string dimensions nor string aggregations</li>
-   * <li> schema has no string dimensions but does have string aggregations</li>
-   * <li> schema has string dimensions but not string aggregations</li>
-   * <li> schema has both string dimensions and string aggregations</li>
-   * </ol>
-   * We handle each separately
-   *
-   * @param builder
-   * @param thisCube
-   * @param thisDictionary
-   * @param thatCube
-   * @param thatDictionary
-   * @param text
-   * @return
-   */
-  def normalize(builder: FeltCubeBuilder,
-                thisCube: FeltCubeCollector, thisDictionary:
-                BrioMutableDictionary, thatCube: FeltCubeCollector,
-                thatDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeCollector
 
   //////////////////////////////////////////////////////////////////////////////////////
   // TOP K PROCESSING
@@ -284,4 +242,14 @@ trait FeltCubeCollector extends Any with FeltCollector {
    */
   def distribution(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary): Double
 
+  /**
+   * @return dictionary for this cube
+   */
+  def dictionary: BrioMutableDictionary
+
+  /**
+   * Update dictionary for plan
+   * @param d new dictionary
+   */
+  def dictionary_=(d: BrioMutableDictionary): Unit
 }

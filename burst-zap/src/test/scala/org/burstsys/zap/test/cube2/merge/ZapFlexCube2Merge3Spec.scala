@@ -14,6 +14,7 @@ class ZapFlexCube2Merge3Spec extends ZapCube2Spec {
     defaultStartSize = 1000, // smallest size is pageSize so this really does not matter much
     dimensionCount = 2, aggregationCount = 2,
     aggregationSemantics = Array(FeltCubeAggSumSemRt(), FeltCubeAggSumSemRt()),
+    dimensionFieldTypes = Array(BrioLongKey, BrioLongKey),
     aggregationFieldTypes = Array(BrioLongKey, BrioLongKey)
   )
 
@@ -22,7 +23,7 @@ class ZapFlexCube2Merge3Spec extends ZapCube2Spec {
       val count = 1e4.toInt // make it large to get over pageSize
       defineAscending(cubeA, count / 2, 0)
       defineAscending(cubeB, count / 2, count / 2)
-      cubeA.interMerge(builder, cubeA, dictA, cubeB, dictB)
+      cubeA.interMerge(builder, cubeB)
       assertAscendingLong(cubeA, count, 0)
     }
   }
@@ -32,10 +33,10 @@ class ZapFlexCube2Merge3Spec extends ZapCube2Spec {
       val count = 1e4.toInt // make it large to get over pageSize
       defineAscending(cubeA, count / 2, 0)
       defineAscending(cubeB, count / 2, count / 2)
-      cubeA.interMerge(builder, cubeA, dictA, cubeB, dictB)
+      cubeA.interMerge(builder, cubeB)
       assertAscendingLong(cubeA, count, 0)
       defineAscending(cubeC, count / 2, count)
-      cubeA.interMerge(builder, cubeA, dictA, cubeC, dictC)
+      cubeA.interMerge(builder, cubeC)
       assertAscendingLong(cubeA, count + count / 2, 0)
     }
   }
@@ -45,7 +46,7 @@ class ZapFlexCube2Merge3Spec extends ZapCube2Spec {
       val count = 1e4.toInt // make it large to get over pageSize
       defineAscending(cubeA, count, 0)
       defineAscending(cubeB, count)
-      cubeA.interMerge(builder, cubeA, dictA, cubeB, dictB)
+      cubeA.interMerge(builder, cubeB)
       assertTestLong(cubeA, count, {
         case (d0, d1, a0, a1) => (d0, d1, d0 * 2, d1 * 2)
       })
@@ -57,7 +58,7 @@ class ZapFlexCube2Merge3Spec extends ZapCube2Spec {
         val count = 1e4.toInt // make it large to get over pageSize
         defineAscending(cubeA, count, 0)
         defineAscending(cubeB, count - 10, startIndex = 10)
-        cubeA.interMerge(builder, cubeA, dictA, cubeB, dictB)
+        cubeA.interMerge(builder, cubeB)
         assertTestLong(cubeA, count, {
           case (d0, d1, a0, a1) =>
             if (d0 < 10)

@@ -117,18 +117,11 @@ trait FeltCubePlaneMerge extends FeltCubePlane {
       // do any reduction on incoming cube before the normalize to speed reduction and get smaller dictionaries
       takeReduction(that.planeBuilder, that.planeCollector, level)
 
-      // get a 'that' cube that has its dictionary keys normalized to be the same as 'this' dictionary
-      that.planeCollector = this.planeCollector.normalize(
-        builder = this.planeBuilder, thisCube = this.planeCollector, thisDictionary = this.planeDictionary,
-        thatCube = that.planeCollector, thatDictionary = that.planeDictionary
-      )
-      if (hadException || exceededResourceConstraints(that))
-        return
-
+      // make sure the cubes are wired to the dictionaries
+      this.planeCollector.dictionary = this.planeDictionary
+      that.planeCollector.dictionary = that.planeDictionary
       // perform the inter merge (across traversals) with the (possibly) new normalized cube
-      this.planeCollector.interMerge(
-        this.planeBuilder, this.planeCollector, this.planeDictionary, that.planeCollector, this.planeDictionary
-      )
+      this.planeCollector.interMerge(this.planeBuilder, that.planeCollector)
       if (hadException || exceededResourceConstraints(that))
         return
 

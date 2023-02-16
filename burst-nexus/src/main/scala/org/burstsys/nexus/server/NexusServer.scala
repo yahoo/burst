@@ -167,7 +167,7 @@ class NexusServerContext(
     val pipeline: ChannelPipeline = nettyChannel.pipeline
 
     val transmitter = NexusTransmitter(serverId, isServer = true, channel = nettyChannel, maxQueuedWrites = 1)
-    val connection = NexusServerConnection(_nettyChannel, transmitter, _feeder) talksTo _listener
+    val connection = NexusServerConnection(nettyChannel, transmitter, _feeder) talksTo _listener
 
     if (_sslContext.isDefined) {
       pipeline.addLast("server-inbound-stage-0", _sslContext.get.newHandler(nettyChannel.alloc))

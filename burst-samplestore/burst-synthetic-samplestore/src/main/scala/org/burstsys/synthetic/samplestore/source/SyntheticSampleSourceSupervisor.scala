@@ -5,7 +5,7 @@ import org.burstsys.samplesource.SampleStoreTopology
 import org.burstsys.samplesource.service.SampleSourceSupervisorService
 import org.burstsys.samplestore.api
 import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreDataLocus, SampleStoreGeneration}
-import org.burstsys.samplestore.configuration
+import org.burstsys.synthetic.samplestore.configuration
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.properties._
@@ -33,10 +33,15 @@ case class SyntheticSampleSourceSupervisor() extends SampleSourceSupervisorServi
                                ): Future[api.SampleStoreGeneration] = {
     TeslaRequestFuture {
       val properties = mergeProperties(dataSource, listenerProperties)
+
       val extended = properties.extend
       val hashIsInvariant = extended.getValueOrProperty(configuration.defaultPersistentHashProperty)
       val hash = if (hashIsInvariant) InvariantHash else newBurstUid
-      val loci = for (l <- topology.loci) yield SampleStoreDataLocus(newBurstUid, l.hostAddress, l.hostName, l.port, properties)
+      val loci = for (l <- topology.loci) yield {
+        val augmentedProps = properties ++
+          Map(org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.userIdPrefixKey -> s"${l.hostName}#")
+        SampleStoreDataLocus(newBurstUid, l.hostAddress, l.hostName, l.port, augmentedProps)
+      }
       SampleStoreGeneration(guid, hash, loci.toArray, dataSource.view.schemaName, Some(dataSource.view.viewMotif))
     }
   }

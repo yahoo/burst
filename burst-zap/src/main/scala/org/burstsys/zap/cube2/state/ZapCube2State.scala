@@ -2,6 +2,7 @@
 package org.burstsys.zap.cube2.state
 
 import org.burstsys.brio.dictionary.flex.{BrioFlexDictionary, BrioFlexDictionaryAnyVal}
+import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes.{SizeOfLong, TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
@@ -227,7 +228,9 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   def dictionary: BrioFlexDictionary = BrioFlexDictionaryAnyVal(offheap.getInt(basePtr + dictionaryFieldOffset))
 
   @inline final override
-  def dictionary_=(d: BrioFlexDictionary): Unit = offheap.putInt(basePtr + dictionaryFieldOffset, d.index)
+  def dictionary_=(d: BrioMutableDictionary): Unit = {
+    offheap.putInt(basePtr + dictionaryFieldOffset, d.asInstanceOf[BrioFlexDictionary].index)
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Cursors

@@ -43,11 +43,8 @@ trait FeltCubeDynMergeSurgery {
         |${I}if ( $currentRelation != null ) { $controlAbortCode
         |${I2}if ( !$currentRelation.isEmpty ) {
         |$I3$parentInstance.intraMerge(
-        |$I4$builder,
-        |$I4$parentInstance, // this cube (destination)
-        |$I4$dictionary,
+        |$I4$builder, $dictionary,
         |$I4$currentRelation,   // that cube (source)
-        |$I4$dictionary,
         |$I4$vitalsBitMapClass( $dimensionMask ),  $vitalsBitMapClass( $aggregationMask )
         |$I3);
         |$I2}
@@ -98,11 +95,8 @@ trait FeltCubeDynMergeSurgery {
         |${C("merge the dynamic instance/member into the dynamic/extended relation")}
         |${I1}if ( !$currentInstance.isEmpty ) {
         |$I2$currentRelation.intraMerge(
-        |$I3$builder,
-        |$I3$currentRelation, // this cube (destination)
-        |$I3$dictionary,
+        |$I3$builder, $dictionary,
         |$I3$currentInstance,  // that cube (source)
-        |$I3$dictionary,
         |$I3$bitMapClass( $dimensionMask ),
         |$I3$bitMapClass( $aggregationMask )
         |$I2);

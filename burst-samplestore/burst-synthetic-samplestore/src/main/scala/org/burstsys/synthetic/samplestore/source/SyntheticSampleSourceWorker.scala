@@ -2,6 +2,7 @@
 package org.burstsys.synthetic.samplestore.source
 
 import org.burstsys.brio
+import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.userIdPrefixKey
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.provider.BrioSyntheticDataProvider
 import org.burstsys.nexus.stream.NexusStream
@@ -11,8 +12,8 @@ import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecut
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.properties._
 
-import java.util.concurrent.{CountDownLatch, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.{CountDownLatch, TimeUnit}
 import scala.concurrent.{Future, TimeoutException}
 import scala.language.postfixOps
 
@@ -47,7 +48,6 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
 
         val start = System.nanoTime
         val finished = new CountDownLatch(itemCount)
-
         dataProvider.data(itemCount, stream.properties).foreach(item => {
           val pressSource = dataProvider.pressSource(item)
           val pressedItem = brio.press.pipeline.pressToFuture(stream.guid, pressSource, schema, item.schemaVersion, maxItemSize)

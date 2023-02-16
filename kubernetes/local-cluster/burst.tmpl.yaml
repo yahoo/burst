@@ -57,6 +57,7 @@ metadata:
     namespace: burst-local
 data:
     pre-start.sh: |
+        #!/usr/bin/env bash
         echo "Additional Startup for ${APP_NAME} Here"
         export PS_HOME="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         . ${PS_HOME}/keystore-setup.sh
