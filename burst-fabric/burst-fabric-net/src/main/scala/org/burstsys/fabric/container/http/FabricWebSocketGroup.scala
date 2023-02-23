@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.ClassTagExtensions
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import org.burstsys.fabric.container.http
 import org.burstsys.vitals
 import org.burstsys.vitals.background.VitalsBackgroundFunctions
 import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
@@ -136,9 +137,15 @@ case class WebSocketKeepAlive(websocket: FabricWebSocket) extends BackgroundFunc
   // ensure that this function == the websocket so that it can be unregistered later
   override def hashCode(): Int = websocket.hashCode()
 
-  override def canEqual(that: Any): Boolean = websocket.canEqual(that)
+  override def canEqual(that: Any): Boolean = that match {
+    case fabWS: WebSocketKeepAlive => websocket.canEqual(fabWS.websocket)
+    case _ => false
+  }
 
-  override def equals(that: Any): Boolean = websocket.equals(that)
+  override def equals(that: Any): Boolean = that match {
+    case fabWS: WebSocketKeepAlive => websocket.equals(fabWS.websocket)
+    case _ => false
+  }
 }
 
 
@@ -162,7 +169,7 @@ class WebSocketGroupContext(url: String, listener: FabricWebSocketListener)
   val _sockets = ConcurrentHashMap.newKeySet[FabricWebSocket]
 
   private[this]
-  val _keepalive = new VitalsBackgroundFunctions(s"$url-keepalive", 1 minute, 1 minute)
+  val _keepalive = new VitalsBackgroundFunctions(s"keepalive[$url]", 1 minute, 1 minute)
   _keepalive.start
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////

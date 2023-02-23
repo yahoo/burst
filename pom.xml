@@ -270,7 +270,6 @@
         <module>burst-supervisor</module>
         <module>burst-motif</module>
         <module>burst-nexus</module>
-        <module>burst-torcher</module>
         <module>burst-relate</module>
         <module>burst-samplestore</module>
         <module>burst-tesla</module>
@@ -432,11 +431,6 @@
             <dependency>
                 <groupId>org.burstsys</groupId>
                 <artifactId>burst-tesla</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.burstsys</groupId>
-                <artifactId>burst-torcher</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1495,12 +1489,14 @@
                         </formats>
 
                         <java>
+                            <toggleOffOn />
                             <licenseHeader>
                                 <content>/* ${copyright.text} */</content>
                             </licenseHeader>
                         </java>
 
                         <scala>
+                            <toggleOffOn />
                             <licenseHeader>
                                 <content>/* ${copyright.text} */</content>
                             </licenseHeader>

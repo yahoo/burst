@@ -5,17 +5,13 @@ import jakarta.inject.Inject
 import jakarta.servlet.ServletContext
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core._
-import org.apache.logging.log4j.Logger
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
-import org.burstsys.supervisor.http.endpoints
 import org.burstsys.supervisor.http.service.provider.BurstWaveSupervisorProfilerService
-import org.burstsys.supervisor.http.service.provider.BurstWaveSupervisorTorcherService
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import sourcecode.Enclosing
-import sourcecode.Line
+import sourcecode.{Enclosing, Line}
 
 import scala.collection.mutable
 
@@ -44,12 +40,6 @@ abstract class WaveSupervisorEndpoint {
 
   @Inject
   var supervisor: FabricWaveSupervisorContainer = _
-
-  @Inject
-  var torcher: BurstWaveSupervisorTorcherService = _
-
-  @Inject
-  var profiler: BurstWaveSupervisorProfilerService = _
 
   final def resultOrErrorResponse[T](work: => T)(implicit site: Enclosing, line: Line): T = {
     val location = s"[${site.value}:${line.value}]"

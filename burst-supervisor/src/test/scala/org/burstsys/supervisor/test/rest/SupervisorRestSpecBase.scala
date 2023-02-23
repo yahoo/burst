@@ -4,14 +4,14 @@ package org.burstsys.supervisor.test.rest
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.ArrayNode
 import jakarta.ws.rs.core.MediaType
-import org.burstsys.supervisor.test.support.BurstSupervisorSpec
+import org.burstsys.supervisor.test.support.BurstSupervisorContainterSpec
 import org.burstsys.vitals
 import requests.{RequestAuth, RequestBlob, Response}
 
 import java.io.OutputStream
 import scala.jdk.CollectionConverters._
 
-class SupervisorRestSpecBase extends BurstSupervisorSpec {
+class SupervisorRestSpecBase extends BurstSupervisorContainterSpec {
 
   val port: Int =  supervisorContainer.httpPort
   val basicAuth: RequestAuth.Basic = RequestAuth.implicitBasic("burst", "burstomatic")

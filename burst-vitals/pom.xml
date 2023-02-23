@@ -9,6 +9,10 @@
     </parent>
     <artifactId>burst-vitals</artifactId>
 
+    <properties>
+        <spotlessFiles><![CDATA[src/.*/.*(?<!JacksonModule).scala]]></spotlessFiles>
+    </properties>
+
     <dependencies>
 
         <!-- ***************************************************** -->

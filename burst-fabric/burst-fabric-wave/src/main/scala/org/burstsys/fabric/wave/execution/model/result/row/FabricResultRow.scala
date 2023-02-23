@@ -39,24 +39,6 @@ trait FabricResultRow extends VitalsJsonRepresentable[FabricResultRow] {
    */
   def apply[C <: BrioDataType](relationName: BrioRelationName)(implicit t: ClassTag[C]): C = ???
 
-  /**
-   * is a particular column (relation) null?
-   * '''NOTE:''' this is not performant, use only for unit tests
-   *
-   * @param relationName
-   * @return
-   */
-  def isNull(relationName: BrioRelationName): Boolean = ???
-
-  /**
-   * is a particular column (relation) NAN?
-   * '''NOTE:''' this is not performant, use only for unit tests
-   *
-   * @param relationName
-   * @return
-   */
-  def isNaN(relationName: BrioRelationName): Boolean = ???
-
 }
 
 object FabricResultRow {

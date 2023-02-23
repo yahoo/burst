@@ -7,6 +7,7 @@ import org.burstsys.fabric.container.http.FabricHttpBinder
 import org.burstsys.fabric.container.http.FabricHttpResourceConfig
 import org.burstsys.fabric.container.http.FabricHttpSSL
 import org.burstsys.fabric.container.http.endpoints.FabricHttpHealthCheckEndpoint
+import org.burstsys.fabric.container.http.endpoints.FabricHttpSystemInfoEndpoint
 import org.burstsys.fabric.net.server
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.VitalsService
@@ -121,7 +122,10 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
 
   override def httpBinder: AbstractBinder = new FabricHttpBinder(this)
 
-  override def httpResources: Array[Class[_]] = Array(classOf[FabricHttpHealthCheckEndpoint])
+  override def httpResources: Array[Class[_]] = Array(
+    classOf[FabricHttpHealthCheckEndpoint],
+    classOf[FabricHttpSystemInfoEndpoint],
+  )
 
   override def webSocketService: FabricWebSocketService = _webSocketService
 

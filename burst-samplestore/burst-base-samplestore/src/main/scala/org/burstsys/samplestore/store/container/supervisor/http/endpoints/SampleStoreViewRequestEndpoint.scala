@@ -79,24 +79,13 @@ class SampleStoreViewRequestEndpoint {
       "burst.samplestore.source.name": "synthetic-samplesource"
     },
     "viewProperties": {
-      "burst.view.earliest.load.at": "1671660712459",
-      "burst.view.last.slice.count": "9",
-      "burst.view.last.rejected.item.count": "0",
-      "burst.view.last.load.invalid": "false",
-      "burst.view.last.item.variation": "0.0",
-      "burst.view.last.dataset.size": "452655",
-      "burst.view.next.load.stale": "86400000",
-      "burst.view.last.load.took": "188",
-      "burst.view.last.load.at": "1668027837400",
-      "burst.view.suggested.sample.rate": "1.0",
-      "burst.view.last.potential.item.count": "45",
-      "burst.view.last.item.size": "10059.0",
       "burst.view.suggested.slice.count": "9"
     }
   }
 }
  */
 object ViewRequestTypes {
+
   case class SampleStoreDataSource(
                                     domain: SampleStoreDomain,
                                     view: SampleStoreView,

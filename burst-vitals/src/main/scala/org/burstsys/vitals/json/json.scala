@@ -15,6 +15,7 @@ package object json extends VitalsLogger {
 
   def buildJsonMapper: JsonMapper = JsonMapper.builder()
     .addModule(DefaultScalaModule)
+    .addModule(DurationModule)
     .build()
 
   /**

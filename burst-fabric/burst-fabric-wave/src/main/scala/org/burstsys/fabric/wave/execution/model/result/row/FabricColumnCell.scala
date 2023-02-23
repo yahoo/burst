@@ -27,25 +27,32 @@ object FabricColumnCell {
 private final case
 class FabricColumnCellContext(column: FabricResultColumn) extends FabricResultCell {
 
-  override
-  def bType: BrioTypeKey = column.bType
+  override def bType: BrioTypeKey = column.bType
 
-  override
-  def bName: BrioTypeName = BrioTypes.brioDataTypeNameFromKey(bType)
+  override def bName: BrioTypeName = BrioTypes.brioDataTypeNameFromKey(bType)
 
-  override
-  def isNull: Boolean = column.isNull
+  override def isNull: Boolean = column.isNull
 
-  override
-  def isNan: Boolean = column.isNan
+  override def isNan: Boolean = column.isNan
 
-  override
-  def bData: BrioDataType = column.value
+  override def bData: BrioDataType = column.value
 
-  override
-  def toString: String = if (column == null) "NULL" else column.toString
+  override def cellType: FabricResultCellType = column.cellType
 
-  override
-  def cellType: FabricResultCellType = column.cellType
+  override def toJson: FabricResultCell = new FabricResultCell {
+    override val bData: BrioDataType = column.value
+
+    override val bType: BrioTypeKey = column.bType
+
+    override val bName: BrioTypeName = BrioTypes.brioDataTypeNameFromKey(column.bType)
+
+    override val isNull: Boolean = column.isNull
+
+    override val isNan: Boolean = column.isNan
+
+    override val cellType: FabricResultCellType = column.cellType
+  }
+  
+  override def toString: String = if (column == null) "NULL" else column.toString
 
 }

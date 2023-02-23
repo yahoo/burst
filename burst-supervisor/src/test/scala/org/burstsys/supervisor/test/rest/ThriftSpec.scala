@@ -5,12 +5,12 @@ import org.burstsys.client.client.BurstSyncClient
 import org.burstsys.client.client.model.BParameter
 import org.burstsys.client.client.model.results.BCell
 import org.burstsys.fabric
-import org.burstsys.supervisor.test.support.BurstSupervisorSpec
+import org.burstsys.supervisor.test.support.BurstSupervisorContainterSpec
 import org.burstsys.vitals.uid.newBurstUid
 
 import scala.jdk.CollectionConverters._
 
-class ThriftSpec extends BurstSupervisorSpec {
+class ThriftSpec extends BurstSupervisorContainterSpec {
 
   private val schema = "unity"
 

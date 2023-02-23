@@ -38,7 +38,6 @@
 
 ### `Test`
 * [Burst Alloy](../burst-alloy/readme.md)  -- `built in stress and benchmark testing tool`
-* [Burst Torcher](../burst-torcher/readme.md)  -- `built in stress and benchmark testing tool`
 
 ---
 ------ [HOME](../readme.md) --------------------------------------------
