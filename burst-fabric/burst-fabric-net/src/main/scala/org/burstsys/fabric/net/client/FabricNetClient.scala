@@ -87,7 +87,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
   var _connection: FabricNetClientConnection = _
 
   private[this]
-  val _listenerSet = ConcurrentHashMap.newKeySet[FabricNetClientListener].asScala
+  val _listenerSet = ConcurrentHashMap.newKeySet[FabricNetClientListener]
 
   private[this]
   val _stopping: AtomicBoolean = new AtomicBoolean(false)
@@ -106,7 +106,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
 
   override
   def talksTo(listeners: FabricNetClientListener*): this.type = {
-    _listenerSet ++= listeners
+    _listenerSet.addAll(listeners.asJava)
     if (_connection != null)
       _connection talksTo (listeners: _*)
     this
@@ -129,7 +129,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
       )
       container.health.registerComponent(_connection)
       connection.talksTo(FabricNetClientContext.this)
-      connection.talksTo(_listenerSet.toSeq: _*)
+      connection.talksTo(_listenerSet.asScala.toSeq: _*)
       connection.start
 
       // inbound goes in forward pipeline order
@@ -236,12 +236,12 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
           _bootstrap.connect(_socketAddress).addListener(this)
         } else {
           _clientChannel = future.channel()
-          log info s"FAB_NET_CLIENT_COMPLETED_STARTUP to ${_socketAddress} $tag"
+          log info burstStdMsg(s"FAB_NET_CLIENT_COMPLETED_STARTUP to ${_socketAddress} $tag")
           future.channel().closeFuture().addListener(new ChannelFutureListener {
             override def operationComplete(future: ChannelFuture): Unit = {
               if (isClosed) return
 
-              log warn s"FAB_NET_CLIENT_LOST_CONNECTION to ${_socketAddress} $tag"
+              log warn burstStdMsg(s"FAB_NET_CLIENT_LOST_CONNECTION to ${_socketAddress} $tag")
               if (_connection.isRunning) _connection.stop
               scheduleConnect(1 second)
             }
@@ -266,6 +266,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
   }
 
   override def onDisconnect(connection:FabricNetClientConnection): Unit ={
+    log trace burstStdMsg(s"disconnect ${_socketAddress}")
     container.onDisconnect(connection)
   }
 

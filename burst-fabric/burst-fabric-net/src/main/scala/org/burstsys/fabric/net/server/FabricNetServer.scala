@@ -26,7 +26,7 @@ import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort}
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration.Duration._
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.postfixOps
 
 /**
@@ -41,6 +41,8 @@ trait FabricNetServer extends FabricSupervisorService with FabricNetLink {
    * @return
    */
   def netConfig: FabricNetworkConfig
+
+  def activeConnections: Array[FabricNetServerConnection]
 
 }
 
@@ -90,7 +92,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
   var _transportClass: Class[_ <: ServerChannel] = _
 
   private[this]
-  val _connections = new ConcurrentHashMap[(VitalsHostAddress, VitalsHostPort), FabricNetServerConnection].asScala
+  val _connections = new ConcurrentHashMap[(VitalsHostAddress, VitalsHostPort), FabricNetServerConnection]
 
   ////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -117,8 +119,8 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
 
     val clientAddress = connection.remoteAddress
     val clientPort = connection.remotePort
-    _connections += (clientAddress, clientPort) -> connection
-    log info s"NEW_CLIENT_CONNECTION $serviceName (now ${_connections.size} total) address=$clientAddress, port=$clientPort"
+    _connections.put((clientAddress, clientPort), connection)
+    log info burstStdMsg(s"NEW_CLIENT_CONNECTION $serviceName (now ${_connections.size} total) address=$clientAddress, port=$clientPort")
 
     // inbound goes in forward pipeline order
     connectionPipeline.addLast("server-inbound-stage-1", FabricNetInboundFrameDecoder())
@@ -140,7 +142,6 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
         _transportClass = classOf[EpollServerSocketChannel]
 
       case FabricNetIoMode.NioIoMode =>
-        log info burstStdMsg(s"fabric network server started in $ioMode with  $netConfig")
         //        _listenGroup = new NioEventLoopGroup(1) // single threaded listener
         _listenGroup = new NioEventLoopGroup()
         // lots of threads for lots of connections
@@ -156,6 +157,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
 
       case _ => ???
     }
+    log debug burstStdMsg(s"fabric network server started in $ioMode with  $netConfig")
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +179,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
         if (!channelFuture.awaitUninterruptibly.isSuccess) {
           val cause = channelFuture.cause
           val msg = s"$serviceName: server failed startup to ${netConfig.netSupervisorUrl}: ${cause.getLocalizedMessage}"
-          log error msg
+          log error burstStdMsg(msg)
           // log error getAllThreadsDump.mkString("\n")
           throw VitalsException(msg, cause)
         }
@@ -218,14 +220,21 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
 
   override def onDisconnect(connection:FabricNetServerConnection): Unit ={
     _connections.remove((connection.remoteAddress, connection.remotePort))
+    log debug burstStdMsg(s"removing connection ${connection.remoteAddress}:${connection.remotePort}")
     container.onDisconnect(connection)
   }
 
   override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
+    log debug burstStdMsg(s"tether for  connection ${connection.remoteAddress}:${connection.remotePort}")
     container.onNetServerTetherMsg(connection, msg)
   }
 
   override def onNetServerAssessRespMsg(connection: FabricNetServerConnection, msg: FabricNetAssessRespMsg): Unit = {
+    log debug burstStdMsg(s"assess for  connection ${connection.remoteAddress}:${connection.remotePort}")
     container.onNetServerAssessRespMsg(connection, msg)
+  }
+
+  override def activeConnections: Array[FabricNetServerConnection] = {
+    _connections.values().asScala.filter(_.isConnected).toArray
   }
 }

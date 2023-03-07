@@ -12,9 +12,6 @@ import java.net.InetSocketAddress
 import scala.language.postfixOps
 
 package object net extends VitalsLogger {
-
-  final val debugFabNet = false
-
   final val fabricKryoOutputBufferMaxSize: Long = 10 * MB
 
   final case

@@ -9,7 +9,6 @@ import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetRep
 import org.burstsys.tesla.thread.request.{TeslaRequestCoupler, TeslaRequestFuture}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.stats._
 
 /**
  * receive inbound messages in the form of netty [[ByteBuf]], identity and convert
@@ -24,7 +23,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
   private[this]
   var connection: Option[FabricNetConnection] = None
 
-  override def toString: String = s"FabricNetReceiver(containerId=${container.containerIdGetOrThrow}, $link)"
+  override def toString: String = s"FabricNetReceiver(containerId=${container.containerId.getOrElse("Not Set")}, $link)"
 
   def connectedTo(connection: FabricNetConnection): this.type = {
     this.connection = Option(connection)
@@ -32,23 +31,23 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
   }
 
   override def channelRegistered(ctx: ChannelHandlerContext): Unit = {
-    log trace s"$this CHANNEL REGISTERED"
+    log debug burstStdMsg(s"$this CHANNEL REGISTERED")
     super.channelRegistered(ctx)
   }
 
   override def channelUnregistered(ctx: ChannelHandlerContext): Unit = {
-    log trace s"$this CHANNEL UNREGISTERED"
+    log debug burstStdMsg(s"$this CHANNEL UNREGISTERED")
     super.channelUnregistered(ctx)
   }
 
   override def channelActive(ctx: ChannelHandlerContext): Unit = {
-    log debug s"$this CHANNEL ACTIVE"
+    log info burstStdMsg(s"$this CHANNEL ACTIVE")
     super.channelActive(ctx)
   }
 
   override def channelInactive(ctx: ChannelHandlerContext): Unit = {
     super.channelInactive(ctx)
-    log warn s"FAB_NET_CHANNEL_INACTIVE $this "
+    log warn burstStdMsg(s"FAB_NET_CHANNEL_INACTIVE $this ")
     connection.foreach(_.onDisconnect())
   }
 
@@ -61,7 +60,8 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
     TeslaRequestCoupler {
       val messageId = FabricNetMsgType(messageTypeKey)
       connection match {
-        case None => log warn s"FAB_NET_NO_CONNECTION $messageId"
+        case None =>
+          log warn burstStdMsg(s"FAB_NET_NO_CONNECTION $this $messageId")
         case Some(c) =>
           val bytes: Array[Byte] = {
             val oldPosition = buffer.nioBuffer().position()
@@ -75,7 +75,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
               c.onMessage(messageId, bytes)
             } catch safely {
               case t: Throwable =>
-                log error burstStdMsg(s"FAB_NET_RECEIVER_DISPATCH_FAIL $t", t)
+                log error burstStdMsg(s"FAB_NET_RECEIVER_DISPATCH_FAIL $this", t)
             }
           }
       }

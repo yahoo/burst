@@ -5,24 +5,19 @@ import io.netty.channel.Channel
 import org.burstsys.fabric.container.FabricWorkerService
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
-import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
-import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetTetherMsg}
 import org.burstsys.fabric.net.message.{AccessParameters, FabricNetAssessReqMsgType, FabricNetMsg}
-import org.burstsys.fabric.net.newRequestId
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
-import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message}
+import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, newRequestId}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.git
-import org.burstsys.vitals.healthcheck
-import org.burstsys.vitals.healthcheck.VitalsComponentHealth
-import org.burstsys.vitals.healthcheck.VitalsHealthHealthy
-import org.burstsys.vitals.healthcheck.VitalsHealthMarginal
-import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredComponent
+import org.burstsys.vitals.healthcheck.{VitalsComponentHealth, VitalsHealthMarginal, VitalsHealthMonitoredComponent}
+import org.burstsys.vitals.logging.burstStdMsg
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.Future
@@ -82,14 +77,14 @@ class FabricNetClientConnectionContext(
   ////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _listenerSet = ConcurrentHashMap.newKeySet[FabricNetClientListener]().asScala
+  val _listenerSet = ConcurrentHashMap.newKeySet[FabricNetClientListener]()
 
   ////////////////////////////////////////////////////////////////////////////////////
   // API
   ////////////////////////////////////////////////////////////////////////////////////
 
   override def talksTo(listeners: FabricNetClientListener*): this.type = {
-    _listenerSet ++= listeners
+    _listenerSet.addAll(listeners.asJava)
     this
   }
 
@@ -131,23 +126,24 @@ class FabricNetClientConnectionContext(
       /////////////////// ASSESSMENT /////////////////
       case FabricNetAssessReqMsgType =>
         val msg = FabricNetAssessReqMsg(buffer)
-        log debug s"FabricNetClientConnection.onNetClientAssessReqMsg $msg"
+        log debug burstStdMsg(s"FabricNetClientConnection.onNetClientAssessReqMsg $this $msg")
         serverKey.nodeId = msg.senderKey.nodeId
-        _listenerSet foreach (_.onNetClientAssessReqMsg(this, msg))
+        _listenerSet.stream.forEach(_.onNetClientAssessReqMsg(this, msg))
 
         var parameters: AccessParameters = Map.empty
-        _listenerSet foreach{l =>
+        _listenerSet.stream.forEach{l =>
           parameters = l.prepareAccessRespParameters(parameters)
         }
         assessRequest(msg, parameters)
 
       case _ =>
-        _listenerSet foreach (_.onNetMessage(this, messageId, buffer))
+        _listenerSet.stream.forEach(_.onNetMessage(this, messageId, buffer))
     }
   }
 
   override def onDisconnect(): Unit = {
-    _listenerSet.foreach(_.onDisconnect(this))
+    log trace burstStdMsg(s"disconnect $this")
+    _listenerSet.stream.forEach(_.onDisconnect(this))
   }
 
   ////////////////////////////////////////////////////////////////////////////////////

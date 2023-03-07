@@ -7,6 +7,7 @@ import sourcecode.FileName
 import sourcecode.Line
 import sourcecode.Pkg
 
+import java.io.{PrintWriter, StringWriter}
 import java.lang.management.ManagementFactory
 import java.lang.management.ThreadInfo
 import scala.annotation.unused
@@ -72,7 +73,10 @@ package object logging extends VitalsLogger {
    * @return the formatted message
    */
   final def burstStdMsg(msg: String, t: Throwable)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
-    formatMsg(s"$msg: ${errors.messageFromException(t): String}", located = false)
+    val sw = new StringWriter()
+    t.printStackTrace(new PrintWriter(sw))
+    val m = formatMsg(s"$msg: ${errors.messageFromException(t): String}", located = false)
+    s"$m\n${sw.toString}"
   }
 
   /**

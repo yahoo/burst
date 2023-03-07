@@ -1,17 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.net.transmitter
 
-import org.burstsys.fabric.net.message.FabricNetMsg
-import org.burstsys.fabric.net.{FabricNetLink, FabricNetReporter, debugFabNet}
-import org.burstsys.tesla.thread
-import org.burstsys.tesla.thread.request.TeslaRequestCoupler
-import org.burstsys.vitals.errors.{VitalsException, safely}
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
 import io.netty.util.concurrent.{GenericFutureListener, Future => NettyFuture}
 import org.burstsys.fabric.container.FabricContainer
+import org.burstsys.fabric.net.message.FabricNetMsg
+import org.burstsys.fabric.net.{FabricNetLink, FabricNetReporter}
+import org.burstsys.tesla.thread.request.TeslaRequestCoupler
+import org.burstsys.vitals.errors.{VitalsException, safely}
+import org.burstsys.vitals.logging._
 
 import scala.concurrent.{Future, Promise}
-import org.burstsys.vitals.logging._
 
 /**
  * outbound writes of control and data plane communication. Both the client and server share
@@ -29,7 +28,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
 
   override def disconnect(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
     super.disconnect(ctx, promise)
-    log warn s"$this CHANNEL DISCONNECT"
+    log debug burstStdMsg(s"$this CHANNEL DISCONNECT")
   }
 
   /**
@@ -43,8 +42,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
 
     if (!channel.isOpen || !channel.isActive) {
       val msg = s"$tag cannot transmit channelOpen=${channel.isOpen} channelActive=${channel.isActive} "
-      if (debugFabNet)
-        log warn burstStdMsg(msg)
+      log trace burstStdMsg(msg)
       promise.failure(VitalsException(msg).fillInStackTrace())
       return promise.future
     }
@@ -62,7 +60,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
           channel.writeAndFlush(buffer).addListener(new GenericFutureListener[NettyFuture[_ >: Void]] {
             override def operationComplete(future: NettyFuture[_ >: Void]): Unit = {
               val transmitDuration = System.nanoTime - transmitEnqueued
-              log debug s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration"
+              log trace burstStdMsg(s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration")
               if (future.isSuccess) {
                 FabricNetReporter.onMessageXmit(buffSize)
                 promise.success(())
@@ -116,7 +114,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
             channel.writeAndFlush(buffer).addListener(new GenericFutureListener[NettyFuture[_ >: Void]] {
               override def operationComplete(future: NettyFuture[_ >: Void]): Unit = {
                 val transmitDuration = System.nanoTime - transmitEnqueued
-                log debug s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration"
+                log trace burstStdMsg(s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration")
                 if (future.isSuccess) {
                   FabricNetReporter.onMessageXmit(buffSize)
                   promise.success(())

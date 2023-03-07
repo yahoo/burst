@@ -2,24 +2,19 @@
 package org.burstsys.fabric.container.supervisor
 
 import org.burstsys.fabric.configuration
-import org.burstsys.fabric.container.FabricContainer
-import org.burstsys.fabric.container.FabricContainerContext
-import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
-import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
+import org.burstsys.fabric.container.{FabricContainer, FabricContainerContext}
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net.server.{FabricNetServer, FabricNetServerListener}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
-import org.burstsys.fabric.net.server.FabricNetServer
-import org.burstsys.fabric.net.server.FabricNetServerListener
-import org.burstsys.fabric.net.FabricNetworkConfig
-import org.burstsys.fabric.net.message
 import org.burstsys.fabric.topology.supervisor.FabricSupervisorTopology
-import org.burstsys.vitals.VitalsService.VitalsServiceModality
-import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
-import org.burstsys.vitals.VitalsService.VitalsStandardServer
+import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandaloneServer, VitalsStandardServer}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort}
 
+import java.lang
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
@@ -37,6 +32,8 @@ trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricCon
    * a listener for protocol events
    */
   def talksTo(listener: T*): this.type
+
+  def activeConnections: Array[FabricNetServerConnection]
 
 }
 
@@ -60,7 +57,7 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
   val _topology: FabricSupervisorTopology = FabricSupervisorTopology(this)
 
   protected[this]
-  val _listenerSet: mutable.Set[T] = ConcurrentHashMap.newKeySet[T].asScala
+  val _listenerSet: ConcurrentHashMap.KeySetView[T, lang.Boolean] = ConcurrentHashMap.newKeySet[T]
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // hookups
@@ -116,7 +113,7 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override def talksTo(listeners: T*): this.type = {
-    _listenerSet ++= listeners
+    _listenerSet.addAll(listeners.asJava)
     this
   }
 
@@ -129,23 +126,26 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
   }
 
   override def onDisconnect(connection: FabricNetServerConnection): Unit = {
-    _listenerSet.foreach(_.onDisconnect(connection))
+    _listenerSet.stream().forEach(_.onDisconnect(connection))
   }
 
   override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
-    _listenerSet.foreach(_.onNetServerTetherMsg(connection, msg))
+    _listenerSet.stream().forEach(_.onNetServerTetherMsg(connection, msg))
   }
 
   override def onNetServerAssessRespMsg(connection: FabricNetServerConnection, msg: FabricNetAssessRespMsg): Unit = {
-    _listenerSet.foreach(_.onNetServerAssessRespMsg(connection, msg))
+    _listenerSet.stream().forEach(_.onNetServerAssessRespMsg(connection, msg))
   }
 
   def filteredForeach[I <: FabricSupervisorListener: Manifest](body: I => Unit): Unit = {
-    _listenerSet.filter{sl: FabricSupervisorListener =>
-      sl match {
-        case _: I => true
-        case _ => false
-      }}.foreach{v => body(v.asInstanceOf[I])}
+    _listenerSet.stream().filter {
+      case _: I => true
+      case _ => false
+    }.forEach{ v => body(v.asInstanceOf[I])}
+  }
+
+  override def activeConnections: Array[FabricNetServerConnection] = {
+    _net.activeConnections
   }
 }
 

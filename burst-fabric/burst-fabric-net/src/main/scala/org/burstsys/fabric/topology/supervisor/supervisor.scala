@@ -3,8 +3,4 @@ package org.burstsys.fabric.topology
 
 import org.burstsys.vitals.logging._
 
-package object supervisor extends VitalsLogger {
-
-  final val debugTopology = false
-
-}
+package object supervisor extends VitalsLogger

@@ -4,33 +4,22 @@ package org.burstsys.fabric.net.server.connection
 import io.netty.channel.Channel
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
-import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
-import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
-import org.burstsys.fabric.net.message.FabricNetAssessRespMsgType
-import org.burstsys.fabric.net.message.FabricNetMsg
-import org.burstsys.fabric.net.message.FabricNetTetherMsgType
-import org.burstsys.fabric.net.newRequestId
+import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetMsg, FabricNetTetherMsgType}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net._
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.FabricNetServerListener
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
-import org.burstsys.fabric.net.FabricNetConnection
-import org.burstsys.fabric.net.FabricNetLink
-import org.burstsys.fabric.net.FabricNetReporter
-import org.burstsys.fabric.net.message
+import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
-import org.burstsys.fabric.topology.model.node.FabricNode
-import org.burstsys.fabric.topology.model.node.UnknownFabricNodeId
-import org.burstsys.fabric.topology.model.node.UnknownFabricNodePort
-import org.burstsys.vitals.VitalsService.VitalsPojo
-import org.burstsys.vitals.VitalsService.VitalsServiceModality
+import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
+import org.burstsys.vitals.logging.burstStdMsg
 
-import java.util.concurrent.ConcurrentHashMap
-import scala.collection.mutable
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import java.util.concurrent.ConcurrentHashMap
+import scala.concurrent.Future
 
 /**
  * This is the server side representative of a connection to a single client [[FabricNetConnection]].
@@ -73,7 +62,7 @@ class FabricNetServerConnectionContext(
   ////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _listenerSet: mutable.Set[FabricNetServerListener] = ConcurrentHashMap.newKeySet[FabricNetServerListener].asScala
+  val _listenerSet = ConcurrentHashMap.newKeySet[FabricNetServerListener]()
 
   ////////////////////////////////////////////////////////////////////////////////////
   // Lifecycle
@@ -103,7 +92,7 @@ class FabricNetServerConnectionContext(
 
   override
   def talksTo(listeners: FabricNetServerListener*): this.type = {
-    _listenerSet ++= listeners
+    _listenerSet.addAll(listeners.asJava)
     this
   }
 
@@ -112,21 +101,21 @@ class FabricNetServerConnectionContext(
       /////////////////// TETHERING /////////////////
       case FabricNetTetherMsgType =>
         val msg = FabricNetTetherMsg(buffer)
-        log debug s"FabricNetServerConnection.onNetServerTetherMsg $this $msg"
+        log trace burstStdMsg(s"FabricNetServerConnection.onNetServerTetherMsg $this $msg")
         clientKey.nodeId = msg.senderKey.nodeId
 
-        _listenerSet foreach (_.onNetServerTetherMsg(this, msg))
+        _listenerSet.stream.forEach (_.onNetServerTetherMsg(this, msg))
         backgroundAssessor += assessorFunction
 
       /////////////////// ASSESSMENT /////////////////
       case FabricNetAssessRespMsgType =>
         val msg = FabricNetAssessRespMsg(buffer)
-        log debug s"FabricNetServerConnection.onNetServerAssessRespMsg $this $msg"
-        _listenerSet foreach (_.onNetServerAssessRespMsg(this, msg))
+        log trace burstStdMsg(s"$this $msg")
+        _listenerSet.stream.forEach(_.onNetServerAssessRespMsg(this, msg))
         assessResponse(msg)
 
       case _ =>
-        _listenerSet foreach (_.onNetMessage(this, messageId, buffer))
+        _listenerSet.stream.forEach(_.onNetMessage(this, messageId, buffer))
     }
   }
 
@@ -139,9 +128,8 @@ class FabricNetServerConnectionContext(
   }
 
   private def assessResponse(msg: FabricNetAssessRespMsg): Unit = {
-    lazy val hdr = s"FabricNetServerConnection.assessResponse"
     FabricNetReporter.recordPing(msg.elapsedNanos)
-    log debug s"$hdr $msg"
+    log trace burstStdMsg(s"$this $msg")
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +140,8 @@ class FabricNetServerConnectionContext(
    * The callback for handling channel disconnect messages
    */
   override def onDisconnect(): Unit = {
-    _listenerSet.foreach(_.onDisconnect(this))
+    log debug burstStdMsg(s"connection disconnect $this")
+    _listenerSet.stream.forEach(_.onDisconnect(this))
     stopIfNotAlreadyStopped
     FabricNetReporter.recordConnectClose()
   }
