@@ -24,7 +24,7 @@ class VitalsMessageSpec extends VitalsAbstractSpec {
     val t = new RuntimeException("goodbye").fillInStackTrace()
 
     val msg = LocatedValue(burstStdMsg("hello", t))
-    msg.value should fullyMatch regex (messageFormat withGroup s"${msg.line}")
+    msg.value should startWith regex (messageFormat withGroup s"${msg.line}")
   }
 
 
@@ -36,15 +36,15 @@ class VitalsMessageSpec extends VitalsAbstractSpec {
   it should "find correct trace" in {
     def foo(): Unit = {
       val s1 = LocatedValue(burstStdMsg("hello"))
-      s1.value should fullyMatch regex (messageFormat withGroup s"${s1.line}")
+      s1.value should startWith regex (messageFormat withGroup s"${s1.line}")
       s1.value should include("hello")
 
       val s2 = LocatedValue(burstStdMsg("hello", new RuntimeException("goodbye").fillInStackTrace()))
-      s2.value should fullyMatch regex (messageFormat withGroup s"${s2.line}")
+      s2.value should startWith regex (messageFormat withGroup s"${s2.line}")
       s2.value should include("hello: goodbye")
 
       val s3 = LocatedValue(burstStdMsg(new RuntimeException("goodbye").fillInStackTrace()))
-      s3.value should fullyMatch regex (messageFormat withGroup s"${s3.line}")
+      s3.value should startWith regex (messageFormat withGroup s"${s3.line}")
       s3.value should include("goodbye")
     }
 

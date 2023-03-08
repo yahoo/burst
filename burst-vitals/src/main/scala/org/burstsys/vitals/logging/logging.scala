@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import org.burstsys.vitals.configuration.burstIncludeStackTracesProperty
 import org.burstsys.vitals.errors.messageFromException
 import sourcecode.Enclosing
 import sourcecode.FileName
@@ -73,10 +74,14 @@ package object logging extends VitalsLogger {
    * @return the formatted message
    */
   final def burstStdMsg(msg: String, t: Throwable)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
-    val sw = new StringWriter()
-    t.printStackTrace(new PrintWriter(sw))
+    val tail = if (burstIncludeStackTracesProperty.get) {
+      val sw = new StringWriter()
+      t.printStackTrace(new PrintWriter(sw))
+      s"\n${sw.toString}"
+    } else
+      s""
     val m = formatMsg(s"$msg: ${errors.messageFromException(t): String}", located = false)
-    s"$m\n${sw.toString}"
+    s"$m$tail"
   }
 
   /**

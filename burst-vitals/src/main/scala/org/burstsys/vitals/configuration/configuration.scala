@@ -53,40 +53,18 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some("vitals")
   )
 
+  val burstIncludeStackTracesProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
+    key = "burst.log.includeStackTraces",
+    description = "include stack traces in exception logging",
+    default = Some(true)
+  )
+
   // ----------------------------- TREKS -----------------------------
 
   val vitalsEnableTrekProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
     key = "burst.vitals.trek.enable",
     description = "enable trek logging",
     default = Some(true)
-  )
-
-  // ----------------------------- HTTP METRICS -----------------------------
-
-  val burstVitalsMetricsHttpPeriodMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
-    key = "burst.metrics.http.period.ms",
-    description = "metrics http report frequency",
-    default = Some((1 minute).toMillis)
-  )
-
-  def burstVitalsMetricsHttpPeriodDuration: Duration = Duration(burstVitalsMetricsHttpPeriodMsProperty.get, TimeUnit.MILLISECONDS)
-
-  val burstVitalsMetricsHttpUrlProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.metrics.http.url",
-    description = "The endpoint to send metrics",
-    default = None
-  )
-
-  val burstVitalsMetricsHttpProxyHostProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.metrics.http.proxy.host",
-    description = "Hostname of the http proxy to use",
-    default = None
-  )
-
-  val burstVitalsMetricsHttpProxyPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.metrics.http.proxy.port",
-    description = "Port to connect to the http proxy",
-    default = None
   )
 
   // ----------------------------- SSL -----------------------------

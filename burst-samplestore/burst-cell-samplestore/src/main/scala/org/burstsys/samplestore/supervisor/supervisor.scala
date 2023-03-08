@@ -9,6 +9,7 @@ import org.burstsys.vitals.logging._
 
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.locks.ReentrantLock
+import scala.annotation.unused
 
 /**
   * Platform independent part of sample store supervisor side processing
@@ -37,7 +38,9 @@ package object supervisor extends VitalsLogger {
 
   /**
    * SampleStore store plugin provider
+   * Found by reflection in the Fabric Store.
    */
+  @unused
   final case class SampleStoreStoreProvider() extends FabricStoreProvider[SampleStoreSupervisor, SampleStoreWorker] {
 
     val storeName: String = samplestore.SampleStoreName

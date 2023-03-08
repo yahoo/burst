@@ -2,6 +2,7 @@
 package org.burstsys.samplestore.supervisor
 
 import org.burstsys.api._
+import org.burstsys.fabric.configuration.burstFabricTopologyHomogeneous
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.fabric.wave.data.model.slice.FabricSlice
@@ -16,6 +17,7 @@ import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleS
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestTimeout
 import org.burstsys.samplestore.api._
 import org.burstsys.samplestore.api.client.SampleStoreApiClient
+import org.burstsys.samplestore.api.configuration.{burstSampleStoreApiHostProperty, burstSampleStoreApiPortProperty, burstSampleStoreApiSslEnableProperty}
 import org.burstsys.samplestore.model.SampleStoreLocus
 import org.burstsys.samplestore.model.SampleStoreSlice
 import org.burstsys.samplestore.model._
@@ -24,6 +26,7 @@ import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.healthcheck._
 import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.net.VitalsHostAddress
 import org.burstsys.vitals.uid.VitalsUid
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -41,13 +44,17 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
   ///////////////////////////////////////////////////////////////////
 
   private[this]
-  val _apiClient: SampleStoreApiClient = SampleStoreApiClient()
+  var _apiClient: SampleStoreApiClient = SampleStoreApiClient()
 
   ///////////////////////////////////////////////////////////////////
   // API
   ///////////////////////////////////////////////////////////////////
 
-  def apiClient: SampleStoreApiClient = _apiClient
+  def apiClient: SampleStoreApiClient = {
+    sampleStoreServerLock synchronized {
+      _apiClient
+    }
+  }
 
   ///////////////////////////////////////////////////////////////////
   // LIFECYCLE
@@ -134,4 +141,16 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     }
   }
 
+  burstSampleStoreApiSslEnableProperty.listeners += watchHostProperty
+  burstSampleStoreApiPortProperty.listeners += watchHostProperty
+  burstSampleStoreApiHostProperty.listeners += watchHostProperty
+
+  private def watchHostProperty(v: Option[_]): Unit = {
+    log info burstStdMsg(s"detected to sample store properties, restarting client")
+    sampleStoreServerLock synchronized {
+      _apiClient.stop
+      _apiClient = SampleStoreApiClient()
+      _apiClient.start
+    }
+  }
 }
