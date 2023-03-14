@@ -1,10 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore
 
+import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
 import org.burstsys.vitals.properties.VitalsPropertySpecification
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 package object configuration {
@@ -19,4 +18,15 @@ package object configuration {
     default = Some(256)
   )
 
+  val sampleStoreNexusHostAddrOverride: VitalsPropertySpecification[VitalsHostAddress] = VitalsPropertySpecification(
+    key = "burst.samplestore.nexus.hostaddr.override",
+    description = "in containerized environments the override the JVM reported host address",
+    default = None
+  )
+
+  val sampleStoreNexusHostNameAddrOverride: VitalsPropertySpecification[VitalsHostName] = VitalsPropertySpecification(
+    key = "burst.samplestore.nexus.hostname.override",
+    description = "in containerized environments the override the JVM reported host address",
+    default = None
+  )
 }

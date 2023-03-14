@@ -308,18 +308,6 @@ object CatalogService {
   }
 
   /**
-    * Bare bones Unit test Client
-    */
-  object CatalogUnitTestClientConfig extends CatalogConfiguration(
-    modality = VitalsStandardClient,
-    dialect = RelateDerbyDialect,
-    executeDDL = false,
-    loadAllCans = false,
-    loadOnlyQueryCans = false,
-    dropExistingTables = false
-  )
-
-  /**
     * Bare bones Unit test Server
     */
   object CatalogUnitTestServerConfig extends CatalogConfiguration(
@@ -380,16 +368,6 @@ object CatalogService {
     loadOnlyQueryCans = false,
     dropExistingTables = false
   )
-
-  object CatalogPlaygroundServerConfig extends CatalogConfiguration(
-    modality = VitalsStandaloneServer,
-    dialect = RelateDerbyDialect,
-    executeDDL = true,
-    loadAllCans = false,
-    loadOnlyQueryCans = true,
-    dropExistingTables = true
-  )
-
 
   def apply(mode: CatalogConfiguration): CatalogService = CatalogServiceContext(mode)
 

@@ -6,7 +6,6 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.fabric.net.FabricNetMessageId
 import org.burstsys.fabric.net.message.{FabricNetMsg, FabricNetMsgContext, FabricNetTetherMsgType}
 import org.burstsys.fabric.topology.model.node.FabricNode
-import io.netty.buffer.ByteBuf
 
 trait FabricNetTetherMsg extends FabricNetMsg {
 

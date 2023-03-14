@@ -11,8 +11,8 @@ import org.burstsys.fabric.net.message.AccessParameters
 import scala.collection.mutable
 
 /**
-  * A message that is sent from [[org.burstsys.fabric.topology.model.node.worker.FabricWorker]] to
- * [[org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisor]] to provide a coarse grained
+  * A message that is sent from [[org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode]] to
+ * [[org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode]] to provide a coarse grained
  * overall 'health' and 'performance' metric that can be used to determine if a worker is alive and
  * appropriately responsive/healthy.
   */

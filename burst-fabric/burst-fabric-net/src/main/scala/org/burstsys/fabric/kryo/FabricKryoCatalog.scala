@@ -2,9 +2,7 @@
 package org.burstsys.fabric.kryo
 
 import org.burstsys.fabric.container.metrics.FabricAssessment
-import org.burstsys.fabric.container.model.metrics.FabricLastHourMetric
-import org.burstsys.fabric.container.model.metrics.FabricMetricTuple
-import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorContext
+import org.burstsys.fabric.container.model.metrics.{FabricLastHourMetric, FabricMetricTuple}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNodeContext
 import org.burstsys.fabric.topology.model.node.worker._
 import org.burstsys.vitals.kryo._
@@ -33,7 +31,6 @@ class FabricKryoCatalog extends VitalsKryoCatalogProvider {
         /////////////////////////////////////////////////////////////////////////////////
         // topology
         /////////////////////////////////////////////////////////////////////////////////
-        (key.getAndIncrement, classOf[FabricSupervisorContext]),
         (key.getAndIncrement, classOf[FabricWorkerNodeContext]),
         (key.getAndIncrement, classOf[FabricSupervisorNodeContext]),
 

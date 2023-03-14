@@ -4,12 +4,13 @@ package org.burstsys.samplestore.store.container.worker
 import org.burstsys.fabric.container.WorkerLog4JPropertiesFileName
 import org.burstsys.fabric.container.worker.{FabricWorkerContainer, FabricWorkerContainerContext}
 import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
-import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.net.message.AccessParameters
 import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.nexus
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
+import org.burstsys.samplestore.configuration.{sampleStoreNexusHostAddrOverride, sampleStoreNexusHostNameAddrOverride}
 import org.burstsys.samplestore.store.container.{NexusConnectedPortAssessParameterName, NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
 import org.burstsys.samplestore.store.message.FabricStoreMetadataReqMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
@@ -98,8 +99,23 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
     var p = parameters
 
     p = p ++ Map(
-      NexusHostAddrAssessParameterName -> SampleSourceNexusServer.nexusServer.nettyChannel.localAddress().toString.asInstanceOf[Serializable],
-      NexusHostNameAssessParameterName -> SampleSourceNexusServer.nexusServer.serverHost.asInstanceOf[Serializable],
+      NexusHostAddrAssessParameterName -> {
+        sampleStoreNexusHostAddrOverride.asOption match {
+          case Some(addr) =>
+            addr.asInstanceOf[Serializable]
+          case None =>
+            SampleSourceNexusServer.nexusServer.serverHost.asInstanceOf[Serializable]
+            //SampleSourceNexusServer.nexusServer.nettyChannel.localAddress().toString.asInstanceOf[Serializable]
+        }
+      },
+      NexusHostNameAssessParameterName -> {
+        sampleStoreNexusHostNameAddrOverride.asOption match {
+          case Some(name) =>
+            name.asInstanceOf[Serializable]
+          case None =>
+            SampleSourceNexusServer.nexusServer.serverHost.asInstanceOf[Serializable]
+        }
+      },
       NexusConnectedPortAssessParameterName -> SampleSourceNexusServer.nexusServer.serverPort.asInstanceOf[Serializable],
       NexusPortAssessParameterName -> nexus.port.asInstanceOf[Serializable]
     )

@@ -47,9 +47,6 @@ object FabricSupervisorNode {
 
   /**
    * constructor to take any type of supervisor key and turn it into a simple serializable universal one
-   *
-   * @param supervisor
-   * @return
    */
   def apply(supervisor: FabricSupervisorNode): FabricSupervisorNode = FabricSupervisorNodeContext(
     supervisorNodeId = supervisor.nodeId, supervisorNodeName = supervisor.nodeName,

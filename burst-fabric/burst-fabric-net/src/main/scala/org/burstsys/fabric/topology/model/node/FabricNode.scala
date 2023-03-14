@@ -17,8 +17,8 @@ import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
  * <li>nodes are persisted to the catalog</li>
  * </ol>
  *
- * @see [[org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisor]]
- *      [[org.burstsys.fabric.topology.model.node.worker.FabricWorker]]
+ * @see [[org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode]]
+ *      [[org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode]]
  */
 trait FabricNode extends Any with Equals with Ordered[FabricNode] {
 

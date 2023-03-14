@@ -29,7 +29,7 @@ import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataRespMs
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstLocMsg
-import org.burstsys.vitals.net.VitalsHostPort
+import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, VitalsHostPort}
 import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 
@@ -181,13 +181,24 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   private def convertToLocus(worker: FabricTopologyWorker): SampleStoreDataLocus = {
     val nexusPort: VitalsHostPort = {
       if (worker.assessment != null && worker.assessment.parameters != null)
-        worker.assessment.parameters(NexusPortAssessParameterName).asInstanceOf[VitalsHostPort]
+        worker.assessment.parameters(NexusConnectedPortAssessParameterName).asInstanceOf[VitalsHostPort]
       else
         -1
     }
-
+    val nexusName: VitalsHostName = {
+      if (worker.assessment != null && worker.assessment.parameters != null)
+        worker.assessment.parameters(NexusHostNameAssessParameterName).asInstanceOf[VitalsHostName]
+      else
+        worker.nodeName
+    }
+    val nexusAddr: VitalsHostAddress = {
+      if (worker.assessment != null && worker.assessment.parameters != null)
+        worker.assessment.parameters(NexusHostAddrAssessParameterName).asInstanceOf[VitalsHostAddress]
+      else
+        worker.nodeAddress
+    }
     val partitionProperties: VitalsPropertyMap = Map()
-    SampleStoreDataLocus(worker.workerProcessId.toString, worker.nodeAddress, worker.nodeName, nexusPort, partitionProperties)
+    SampleStoreDataLocus(worker.workerProcessId.toString, nexusAddr, nexusName, nexusPort, partitionProperties)
   }
 
   override def log4JPropertiesFileName: String = SupervisorLog4JPropertiesFileName

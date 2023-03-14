@@ -3,7 +3,8 @@ package org.burstsys.samplestore.test
 
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.samplestore.store.container.{NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
+import org.burstsys.nexus
+import org.burstsys.samplestore.store.container.{NexusConnectedPortAssessParameterName, NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
 import org.burstsys.samplestore.store.container.supervisor.SampleStoreFabricSupervisorContainer
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
@@ -22,6 +23,7 @@ class BaseTopologySpec extends BaseSupervisorWorkerBaseSpec
 
   override protected
   def beforeAll(): Unit = {
+    nexus.configuration.burstNexusServerPortProperty.set(2000)
     super.beforeAll()
   }
 
@@ -63,6 +65,9 @@ class BaseTopologySpec extends BaseSupervisorWorkerBaseSpec
     worker.assessment should not equal(null)
     worker.assessment.parameters.nonEmpty should equal(true)
     worker.assessment.parameters.keys should contain(NexusPortAssessParameterName)
+    worker.assessment.parameters(NexusPortAssessParameterName) should equal(2000)
+    worker.assessment.parameters.keys should contain(NexusConnectedPortAssessParameterName)
+    worker.assessment.parameters(NexusConnectedPortAssessParameterName) should equal(2000)
     worker.assessment.parameters.keys should contain(NexusHostAddrAssessParameterName)
     worker.assessment.parameters.keys should contain(NexusHostNameAssessParameterName)
     workerGain.countDown()
