@@ -36,9 +36,24 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
 
   private var setProgrammatically = false
 
+  private def notifyListeners(): Unit = {
+    val current = asOption
+    listeners.foreach(l => l(current))
+  }
+
   def useDefault(): Unit = {
     System.clearProperty(key)
     setProgrammatically = false
+  }
+
+  def setString(value: String): Unit = {
+    if (value != null) {
+      System.setProperty(key, value)
+      setProgrammatically = true
+    } else {
+      useDefault()
+    }
+    notifyListeners()
   }
 
   def set(value: C): Unit = {
@@ -48,9 +63,7 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
     } else {
       useDefault()
     }
-
-    val current = asOption
-    listeners.foreach(l => l(current))
+    notifyListeners()
   }
 
   /**
@@ -85,7 +98,7 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
       "default"
   }
 
-  def fallback: C = {
+  private def fallback: C = {
     default match {
       case Some(value) => value.asInstanceOf[C]
       case None =>
@@ -108,7 +121,6 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
   }
 
   val keyPadding = 41
-  val envVarPadding = 41
   val typeNamePadding = 10
   val descriptionPadding = 40
 

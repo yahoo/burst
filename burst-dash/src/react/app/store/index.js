@@ -9,6 +9,7 @@ import workerTab from './reducers/workers';
 import execution from './reducers/execution';
 import thrift from './reducers/thrift'
 import crosscutting from './reducers/crosscutting';
+import settings from './reducers/settings';
 
 export default configureStore({
     reducer: {
@@ -21,6 +22,7 @@ export default configureStore({
         thrift,
         torcherTab,
         workerTab,
+        settings,
     },
     devTools: {
         actionsBlacklist: ['UPDATE_WORKER_LIST']

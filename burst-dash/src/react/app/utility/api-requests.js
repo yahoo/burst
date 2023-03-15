@@ -7,8 +7,8 @@ export const maxFetchSize = 100;
 export const FormMimeType = 'application/x-www-form-urlencoded';
 export const JsonMimeType = 'application/json';
 
-export const FormMimeTypeHeader = {'Content-Type': FormMimeType};
-export const JsonMimeTypeHeader = {'Content-Type': JsonMimeType};
+export const FormMimeTypeHeader = Object.freeze({'Content-Type': FormMimeType});
+export const JsonMimeTypeHeader = Object.freeze({'Content-Type': JsonMimeType});
 
 export function formParameters(parameters) {
     return Object.entries(parameters)
@@ -16,14 +16,14 @@ export function formParameters(parameters) {
         .join("&");
 }
 
-export const asJson = (parameters) => ({parameters, headers: JsonMimeTypeHeader, encoder: JSON.stringify});
+export const asJson = (parameters) => ({parameters, headers: {...JsonMimeTypeHeader}, encoder: JSON.stringify});
 
 // compatibility hack for using Rewire in unit tests
 const httpRequest = typeof fetch !== 'undefined' && fetch;
 export default function request(endpoint, {
     parameters = {},
     method = 'POST',
-    headers = FormMimeTypeHeader,
+    headers = {...FormMimeTypeHeader},
     encoder = formParameters,
 } = {}) {
     const qs = Object.keys(parameters).reduce((params, name) => {
@@ -36,13 +36,16 @@ export default function request(endpoint, {
         }
         return params;
     }, []).join('&');
+    if (method === 'GET') {
+        delete headers['Content-Type']
+    }
     return httpRequest(`//${baseURL}/api/supervisor${endpoint}${method !== 'POST' && qs ? `?${qs}` : ''}`, {
         method,
         headers,
         credentials: 'include',
         body: method === 'POST' ? encoder(parameters) : undefined
     }).then(
-        response => response.json(),
+        response => response.status === 204 ? true : response.json(),
         error => {
             throw error
         }

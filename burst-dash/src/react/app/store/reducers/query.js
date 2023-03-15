@@ -1,4 +1,3 @@
-import {combineReducers} from 'redux';
 import request, {asJson, maxFetchSize} from '../../utility/api-requests';
 import {actions as crosscutting} from "./crosscutting";
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";

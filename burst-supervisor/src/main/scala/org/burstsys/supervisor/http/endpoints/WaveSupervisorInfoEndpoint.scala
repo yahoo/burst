@@ -2,11 +2,9 @@
 package org.burstsys.supervisor.http.endpoints
 
 import jakarta.ws.rs._
-import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.{MediaType, Response}
 import org.burstsys.fabric
-import org.burstsys.supervisor.http.endpoints.InfoMessages.BurstBuildInfoJson
-import org.burstsys.supervisor.http.endpoints.InfoMessages.BurstHostInfoJson
-import org.burstsys.supervisor.http.endpoints.InfoMessages.BurstSettingInfoJson
+import org.burstsys.supervisor.http.endpoints.InfoMessages.{BurstBuildInfoJson, BurstHostInfoJson, BurstSettingInfoJson, BurstSettingUpdateJson}
 import org.burstsys.vitals
 import org.burstsys.vitals.git
 import org.burstsys.vitals.host
@@ -19,6 +17,7 @@ import org.burstsys.vitals.reporter.instrument.prettyTimeFromMillis
 import scala.language.implicitConversions
 
 @Path(InfoApiPath)
+@Consumes(Array(MediaType.APPLICATION_JSON))
 @Produces(Array(MediaType.APPLICATION_JSON))
 final class WaveSupervisorInfoEndpoint extends WaveSupervisorEndpoint {
 
@@ -43,13 +42,22 @@ final class WaveSupervisorInfoEndpoint extends WaveSupervisorEndpoint {
   }
 
   @GET
-  @Path("configInfo")
+  @Path("settings")
   def configInfo: Map[String, BurstSettingInfoJson] = {
     resultOrErrorResponse {
       VitalsPropertyRegistry.allProperties.values.map(property => {
         val value: Any = property.asOption.orNull
         property.key -> BurstSettingInfoJson(if (property.sensitive) "REDACTED" else value, property.typeName, property.description, property.source)
       }).toMap
+    }
+  }
+
+  @POST
+  @Path("settings")
+  def updateSetting(update: BurstSettingUpdateJson): Response = {
+    resultOrErrorResponse {
+      VitalsPropertyRegistry.allProperties(update.key).setString(update.value)
+      Response.noContent().build()
     }
   }
 }
@@ -86,4 +94,8 @@ object InfoMessages {
                                          source: String
                                        ) extends VitalsJsonObject
 
+  final case class BurstSettingUpdateJson(
+                                           value: String,
+                                           key: String
+                                         ) extends VitalsJsonObject
 }
