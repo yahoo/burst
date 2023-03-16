@@ -11,8 +11,8 @@ import org.burstsys.brio.flurry.provider.unity.press.SyntheticSessionData
 import org.burstsys.brio.flurry.provider.unity.press.SyntheticUserData
 import org.burstsys.brio.press.BrioPressInstance
 import org.burstsys.brio.press.BrioPressSource
-import org.burstsys.brio.provider.BrioSyntheticDataProvider
-import org.burstsys.brio.provider.BrioSyntheticDataProvider.SyntheticRepeatedValue
+import org.burstsys.brio.provider.{BrioSyntheticDataProvider, SyntheticDataProvider}
+import org.burstsys.brio.provider.SyntheticDataProvider.SyntheticRepeatedValue
 import org.burstsys.vitals.properties._
 
 import java.time.Instant

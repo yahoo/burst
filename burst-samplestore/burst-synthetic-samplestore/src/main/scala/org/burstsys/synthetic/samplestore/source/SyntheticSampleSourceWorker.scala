@@ -4,7 +4,7 @@ package org.burstsys.synthetic.samplestore.source
 import org.burstsys.brio
 import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.userIdPrefixKey
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.brio.provider.BrioSyntheticDataProvider
+import org.burstsys.brio.provider.SyntheticDataProvider
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.synthetic.samplestore.configuration.{defaultItemCountProperty, defaultMaxItemSizeProperty, defaultPressTimeoutProperty, syntheticDatasetProperty}
@@ -36,7 +36,7 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
       val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
       try {
         val modelName = stream.get[String](syntheticDatasetProperty)
-        val dataProvider = BrioSyntheticDataProvider.providerNamed(modelName) // invoke data model with item count
+        val dataProvider = SyntheticDataProvider.providerNamed(modelName) // invoke data model with item count
         if (!(stream.schema equalsIgnoreCase dataProvider.schemaName)) {
           throw VitalsException(s"Stream and synthetic data provider do not specify the same schema. stream=${stream.schema} provider=${dataProvider.schemaName}")
         }
