@@ -16,7 +16,7 @@ import org.burstsys.vitals.stats.stdSkewStat
 trait FabricExecutionMetrics extends FabricMetrics[FabricExecutionMetrics] {
 
   /**
-   * the scan time (time spent in scan) for this execution/scan instance
+   * the scan time (time spent in scan) on the slowest worker for this execution/scan instance
    *
    * @return
    */

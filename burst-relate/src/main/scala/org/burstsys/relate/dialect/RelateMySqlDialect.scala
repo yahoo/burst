@@ -25,8 +25,11 @@ object RelateMySqlDialect extends RelateDialect  {
   }
 
 
-  override def limitClause(limit: Option[Int]): SQLSyntax = limit.collect({
-    case l if l > 0 => sqls"LIMIT $l"
+  override def limitClause(limit: Option[Int], offset: Option[Int]): SQLSyntax = limit.collect({
+    case l if l > 0 => offset match {
+      case Some(o) if o > 0 => sqls"LIMIT $l OFFSET $o"
+      case _ => sqls"LIMIT $l"
+    }
   }).getOrElse(sqls"")
 
   def pool: RelatePool = RelateCustomDbcp2Pool

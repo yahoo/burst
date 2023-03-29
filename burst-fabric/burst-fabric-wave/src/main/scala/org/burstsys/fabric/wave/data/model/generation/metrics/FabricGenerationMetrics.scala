@@ -71,7 +71,7 @@ trait FabricGenerationMetrics extends FabricMetrics[FabricGenerationMetrics] {
   def coldLoadAt: Long
 
   /**
-   * @return how long did the generation take (ms)
+   * @return the duration of the load on the slowest worker (ms)
    */
   def coldLoadTook: Long
 

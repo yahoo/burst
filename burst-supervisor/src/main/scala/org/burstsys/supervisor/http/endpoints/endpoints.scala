@@ -24,10 +24,8 @@ package object endpoints extends VitalsLogger {
   final val CacheApiPath = BurstRestUrlBase + "cache"
   final val CatalogApiPath = BurstRestUrlBase + "catalog"
   final val ExecutionApiPath = BurstRestUrlBase + "execution"
-  final val FabricApiPath = BurstRestUrlBase + "fabric"
   final val InfoApiPath = BurstRestUrlBase + "info"
-  final val ProfilerApiPath = BurstRestUrlBase + "profiler"
   final val QueryApiPath = BurstRestUrlBase + "query"
-  final val TorcherApiPath = BurstRestUrlBase + "torcher"
+  final val BurnInApiPath = BurstRestUrlBase + "burn-in"
 
 }

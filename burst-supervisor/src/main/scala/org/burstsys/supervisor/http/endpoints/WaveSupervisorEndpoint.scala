@@ -8,7 +8,7 @@ import jakarta.ws.rs.core._
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
-import org.burstsys.supervisor.http.service.provider.BurstWaveSupervisorProfilerService
+import org.burstsys.supervisor.http.service.provider.{BurstWaveSupervisorBurnInService, BurstWaveSupervisorProfilerService}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import sourcecode.{Enclosing, Line}
@@ -40,6 +40,9 @@ abstract class WaveSupervisorEndpoint {
 
   @Inject
   var supervisor: FabricWaveSupervisorContainer = _
+
+  @Inject
+  var burnIn: BurstWaveSupervisorBurnInService = _
 
   final def resultOrErrorResponse[T](work: => T)(implicit site: Enclosing, line: Line): T = {
     val location = s"[${site.value}:${line.value}]"

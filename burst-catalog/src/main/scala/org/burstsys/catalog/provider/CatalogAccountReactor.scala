@@ -28,7 +28,7 @@ trait CatalogAccountReactor extends CatalogService {
 
   final override def verifyAccount(username: String, password: String): Try[CatalogAccount] = {
     onlyOnServer { implicit session =>
-      sql.accounts.verifyAcount(username, password)
+      sql.accounts.verifyAccount(username, password)
     }
   }
 

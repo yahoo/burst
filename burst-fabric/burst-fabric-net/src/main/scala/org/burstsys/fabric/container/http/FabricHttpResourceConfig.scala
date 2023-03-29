@@ -12,6 +12,7 @@ class FabricHttpResourceConfig(container: FabricContainer) extends ResourceConfi
   register(classOf[FabricHttpJacksonProvider])
   register(classOf[FabricHttpCorsFilter])
   register(classOf[FabricHttpSecurityFilter])
+  register(classOf[FabricHttpExceptionMapper])
 
   registerClasses(container.httpResources: _*)
 }

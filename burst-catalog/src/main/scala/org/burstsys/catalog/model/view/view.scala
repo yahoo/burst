@@ -29,7 +29,8 @@ package object view {
   object CatalogView {
     def apply(pk: FabricDomainKey, moniker: String, domainFk: FabricDomainKey, schemaName: String, generationClock: FabricDomainKey = 0, storeProperties: Map[String, String] = Map(), viewMotif: String = "", viewProperties: Map[String, String] = Map(), labels: Option[Map[String, String]] = None, udk: Option[String] = None): BurstCatalogApiView =
       BurstCatalogApiView(pk, moniker, domainFk, generationClock, storeProperties,
-        viewMotif, viewProperties, labels, schemaName, udk = udk)
+        viewMotif, viewProperties, labels, schemaName, udk = udk
+      )
 
     def apply(
                pk: Long, udk: String, moniker: String, domainFk: Long, generationClock: Long, storeProperties: Map[String, String],
@@ -40,6 +41,11 @@ package object view {
         viewMotif, viewProperties, Some(labels), schemaName, udk = Some(udk)
       ))
 
+    def apply(v: FabricView, moniker: String, udk: Option[String], labels: Option[Map[String, String]]): CatalogView =
+      BurstCatalogApiView(
+        v.viewKey, moniker, v.domainKey, v.generationClock, v.storeProperties,
+        v.viewMotif, viewProperties = v.viewProperties, labels, v.schemaName, udk = udk
+      )
     /**
      * Filter out the properties owned and updated internally by Burst.
      * They are not interesting for the purposes of determining if a view needs to be saved

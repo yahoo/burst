@@ -95,26 +95,13 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
    * @param entity the entity to insert
    * @return the sql required to insert a new record
    */
-  protected def insertEntitySql(entity: E): WriteSql
+  protected def insertEntityWithPkSql(entity: E): WriteSql
 
   /**
    * @param entity the entity to insert
-   * @return SQL that can be used to insert the entity
+   * @return the sql required to insert a new record
    */
-  def insertEntityStatement(entity: E): String = {
-    val sqlStmt = insertEntitySql(entity)
-    val values = sqlStmt.parameters.map({
-      case props: VitalsPropertyMap =>
-        propertyMapToString(props)
-      case x =>
-        x
-    }).map({
-      case str: String => s"'$str'"
-      case o => o.toString
-    })
-    val tuples = sqlStmt.statement.trim.split("\\?").zipAll(values, "", "")
-    s"${tuples.map(t => s"${t._1}${t._2}").mkString}; "
-  }
+  protected def insertEntitySql(entity: E): WriteSql
 
   /**
    * @param entity the new final state of the entity
@@ -147,6 +134,13 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
   final def findEntityByPk(pk: RelatePk, lockLevel: SelectLockLevel = NoLock)(implicit session: DBSession): Option[E] = {
     sql"SELECT * FROM ${this.table} WHERE ${this.column.pk} = $pk ${service.dialect.lockClause(lockLevel)}"
       .map(resultToEntity).single().apply()
+  }
+
+  final def insertEntityByPk(entity: E)(implicit session: DBSession): E = {
+    try {
+      insertEntityWithPkSql(entity).update.apply()
+      findEntityByPk(entity.pk).get
+    } catch throwMappedException(service.dialect)
   }
 
   final def insertEntity(entity: E)(implicit session: DBSession): RelatePk = {
@@ -219,7 +213,9 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
   }
 
   final def fetchAllEntities(limit: Option[Int] = None)(implicit session: DBSession): List[E] = {
-    sql"SELECT * FROM ${this.table} ${service.dialect.limitClause(limit)}".map(resultToEntity).list().apply()
+    sql"SELECT * FROM ${this.table} ${service.dialect.limitClause(limit, None)}"
+      .map(resultToEntity)
+      .list().apply()
   }
 
 }

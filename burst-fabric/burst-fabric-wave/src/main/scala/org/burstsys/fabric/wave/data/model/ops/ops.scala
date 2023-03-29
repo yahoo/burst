@@ -7,8 +7,10 @@ package object ops {
 
   object FabricCacheSearch extends FabricCacheManageOp(1)
 
+  /** Perform an evict (remove from from memory) */
   object FabricCacheEvict extends FabricCacheManageOp(2)
 
+  /** Perform a flush (remove from persistent storage) */
   object FabricCacheFlush extends FabricCacheManageOp(3)
 
 

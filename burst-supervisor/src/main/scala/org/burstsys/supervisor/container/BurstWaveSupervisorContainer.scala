@@ -12,9 +12,10 @@ import org.burstsys.fabric.wave.container.supervisor.{FabricWaveSupervisorContai
 import org.burstsys.hydra.HydraService
 import org.burstsys.supervisor.http.BurstWaveHttpBinder
 import org.burstsys.supervisor.http.endpoints._
+import org.burstsys.supervisor.http.service.burnin.BurstWaveBurnInService
 import org.burstsys.supervisor.http.service.provider.BurstWaveSupervisorBurnInService
 import org.burstsys.supervisor.http.service.thrift
-import org.burstsys.supervisor.http.websocket.{BurstExecutionRelay, BurstThriftRelay, BurstTopologyRelay}
+import org.burstsys.supervisor.http.websocket.{BurstExecutionRelay, BurstThriftRelay, BurstTopologyRelay, WaveSupervisorBurnInRelay}
 import org.burstsys.vitals.configuration.burstLog4j2NameProperty
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
@@ -27,6 +28,8 @@ trait BurstWaveSupervisorContainer extends FabricWaveSupervisorContainer {
   def agent: AgentService
 
   def catalog: CatalogService
+
+  def burnIn: BurstWaveSupervisorBurnInService
 
 }
 
@@ -46,6 +49,8 @@ final case class BurstWaveSupervisorContainerContext()
 
   override def catalog: CatalogService = _catalog
 
+  override def burnIn: BurstWaveSupervisorBurnInService = _burnIn
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Http
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +65,7 @@ final case class BurstWaveSupervisorContainerContext()
     classOf[WaveSupervisorInfoEndpoint],
     classOf[WaveSupervisorQueryEndpoint],
     classOf[WaveSupervisorThriftEndpoint],
+    classOf[WaveSupervisorBurnInEndpoint],
     classOf[BurstThriftMessageBodyWriter],
   )
 
@@ -81,6 +87,8 @@ final case class BurstWaveSupervisorContainerContext()
 
   protected val _catalog: CatalogService =
     CatalogService(if (bootModality.isStandalone) CatalogUnitTestServerConfig else CatalogSupervisorConfig)
+
+  protected val _burnIn: BurstWaveBurnInService = BurstWaveBurnInService(agent, catalog)
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Lifecycle
@@ -159,6 +167,8 @@ final case class BurstWaveSupervisorContainerContext()
     wave.execution.model.pipeline addPipelineSubscriber BurstExecutionRelay(webSocketService)
 
     thrift.requestLog talksTo BurstThriftRelay(webSocketService)
+
+    burnIn talksTo WaveSupervisorBurnInRelay(webSocketService, burnIn)
 
   }
 

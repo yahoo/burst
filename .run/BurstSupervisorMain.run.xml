@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="org.burstsys.supervisor.BurstSupervisorMain" />
     <module name="burst-supervisor" />
     <option name="PROGRAM_PARAMETERS" value="-s -w 1" />
-    <option name="VM_PARAMETERS" value="-Dburst.supervisor.jsonfilemanager.watchdirectory=./documentation/playground/json" />
+    <option name="VM_PARAMETERS" value="-Dburst.fabric.http.keystore.path=certs/localhost.p12" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.burstsys.supervisor.container.*" />

@@ -1,12 +1,18 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.supervisor.http.service.provider
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.core.{JsonParser, TreeNode}
+import com.fasterxml.jackson.databind.{DeserializationContext, JsonNode}
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
 import org.burstsys.fabric.wave.data.model.generation.FabricGenerationIdentity
-import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricGenerationClock, FabricViewKey}
 import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.wave.metadata.model.view.FabricView
-import org.burstsys.vitals.errors
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricGenerationClock, FabricViewKey}
+import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType
+import org.burstsys.supervisor.http.service.provider.BurnInDatasetDescriptor.LookupType
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
 import java.util.logging.Level
@@ -22,13 +28,15 @@ trait BurstWaveBurnInListener {
 }
 
 trait BurstWaveSupervisorBurnInService {
-  def startBurnIn(config: BurnInConfig): Unit
+  def startBurnIn(config: BurnInConfig): Boolean
 
-  def stopBurnIn(): Unit
+  def stopBurnIn(): Boolean
 
-  def getEvents: Array[BurnInEvent]
+  def isRunning: Boolean
 
   def getConfig: BurnInConfig
+
+  def getEvents: Array[BurnInEvent]
 
   def talksTo(listeners: BurstWaveBurnInListener*): Unit
 }
@@ -71,9 +79,19 @@ class BurnInConfig(
 }
 
 object BurnInBatch {
+
+  sealed trait DurationType
+
   object DurationType {
     val Duration = "duration"
+
     val Datasets = "datasets"
+
+    case object Unknown extends DurationType
+
+    case object ByIterations extends DurationType
+
+    case object ByDuration extends DurationType
   }
 }
 
@@ -103,6 +121,13 @@ class BurnInBatch(
                    /** an upper limit for how long this batch can run, only used if `durationType` is set to `datasets` */
                    maxDuration: Option[Duration],
                  ) {
+
+  def durationSource: DurationType = durationType match {
+    case DurationType.Datasets => DurationType.ByIterations
+    case DurationType.Duration => DurationType.ByDuration
+    case _ => DurationType.Unknown
+  }
+
   def validate(): (Boolean, Array[String]) = {
     val errors = ArrayBuffer[String]()
 
@@ -118,8 +143,8 @@ class BurnInBatch(
       errors += "batch must specify at least one query"
     }
 
-    durationType match {
-      case BurnInBatch.DurationType.Datasets =>
+    durationSource match {
+      case DurationType.ByIterations =>
         desiredDatasetIterations match {
           case Some(iterations) =>
             if (iterations < 1) {
@@ -128,7 +153,7 @@ class BurnInBatch(
           case None =>
             errors += "batch.desiredDatasetIterations must be specified when durationType == 'datasets'"
         }
-      case BurnInBatch.DurationType.Duration =>
+      case DurationType.ByDuration =>
         desiredDuration match {
           case Some(duration) =>
             if (duration.toMillis <= 0) {
@@ -169,22 +194,53 @@ object BurnInDatasetDescriptor {
     val ByProperty = "byProperty"
     val Generate = "generate"
   }
+
+  sealed trait LookupType
+
+  object LookupType {
+    case object ByPk extends LookupType
+
+    case object ByUdk extends LookupType
+
+    case object ByProperty extends LookupType
+
+    case object Generate extends LookupType
+  }
+}
+
+class OptionalLongDeserializer(vc: Class[_]) extends StdDeserializer[Option[Long]](vc) {
+  def this() {
+    this(null)
+  }
+
+  override def deserialize(parser: JsonParser, ctxt: DeserializationContext): Option[Long] = {
+    val node: JsonNode = parser.getCodec.readTree(parser)
+    if (node.isNull || node.isMissingNode) {
+      None
+    } else {
+      Some(node.longValue())
+    }
+  }
 }
 
 final case
 class BurnInDatasetDescriptor(
+                               /** how many times this dataset should be added to the burn-in run */
+                               copies: Option[Int],
+
                                /** how is this dataset defined, loading by pk, udk, matching labels, or generated from an inline definition */
                                datasetSource: String, // one of ["byPk", "byUdk", "byProperty", "generate"]
 
                                /** the pk of the view to copy, only used when datasetSource == byPk */
+                               @JsonDeserialize(contentAs = classOf[Long])
                                pk: Option[Long],
 
                                /** the udk of the view to copy, only used when datasetSource == byUdk */
                                udk: Option[String],
 
                                /** a property that must be present on the view, only used when datasetSource == byProperty */
-                               propertyKey: Option[String],
-                               propertyValue: Option[String],
+                               label: Option[String],
+                               labelValue: Option[String],
 
                                /** a domain definition used to create this dataset, only used when datasetSource == generate */
                                domain: Option[BurnInDomain],
@@ -198,6 +254,13 @@ class BurnInDatasetDescriptor(
                                /** force a reload of this dataset (by increasing the generationClock) after every N queries */
                                reloadEvery: Option[Int],
                              ) {
+
+  def lookupType: LookupType = datasetSource match {
+    case BurnInDatasetDescriptor.Source.ByPk => LookupType.ByPk
+    case BurnInDatasetDescriptor.Source.ByUdk => LookupType.ByUdk
+    case BurnInDatasetDescriptor.Source.ByProperty => LookupType.ByProperty
+    case BurnInDatasetDescriptor.Source.Generate => LookupType.Generate
+  }
 
   def validate(): (Boolean, Array[String]) = {
     val errors = ArrayBuffer[String]()
@@ -214,7 +277,7 @@ class BurnInDatasetDescriptor(
         }
 
       case BurnInDatasetDescriptor.Source.ByProperty =>
-        if (propertyKey.isEmpty) {
+        if (label.isEmpty) {
           errors += "batch.dataset.propertyKey must be specified when datasetSource == 'byProperty'"
         }
 
@@ -229,6 +292,18 @@ class BurnInDatasetDescriptor(
         errors += "batch.dataset.datasetSource must one of 'byPk', 'byUdk', 'byProperty', 'generate'"
     }
 
+    reloadEvery match {
+      case Some(times) if (times < 1) =>
+        errors += "batch.dataset.reloadEvery must be more than 0"
+      case _ =>
+    }
+
+    copies match {
+      case Some(copies) if (copies < 1) =>
+        errors += "batch.dataset.copies must be more than 0"
+      case _ =>
+    }
+
     (errors.isEmpty, errors.toArray)
   }
 }
@@ -236,7 +311,9 @@ class BurnInDatasetDescriptor(
 final case class BurnInDomain(
                                domainProperties: VitalsPropertyMap
                              ) extends FabricDomain {
-  override def domainKey: FabricDomainKey = ???
+  override def domainKey: FabricDomainKey = -1
+
+  def toFabric(pk: Long): FabricDomain = FabricDomain(pk, domainProperties)
 }
 
 final case class BurnInView(
@@ -245,20 +322,28 @@ final case class BurnInView(
                              viewMotif: String,
                              viewProperties: VitalsPropertyMap,
                            ) extends FabricView {
-  override def domainKey: FabricDomainKey = ???
 
-  override def viewKey: FabricViewKey = ???
+  def toFabric(pk: Long, domainPk: Long): FabricView =
+    FabricView(domainPk, pk, 0, schemaName, viewMotif, viewProperties, storeProperties)
 
-  override def generationClock: FabricGenerationClock = ???
+  override def domainKey: FabricDomainKey = -1
+
+  override def viewKey: FabricViewKey = -1
+
+  override def generationClock: FabricGenerationClock = -1
 
   override def init(domainKey: FabricDomainKey, viewKey: FabricViewKey, generationClock: FabricGenerationClock): FabricView = ???
 
   override def init(gm: FabricGenerationIdentity): FabricView = ???
 }
 
-abstract class BurnInEvent(val time: Long = System.currentTimeMillis())
+abstract class BurnInEvent(val time: Long = System.currentTimeMillis()) {
+  def eventType: String
+}
 
-final case class BurnInLogEvent(message: String, level: Level = Level.INFO) extends BurnInEvent()
+final case class BurnInLogEvent(message: String, level: Level = Level.INFO) extends BurnInEvent() {
+  override val eventType: String = "event"
+}
 
 final case class BurnInStatsEvent(
                                    datasetsIterated: Long,
@@ -266,4 +351,6 @@ final case class BurnInStatsEvent(
                                    totalScanTime: Long,
                                    totalClockTime: Long,
                                    // copy needful items from torcher's DatasetStatistics
-                                 ) extends BurnInEvent()
+                                 ) extends BurnInEvent() {
+  override val eventType: String = "stats"
+}

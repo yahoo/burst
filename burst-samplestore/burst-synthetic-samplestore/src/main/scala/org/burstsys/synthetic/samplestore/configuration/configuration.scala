@@ -13,10 +13,10 @@ package object configuration {
   // Slice Generation
   ///////////////////////////////////////////////////////////////////
 
-  val persistentHashProperty: String = "synthetic.samplestore.variable-hash"
+  val persistentHashProperty: String = "synthetic.samplestore.static-hash"
   val defaultPersistentHashProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
     key = persistentHashProperty,
-    description = "whether the generated hash should change or not",
+    description = "if the generation hash should remain constant",
     default = Some(true)
   )
 

@@ -39,7 +39,7 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
   def scatterUpdateEventLoop(scatter: TeslaScatter): Future[FabricGather] = {
     val tag = s"FabricWaveLoop.scatterUpdateEventLoop(guid=${scatter.guid})"
     val seqNum = newWaveSeqNum // get a sequence number for those tracking/monitoring these waves...
-    val waveState = FabricWaveState(scatter) // we could pool these I guess
+    val waveMerge = WaveGatherMerge(scatter) // we could pool these I guess
 
     TeslaRequestFuture {
       var gather: FabricGather = null
@@ -52,34 +52,34 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
           //////////////////////////////////////////////////////////////////////////////////////////////////
           // scatter level updates
           //////////////////////////////////////////////////////////////////////////////////////////////////
-          case _: TeslaScatterBegin => onWaveBegin(seqNum, waveState.guid)
+          case _: TeslaScatterBegin => onWaveBegin(seqNum, waveMerge.guid)
 
           case update: TeslaScatterCancel =>
-            waveState.shutdownMerge()
-            onWaveCancel(seqNum, waveState.guid, update.message) // currently there is no way to cancel a scatter
+            waveMerge.shutdownMerge()
+            onWaveCancel(seqNum, waveMerge.guid, update.message) // currently there is no way to cancel a scatter
 
           case update: TeslaScatterTimeout =>
-            waveState.shutdownMerge()
+            waveMerge.shutdownMerge()
             onWaveTimeout(seqNum, scatter.guid, update.message)
             val msg = s"FAB_WAVE_SCATTER_TIMEOUT $update.message"
             log error burstStdMsg(s"FAB_WAVE_LOOP_FAIL $msg $tag")
             throw VitalsException(msg).fillInStackTrace()
 
           case _: TeslaScatterSucceed =>
-            waveState.shutdownMerge() // tell merge pipeline no more coming
-            gather = Await.result(waveState.mergedResult, mergeWait) // wait for background merging to complete
+            waveMerge.shutdownMerge() // tell merge pipeline no more coming
+            gather = Await.result(waveMerge.mergedResult, mergeWait) // wait for background merging to complete
             gather match {
               case gather: FabricDataGather =>
-                onWaveSucceed(seqNum, waveState.guid, gather)
+                onWaveSucceed(seqNum, waveMerge.guid, gather)
               case gather: FabricFaultGather =>
-                onWaveFail(seqNum, waveState.guid, gather.fault.getMessage)
+                onWaveFail(seqNum, waveMerge.guid, gather.fault.getMessage)
             }
 
           // well that happened - make sure its clear what went wrong.
           // We should have a [[FabricException]] that came from either the worker side or the network.
           // Either way it has the a merged supervisor and if applicable worker side stack information merged together
           case update: TeslaScatterFail =>
-            waveState.shutdownMerge()
+            waveMerge.shutdownMerge()
             log error s"FAB_WAVE_SCATTER_FAIL ${update.throwable.getMessage} $tag"
             onWaveFail(seqNum, scatter.guid, update.throwable.getMessage)
             throw scatter.failures.head.failure
@@ -102,7 +102,7 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
           case update: TeslaScatterSlotSucceed => // most returns (including remote handled faults) should come in here...
             update.slot.request.result match {
               case gather: FabricGather =>
-                waveState.mergeGather(gather)
+                waveMerge.mergeGather(gather)
                 if (gather.succeeded)
                   onParticleSucceed(seqNum, scatter.guid, update.slot.ruid)
                 else
@@ -126,7 +126,7 @@ trait FabricWaveLoop extends Any with FabricWaveListener {
             onParticleCancelled(seqNum, scatter.guid, update.slot.ruid, "Particle canceled")
 
           case updateOfUnknownType =>
-            waveState.shutdownMerge()
+            waveMerge.shutdownMerge()
             val msg = s"FAB_WAVE_UNKNOWN_UPDATE request=${updateOfUnknownType}"
             log error burstStdMsg(s"FAB_WAVE_LOOP_FAIL $msg $tag")
             throw VitalsException(msg).fillInStackTrace()

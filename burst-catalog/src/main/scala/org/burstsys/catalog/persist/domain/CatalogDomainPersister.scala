@@ -46,6 +46,29 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
     case RelateDerbyDialect => derbyCreateTableSql
   }
 
+  override protected def insertEntityWithPkSql(entity: CatalogDomain): WriteSql = {
+    sql"""
+     INSERT INTO  ${this.table}
+       (
+        ${this.column.pk},
+        ${this.column.labels},
+        ${this.column.moniker},
+        ${this.column.domainProperties},
+        ${this.column.udk},
+        ${this.column.createTimestamp}
+      )
+     VALUES
+       ( {pk}, {labels}, {moniker}, {domainProperties}, {udk}, {createTime}  )
+     """.bindByName(
+      Symbol("pk") -> entity.pk,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("moniker") -> entity.moniker,
+      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
+      Symbol("udk") -> entity.udk.orNull,
+      Symbol("createTime") -> DateTime.now
+    )
+  }
+
   override protected def insertEntitySql(entity: CatalogDomain): WriteSql = {
     sql"""
      INSERT INTO  ${this.table}

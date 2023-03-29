@@ -164,6 +164,8 @@ trait CatalogService extends VitalsService with CatalogApiProperties {
 
   def insertDomain(domain: CatalogDomain): Try[RelatePk]
 
+  def insertDomainWithPk(domain: CatalogDomain): Try[CatalogDomain]
+
   def updateDomain(domain: CatalogDomain): Try[RelatePk]
 
   /**
@@ -240,6 +242,8 @@ trait CatalogService extends VitalsService with CatalogApiProperties {
   def ensureViewInDomain(domainUdk: String, view: CatalogView): Try[CatalogView]
 
   def insertView(view: CatalogView): Try[RelatePk]
+
+  def insertViewWithPk(view: CatalogView): Try[CatalogView]
 
   def updateView(view: CatalogView): Try[RelatePk]
 

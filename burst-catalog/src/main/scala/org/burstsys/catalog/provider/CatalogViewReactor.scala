@@ -144,8 +144,7 @@ trait CatalogViewReactor extends CatalogService {
     }
   }
 
-  override
-  def insertView(view: CatalogView): Try[RelatePk] = {
+  override def insertView(view: CatalogView): Try[RelatePk] = {
     resultOrFailure {
       if (modality.isServer) {
         sql.connection localTx {
@@ -154,6 +153,17 @@ trait CatalogViewReactor extends CatalogService {
             Success(pk)
         }
       } else mapEntityResponse(apiClient.insertView(view))
+    }
+  }
+
+  override def insertViewWithPk(view: CatalogView): Try[CatalogView] = {
+    resultOrFailure {
+      if (modality.isServer) {
+        sql.connection localTx {
+          implicit session =>
+            Success(sql.views.insertEntityByPk(view))
+        }
+      } else throw VitalsException("Cannot insert with pk from client")
     }
   }
 

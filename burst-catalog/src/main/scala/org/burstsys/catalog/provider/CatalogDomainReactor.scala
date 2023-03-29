@@ -114,6 +114,18 @@ trait CatalogDomainReactor extends CatalogService {
   }
 
   final override
+  def insertDomainWithPk(domain: CatalogDomain): Try[CatalogDomain] = {
+    resultOrFailure {
+      if (modality.isServer) {
+        sql.connection localTx {
+          implicit session =>
+            Success(sql.domains.insertEntityByPk(domain))
+        }
+      } else throw VitalsException("Cannot insert with pk from client")
+    }
+  }
+
+  final override
   def updateDomain(domain: CatalogDomain): Try[RelatePk] = {
     resultOrFailure {
       if (modality.isServer) {

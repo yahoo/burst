@@ -9,6 +9,7 @@ import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContain
 import org.burstsys.gen.thrift.api.client.BTBurstService
 import org.burstsys.gen.thrift.api.client.BTBurstService.Iface
 import org.burstsys.supervisor.container.BurstWaveSupervisorContainer
+import org.burstsys.supervisor.http.service.provider.BurstWaveSupervisorBurnInService
 import org.burstsys.supervisor.http.service.thrift
 
 class BurstWaveHttpBinder(
@@ -22,6 +23,7 @@ class BurstWaveHttpBinder(
     bind(container).to(classOf[FabricWaveSupervisorContainer])
     bind(container.agent).to(classOf[AgentService])
     bind(container.catalog).to(classOf[CatalogService])
+    bind(container.burnIn).to(classOf[BurstWaveSupervisorBurnInService])
     bindFactory(() => thrift.processor(container.catalog, container.agent)).to(classOf[BTBurstService.Processor[Iface]])
     bindFactory(() => new TBinaryProtocol.Factory()).to(classOf[TProtocolFactory])
   }

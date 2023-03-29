@@ -12,3 +12,5 @@ export const Item = ({label, value, labelTitle, labelClass = '', valueClass = ''
         <td className={`value ${valueClass}`}>{value}</td>
     </>
 );
+
+export const Conditional = ({show = true, children = () => null}) => show ? <>{children()}</> : null;

@@ -124,4 +124,10 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
       Symbol("labels") -> optionalPropertyMapToString(entity.labels)
     )
   }
+
+  /**
+   * @param entity the entity to insert
+   * @return the sql required to insert a new record
+   */
+  override protected def insertEntityWithPkSql(entity: TestUdkEntity): WriteSql = ???
 }

@@ -46,6 +46,22 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
     case RelateDerbyDialect => derbyCreateTableSql
   }
 
+  override def insertEntityWithPkSql(entity: CatalogAccount): WriteSql = {
+    this.column
+    sql"""
+     INSERT INTO  ${this.table}
+       (${this.column.pk}, ${this.column.labels}, ${this.column.moniker}, ${this.column.hashedPassword}, ${this.column.salt})
+     VALUES
+       ({labels}, {moniker}, {password}, {salt})
+     """.bindByName(
+      Symbol("pk") -> entity.pk,
+      Symbol("labels") -> entity.labels,
+      Symbol("moniker") -> entity.moniker,
+      Symbol("password") -> entity.hashedPassword,
+      Symbol("salt") -> entity.salt
+    )
+  }
+
   override def insertEntitySql(entity: CatalogAccount): WriteSql = {
     this.column
     sql"""
@@ -99,7 +115,7 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
     } getOrElse Failure(BurstUnknownMonikerException(username))
   }
 
-  def verifyAcount(username: String, password: String)(implicit session: DBSession): Try[CatalogAccount] = {
+  def verifyAccount(username: String, password: String)(implicit session: DBSession): Try[CatalogAccount] = {
     findEntityByMoniker(username) map { account =>
       if (getPasswordHash(password, account.salt) == account.hashedPassword) {
         Success(account)

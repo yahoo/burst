@@ -482,6 +482,7 @@ class BurnInConfigSpec extends BurstSupervisorSpec {
       val (isValid, errors) = config.validate()
       isValid shouldBe false
       errors should not contain("batch.dataset.pk must be specified when datasetSource == 'byPk'")
+      config.batches(0).datasets(0).pk shouldEqual Some(12345L)
     }
   }
 
@@ -537,7 +538,7 @@ class BurnInConfigSpec extends BurstSupervisorSpec {
         |   "batches": [{
         |     "datasets": [{
         |       "datasetSource": "byProperty",
-        |       "propertyKey": "some_key"
+        |       "label": "some_key"
         |     }]
         |  }]
         |}""".stripMargin
@@ -546,6 +547,20 @@ class BurnInConfigSpec extends BurstSupervisorSpec {
       errors should not contain ("batch.dataset.propertyKey must be specified when datasetSource == 'byProperty'")
     }
 
+    validateConfig(
+      """{
+        |   "batches": [{
+        |     "datasets": [{
+        |       "datasetSource": "byProperty",
+        |       "label": "some_key",
+        |       "labelValue": "some_value"
+        |     }]
+        |  }]
+        |}""".stripMargin
+    ) { config =>
+      val (_, errors) = config.validate()
+      errors should not contain ("batch.dataset.propertyKey must be specified when datasetSource == 'byProperty'")
+    }
   }
 
   it should "generate a dataset" in {
@@ -613,6 +628,66 @@ class BurnInConfigSpec extends BurstSupervisorSpec {
 
   }
 
+  it should "validate dataset.reloadEvery" in {
+    validateConfig(
+      """{
+        |   "batches": [{
+        |     "datasets": [{
+        |       "datasetSource": "",
+        |       "reloadEvery": 0
+        |     }]
+        |  }]
+        |}""".stripMargin
+    ) { config =>
+      val (_, errors) = config.validate()
+      errors should contain ("batch.dataset.reloadEvery must be more than 0")
+    }
+
+    validateConfig(
+      """{
+        |   "batches": [{
+        |     "datasets": [{
+        |       "datasetSource": "",
+        |       "reloadEvery": 1
+        |     }]
+        |  }]
+        |}""".stripMargin
+    ) { config =>
+      val (_, errors) = config.validate()
+      errors should not contain("batch.dataset.reloadEvery must be more than 0")
+    }
+
+  }
+
+  it should "validate dataset.copies" in {
+    validateConfig(
+      """{
+        |   "batches": [{
+        |     "datasets": [{
+        |       "datasetSource": "",
+        |       "copies": 0
+        |     }]
+        |  }]
+        |}""".stripMargin
+    ) { config =>
+      val (_, errors) = config.validate()
+      errors should contain("batch.dataset.copies must be more than 0")
+    }
+
+    validateConfig(
+      """{
+        |   "batches": [{
+        |     "datasets": [{
+        |       "datasetSource": "",
+        |       "copies": 1
+        |     }]
+        |  }]
+        |}""".stripMargin
+    ) { config =>
+      val (_, errors) = config.validate()
+      errors should not contain ("batch.dataset.copies must be more than 0")
+    }
+  }
 
   private def validateConfig(config: String)(validate: BurnInConfig => {}): Unit = {
     val burnInConfig = mapper.readValue(config, classOf[BurnInConfig])

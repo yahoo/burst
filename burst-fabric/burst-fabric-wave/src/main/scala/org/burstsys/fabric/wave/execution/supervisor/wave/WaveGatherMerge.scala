@@ -20,7 +20,7 @@ import scala.concurrent.Promise
 /**
  * stores all the state associated with a single wave on the supervisor
  */
-trait FabricWaveState extends Any {
+trait WaveGatherMerge extends Any {
 
   /**
    * @return global operation UID
@@ -45,40 +45,35 @@ trait FabricWaveState extends Any {
 }
 
 
-object FabricWaveState {
+object WaveGatherMerge {
 
-  def apply(scatter: TeslaScatter): FabricWaveState = FabricWaveStateContext(scatter)
+  def apply(scatter: TeslaScatter): WaveGatherMerge = WaveGatherMergeContext(scatter)
 
 }
 
 private final case
-class FabricWaveStateContext(scatter: TeslaScatter) extends FabricWaveState {
+class WaveGatherMergeContext(scatter: TeslaScatter) extends WaveGatherMerge {
 
   //////////////////////////////////////////////////////////////////////////////
   // PRIVATE STATE
   //////////////////////////////////////////////////////////////////////////////
 
-  private[this]
-  val _totalParticles = scatter.activeSlots
+  private val _startNanos = System.nanoTime
 
-  private[this]
-  val _workQueue = new ResultQueue(_totalParticles + 2)
+  private val _totalParticles = scatter.activeSlots
 
-  private[this]
-  var _processedParticles = 0
+  private val _workQueue = new ResultQueue(_totalParticles + 2)
 
-  private[this]
-  var _result: FabricGather = _
+  private var _processedParticles = 0
 
-  private[this]
-  val _sliceMetrics: ArrayBuffer[FabricGatherMetrics] = new ArrayBuffer[FabricGatherMetrics]
+  private var _result: FabricGather = _
 
-  private[this]
-  val _promise = Promise[FabricGather]()
+  private val _sliceMetrics: ArrayBuffer[FabricGatherMetrics] = new ArrayBuffer[FabricGatherMetrics]
+
+  private val _promise = Promise[FabricGather]()
 
   // this variable is ever accessed, but that's ok
-  private[this]
-  val _mergeWorker: Future[Unit] = TeslaRequestFuture {
+  private val _mergeWorker: Future[Unit] = TeslaRequestFuture {
     var next = _workQueue.take()
     while (next != EndOfQueueGather) {
       TeslaWorkerCoupler(processResult(next))
@@ -105,15 +100,15 @@ class FabricWaveStateContext(scatter: TeslaScatter) extends FabricWaveState {
     _workQueue.put(EndOfQueueGather)
   }
 
-  private def processResult(newGather: FabricGather): Unit = {
+  private def processResult(nextGather: FabricGather): Unit = {
     lazy val tag = s"FabricWaveState.nextParticleResult(guid=$guid)"
     try {
-      _sliceMetrics += newGather.gatherMetrics
+      _sliceMetrics += nextGather.gatherMetrics
       _result match {
         case _: FabricEmptyGather | null =>
-          _result = newGather
+          _result = nextGather
         case _ =>
-          _result.waveMerge(newGather)
+          _result.waveMerge(nextGather)
       }
     } catch safely {
       case t: Throwable =>

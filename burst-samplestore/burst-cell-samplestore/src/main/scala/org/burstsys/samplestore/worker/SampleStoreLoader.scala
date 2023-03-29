@@ -253,7 +253,7 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
         }
       }
 
-      lazy val countMsg = s"itemsRecevied=${_itemCount}"
+      lazy val countMsg = s"itemsReceived=${_itemCount}"
 
       // Aggregate the potential & rejected Size for SS load over all the loci
       _streams.foreach { s =>
