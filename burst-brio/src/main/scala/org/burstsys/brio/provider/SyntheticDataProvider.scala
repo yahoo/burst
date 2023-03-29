@@ -2,6 +2,7 @@
 package org.burstsys.brio.provider
 
 import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.reflection
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -15,8 +16,11 @@ object SyntheticDataProvider {
 
   def providerNamed(name: String): BrioSyntheticDataProvider = {
     dataProviders.get(name) match {
-      case Some(value) => value.getDeclaredConstructor().newInstance()
-      case None => throw VitalsException(s"Unknown dataset name: '$name'. Available datasets: ${dataProviders.keys.mkString("{'", "', '", "'}")}")
+      case Some(value) =>
+        value.getDeclaredConstructor().newInstance()
+      case None =>
+        log error burstStdMsg(s"Unknown dataset name: '$name'. Available datasets: ${dataProviders.keys.mkString("{'", "', '", "'}")}")
+        null
     }
   }
 

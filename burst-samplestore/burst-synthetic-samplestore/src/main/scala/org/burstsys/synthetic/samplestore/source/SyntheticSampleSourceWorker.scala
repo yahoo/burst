@@ -2,7 +2,7 @@
 package org.burstsys.synthetic.samplestore.source
 
 import org.burstsys.brio
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.userIdPrefixKey
+import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.provider.SyntheticDataProvider
 import org.burstsys.nexus.stream.NexusStream
@@ -10,6 +10,7 @@ import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorker
 import org.burstsys.synthetic.samplestore.configuration.{defaultItemCountProperty, defaultMaxItemSizeProperty, defaultPressTimeoutProperty, syntheticDatasetProperty}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors.{VitalsException, safely}
+import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.properties._
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -24,6 +25,7 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
    */
   override def name: String = SyntheticSampleSourceName
 
+  private val unityBrio = BurstUnitySyntheticDataProvider()
   /**
    * Instantiate an instance of a synthetic data provider and use it to feed the stream.
    *
@@ -36,7 +38,15 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
       val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
       try {
         val modelName = stream.get[String](syntheticDatasetProperty)
-        val dataProvider = SyntheticDataProvider.providerNamed(modelName) // invoke data model with item count
+        val dataProvider = {
+          val p = SyntheticDataProvider.providerNamed(modelName)
+          if (p == null) {
+            log error burstStdMsg(s"Data provider $modelName not found, substituting ${unityBrio.schemaName}")
+            unityBrio
+          } else {
+            p
+          }
+        }
         if (!(stream.schema equalsIgnoreCase dataProvider.schemaName)) {
           throw VitalsException(s"Stream and synthetic data provider do not specify the same schema. stream=${stream.schema} provider=${dataProvider.schemaName}")
         }
