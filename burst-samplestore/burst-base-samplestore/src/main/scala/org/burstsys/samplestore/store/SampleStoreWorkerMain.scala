@@ -7,7 +7,7 @@ import org.burstsys.vitals.logging.VitalsLog
 
 object SampleStoreWorkerMain {
   def main(args: Array[String]): Unit = {
-    VitalsLog.configureLogging("synthetic-worker")
+    VitalsLog.configureLogging("samplestore-worker")
     val wrkr = new SampleStoreFabricWorkerContainerContext(defaultFabricNetworkServerConfig)
     wrkr.start.run
   }

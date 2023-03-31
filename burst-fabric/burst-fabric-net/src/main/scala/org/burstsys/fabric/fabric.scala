@@ -3,9 +3,10 @@ package org.burstsys
 
 import org.burstsys.fabric.net.FabricNetReporter
 import org.burstsys.fabric.topology.supervisor.FabricTopologyReporter
+import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.reporter.{VitalsReporter, VitalsReporterSource}
 
-package object fabric extends VitalsReporterSource {
+package object fabric extends VitalsReporterSource with VitalsLogger {
 
   override def reporters: Array[VitalsReporter] = Array(
     FabricNetReporter,

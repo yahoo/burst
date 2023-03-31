@@ -3,6 +3,7 @@ package org.burstsys.fabric.container.http
 
 import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.vitals.healthcheck.VitalsSystemHealthService
+import org.burstsys.vitals.sysinfo.{SystemInfo, SystemInfoService}
 import org.glassfish.hk2.api.Factory
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 import org.glassfish.hk2.utilities.binding.ServiceBindingBuilder
@@ -14,6 +15,7 @@ class FabricHttpBinder(container: FabricContainer) extends AbstractBinder {
   override def configure(): Unit = {
     bind(container.health).to(classOf[VitalsSystemHealthService])
     bind(authorizer).to(classOf[FabricAuthorizationProvider])
+    bind(SystemInfoService).to(classOf[SystemInfo])
   }
 
   protected def bindFactory[T](supplier: () => T): ServiceBindingBuilder[T] = {

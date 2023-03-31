@@ -11,11 +11,13 @@ import org.burstsys.nexus
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
 import org.burstsys.samplestore.configuration.{sampleStoreNexusHostAddrOverride, sampleStoreNexusHostNameAddrOverride}
+import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
 import org.burstsys.samplestore.store.container.{NexusConnectedPortAssessParameterName, NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
 import org.burstsys.samplestore.store.message.FabricStoreMetadataReqMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 
 /**
  * the one per JVM top level container for a Fabric Worker
@@ -25,9 +27,11 @@ trait SampleStoreFabricWorkerContainer extends FabricWorkerContainer[SampleStore
 
 class
 SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
-  extends FabricWorkerContainerContext[SampleStoreFabricWorkerListener](netConfig) with SampleStoreFabricWorkerContainer {
+  extends FabricWorkerContainerContext[SampleStoreFabricWorkerListener](netConfig)
+    with SampleStoreFabricWorkerContainer
+    with SystemInfoComponent {
 
-  override def serviceName: String = s"store-worker-container"
+  override def serviceName: String = s"samplestore-worker-container"
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Lifecycle
@@ -43,6 +47,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
 
         // Look for sources
         SampleSourceHandlerRegistry.startIfNotAlreadyStarted
+        SystemInfoService.registerComponent(this)
 
         SampleSourceNexusServer.startIfNotAlreadyStarted
 
@@ -62,6 +67,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
       ensureRunning
 
       SampleSourceNexusServer.stopIfNotAlreadyStopped
+      SystemInfoService.deregisterComponent(this)
 
       // stop generic container
       super.stop
@@ -85,7 +91,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
 
       case mt =>
         log warn burstStdMsg(s"Unknown message type $mt")
-        throw VitalsException(s"Worker receieved unknown message mt=$mt")
+        throw VitalsException(s"Worker received unknown message mt=$mt")
     }
   }
 
@@ -127,4 +133,18 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
   }
 
   override def log4JPropertiesFileName: String = WorkerLog4JPropertiesFileName
+
+  /**
+   * @return name of component
+   */
+  override def name: String = serviceName
+
+  /**
+   * System info about component.
+   *
+   * @return Case classs that will be serialized to Json
+   */
+  override def status: AnyRef = {
+    SampleSourceHandlerRegistry.getSources
+  }
 }

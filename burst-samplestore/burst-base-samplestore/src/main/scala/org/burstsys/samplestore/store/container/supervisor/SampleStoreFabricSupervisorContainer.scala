@@ -21,6 +21,7 @@ import org.burstsys.samplestore.api.{SampleStoreApiListener, SampleStoreApiServe
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.samplestore.store.container._
 import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder
+import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.{SampleStoreStatusEndpoint, SampleStoreViewRequestEndpoint}
 import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLogService
 import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
@@ -31,6 +32,7 @@ import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstLocMsg
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, VitalsHostPort}
 import org.burstsys.vitals.properties.VitalsPropertyMap
+import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 
 import scala.concurrent.Future
@@ -48,9 +50,10 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   extends FabricSupervisorContainerContext[SampleStoreFabricSupervisorListener](netConfig)
   with SampleStoreFabricSupervisorContainer
   with FabricTopologyListener
-  with SampleStoreTopologyProvider {
+  with SampleStoreTopologyProvider
+  with SystemInfoComponent {
 
-  override def serviceName: String = s"fabric-store-supervisor-container"
+  override def serviceName: String = s"samplestore-supervisor-container"
 
   private val sampleStoreApiDelegate: SampleStoreApiServerDelegate = SimpleSampleStoreApiServerDelegate(this, storeListenerProperties)
 
@@ -71,6 +74,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
       }
 
       SampleSourceHandlerRegistry.startIfNotAlreadyStarted
+      SystemInfoService.registerComponent(this)
 
       // start fabric container
       super.start
@@ -92,6 +96,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
       ensureRunning
 
       thriftApiServer.stop
+      SystemInfoService.deregisterComponent(this)
 
       super.stop
 
@@ -203,4 +208,17 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   override def log4JPropertiesFileName: String = SupervisorLog4JPropertiesFileName
 
+  /**
+   * @return name of component
+   */
+  override def name: VitalsHostAddress = serviceName
+
+  /**
+   * System info about component.
+   *
+   * @return Case classs that will be serialized to Json
+   */
+  override def status: AnyRef = {
+    SampleSourceHandlerRegistry.getSources.map(StoreInfo)
+  }
 }

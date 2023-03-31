@@ -7,7 +7,7 @@ import org.burstsys.vitals.logging.VitalsLog
 
 object SampleStoreSupervisorMain {
   def main(args: Array[String]): Unit = {
-    VitalsLog.configureLogging("synthetic-supervisor")
+    VitalsLog.configureLogging("samplestore-supervisor")
     val properties = Map.empty[String, String]
     val supervisor = new SampleStoreFabricSupervisorContainerContext(defaultFabricNetworkServerConfig, properties)
     supervisor.start.run

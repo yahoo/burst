@@ -231,7 +231,7 @@ case class BurstUnitySyntheticDataProvider() extends BrioSyntheticDataProvider {
         val appVersion = SyntheticAppVersionData(appVersionIds.value(userIdx))
         val sessionIds = new AtomicLong()
         val idVal = s"${userIdPrefix}${userIdx + 1}"
-        log info s"id=$idVal"
+        log debug s"id=$idVal"
 
         SyntheticUserData(
           id = idVal,

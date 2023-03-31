@@ -19,7 +19,9 @@ import org.burstsys.vitals.healthcheck.VitalsHealthMarginal
 import org.burstsys.vitals.healthcheck.VitalsHealthUnhealthy
 import org.burstsys.vitals.logging.burstLocMsg
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.net.VitalsHostAddress
 import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 
 import java.lang
 import java.util.concurrent.ConcurrentHashMap
@@ -82,7 +84,7 @@ object FabricSupervisorTopology {
 
 private final case
 class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: FabricSupervisorContainer[T])
-  extends FabricSupervisorTopology with FabricSupervisorListener {
+  extends FabricSupervisorTopology with FabricSupervisorListener with SystemInfoComponent {
 
   override val serviceName: String = s"fabric-topology-service"
 
@@ -97,6 +99,7 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
     ensureNotRunning
     log info startingMessage
     container.talksTo(this.asInstanceOf[T])
+    SystemInfoService.registerComponent(this)
     this talksTo FabricTopologyReporter
     markRunning
     this
@@ -105,6 +108,7 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
   override
   def stop: this.type = {
     ensureRunning
+    SystemInfoService.deregisterComponent(this)
     log info stoppingMessage
     markNotRunning
     this
@@ -317,4 +321,18 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
     }
   }
 
+  /**
+   * @return name of component
+   */
+  override def name: String = serviceName
+
+  /**
+   * System info about component.
+   *
+   * @return Case classs that will be serialized to Json
+   */
+  override def status: AnyRef = {
+    case class TopologyStatus(healthyWorkers: Array[FabricWorkerNode] = healthyWorkers.map(_.forExport))
+    TopologyStatus()
+  }
 }

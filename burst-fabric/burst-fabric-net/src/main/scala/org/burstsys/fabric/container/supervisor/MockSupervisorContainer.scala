@@ -7,6 +7,7 @@ import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.net.server.unitFabricNetworkServerConfig
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.sysinfo.SystemInfo
 import org.burstsys.{tesla, vitals}
 
 /**
@@ -87,5 +88,4 @@ class MockSupervisorContainerContext[T <: FabricSupervisorListener](logFile: Str
     }
     this
   }
-
 }

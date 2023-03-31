@@ -2,30 +2,19 @@
 package org.burstsys.fabric.container
 
 import org.burstsys.fabric.configuration
-import org.burstsys.fabric.container.http.FabricWebSocketService
-import org.burstsys.fabric.container.http.FabricHttpBinder
-import org.burstsys.fabric.container.http.FabricHttpResourceConfig
-import org.burstsys.fabric.container.http.FabricHttpSSL
-import org.burstsys.fabric.container.http.endpoints.FabricHttpHealthCheckEndpoint
-import org.burstsys.fabric.container.http.endpoints.FabricHttpSystemInfoEndpoint
-import org.burstsys.fabric.net.server
+import org.burstsys.fabric.container.http.endpoints.{FabricHttpHealthCheckEndpoint, FabricHttpSystemInfoEndpoint}
+import org.burstsys.fabric.container.http.{FabricHttpBinder, FabricHttpResourceConfig, FabricHttpSSL, FabricWebSocketService}
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
-import org.burstsys.vitals.VitalsService
-import org.burstsys.vitals.VitalsService.VitalsContainer
-import org.burstsys.vitals.VitalsService.VitalsServiceModality
+import org.burstsys.vitals.VitalsService.{VitalsContainer, VitalsServiceModality}
 import org.burstsys.vitals.configuration.burstCellNameProperty
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.git
 import org.burstsys.vitals.healthcheck.VitalsSystemHealthService
-import org.burstsys.vitals.logging.VitalsLog
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.net.VitalsHostName
-import org.burstsys.vitals.net.VitalsHostPort
-import org.burstsys.vitals.net.VitalsUrl
+import org.burstsys.vitals.net.{VitalsHostName, VitalsHostPort}
 import org.burstsys.vitals.properties.VitalsPropertyRegistry
-import org.burstsys.vitals.reporter
-import org.glassfish.grizzly.http.server.HttpServer
-import org.glassfish.grizzly.http.server.NetworkListener
+import org.burstsys.vitals.sysinfo.{SystemInfo, SystemInfoService}
+import org.burstsys.vitals.{VitalsService, git, reporter}
+import org.glassfish.grizzly.http.server.{HttpServer, NetworkListener}
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator
 import org.glassfish.grizzly.websockets.WebSocketAddOn
 import org.glassfish.hk2.utilities.binding.AbstractBinder
@@ -138,6 +127,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
       synchronized {
         ensureNotRunning
         _healthCheck.start
+        SystemInfoService.startIfNotAlreadyStarted
 
         VitalsLog.configureLogging(log4JPropertiesFileName)
         VitalsPropertyRegistry.logReport
@@ -205,6 +195,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
       ensureRunning
       TeslaFactoryBoss.stopIfNotAlreadyStopped
       _healthCheck.stop
+      SystemInfoService.stopIfNotAlreadyStopped
       _webSocketService.stop
       _server.shutdownNow()
       markNotRunning
