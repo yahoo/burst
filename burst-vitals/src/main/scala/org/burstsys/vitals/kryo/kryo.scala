@@ -54,7 +54,7 @@ package object kryo extends VitalsLogger {
     val k = codecQueue.poll(kryoPollWait.toMillis, TimeUnit.MILLISECONDS)
     if (k == null) {
       // if its slow, just create your own
-      log info s"KRYO_CODEC_CREATE #${codecCount.getAndIncrement} $tag"
+      log debug s"KRYO_CODEC_CREATE #${codecCount.getAndIncrement} $tag"
       val kryo = new Kryo()
       kryo.setRegistrationRequired(true)
       kryo.setReferences(false)

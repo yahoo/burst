@@ -24,10 +24,10 @@ object TeslaTypes {
    */
   type TeslaMemoryPtr = Long
 
-  // uninitialized memory pointer
+  /** uninitialized memory pointer: -1 */
   final val TeslaNullMemoryPtr: TeslaMemoryPtr = -1L
 
-  // end marker memory pointer
+  /** end marker memory pointer: -2 */
   final val TeslaEndMarkerMemoryPtr: TeslaMemoryPtr = -2L
 
   // -------------------- 2^31^ (2,147,483,648 byte) memory blocks  ----------------------------------------

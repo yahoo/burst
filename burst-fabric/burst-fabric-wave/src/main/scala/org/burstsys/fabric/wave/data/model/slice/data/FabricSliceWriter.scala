@@ -102,11 +102,11 @@ trait FabricSliceWriter extends AnyRef with FabricWriteMetrics {
 
       // flag runt regions...
       if (regions.isEmpty)
-        log info burstStdMsg(s"NO_DATA (region set is empty) $tag")
+        log debug burstStdMsg(s"NO_DATA (region set is empty) $tag")
 
       _isOpenForWrites = false
 
-      log info
+      log debug
         s"""|
             |------------- SLICE_WRITE_SUCCESS -----------------
             |$sprayMetrics

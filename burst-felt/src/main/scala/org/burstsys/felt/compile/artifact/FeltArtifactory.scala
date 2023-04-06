@@ -38,10 +38,10 @@ class FeltArtifactory[INPUT <: Any, OUTPUT <: FeltArtifact[INPUT]] extends Vital
    */
   private[this]
   def _lruCleaner(): Unit = {
-    log info s"FELT_ARTIFACTORY_CLEANER service=$serviceName starting cleaner thread"
+    log debug s"FELT_ARTIFACTORY_CLEANER service=$serviceName starting cleaner thread"
     while (true) {
       try {
-        log info s"FELT_ARTIFACTORY_CLEANER service=$serviceName cleanDuration=$cleanDuration"
+        log debug s"FELT_ARTIFACTORY_CLEANER service=$serviceName cleanDuration=$cleanDuration"
         Thread.sleep(cleanDuration.toMillis)
 
         val excessCount = {

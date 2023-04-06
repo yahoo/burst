@@ -1,8 +1,9 @@
 import {Button} from "react-bootstrap";
 import React from "react";
 import {FaIcon} from "../../utility/fa-icon";
-import {ConfigRow, DurationPicker, LoadQueryInput, MaxDurationInput} from "./helpers";
+import {ConfigRow, DurationPicker, GrowingEditor, LoadQueryInput, MaxDurationInput} from "./helpers";
 import {DatasetConfig} from "./dataset-config";
+import {Conditional} from "../../components/helpers";
 
 export const BatchConfig = ({batch = {}, readOnly = false, onChange = (prop = '', value) => undefined}) => {
     const {
@@ -49,12 +50,14 @@ export const BatchConfig = ({batch = {}, readOnly = false, onChange = (prop = ''
             <ConfigRow label="Queries">
                 {queries.map((q, i) => (
                     <div key={i} className="d-flex align-items-center config-row">
-                        <textarea rows={4} cols={80} value={q} readOnly={readOnly} onChange={e => {
+                        <GrowingEditor value={q} readOnly={readOnly} onChange={e => {
                             onBatchChange('queries', [...queries.slice(0, i), e.target.value, ...queries.slice(i + 1)])
                         }}/>
-                        <Button size="sm" variant="outline-danger" disabled={readOnly} onClick={() => {
-                            onBatchChange('queries', [...queries.slice(0, i), ...queries.slice(i + 1)])
-                        }}><FaIcon icon="trash" inheritColor/></Button>
+                        <Conditional show={!readOnly}>{() =>
+                            <Button size="sm" variant="outline-danger" disabled={readOnly} onClick={() => {
+                                onBatchChange('queries', [...queries.slice(0, i), ...queries.slice(i + 1)])
+                            }}><FaIcon icon="trash" inheritColor/></Button>}
+                        </Conditional>
                     </div>
                 ))}
                 <Button variant="outline-success" size="sm" disabled={readOnly}

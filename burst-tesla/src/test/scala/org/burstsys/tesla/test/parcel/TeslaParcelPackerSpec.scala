@@ -35,7 +35,7 @@ class TeslaParcelPackerSpec extends TeslaAbstractSpec {
       try {
         val futures = for (f <- 0 until concurrency) yield {
           TeslaWorkerFuture {
-            for (i <- 0 until bufferCount / concurrency) {
+            for (_ <- 0 until bufferCount / concurrency) {
               val buffer = tesla.buffer.factory.grabBuffer(bufferSize)
               for (i <- 0 until bufferSize) buffer.writeByte(i.toByte)
               packer.put(buffer)
@@ -45,9 +45,8 @@ class TeslaParcelPackerSpec extends TeslaAbstractSpec {
         Await.result(Future.sequence(futures), 5 minutes)
       } finally tesla.parcel.packer.releasePacker(packer)
 
-      (0 until parcelCount).foreach {
-        i =>
-          tesla.parcel.factory.releaseParcel(pipe.take)
+      (0 until parcelCount).foreach { _ =>
+        tesla.parcel.factory.releaseParcel(pipe.take)
       }
 
     }

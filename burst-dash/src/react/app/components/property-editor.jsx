@@ -1,8 +1,7 @@
 import React, {useMemo} from 'react';
 import {useImmerReducer} from "use-immer";
 import {Button, Table} from "react-bootstrap";
-import {current} from "immer";
-import {FaIcon} from "../utility/fa-icon";
+import {Conditional} from "./helpers";
 
 const UpdateKeyAction = 'updateKey';
 const UpdateValueAction = "updateValue";
@@ -30,7 +29,9 @@ const PropertyRow = ({
         <tr>
             <td><input className="w-100" value={propKey} readOnly={readOnly} onChange={onChangeKey}/></td>
             <td><input className="w-100" value={value} readOnly={readOnly} onChange={onChangeValue}/></td>
-            <td>{!isNew && !readOnly && <Button variant="outline-danger" onClick={onRemove} disabled={readOnly}> - </Button>}</td>
+            <td><Conditional show={!(isNew || readOnly)}>{() =>
+                <Button variant="outline-danger" onClick={onRemove} disabled={readOnly}> - </Button>
+            }</Conditional></td>
         </tr>
     )
 }

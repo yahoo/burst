@@ -102,7 +102,7 @@ class FabricRegionReaderContext(var snap: FabricSnap, region: FabricRegion, regi
     lazy val tag = s"FabricRegionReader.loadIntoMemory($parameters)"
     synchronized {
       try {
-        log info s"REGION_LOAD_INTO_MEMORY_START $tag"
+        log debug s"REGION_LOAD_INTO_MEMORY_START $tag"
         _file = new RandomAccessFile(filePath.toFile, "r")
         _channel = _file.getChannel
         _readMappedByteBuffer = _channel.map(FileChannel.MapMode.READ_ONLY, 0, _file.length)
@@ -136,7 +136,7 @@ class FabricRegionReaderContext(var snap: FabricSnap, region: FabricRegion, regi
   def evictRegionFromMemory(): Unit = {
     lazy val tag = s"FabricRegionReader.evictFromMemory($parameters)"
     try {
-      log info s"REGION_EVICT_START $tag"
+      log debug s"REGION_EVICT_START $tag"
       _readMappedByteBuffer.force()
       offheap.releaseBuffer(_readMappedByteBuffer)
       _readMappedByteBuffer = null
@@ -157,7 +157,7 @@ class FabricRegionReaderContext(var snap: FabricSnap, region: FabricRegion, regi
   def flushRegionFromDisk(): Unit = {
     lazy val tag = s"FabricRegionReader.flushRegionFromDisk($parameters)"
     try {
-      log info s"REGION_FLUSH $tag"
+      log debug s"REGION_FLUSH $tag"
       if (Files.exists(filePath)) Files.delete(filePath)
     } catch safely {
       case t: Throwable =>

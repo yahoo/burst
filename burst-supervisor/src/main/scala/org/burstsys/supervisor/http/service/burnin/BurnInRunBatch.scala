@@ -57,6 +57,7 @@ object BurnInRunBatch {
     val generated = mutable.Map[Long /* counter */ , BurnInDatasetDescriptor]()
     val loadQueries = mutable.Map[Long, String]()
     val loadIntervals = mutable.Map[Long, Option[Int]]()
+    def nextGeneratedId: Long = counter.getAndAdd(-1)
 
     /*
      * - look up views (w/associated domain) by pk/udk
@@ -91,18 +92,20 @@ object BurnInRunBatch {
               views.map(v => (v.domainFk, v.pk))
           }
         case LookupType.Generate =>
-          val id = counter.getAndAdd(-1)
-          generated(id) = dataset
-          Array((id, id))
+          val domainPk = nextGeneratedId
+          val views = ArrayBuffer[(Long, Long)]()
+          for (_ <- 0 until dataset.copies.getOrElse(1)) {
+            generated(domainPk) = dataset
+            views += ((domainPk, nextGeneratedId))
+          }
+          views.toArray
       }
 
       for ((domainPk, viewPk) <- views) {
         val views = domainDedupe.getOrElseUpdate(domainPk, ArrayBuffer.empty)
         loadIntervals(viewPk) = dataset.reloadEvery
         dataset.loadQuery.foreach(loadQueries(viewPk) = _)
-        for (_ <- 0 until dataset.copies.getOrElse(1)) {
-          views += viewPk
-        }
+        views += viewPk
       }
     }
 
@@ -111,11 +114,10 @@ object BurnInRunBatch {
       val viewPks = domainWithViews._2
 
       counter.set(initialCounter)
-      val datasetId = counter.getAndAdd(-1)
+      val datasetId = nextGeneratedId
       val (domain: FabricDomain, views: Array[FabricView]) = if (domainPk < 0) {
-        val counterIdx = domainPk
-        val dataset = generated(counterIdx)
-        (dataset.domain.get.toFabric(datasetId), Array(dataset.view.get.toFabric(datasetId, datasetId)))
+        val dataset = generated(domainPk)
+        (dataset.domain.get.toFabric(datasetId), viewPks.map(_ => dataset.view.get.toFabric(nextGeneratedId, datasetId)).toArray)
       } else {
         val domain = catalog.findDomainByPk(domainPk) match {
           case Failure(exception) =>
@@ -130,7 +132,7 @@ object BurnInRunBatch {
               val message = s"Failed to load view pk=$viewPk. ${exception.getMessage}"
               logError(message)
               throw VitalsException(message)
-            case Success(view) => view.copy(pk = counter.getAndAdd(-1), domainFk = datasetId)
+            case Success(view) => view.copy(pk = nextGeneratedId, domainFk = datasetId)
           }
         })
         (domain, views)
@@ -216,7 +218,7 @@ case class BurnInRunBatch(
 
   private def shouldContinueIterations: Boolean = _totalDatasetCounter.get() < config.desiredDatasetIterations.get
 
-  private def shouldContinueDuration: Boolean = startTimeMillis + config.desiredDuration.get.toMillis < System.currentTimeMillis()
+  private def shouldContinueDuration: Boolean = System.currentTimeMillis() < startTimeMillis + config.desiredDuration.get.toMillis
 
   private def getNextDataset: BurnInRunDataset = {
     val _ = _totalDatasetCounter.getAndIncrement()
@@ -255,22 +257,29 @@ case class BurnInWorker(
       while (shouldContinue()) breakable {
         val dataset = nextDataset()
         if (!dataset.ready) {
-          break
+          break()
         }
 
         val guidBase = s"BurnIn_${Math.abs(dataset.view.viewKey)}"
         flushDataset(dataset)
+        registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}")
+        if (!shouldContinue()) {
+          break()
+        }
         runQuery(dataset, dataset.loadQuery, s"${guidBase}_Load") match {
 
           case Failure(exception) =>
             registerLogEvent(s"Failed to load view=${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
 
           case Success(loadStats) =>
-            registerLogEvent(s"Loaded dataset view=${dataset.view.viewKey}")
+            registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}")
             result = result.merge(loadStats)
             //            reportStats(loadStats)
             for (queryIdx <- dataset.queries.indices) {
               val query = dataset.queries(queryIdx)
+              if (!shouldContinue()) {
+                break()
+              }
               runQuery(dataset, query, s"${guidBase}_Query$queryIdx") match {
                 case Failure(exception) =>
                   registerLogEvent(s"Failed to execute query  $queryIdx on view ${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
@@ -291,9 +300,9 @@ case class BurnInWorker(
 
   private def runQuery(dataset: BurnInRunDataset, query: String, guid: String): Try[BurnInRunBatchStats] = {
     if (dataset.shouldFlush) {
-      flushDataset(dataset)
+      Await.ready(flushDataset(dataset), 10.seconds)
     }
-    dataset.execQuery()
+    dataset.willRunQuery()
 
     val over = FabricOver(dataset.domain.domainKey, dataset.view.viewKey)
     val future = agent.execute(query, over, guid)

@@ -33,19 +33,6 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some(12) // for now...
   )
 
-  val burstFabricColdLoadConcurrencyProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.fabric.cache.load.concurrency",
-    description = "max concurrent cold loads in worker cache",
-    default = Some(3) // for now...
-  )
-
-  val burstFabricScanConcurrencyProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.fabric.cache.scan.concurrency",
-    description = "max concurrent scans in worker engine",
-    default = Some(12) // for now...
-  )
-
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // REGIONS
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +109,7 @@ package object configuration extends VitalsPropertyRegistry {
    */
   val burstFabricCacheMemoryHighMarkPercentProperty: VitalsPropertySpecification[Double] = VitalsPropertySpecification[Double](
     key = "burst.fabric.cache.memory.high.percent",
-    description = "high water mark memory usage percentage...",
+    description = "high water mark memory usage percentage",
     default = Some(40.0)
   )
 
@@ -131,7 +118,7 @@ package object configuration extends VitalsPropertyRegistry {
    */
   val burstFabricCacheMemoryLowMarkPercentProperty: VitalsPropertySpecification[Double] = VitalsPropertySpecification[Double](
     key = "burst.fabric.cache.memory.low.percent",
-    description = "low water mark memory usage percentage...",
+    description = "low water mark memory usage percentage",
     default = Some(25.0)
   )
 
@@ -140,7 +127,7 @@ package object configuration extends VitalsPropertyRegistry {
    */
   val burstFabricCacheDiskHighMarkPercentProperty: VitalsPropertySpecification[Double] = VitalsPropertySpecification[Double](
     key = "burst.fabric.cache.disk.high.percent",
-    description = "high water mark disk usage percentage...",
+    description = "high water mark disk usage percentage",
     default = Some(60.0)
   )
 
@@ -149,8 +136,14 @@ package object configuration extends VitalsPropertyRegistry {
    */
   val burstFabricCacheDiskLowMarkPercentProperty: VitalsPropertySpecification[Double] = VitalsPropertySpecification[Double](
     key = "burst.fabric.cache.disk.low.percent",
-    description = "low water mark disk usage percentage...",
+    description = "low water mark disk usage percentage",
     default = Some(50.0)
+  )
+
+  val burstViewCacheFaultHealProperty: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.fabric.cache.fault.heal.duration",
+    description = "how long before a dataset should attempt a reload from the remote store",
+    default = Some(10.seconds)
   )
 
   /**
@@ -199,7 +192,7 @@ package object configuration extends VitalsPropertyRegistry {
     )
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Datasources
+  // Data sources
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   val burstFabricDatasourceMaxSizeProperty: VitalsPropertySpecification[Long] = VitalsPropertySpecification[Long](
@@ -212,5 +205,33 @@ package object configuration extends VitalsPropertyRegistry {
     datasource.view.viewProperties.extend.getValueOrDefault(
       metadata.ViewNextDatasetSizeMaxProperty, burstFabricDatasourceMaxSizeProperty.get
     )
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Cache loops
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  val burstFabricCacheLoadLoopWaitQuantum: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.fabric.cache.load.loop.step",
+    description = "how long the load loop waits to acquire a lock",
+    default = Some(1.second)
+  )
+
+  val burstFabricCacheLoadLoopMaxWait: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.fabric.cache.load.loop.max",
+    description = "how long the load loop tries to acquire a lock before aborting",
+    default = Some(5.minutes)
+  )
+
+  val burstFabricCacheTenderLoopWaitQuantum: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.fabric.cache.tender.loop.step",
+    description = "how long the tender loop waits to acquire a lock",
+    default = Some(10.seconds)
+  )
+
+  val burstFabricCacheTenderLoopMaxWait: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.fabric.cache.tender.loop.max",
+    description = "how long the tender loop tries to acquire a lock before aborting",
+    default = Some(1.minute)
+  )
 
 }

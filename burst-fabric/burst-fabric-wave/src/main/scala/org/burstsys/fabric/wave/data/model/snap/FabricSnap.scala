@@ -158,7 +158,7 @@ trait FabricSnap extends AnyRef {
   /**
    * @return if the underlying fault has healed
    */
-  def hasHealed: Boolean = failCount == 0
+  def isHealed: Boolean = failCount == 0
 
   /**
    * @return number of failed attempts to do a load...
@@ -214,8 +214,7 @@ case class FabricSnapContext(var slice: FabricSlice) extends FabricSnap with Fab
 
   override
   def toString: String =
-    s"""|
-        |FabricSnap(guid=$guid,  state=$state
+    s"""FabricSnap(guid=$guid,  state=$state
         |   slice=${slice}
         |   metadata=${metadata}
         |   data=${data}

@@ -83,7 +83,7 @@ trait FabricSnapCacheLoader extends AnyRef {
   private
   def processSnap(startNanos: Long, snap: FabricSnap, newSlice: FabricSlice): FabricSnap = {
     var loops = 0
-    var reqGuid = newSlice.guid
+    val reqGuid = newSlice.guid
     def tag = s"FabricSnapCacheLoader.processSnap(guid=$reqGuid slice=${snap.slice.guid}, ${snap.slice.identity}, loops=$loops)"
     while (loops < loadLoopTuner.maxLoops) {
       val resliceNeeded = newSlice.isResliceOf(snap.slice)
@@ -102,6 +102,7 @@ trait FabricSnapCacheLoader extends AnyRef {
               else
                 talk(_.onSnapFailLoad(snap))
             } finally snap.releaseSnapWriteLock()
+
           } else snap.waitState(loadLoopTuner.waitQuantumMs)
 
         case WarmSnap =>
@@ -118,6 +119,7 @@ trait FabricSnapCacheLoader extends AnyRef {
                   talk(_.onSnapFailLoad(snap))
               }
             } finally snap.releaseSnapWriteLock()
+
           } else snap.waitState(loadLoopTuner.waitQuantumMs)
 
         case HotSnap =>
@@ -126,10 +128,12 @@ trait FabricSnapCacheLoader extends AnyRef {
               log info s"FAB_CACHE_SNAP_HOT (reslice mode - needs evict...) $tag"
               doEvict(snap) // moves from hot to warm
             } finally snap.releaseSnapWriteLock()
+
           } else if (!resliceNeeded && snap.trySnapReadLock) {
             log info s"FAB_CACHE_SNAP_HOT (normal mode - scan ready...) $tag"
             talk(_.onSnapHotLoad(snap, System.nanoTime - startNanos, snap.metadata.generationMetrics.byteCount))
             return snap
+
           } else snap.waitState(loadLoopTuner.waitQuantumMs)
 
         case NoDataSnap =>
@@ -139,28 +143,35 @@ trait FabricSnapCacheLoader extends AnyRef {
               snap.state = ColdSnap
               talk(_.onSnapReslice(snap))
             } finally snap.releaseSnapWriteLock()
+
           } else if (!resliceNeeded && snap.trySnapReadLock) {
             log info s"FAB_CACHE_SNAP_EMPTY (normal mode - scan ready...) $tag"
             talk(_.onSnapHotLoad(snap, System.nanoTime - startNanos, snap.metadata.generationMetrics.byteCount))
             return snap
+
           } else snap.waitState(loadLoopTuner.waitQuantumMs)
 
         case FailedSnap =>
-          if ((resliceNeeded || snap.hasHealed) && snap.trySnapWriteLock) {
+          if ((resliceNeeded || snap.isHealed) && snap.trySnapWriteLock) {
             log info s"FAB_CACHE_SNAP_FAILED (failCount=${snap.failCount}, maxFails=${loadLoopTuner.maxFails} - reset failure...) $tag"
             snap.state = ColdSnap // start the state sequence again
             snap.resetLastFail() // set fail count to 0, if it's not already
             snap.releaseSnapWriteLock()
+
           } else if (snap.failCount < loadLoopTuner.maxFails && snap.trySnapWriteLock) {
             log info s"FAB_CACHE_SNAP_FAILED (failCount=${snap.failCount}, maxFails=${loadLoopTuner.maxFails} - try another cold load...) $tag"
             snap.state = ColdSnap // start the state sequence again
             snap.releaseSnapWriteLock()
+
           } else if (snap.failCount >= loadLoopTuner.maxFails && snap.trySnapWriteLock) {
             snap.releaseSnapWriteLock()
             val msg = s"FAB_CACHE_SNAP_FAILED (failCount=${snap.failCount}, maxFails=${loadLoopTuner.maxFails} - give up...) $tag"
             log error burstStdMsg(msg)
             return snap
-          } else snap.waitState(loadLoopTuner.waitQuantumMs)
+
+          } else {
+            snap.waitState(loadLoopTuner.waitQuantumMs)
+          }
 
         case s =>
           val msg = s"FAB_CACHE_SNAP_BAD (bad state $s...) $tag"

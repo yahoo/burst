@@ -68,7 +68,7 @@ trait FabricSnapImage extends KryoSerializable {
   var _totalAccessCount: Long = 0
 
   private[this]
-  var _healingFault = VitalsHealingFault(5 minutes)
+  var _healingFault = VitalsHealingFault(burstViewCacheFaultHealProperty.get)
 
   ///////////////////////////////////////////////////////////////////
   // accessors
@@ -118,7 +118,7 @@ trait FabricSnapImage extends KryoSerializable {
     state = FailedSnap
   }
 
-  final override def resetLastFail(): Unit = _healingFault.manualHeal()
+  final override def resetLastFail(): Unit = _healingFault.heal()
 
   final override def lastFail: Option[Throwable] = _healingFault.fault
 
@@ -145,7 +145,7 @@ trait FabricSnapImage extends KryoSerializable {
     _evictTtlMs = evictTtlMsFromDatasource(slice.datasource)
     _flushTtlMs = flushTtlMsFromDatasource(slice.datasource)
     _eraseTtlMs = eraseTtlMsFromDatasource(slice.datasource)
-    log info burstStdMsg(s"SNAP_OPEN $tag")
+    log debug burstStdMsg(s"SNAP_OPEN $tag")
     this
   }
 
@@ -183,7 +183,7 @@ trait FabricSnapImage extends KryoSerializable {
       val finalFile = createFileDeleteIfExists(path, snapSuffix)
       Files.move(tmpFile, finalFile, ATOMIC_MOVE)
 
-      log info s"SNAP_PERSIST $tag"
+      log debug s"SNAP_PERSIST $tag"
       this
 
     } catch safely {

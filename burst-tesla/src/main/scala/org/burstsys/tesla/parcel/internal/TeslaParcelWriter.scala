@@ -43,9 +43,7 @@ trait TeslaParcelWriter extends Any with TeslaParcel with TeslaParcelState {
     nextSlotOffset(writeOffset)
 
     // and how many buffers have completed
-    val current = bufferCount
     incrementBufferCount()
-    val updated = bufferCount
     // up the used memory by the buffer size and the length field
     incrementUsedMemory(size + SizeOfInteger)
 

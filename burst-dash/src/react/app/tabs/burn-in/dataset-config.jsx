@@ -1,6 +1,6 @@
 import {Button} from "react-bootstrap";
 import {FaIcon} from "../../utility/fa-icon";
-import {ConditionalInput, ConfigRow, LoadQueryInput} from "./helpers";
+import {ConditionalInput, ConfigRow, GrowingEditor, LoadQueryInput} from "./helpers";
 import {Conditional} from "../../components/helpers";
 import {PropertyEditor} from "../../components/property-editor";
 import React from "react";
@@ -13,6 +13,7 @@ export const DatasetConfig = ({
                               }) => {
     const {
         datasetSource, // String - one of ["byPk", "byUdk", "byProperty", "generate"] // how is this dataset defined, loading by pk, udk, matching labels, or generated from an inline definition
+        copies, // Option[Int] - the number of times to copy this dataset in the run
         pk, // Option[Long] - the pk of the view to copy, only used when datasetSource == byPk
         udk, // Option[String] -  the udk of the view to copy, only used when datasetSource == byUdk
         label, // Option[String] - a property that must be present on the view, only used when datasetSource == byProperty
@@ -26,8 +27,11 @@ export const DatasetConfig = ({
     return (
         <div className="d-flex dataset">
             <div className="d-inline-flex align-items-center mx-3">
-                <Button variant="outline-danger" size="sm" onClick={removeDataset}><FaIcon icon="trash"
-                                                                                           inheritColor/></Button>
+                <Conditional show={!readOnly}>{() =>
+                    <Button variant="outline-danger" size="sm" onClick={removeDataset}>
+                        <FaIcon icon="trash" inheritColor/>
+                    </Button>
+                }</Conditional>
             </div>
             <div className="flex-grow-1">
                 <ConfigRow label="source">
@@ -38,6 +42,9 @@ export const DatasetConfig = ({
                         <option value="byProperty">By Property</option>
                         <option value="generate">Generated</option>
                     </select>
+                </ConfigRow>
+                <ConfigRow label="Copies">
+                    <input type="number" value={copies || 1} min={1} readOnly={readOnly} onChange={e => onDatasetChange('copies', +e.target.value)}/>
                 </ConfigRow>
                 <ConfigRow label="View PK" show={!!pk || pk === 0}>
                     <input type="number" value={pk} readOnly={readOnly}
@@ -78,7 +85,7 @@ export const DatasetConfig = ({
                         }}/>
                     </ConfigRow>
                     <ConfigRow label="View motif" className="align-items-start">
-                        <textarea value={view.viewMotif} rows={4} cols={80} readOnly={readOnly}
+                        <GrowingEditor value={view.viewMotif} readOnly={readOnly}
                                   onChange={e => onDatasetChange('view', {...view, viewMotif: e.target.value})}/>
                     </ConfigRow>
                 </>}</Conditional>

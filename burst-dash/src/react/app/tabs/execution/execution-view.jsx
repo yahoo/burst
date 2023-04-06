@@ -196,7 +196,7 @@ const particleColumns = [
         Filter: ParticleStatusFilter,
         filter: 'state'
     },
-    {Header: "Message", accessor: "message", disableFilters: true},
+    {Header: "Message", accessor: "message", className: "ws-pre", disableFilters: true},
     {Header: "Start", accessor: "beginMillis", Cell: DateCell, disableFilters: true},
     {
         Header: "Duration",

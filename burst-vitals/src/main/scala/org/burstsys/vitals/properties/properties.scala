@@ -540,13 +540,13 @@ package object properties extends VitalsLogger {
         stringValue.toDouble.asInstanceOf[C]
       } else if (e == classOf[java.lang.String]) {
         if (stringValue.isEmpty) return defaultValue
-        stringValue.toString.asInstanceOf[C]
+        stringValue.asInstanceOf[C]
       } else if (e == classOf[String]) {
         if (stringValue.isEmpty) return defaultValue
-        stringValue.toString.asInstanceOf[C]
+        stringValue.asInstanceOf[C]
       } else if (e == classOf[Duration]) {
         if (stringValue.isEmpty) return defaultValue
-        Duration(stringValue.toString).asInstanceOf[C]
+        Duration(stringValue).asInstanceOf[C]
       } else
         throw VitalsException(s"VITALS_PROP_NO_SUPPORT type=$e $tag")
     } catch safely {

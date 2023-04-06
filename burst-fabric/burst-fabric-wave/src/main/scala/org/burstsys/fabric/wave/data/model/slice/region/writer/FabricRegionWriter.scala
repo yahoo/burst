@@ -5,14 +5,16 @@ import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.{NoSuchFileException, Path, StandardOpenOption}
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong, LongAdder}
-
 import org.burstsys.fabric.wave.data.model.slice.region.hose.FabricWriteMetrics
 import org.burstsys.fabric.wave.data.model.slice.region.{FabricRegion, FabricRegionIdentity, FabricRegionReporter, FabricRegionTag, RegionMagic, RegionVersion}
 import org.burstsys.fabric.wave.data.model.snap.{FabricSnap, FabricSnapComponent}
 import org.burstsys.fabric.wave.data.worker.pump.{FabricCacheImpeller, FabricCacheIntake}
-import org.burstsys.tesla.parcel.TeslaParcel
+import org.burstsys.tesla
+import org.burstsys.tesla.parcel.{TeslaEndMarkerParcel, TeslaParcel}
+import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.reporter.instrument.{prettyRateString, prettyTimeFromNanos}
 
 /**
  * write operations for a fabric region file
@@ -42,8 +44,6 @@ trait FabricRegionWriter extends FabricWriteMetrics with FabricRegionIdentity wi
 
   /**
    * queue a single parcel into the write vector
-   *
-   * @return
    */
   def queueParcelForWrite(parcel: TeslaParcel): Unit
 
@@ -101,7 +101,7 @@ class FabricRegionWriterContext(
                                  regionTag: FabricRegionTag,
                                  filePath: Path,
                                  impeller: FabricCacheImpeller
-                               ) extends AnyRef with FabricRegionWriter with FabricRegionParcelWriter {
+                               ) extends FabricRegionWriter {
 
   lazy val parameters = s"guid=${snap.guid}, regionIndex=${region.regionIndex}, file=${filePath}"
 
@@ -109,31 +109,35 @@ class FabricRegionWriterContext(
   // state
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private[writer] var _channel: AsynchronousFileChannel = _
+  private var _channel: AsynchronousFileChannel = _
 
-  private[writer] var _writePtr: Long = _
+  private var _writePtr: Long = _
 
-  private[this] final val _completed = new AtomicBoolean(false)
+  private final val _completed = new AtomicBoolean(false)
 
-  protected[this] var _lastWriteFuture: java.util.concurrent.Future[Integer] = _
+  private var _lastWriteFuture: java.util.concurrent.Future[Integer] = _
 
-  protected[this] var _isRuntRegion = false
+  private val _isRuntRegion = new AtomicBoolean(false)
 
-  protected[this] var _isOpenForWrites = false
+  private val _isOpenForWrites = new AtomicBoolean(false)
 
-  protected[this] var _isOnDisk = false
+  private val _isOnDisk = new AtomicBoolean(false)
 
-  protected[this] val _start: Long = System.nanoTime
+  private val _start: Long = System.nanoTime
 
-  protected[this] val _elapsedNs = new AtomicLong
+  private val _elapsedNs = new AtomicLong
 
-  protected[this] val _parcelCount = new LongAdder
+  private val _parcelCount = new LongAdder
 
-  protected[this] val _itemCount = new LongAdder
+  private val _itemCount = new LongAdder
 
-  protected[this] val _inflatedByteCount = new LongAdder
+  private val _inflatedByteCount = new LongAdder
 
-  protected[this] val _deflatedByteCount = new LongAdder
+  private val _deflatedByteCount = new LongAdder
+
+  @transient
+  private val _parcelQueue: FabricRegionParcelWriteQueue = new FabricRegionParcelWriteQueue(regionParcelWriteQueueSize)
+
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Api
@@ -143,10 +147,10 @@ class FabricRegionWriterContext(
   def wireSnap(s: FabricSnap): Unit = snap = s
 
   override
-  def regionIsRunt: Boolean = _isRuntRegion
+  def regionIsRunt: Boolean = _isRuntRegion.get
 
   override
-  def isOpenForWrites: Boolean = _isOpenForWrites
+  def isOpenForWrites: Boolean = _isOpenForWrites.get
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Lifecycle
@@ -155,9 +159,11 @@ class FabricRegionWriterContext(
   override def openForWrites(): Unit = synchronized {
     lazy val tag = s"FabricRegionWriter.open($parameters)"
     synchronized {
-      if (_isOpenForWrites) throw VitalsException(s"REGION_WRITE_OPEN_ALREADY $tag")
+      if (_isOpenForWrites.get) {
+        throw VitalsException(s"REGION_WRITE_OPEN_ALREADY $tag")
+      }
       try {
-        log info s"REGION_WRITE_OPEN_START $tag"
+        log debug s"REGION_WRITE_OPEN_START $tag"
         _writePtr = 0
         _channel = AsynchronousFileChannel.open(filePath, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
       } catch safely {
@@ -170,27 +176,81 @@ class FabricRegionWriterContext(
       _parcelCount.reset()
 
       FabricRegionReporter.countWriteOpen()
-      _isOpenForWrites = true
+      _isOpenForWrites.set(true)
     }
   }
 
+  override def queueParcelForWrite(parcel: TeslaParcel): Unit = {
+    lazy val tag = s"FabricRegionParcelWriter.queueParcelForWrite($parameters)"
+    if (!isOpenForWrites) {
+      throw VitalsException(s"REGION_QUEUE_NOT_OPEN $tag")
+    }
+    try {
+      // queue up a single additional buffer
+      _parcelQueue put parcel
+      // and forward the task to our assigned impeller to push through it's IO queue
+      impeller impel this
+    } catch safely {
+      case t: Throwable =>
+        log error burstStdMsg(s"REGION_QUEUE_FAIL $t $tag", t)
+        throw t
+    }
+  }
+
+  private val zeroBytes = 0L
+
+  override def writeNextParcel: Long = {
+    val tag = s"FabricRegionParcelWriter.writeNextParcel($parameters)"
+    if (!isOpenForWrites) throw VitalsException(s"REGION_WRITE_NOT_OPEN $tag")
+    try {
+      val parcel: TeslaParcel = _parcelQueue.take
+      parcel match {
+        case TeslaEndMarkerParcel =>
+          val elapsedNs = System.nanoTime - _start
+          _elapsedNs.set(elapsedNs)
+          log debug s"REGION_WRITE_COMPLETE parcelCount=${_parcelCount.sum}, elapsedNs=$elapsedNs (${prettyTimeFromNanos(elapsedNs)}), (${prettyRateString("parcel", _parcelCount.sum, elapsedNs)}) $tag"
+          markCompleted()
+          zeroBytes
+
+        case _ =>
+          val byteSize = parcel.inflatedSize
+          _parcelCount.add(1)
+          _itemCount.add(parcel.bufferCount)
+          writeParcelToDisk(parcel) // this call releases buffer
+          FabricRegionReporter.countParcelWrite(byteSize)
+          byteSize
+      }
+    } catch safely {
+      case t: Throwable =>
+        log error burstStdMsg(s"REGION_WRITE_FAIL $t $tag", t)
+        throw t
+    }
+  }
+
+  override def allParcelsQueuedForWrite(): Unit = {
+    this queueParcelForWrite TeslaEndMarkerParcel
+  }
 
   override def closeForWrites(): Unit = {
     lazy val tag = s"FabricRegionWriter.close($parameters)"
     synchronized {
-      if (!_isOpenForWrites) throw VitalsException(s"REGION_WRITE_CLOSE_NOT_OPEN! $tag ")
-      if (!_completed.get) log.warn(s"$tag region not marked as complete")
+      if (!_isOpenForWrites.get) {
+        throw VitalsException(s"REGION_WRITE_CLOSE_NOT_OPEN! $tag ")
+      }
+      if (!_completed.get) {
+        log.warn(s"$tag region not marked as complete")
+      }
 
       if (_parcelCount.sum == 0) {
-        _isRuntRegion = true
-        log info s"RUNT_REGION (will delete later) $tag"
+        _isRuntRegion.set(true)
+        log debug s"RUNT_REGION (will delete later) $tag"
       }
 
       _channel.close()
       _channel = null
 
-      _isOpenForWrites = false
-      _isOnDisk = true
+      _isOpenForWrites.set(false)
+      _isOnDisk.set(true)
 
       FabricRegionReporter.countWriteClose()
 
@@ -199,7 +259,9 @@ class FabricRegionWriterContext(
 
   override def waitForWritesToComplete(): Unit = {
     lazy val tag = s"FabricRegionWriter.waitForWritesToComplete($parameters)"
-    if (!isOpenForWrites) throw VitalsException(s"REGION_WRITE_WAIT_NOT_OPEN! $tag ")
+    if (!isOpenForWrites) {
+      throw VitalsException(s"REGION_WRITE_WAIT_NOT_OPEN! $tag ")
+    }
     try {
       _completed synchronized {
         while (!_completed.get) {
@@ -218,9 +280,11 @@ class FabricRegionWriterContext(
   // IMPLEMENTATION
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  protected def markCompleted(): Unit = {
+  private def markCompleted(): Unit = {
     lazy val tag = s"FabricRegionWriter.markCompleted($parameters)"
-    if (!isOpenForWrites) throw VitalsException(s"REGION_MARK_COMPLETE_NOT_OPEN $tag")
+    if (!isOpenForWrites) {
+      throw VitalsException(s"REGION_MARK_COMPLETE_NOT_OPEN $tag")
+    }
     try {
       _completed synchronized {
         _completed.set(true)
@@ -245,23 +309,57 @@ class FabricRegionWriterContext(
     }
   }
 
-  protected def logTooLargeMessage: String = {
-    val msg = burstStdMsg(s"region $filePath over(${
-      snap.metadata.datasource.domain.domainKey
-    }, ${
-      snap.metadata.datasource.view.viewKey
-    }) max size (${Integer.MAX_VALUE}) exceeded for region '$filePath' during write")
-    log error msg
-    msg
-  }
+  private def writeParcelToDisk(parcel: TeslaParcel): Unit = {
+    lazy val tag = s"FabricRegionParcelWriter.writeParcelToDisk($parameters)"
+    if (!isOpenForWrites) {
+      throw VitalsException(s"REGION_DISK_WRITE_NOT_OPEN $tag")
+    }
 
-  /**
-   * we can only mmap Integer.MAX_VALUE size regions so catch it here in the write even though
-   * writes can be essentially any size...
-   */
-  protected
-  def checkFileSize(): Unit = {
-    if (_channel.size >= Integer.MAX_VALUE) throw VitalsException(logTooLargeMessage)
+    // the actual write to disk of a NIO buffer
+    @inline def writeBuffer(buffer: ByteBuffer): Unit = {
+      TeslaRequestCoupler { // give up the worker thread while we wait for ASYNC IO operation
+        val oldName = Thread.currentThread().getName
+        Thread.currentThread().setName(s"fab-disk-writer")
+        try {
+          while (buffer.hasRemaining) {
+            _writePtr += _lastWriteFuture.get
+            _lastWriteFuture = _channel.write(buffer, _writePtr)
+          }
+        } finally Thread.currentThread().setName(oldName)
+      }
+    }
+
+    try {
+      if (_channel.size >= Integer.MAX_VALUE) {
+        val domainKey = snap.metadata.datasource.domain.domainKey
+        val viewKey = snap.metadata.datasource.view.viewKey
+        val msg = burstStdMsg(s"region $filePath over($domainKey, $viewKey) max size (${Integer.MAX_VALUE}) exceeded for region '$filePath' during write")
+        log error msg
+        throw VitalsException(msg)
+      }
+      if (parcel.isInflated) {
+        _deflatedByteCount.add(parcel.deflatedSize)
+        _inflatedByteCount.add(parcel.inflatedSize)
+        writeBuffer(parcel.asByteBuffer)
+      } else {
+        val director = tesla.director.factory.grabDirector(parcel.inflatedSize)
+        try {
+          val inflateStart = System.nanoTime
+          parcel.inflateTo(director.payloadPtr)
+          _deflatedByteCount.add(parcel.deflatedSize)
+          _inflatedByteCount.add(parcel.inflatedSize)
+          FabricRegionReporter.recordParcelInflate(System.nanoTime - inflateStart, parcel.deflatedSize, parcel.inflatedSize)
+          val buffer = director.directBuffer
+          buffer limit parcel.inflatedSize
+          writeBuffer(buffer)
+        } finally tesla.director.factory releaseDirector director
+      }
+
+    } catch safely {
+      case t: Throwable =>
+        log error burstStdMsg(s"REGION_DISK_WRITE_FAIL $t $tag", t)
+        throw t
+    } finally tesla.parcel.factory releaseParcel parcel
   }
 
   override def elapsedNs: Long = _elapsedNs.get

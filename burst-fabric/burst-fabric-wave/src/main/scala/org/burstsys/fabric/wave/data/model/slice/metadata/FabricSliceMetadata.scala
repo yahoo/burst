@@ -160,12 +160,18 @@ class FabricSliceMetadataContext(
 
   override def failure(t: Throwable): Unit = {
     _state = FabricDataFailed
-    _failure += s"${errors.printStack(t)}\n---\n"
+    if (_failure.nonEmpty) {
+      _failure += "\n---\n"
+    }
+    _failure += s"${errors.printStack(t)}"
   }
 
   override def failure(msg: String): Unit = {
     _state = FabricDataFailed
-    _failure += s"$msg\n---\n"
+    if (_failure.nonEmpty) {
+      _failure += "\n---\n"
+    }
+    _failure += s"$msg"
   }
 
   override def datasource: FabricDatasource = _datasource

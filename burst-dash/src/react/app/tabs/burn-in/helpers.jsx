@@ -17,6 +17,11 @@ const normalizeUnit = (unit = '') => {
     }
     throw new Error(`Unknown duration unit ${unit}`)
 }
+
+export const GrowingEditor = ({value, cols = 90, minRows = 4, readOnly = false, onChange}) =>
+    <textarea rows={Math.max(minRows, (value.match(/\n/g) || []).length + 2)} cols={cols} value={value}
+              readOnly={readOnly} onChange={onChange}/>
+
 export const DurationPicker = ({value = "", readOnly = false, onChange = (num, unit) => null}) => {
     const [num, unitParse] = value.split(' ')
     const unit = normalizeUnit(unitParse)
@@ -72,6 +77,6 @@ export const MaxDurationInput = ({duration, readOnly, onCheck = e => null, onCha
 )
 export const LoadQueryInput = ({value, readOnly = false, onCheck = (e = false) => null, onChange = e => null}) => (
     <ConditionalInput value={value} readOnly={readOnly} onCheck={onCheck}>
-        <textarea rows={2} cols={80} value={value} readOnly={readOnly} onChange={onChange}/>
+        <GrowingEditor minRows={2} value={value} readOnly={readOnly} onChange={onChange}/>
     </ConditionalInput>
 )

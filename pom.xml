@@ -167,7 +167,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <scalatest.jvm.args>-Xmx8G ${java-exports} -Xverify:none -XX:TieredStopAtLevel=1 -XX:-TieredCompilation
         </scalatest.jvm.args>
-        <burst.test.loglevel>error</burst.test.loglevel>
+        <burst.test.loglevel>warn</burst.test.loglevel>
         <thrift-executable>thrift</thrift-executable>
         <copyright.text1>Copyright Yahoo, Licensed under the terms of the Apache 2.0 license</copyright.text1>
         <copyright.text2>See LICENSE file in project root for terms</copyright.text2>

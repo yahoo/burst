@@ -47,7 +47,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
 
   override def channelInactive(ctx: ChannelHandlerContext): Unit = {
     super.channelInactive(ctx)
-    log warn burstStdMsg(s"FAB_NET_CHANNEL_INACTIVE $this ")
+    log info burstStdMsg(s"FAB_NET_CHANNEL_INACTIVE $this ")
     connection.foreach(_.onDisconnect())
   }
 

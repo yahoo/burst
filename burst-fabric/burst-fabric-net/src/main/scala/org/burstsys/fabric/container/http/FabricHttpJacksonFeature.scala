@@ -14,14 +14,15 @@ import jakarta.ws.rs.ext.MessageBodyWriter
 import jakarta.ws.rs.ext.Provider
 import org.burstsys.vitals
 import org.glassfish.jersey.CommonProperties
+import org.glassfish.jersey.server.ServerProperties
 
 /**
  * This is the way that Jersey gets to know jackson a little better
  */
 class FabricHttpJacksonFeature extends Feature {
   def configure(context: FeatureContext): Boolean = {
-    val disableMoxy: String = CommonProperties.MOXY_JSON_FEATURE_DISABLE + '.' + context.getConfiguration.getRuntimeType.name.toLowerCase
-    context.property(disableMoxy, true)
+    context.property(CommonProperties.MOXY_JSON_FEATURE_DISABLE, true)
+    context.property(ServerProperties.WADL_FEATURE_DISABLE, true)
     context.register(classOf[JacksonJsonProvider], classOf[MessageBodyReader[_]], classOf[MessageBodyWriter[_]])
     true
   }

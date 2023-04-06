@@ -18,7 +18,7 @@ case class BurnInRunDataset(
 
   def generationKey: FabricGenerationKey = FabricGenerationKey(view.domainKey, view.viewKey)
 
-  def execQuery(): Unit = _queryCount += 1
+  def willRunQuery(): Unit = _queryCount += 1
 
   def shouldFlush: Boolean = queriesBeforeReload.exists(_queryCount > _)
 

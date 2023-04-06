@@ -151,6 +151,9 @@ const burnInSlice = createSlice({
                                     break;
                             }
                             break;
+                        case "copies":
+                            dataset.copies = update
+                            break;
                         case "pk":
                             dataset.pk = update
                             break;

@@ -21,7 +21,10 @@ trait FabricSliceReader extends AnyRef {
   final override
   def loadSliceIntoMemory(): Unit = {
     lazy val tag = s"FabricSliceReader.loadSliceIntoMemory($parameters)"
-    if(sliceInMemory) throw VitalsException(s"ALREADY IN MEMORY! $tag")
+    if (sliceInMemory) {
+      throw VitalsException(s"ALREADY IN MEMORY! $tag")
+    }
+
     val start = System.currentTimeMillis
     synchronized {
       try {
@@ -44,11 +47,12 @@ trait FabricSliceReader extends AnyRef {
   final override
   def evictSliceFromMemory(): Unit = {
     lazy val tag = s"FabricSliceReader.evictSliceFromMemory($parameters)"
-    if(!sliceInMemory)
+    if (!sliceInMemory) {
       log.warn(s"NOT_IN_MEMORY! $tag")
+    }
     synchronized {
       try {
-        regions foreach (_.evictRegionFromMemory())
+        regions.foreach(_.evictRegionFromMemory())
         snap.metadata.state = FabricDataWarm
         snap.metadata.generationMetrics.recordSliceEvictOnWorker()
         sliceInMemory = false
@@ -66,9 +70,12 @@ trait FabricSliceReader extends AnyRef {
   def flushSliceFromDisk(): Unit = {
     lazy val tag = s"FabricSliceReader.flushSliceFromDisk($parameters)"
     synchronized {
-      if(!sliceOnDisk) log.warn(s"NOT_ON_DISK! $tag")
+      if (!sliceOnDisk) {
+        log.warn(s"NOT_ON_DISK! $tag")
+      }
+
       try {
-        regions foreach (_.flushRegionFromDisk())
+        regions.foreach(_.flushRegionFromDisk())
         snap.metadata.state = FabricDataCold
         snap.metadata.generationMetrics.recordSliceFlushOnWorker()
         sliceOnDisk = false
@@ -95,7 +102,7 @@ trait FabricSliceReader extends AnyRef {
       val data = if (snap.metadata.state == FabricDataNoData) {
         Array(BrioBlob.emptyRegionIterator(sliceKey = snap.metadata.sliceKey))
       } else {
-        if(!sliceInMemory) throw VitalsException(s"FAB_SLICE_NOT_IN_MEM $tag")
+        if (!sliceInMemory) throw VitalsException(s"FAB_SLICE_NOT_IN_MEM $tag")
         regions.map(_.iterator)
       }
       data

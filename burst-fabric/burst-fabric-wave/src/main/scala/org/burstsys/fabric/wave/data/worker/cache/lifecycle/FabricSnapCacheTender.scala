@@ -43,13 +43,16 @@ trait FabricSnapCacheTender extends AnyRef {
       // we do not assert global cache lock in tending...
       // make sure we keep this background processing out of the way of scans
       Thread.currentThread setPriority (Thread.NORM_PRIORITY - 2)
-      log info s"CACHE_TEND_START hotSnapCount=$hotSnapCount, warmSnapCount=$warmSnapCount, coldSnapCount=$coldSnapCount"
+      def summary: String = s"hotSnapCount=$hotSnapCount warmSnapCount=$warmSnapCount coldSnapCount=$coldSnapCount emptySnapCount=$emptySnapCount failedSnapCount=$failedSnapCount"
+      log info s"CACHE_TEND_START $summary"
       talk(_.onSnapCacheTend(cache))
       try {
-        if (limits.memoryUsageAboveHighWater)
+        if (limits.memoryUsageAboveHighWater) {
           evictConstrainedSnaps()
-        if (limits.diskUsageAboveHighWater)
+        }
+        if (limits.diskUsageAboveHighWater) {
           flushConstrainedSnaps()
+        }
         evictStaleSnaps()
         flushStaleSnaps()
         eraseStaleSnaps()
@@ -57,7 +60,7 @@ trait FabricSnapCacheTender extends AnyRef {
         case t: Throwable =>
           log error burstStdMsg(s"CACHE_TEND_FAIL $t", t)
       }
-      log info s"CACHE_TEND_END  hotSnapCount=$hotSnapCount, warmSnapCount=$warmSnapCount, coldSnapCount=$coldSnapCount"
+      log debug s"CACHE_TEND_END $summary"
     }
   )
 
@@ -68,10 +71,7 @@ trait FabricSnapCacheTender extends AnyRef {
   var backgroundSnapTender: TenderBackground = _
 
   private final
-  def evictStaleSnaps(): Unit = {
-    val eSnaps = evictTtlExpiredSnaps
-    eSnaps.foreach(evictSnap(_, "stale"))
-  }
+  def evictStaleSnaps(): Unit = evictTtlExpiredSnaps.foreach(evictSnap(_, "stale"))
 
   private final
   def flushStaleSnaps(): Unit = flushTtlExpiredSnaps.foreach(flushSnap(_, "stale"))

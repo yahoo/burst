@@ -28,25 +28,29 @@ trait FabricSnapCache extends VitalsService with FabricCacheOps {
   def loadSnapWithReadLock(slice: FabricSlice): FabricSnap
 
   /**
-   * current cold snaps - in cache but not on disk
-   *
-   * @return
+   * @return current cold (in cache but not on disk) snap count
    */
   def coldSnapCount: Int
 
   /**
-   * current warm snaps
-   *
-   * @return
+   * @return current warm (on disk, not in mem) snap count
    */
   def warmSnapCount: Int
 
   /**
-   * current hot snaps
-   *
-   * @return
+   * @return current hot (in memory) snap count
    */
   def hotSnapCount: Int
+
+  /**
+   * @return current failed snap count
+   */
+  def failedSnapCount: Int
+
+  /**
+   * @return current empty snap count
+   */
+  def emptySnapCount: Int
 
   /**
    * parameter source for cache resource limits management

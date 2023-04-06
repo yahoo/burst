@@ -47,6 +47,10 @@ trait FabricSnapCacheMap extends AnyRef with FabricSnapCache {
 
   final override def hotSnapCount: Int = _snapCache.values.asScala.count(_.state == HotSnap)
 
+  final override def failedSnapCount: Int = _snapCache.values.asScala.count(_.state == FailedSnap)
+
+  final override def emptySnapCount: Int = _snapCache.values.asScala.count(_.state == NoDataSnap)
+
   /**
    * snaps in [[HotSnap]] state - sorted by access time
    *

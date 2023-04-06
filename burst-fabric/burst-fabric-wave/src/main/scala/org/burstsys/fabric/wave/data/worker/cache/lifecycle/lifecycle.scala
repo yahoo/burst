@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.data.worker.cache
 
+import org.burstsys.fabric.wave.configuration.{burstFabricCacheLoadLoopMaxWait, burstFabricCacheLoadLoopWaitQuantum, burstFabricCacheTenderLoopMaxWait, burstFabricCacheTenderLoopWaitQuantum}
 import org.burstsys.vitals.logging._
 
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -31,8 +32,8 @@ package object lifecycle extends VitalsLogger {
     def maxLoops: Long = maxWait.toMillis / waitQuantumMs
   }
 
-  final object loadLoopTuner extends FabCacheLoopTuner(1 second, 15 minutes)
+  final object loadLoopTuner extends FabCacheLoopTuner(burstFabricCacheLoadLoopWaitQuantum.get, burstFabricCacheLoadLoopMaxWait.get)
 
-  final object tenderLoopTuner extends FabCacheLoopTuner(10 second, 1 minute)
+  final object tenderLoopTuner extends FabCacheLoopTuner(burstFabricCacheTenderLoopWaitQuantum.get, burstFabricCacheTenderLoopMaxWait.get)
 
 }

@@ -40,7 +40,7 @@ trait FabricSnapCacheCleaner extends AnyRef {
    * @return true if success, false otherwise
    */
   final protected
-  def evictSnap(snap: FabricSnap, cause:String): Boolean = {
+  def evictSnap(snap: FabricSnap, cause: String): Boolean = {
     lazy val tag = s"FabricSnapCacheCleaner.evictSnap(guid=${snap.guid}, ${snap.slice.identity})"
     val evictStart = System.nanoTime
     try {
@@ -89,7 +89,7 @@ trait FabricSnapCacheCleaner extends AnyRef {
    * @return true if success, false otherwise
    */
   final protected
-  def flushSnap(snap: FabricSnap, cause:String): Boolean = {
+  def flushSnap(snap: FabricSnap, cause: String): Boolean = {
     lazy val tag = s"FabricSnapCacheCleaner.flushSnap(guid=${snap.guid}, ${snap.slice.identity})"
     val flushStart = System.nanoTime
     try {
@@ -105,12 +105,12 @@ trait FabricSnapCacheCleaner extends AnyRef {
           case WarmSnap | NoDataSnap => //
             if (snap.trySnapWriteLock) {
               try {
-                log info
-                  s"""|
-                      |CACHE_SNAP_FLUSH cause=$cause state=${snap.state}, ${snap.slice.identity},
-                      | flushTtlMs=${snap.flushTtlMs} (${prettyTimeFromMillis(snap.flushTtlMs)})
-                      | lastAccessTime=${snap.lastAccessTime}  (${printTimeInPast(snap.lastAccessTime)} ago)
-                      | $tag""".stripMargin
+                if (!log.isDebugEnabled) log info
+                  s"CACHE_SNAP_FLUSH cause=$cause state=${snap.state} guid=${snap.guid} ${snap.slice.identity}"
+                else log debug
+                  s"""CACHE_SNAP_FLUSH cause=$cause state=${snap.state} guid=${snap.guid} ${snap.slice.identity}
+                     | flushTtlMs=${snap.flushTtlMs} (${prettyTimeFromMillis(snap.flushTtlMs)})
+                     | lastAccessTime=${snap.lastAccessTime}  (${printTimeInPast(snap.lastAccessTime)} ago)""".stripMargin
                 return doFlush(snap)
               } finally snap.releaseSnapWriteLock()
             } else snap.waitState(tenderLoopTuner.waitQuantumMs) // if someone else has a lock then we wait for them - but not too long...
@@ -121,12 +121,12 @@ trait FabricSnapCacheCleaner extends AnyRef {
           case HotSnap =>
             if (snap.trySnapWriteLock) {
               try {
-                log info
-                  s"""|
-                      |CACHE_SNAP_FLUSH (WITH EVICT) cause=stale state=${snap.state}, ${snap.slice.identity},
-                      | flushTtlMs=${snap.flushTtlMs} (${prettyTimeFromMillis(snap.flushTtlMs)})
-                      | lastAccessTime=${snap.lastAccessTime}  (${printTimeInPast(snap.lastAccessTime)} ago)
-                      | $tag""".stripMargin
+                if (!log.isDebugEnabled) log info
+                  s"CACHE_SNAP_FLUSH (WITH EVICT) cause=$cause state=${snap.state} guid=${snap.guid} ${snap.slice.identity}"
+                else log debug
+                  s"""CACHE_SNAP_FLUSH (WITH EVICT) cause=$cause state=${snap.state} guid=${snap.guid} ${snap.slice.identity}"
+                     | flushTtlMs=${snap.flushTtlMs} (${prettyTimeFromMillis(snap.flushTtlMs)})
+                     | lastAccessTime=${snap.lastAccessTime}  (${printTimeInPast(snap.lastAccessTime)} ago)""".stripMargin
                 return doEvict(snap) && doFlush(snap)
               } finally snap.releaseSnapWriteLock()
             } else snap.waitState(tenderLoopTuner.waitQuantumMs) // if someone else has a lock then we wait for them - but not too long...
@@ -135,7 +135,7 @@ trait FabricSnapCacheCleaner extends AnyRef {
         }
         loops += 1
       }
-      log info burstStdMsg(s"FAB_CACHE_FLUSH_DELAY elapsed=${prettyTimeFromNanos(System.nanoTime - flushStart)} loops=$loops")
+      log debug burstStdMsg(s"FAB_CACHE_FLUSH_DELAY elapsed=${prettyTimeFromNanos(System.nanoTime - flushStart)} loops=$loops")
       false
     } catch safely {
       case t: Throwable =>
@@ -150,11 +150,12 @@ trait FabricSnapCacheCleaner extends AnyRef {
    * a global or snap grained lock before entering.
    * This will only work if the snap (after a possible transition) is in [[ColdSnap]] If not this is a NOOP.
    *
-   * @param snap
+   * @param snap  the snap to erase
+   * @param cause the reason the snap is being erased
    * @return true if success, false otherwise
    */
   final protected
-  def eraseSnap(snap: FabricSnap, cause:String): Boolean = {
+  def eraseSnap(snap: FabricSnap, cause: String): Boolean = {
     lazy val tag = s"FabricSnapCacheCleaner.eraseSnap(guid=${snap.guid}, ${snap.slice.identity})"
     val start = System.nanoTime
     try {
@@ -166,15 +167,15 @@ trait FabricSnapCacheCleaner extends AnyRef {
            * ONLY ColdSnap can be erased. There is no such thing as a NoDataFlush at this point
            * since it would have to have been flushed earlier and thus in a cold state.
            */
-          case ColdSnap =>
+          case ColdSnap | FailedSnap =>
             if (snap.trySnapWriteLock) {
               try {
-                log info
-                  s"""|
-                      |CACHE_SNAP_ERASE cause=$cause state=${snap.state}, ${snap.slice.identity},
-                      | eraseTtlMs=${snap.eraseTtlMs} (${prettyTimeFromMillis(snap.eraseTtlMs)})
-                      | lastAccessTime=${snap.lastAccessTime}  (${printTimeInPast(snap.lastAccessTime)} ago)
-                      | $tag""".stripMargin
+                if (!log.isDebugEnabled) log info
+                  s"""CACHE_SNAP_ERASE cause=$cause state=${snap.state} guid=${snap.guid} ${snap.slice.identity}"""
+                else log debug
+                  s"""CACHE_SNAP_ERASE cause=$cause state=${snap.state} guid=${snap.guid} ${snap.slice.identity}"
+                     | eraseTtlMs=${snap.eraseTtlMs} (${prettyTimeFromMillis(snap.eraseTtlMs)})
+                     | lastAccessTime=${snap.lastAccessTime}  (${printTimeInPast(snap.lastAccessTime)} ago)""".stripMargin
                 return doErase(snap)
               } finally snap.releaseSnapWriteLock()
             } else snap.waitState(tenderLoopTuner.waitQuantumMs) // if someone else has a lock then we wait for them - but not too long...
@@ -292,9 +293,8 @@ trait FabricSnapCacheCleaner extends AnyRef {
       snap.state match {
         case WarmSnap => log warn s"FAB_CACHE_ERASE_COLD_SNAP $tag "
         case HotSnap => log warn s"FAB_CACHE_ERASE_HOT_SNAP $tag "
-        case FailedSnap => log warn s"FAB_CACHE_ERASE_FAILED_SNAP $tag "
         case NoDataSnap => log warn s"FAB_CACHE_ERASE_NO_DATA_SNAP $tag "
-        case ColdSnap =>
+        case ColdSnap | FailedSnap =>
           acquireGlobalCacheLock()
           try {
             log info s"FAB_CACHE_ERASE_COLD_SNAP $tag "
