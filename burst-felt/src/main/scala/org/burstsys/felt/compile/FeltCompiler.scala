@@ -64,7 +64,6 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
 
   private[this]
   val _settings = new Settings
-  _settings.verbose.value = true
   _settings.bootclasspath.value = _scalaClassPath.mkString(File.pathSeparator)
   _settings.classpath.value = (_scalaClassPath ::: _feltFilteredClassPath ::: FeltCompileEngine.jarFileUrls.toList).mkString(File.pathSeparator)
   _settings.outputDirs.setSingleOutput(_target)
