@@ -8,6 +8,10 @@
     </parent>
     <artifactId>burst-fabric-wave</artifactId>
 
+    <properties>
+        <burst.test.logLevel>debug</burst.test.logLevel>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.burstsys</groupId>

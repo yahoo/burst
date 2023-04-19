@@ -30,7 +30,7 @@ trait FabricNetClientListener extends Any {
   /**
    * Clients Listeners can add info to the access response
    */
-  def prepareAccessRespParameters(parameters:  AccessParameters): AccessParameters = {
+  def prepareAccessParameters(parameters:  AccessParameters): AccessParameters = {
     parameters
   }
 }

@@ -9,7 +9,7 @@ trait SystemInfoComponent {
 
   /**
    * System info about component.
-   * @return Case classs that will be serialized to Json
+   * @return Case class that will be serialized to Json
    */
   def status: Object
 

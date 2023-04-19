@@ -4,8 +4,8 @@ package org.burstsys.fabric.net.server.connection
 import io.netty.channel.Channel
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetMsg, FabricNetTetherMsgType}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetHeartbeatMsgType, FabricNetMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetHeartbeatMsg, FabricNetShutdownMsg}
 import org.burstsys.fabric.net._
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.FabricNetServerListener
@@ -30,6 +30,11 @@ trait FabricNetServerConnection extends FabricSupervisorService with FabricNetCo
    * optional listener for the protocol
    */
   def talksTo(listener: FabricNetServerListener*): this.type
+
+  /**
+   * Notify the connected client that we are going away
+   */
+  def shutdown(): Unit
 
   def transmitControlMessage(msg: FabricNetMsg): Future[Unit]
 
@@ -90,17 +95,20 @@ class FabricNetServerConnectionContext(
   // API
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def talksTo(listeners: FabricNetServerListener*): this.type = {
+  override def talksTo(listeners: FabricNetServerListener*): this.type = {
     _listenerSet.addAll(listeners.asJava)
     this
+  }
+
+  override def shutdown(): Unit = {
+    transmitControlMessage(FabricNetShutdownMsg())
   }
 
   override def onMessage(messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
     messageId match {
       /////////////////// TETHERING /////////////////
-      case FabricNetTetherMsgType =>
-        val msg = FabricNetTetherMsg(buffer)
+      case FabricNetHeartbeatMsgType =>
+        val msg = FabricNetHeartbeatMsg(buffer)
         log trace burstStdMsg(s"FabricNetServerConnection.onNetServerTetherMsg $this $msg")
         clientKey.nodeId = msg.senderKey.nodeId
 

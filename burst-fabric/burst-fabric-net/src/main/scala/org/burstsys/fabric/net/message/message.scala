@@ -19,7 +19,8 @@ package object message extends VitalsLogger {
   // how many bytes to encode frame length
   val lengthFieldLength: Int = 4
 
-  // A way to pass info in an acess info, but not too much
+  val FabricAccessMonikerParameter = "burstsys.fabric.moniker"
+
   type AccessParameters = scala.collection.Map[VitalsPropertyKey, java.io.Serializable]
 
   /**
@@ -35,12 +36,21 @@ package object message extends VitalsLogger {
   final case
   class FabricNetOutboundFrameEncoder() extends LengthFieldPrepender(lengthFieldLength)
 
+  /**
+   * An identifier for the message type.
+   * 1-100 are reserved for burst-fabric-net
+   * 100-500 are reserved for burst-fabric-net-wave
+   * 500-600 are reserved for burst-samplesource
+   * @param code the int sent over the wire, used to dispatch messages to the correct recipient
+   */
   case class FabricNetMsgType(code: Int)
 
-  object FabricNetTetherMsgType extends FabricNetMsgType(1)
+  object FabricNetHeartbeatMsgType extends FabricNetMsgType(1)
 
   object FabricNetAssessReqMsgType extends FabricNetMsgType(2)
 
   object FabricNetAssessRespMsgType extends FabricNetMsgType(3)
+
+  object FabricNetShutdownMsgType extends FabricNetMsgType(4)
 
 }

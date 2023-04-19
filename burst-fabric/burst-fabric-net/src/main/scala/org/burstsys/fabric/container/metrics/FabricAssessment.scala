@@ -22,7 +22,6 @@ class FabricAssessment(
                         var lav: FabricLastHourMetric,
                         var memory: FabricLastHourMetric,
                         var disk: FabricLastHourMetric,
-                        var parameters:  AccessParameters
                       ) extends KryoSerializable {
 
   override
@@ -31,14 +30,6 @@ class FabricAssessment(
     lav = kryo.readClassAndObject(input).asInstanceOf[FabricLastHourMetric]
     memory = kryo.readClassAndObject(input).asInstanceOf[FabricLastHourMetric]
     disk = kryo.readClassAndObject(input).asInstanceOf[FabricLastHourMetric]
-    val sz = input.readInt()
-    val m = mutable.Map[String, java.io.Serializable]()
-    for (_ <- 0 until sz) {
-      val k = input.readString()
-      val e = kryo.readClassAndObject(input).asInstanceOf[java.io.Serializable]
-      m.put(k, e)
-    }
-    parameters = m.toMap
   }
 
   override
@@ -47,11 +38,6 @@ class FabricAssessment(
     kryo.writeClassAndObject(output, lav)
     kryo.writeClassAndObject(output, memory)
     kryo.writeClassAndObject(output, disk)
-    output.writeInt(parameters.size)
-    for ((k, e) <- parameters) {
-      output.writeString(k)
-      kryo.writeClassAndObject(output, e)
-    }
   }
 
 }

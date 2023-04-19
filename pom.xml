@@ -1567,7 +1567,7 @@
                         <inherited>true</inherited>
                         <configuration>
                             <message>
-                                PROFILE: java.version=${java-short.version} scala.version=${scala.version}
+                                PROFILE: java.version=${java-short.version} scala.version=${scala.version} loglevel=${burst.test.loglevel}
                             </message>
                             <level>INFO</level>
                         </configuration>

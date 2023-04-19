@@ -4,6 +4,7 @@ package org.burstsys.vitals.sysinfo
 trait SystemInfo {
 
   def registerComponent(toRegister: SystemInfoComponent*): Unit
+
   def deregisterComponent(toDeregister: SystemInfoComponent*): Unit
 
   def systemStatus(): Object

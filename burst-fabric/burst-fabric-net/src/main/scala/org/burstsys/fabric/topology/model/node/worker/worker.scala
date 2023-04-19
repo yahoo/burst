@@ -17,6 +17,8 @@ package object worker extends VitalsLogger {
   sealed case class FabricWorkerState(code: Int) {
     override def toString: String =
       s"${getClass.getSimpleName.stripPrefix("FabricWorkerState").stripSuffix("$")}".toUpperCase
+
+    def isHealthy: Boolean = code == 1
   }
 
   /**

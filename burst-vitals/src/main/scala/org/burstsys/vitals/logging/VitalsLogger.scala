@@ -16,11 +16,4 @@ trait VitalsLogger {
     else
       throw VitalsException(s"Use of logger $logName before initializing logging system")
 
-
-  final def burstThreadName: String = s"'${Thread.currentThread.getName}'"
-
-  final lazy val burstHost: VitalsHostName = s"$getPublicHostName ($getPublicHostAddress)"
-
-
-
 }

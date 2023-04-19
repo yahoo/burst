@@ -4,51 +4,53 @@ package org.burstsys.fabric.net.message.assess
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.fabric.net.FabricNetMessageId
-import org.burstsys.fabric.net.message.{FabricNetMsg, FabricNetMsgContext, FabricNetTetherMsgType}
+import org.burstsys.fabric.net.message.{AccessParameters, FabricNetHeartbeatMsgType, FabricNetMsg, FabricNetMsgContext}
 import org.burstsys.fabric.topology.model.node.FabricNode
 
-trait FabricNetTetherMsg extends FabricNetMsg {
+trait FabricNetHeartbeatMsg extends FabricNetMsg {
 
-  /**
-    * The timestamp the tether message was sent
-    */
+  /** The timestamp the tether message was sent */
   def tetherSendEpoch: Long
 
-  /**
-    * The worker process id
-    */
+  /** The worker process id */
   def gitCommit: String
+
+  /** A way to pass info in an access info, but not too much */
+  def parameters: AccessParameters
+
 }
 
 /**
-  * sent from client to server to initiate a worker->supervisor relation
-  */
-object FabricNetTetherMsg {
+ * sent from client to server to initiate a worker->supervisor relation
+ */
+object FabricNetHeartbeatMsg {
 
   def apply(
              ruid: FabricNetMessageId,
              senderKey: FabricNode,
              receiverKey: FabricNode,
-             gitCommit: String
-           ): FabricNetTetherMsg = {
-    val m = FabricNetTetherMsgContext()
+             gitCommit: String,
+             parameters: AccessParameters,
+           ): FabricNetHeartbeatMsg = {
+    val m = FabricNetHeartbeatMsgContext()
     m.messageId = ruid
     m.senderKey = senderKey
     m.receiverKey = receiverKey
     m.tetherSendEpoch = System.currentTimeMillis
     m.gitCommit = gitCommit
+    m.parameters = parameters
     m
   }
 
-  def apply(buffer: Array[Byte]): FabricNetTetherMsg = {
-    FabricNetTetherMsgContext().decode(buffer)
+  def apply(buffer: Array[Byte]): FabricNetHeartbeatMsg = {
+    FabricNetHeartbeatMsgContext().decode(buffer)
   }
 }
 
 
 private final case
-class FabricNetTetherMsgContext()
-  extends FabricNetMsgContext(FabricNetTetherMsgType) with FabricNetTetherMsg {
+class FabricNetHeartbeatMsgContext()
+  extends FabricNetMsgContext(FabricNetHeartbeatMsgType) with FabricNetHeartbeatMsg {
 
   ////////////////////////////////////////////////////////////////////////////////////
   // STATE
@@ -58,21 +60,23 @@ class FabricNetTetherMsgContext()
 
   var gitCommit: String = ""
 
+  var parameters: AccessParameters = Map.empty
+
   ////////////////////////////////////////////////////////////////////////////////////
   // CODEC
   ////////////////////////////////////////////////////////////////////////////////////
-  override
-  def read(kryo: Kryo, input: Input): Unit = {
+  override def read(kryo: Kryo, input: Input): Unit = {
     super.read(kryo, input)
     tetherSendEpoch = input.readLong()
     gitCommit = input.readString()
+    parameters = readMap(kryo, input)
   }
 
-  override
-  def write(kryo: Kryo, output: Output): Unit = {
+  override def write(kryo: Kryo, output: Output): Unit = {
     super.write(kryo, output)
     output.writeLong(tetherSendEpoch)
     output.writeString(gitCommit)
+    writeMap(kryo, output, parameters.asInstanceOf[Map[String, Serializable]])
   }
 
 }

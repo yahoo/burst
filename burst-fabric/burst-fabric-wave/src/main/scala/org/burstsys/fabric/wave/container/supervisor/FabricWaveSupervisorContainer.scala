@@ -12,7 +12,7 @@ import org.burstsys.fabric.wave.execution.model.gather.FabricGather
 import org.burstsys.fabric.wave.execution.model.wave.FabricParticle
 import org.burstsys.fabric.wave.execution.supervisor.FabricSupervisorExecution
 import org.burstsys.fabric.wave.metadata.supervisor.FabricSupervisorMetadata
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.wave.message.cache.{FabricNetCacheOperationReqMsg, FabricNetCacheOperationRespMsg, FabricNetSliceFetchReqMsg, FabricNetSliceFetchRespMsg}
 import org.burstsys.fabric.wave.message.scatter.{FabricNetProgressMsg, FabricNetScatterMsg}
 import org.burstsys.fabric.wave.message.wave.{FabricNetParticleReqMsg, FabricNetParticleRespMsg}
@@ -280,7 +280,7 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
     filteredForeach[FabricSupervisorListener](_.onDisconnect(connection))
   }
 
-  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
+  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = {
     filteredForeach[FabricSupervisorListener](_.onNetServerTetherMsg(connection,msg))
   }
 

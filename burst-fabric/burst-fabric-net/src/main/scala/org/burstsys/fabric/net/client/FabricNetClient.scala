@@ -26,6 +26,7 @@ import java.net.SocketAddress
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.{Timer, TimerTask}
+import scala.annotation.unused
 import scala.concurrent.duration.Duration._
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
@@ -142,8 +143,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
     }
   }
 
-  private
-  def setupBootstrap(): Unit = {
+  private def setupBootstrap(): Unit = {
     ioMode match {
       case FabricNetIoMode.EPollIoMode =>
         _eventLoopGroup = new EpollEventLoopGroup()
@@ -169,8 +169,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
   // Lifecycle
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     ensureNotRunning
     synchronized {
       _stopping.set(false)
@@ -187,16 +186,15 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
     }
   }
 
-  override
-  def stop: this.type = {
+  override def stop: this.type = {
     synchronized {
       ensureRunning
       _stopping.set(true)
       log info stoppingMessage
-      try
+      _connection.stopIfNotAlreadyStopped
+      try {
         _clientChannel.close.syncUninterruptibly
-      finally
-        _eventLoopGroup.shutdownGracefully
+      } finally _eventLoopGroup.shutdownGracefully
 
       _eventLoopGroup = null
       _clientChannel = null
@@ -210,45 +208,56 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
 
   /**
    * do a connection operation here. We will have to do this at boot and each time
-   * we 'lose' connection to the server (supervisor)
-   *
-   * @return
+   * we lose connection to the server (supervisor)
    */
-  private
-  def connectToServer(): Unit = {
-    lazy val tag = s"FabricNetClient.connectToServer(address=${_socketAddress})"
-    if (isClosed) return
+  private def connectToServer(): Unit = {
+    if (isClosed) {
+      return
+    }
 
-    val channelFuture = _bootstrap.connect(_socketAddress)
+    _bootstrap.connect(_socketAddress).addListener(connectionHandler)
+  }
 
-    channelFuture.addListener(new ChannelFutureListener {
-      override def operationComplete(future: ChannelFuture): Unit = {
-        if (isClosed) return
+  /**
+   * A channel listener that ensures that we get our initial connection to
+   * @param future
+   */
+  private def connectionHandler(future: ChannelFuture): Unit = {
+    lazy val tag = s"FabricNetClient.connectionHandler(address=${_socketAddress})"
+    if (isClosed) {
+      return
+    }
+    if (future.isSuccess) {
+      _clientChannel = future.channel()
+      log info burstStdMsg(s"FAB_NET_CLIENT_CONNECTED to ${_socketAddress} $tag")
+      future.channel().closeFuture().addListener(reconnectionHandler)
 
-        if (!future.isSuccess) {
-          val cause = future.cause
-          log warn burstStdMsg(s"FAB_NET_CLIENT_FAILED_STARTUP to ${_socketAddress} cause=${cause.getLocalizedMessage} $tag", cause)
-          // Stop the connection
-          if (_connection.isRunning)
-            _connection.stop
-          future.channel().close()
-          // go around again
-          _bootstrap.connect(_socketAddress).addListener(this)
-        } else {
-          _clientChannel = future.channel()
-          log info burstStdMsg(s"FAB_NET_CLIENT_COMPLETED_STARTUP to ${_socketAddress} $tag")
-          future.channel().closeFuture().addListener(new ChannelFutureListener {
-            override def operationComplete(future: ChannelFuture): Unit = {
-              if (isClosed) return
-
-              log warn burstStdMsg(s"FAB_NET_CLIENT_LOST_CONNECTION to ${_socketAddress} $tag")
-              if (_connection.isRunning) _connection.stop
-              scheduleConnect(1 second)
-            }
-          })
-        }
+    } else {
+      val cause = future.cause
+      log warn burstStdMsg(s"FAB_NET_CLIENT_CONNECTION_FAILED to ${_socketAddress} cause=${cause.getLocalizedMessage} $tag", cause)
+      // Stop the connection
+      if (_connection.isRunning) {
+        _connection.stop
       }
-    })
+      future.channel().close()
+      // go around again
+      _bootstrap.connect(_socketAddress).addListener(connectionHandler)
+    }
+  }
+
+  /**
+   * A channel listener that attempts to reconnect to the supervisor when the connection is closed
+   */
+  private def reconnectionHandler(@unused future: ChannelFuture): Unit = {
+    lazy val tag = s"FabricNetClient.reconnectionHandler(address=${_socketAddress})"
+    if (isClosed) {
+      return
+    }
+    log warn burstStdMsg(s"FAB_NET_CLIENT_LOST_CONNECTION to ${_socketAddress} $tag")
+    if (_connection.isRunning) {
+      _connection.stop
+    }
+    scheduleConnect(1 second)
   }
 
   private def isClosed: Boolean = _stopping.get || !isRunning
@@ -261,11 +270,11 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
     }, wait.toMillis)
   }
 
-  override def onNetMessage(connection:FabricNetClientConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
+  override def onNetMessage(connection: FabricNetClientConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
     container.onNetMessage(connection, messageId, buffer)
   }
 
-  override def onDisconnect(connection:FabricNetClientConnection): Unit ={
+  override def onDisconnect(connection: FabricNetClientConnection): Unit = {
     log trace burstStdMsg(s"disconnect ${_socketAddress}")
     container.onDisconnect(connection)
   }
@@ -277,7 +286,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
 
   override def connection: FabricNetClientConnection = _connection
 
-  override def prepareAccessRespParameters(parameters: AccessParameters): AccessParameters = {
-    container.prepareAccessRespParameters(parameters)
+  override def prepareAccessParameters(parameters: AccessParameters): AccessParameters = {
+    container.prepareAccessParameters(parameters)
   }
 }

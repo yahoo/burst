@@ -13,6 +13,8 @@ abstract class FabricSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite wit
   with FabricSpecLog {
 
   final val marker = "---------------------------->"
+  final val beginMarker = "vvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+  final val endMarker = "^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
 
   protected def wantsContainers = false
 
@@ -39,8 +41,11 @@ abstract class FabricSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite wit
    * Starts the containers for the test
    */
   override protected def beforeAll(): Unit = {
-    if (!wantsContainers)
+    log debug s"$beginMarker before all $beginMarker"
+    if (!wantsContainers) {
+      log debug s"$endMarker before all $endMarker"
       return
+    }
 
     configureSupervisor(supervisorContainer)
     supervisorContainer.start
@@ -53,17 +58,23 @@ abstract class FabricSupervisorWorkerBaseSpec extends AnyFlatSpec with Suite wit
         burstHttpPortProperty.set(container.getNextHttpPort)
         val worker = MockWorkerContainer[FabricWorkerListener](logFile = "fabric", containerId = i)
         configureWorker(worker)
+        log debug s"starting worker#$i"
         worker.start
       }).toArray
     }
+    log debug s"$endMarker before all $endMarker"
+
   }
 
   /**
    * Stops any started containers
    */
   override protected def afterAll(): Unit = {
+    log debug s"$beginMarker after all $beginMarker"
     supervisorContainer.stopIfNotAlreadyStopped
     workerContainer1.stopIfNotAlreadyStopped
+    log debug "stopping workers"
     workerContainers.foreach(_.stopIfNotAlreadyStopped)
+    log debug s"$endMarker after all $endMarker"
   }
 }

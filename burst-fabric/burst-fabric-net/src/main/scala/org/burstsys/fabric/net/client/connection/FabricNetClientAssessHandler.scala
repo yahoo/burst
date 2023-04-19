@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.net.client.connection
 
+import org.burstsys.fabric
 import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.fabric.container.model.metrics.FabricLastHourMetricCollector
 import org.burstsys.fabric.net.message.AccessParameters
@@ -50,45 +51,36 @@ trait FabricNetClientAssessHandler {
    *
    * incoming assessment request from remote supervisor
    */
-  def assessRequest(msg: FabricNetAssessReqMsg, parameters: AccessParameters): Unit = {
+  def sendAssessResponse(msg: FabricNetAssessReqMsg): Unit = {
     lazy val hdr = s"FabricNetClientAssessHandler.assessRequest"
     log debug s"$hdr $msg"
     if (msg.receiverKey != clientKey)
       throw VitalsException(s"msg.receiverKey=${msg.receiverKey} != localKey=$clientKey")
 
-    val response = FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, assessment(parameters))
+    val response = FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, FabricAssessment(
+      _pingCollector.exportMetric, _lavCollector.exportMetric, _memCollector.exportMetric, _diskCollector.exportMetric
+    ))
 
     transmitter transmitControlMessage response
   }
 
-  /**
-   * extract the current metrics
-   *
-   * @return
-   */
-  private def assessment(parameters: AccessParameters): FabricAssessment = {
-    FabricAssessment(
-      _pingCollector.exportMetric, _lavCollector.exportMetric, _memCollector.exportMetric, _diskCollector.exportMetric,
-      parameters
-    )
-  }
-
   def memoryPercentUsed: Double = percentUsed("memory", offheap.nativeMemoryMax, used = host.mappedMemoryUsed)
 
-  lazy val assessorBackgroundFunction = new VitalsBackgroundFunction("fab-worker-assess", 15 seconds, 15 seconds, {
-    _lavCollector sample host.loadAverage
-    _memCollector sample memoryPercentUsed
+  lazy val assessorBackgroundFunction = new VitalsBackgroundFunction("fab-worker-assess",
+    fabric.configuration.burstFabricTopologyAssessmentPeriodMs.get,
+    fabric.configuration.burstFabricTopologyAssessmentPeriodMs.get,
+    {
+      _lavCollector sample host.loadAverage
+      _memCollector sample memoryPercentUsed
 
-  })
+    })
 
   private def percentUsed(name: String, total: Long, usable: Long = -1, used: Long = -1): Double = {
     val free = if (usable > -1) usable else total - used
     val percentUsed = ((total - free).toDouble / total.toDouble) * 100.0
-    log debug burstStdMsg(f"resource '$name' percentUsed=$percentUsed%.2f (free=${
-      prettyByteSizeString(free)
-    }, total=${
-      prettyByteSizeString(total)
-    })")
+    val freeStr = prettyByteSizeString(free)
+    val totalStr = prettyByteSizeString(total)
+    log debug burstStdMsg(f"resource '$name' percentUsed=$percentUsed%.2f (free=${freeStr}, total=${totalStr})")
     percentUsed
   }
 

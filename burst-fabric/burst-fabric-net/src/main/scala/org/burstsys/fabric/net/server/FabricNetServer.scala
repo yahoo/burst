@@ -12,7 +12,7 @@ import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.net.FabricNetIoMode.FabricNetIoMode
 import org.burstsys.fabric.net._
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.message.{FabricNetInboundFrameDecoder, FabricNetOutboundFrameEncoder}
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
@@ -36,10 +36,6 @@ import scala.language.postfixOps
  */
 trait FabricNetServer extends FabricSupervisorService with FabricNetLink {
 
-  /**
-   *
-   * @return
-   */
   def netConfig: FabricNetworkConfig
 
   def activeConnections: Array[FabricNetServerConnection]
@@ -132,8 +128,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
 
   }
 
-  private
-  def setupIoMode(): Unit = {
+  private def setupIoMode(): Unit = {
     ioMode match {
       case FabricNetIoMode.EPollIoMode =>
         _listenGroup = new EpollEventLoopGroup(1) // single threaded listener
@@ -191,7 +186,6 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
           throw t
       }
 
-
       markRunning
       this
     }
@@ -201,9 +195,10 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
     ensureRunning
     synchronized {
       log info stoppingMessage
-      try
+      try {
+        _connections.values.forEach(_.shutdown())
         _serverChannel.close.syncUninterruptibly
-      finally {
+      } finally {
         _listenGroup.shutdownGracefully
         _connectionGroup.shutdownGracefully
       }
@@ -224,7 +219,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
     container.onDisconnect(connection)
   }
 
-  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
+  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = {
     log debug burstStdMsg(s"tether for  connection ${connection.remoteAddress}:${connection.remotePort}")
     container.onNetServerTetherMsg(connection, msg)
   }

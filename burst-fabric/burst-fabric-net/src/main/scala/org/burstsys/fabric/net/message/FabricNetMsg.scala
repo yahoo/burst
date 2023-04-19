@@ -10,64 +10,66 @@ import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.stats._
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
 
+import scala.collection.mutable
+
 /**
-  * base trait for all fabric protocol messages
-  */
+ * base trait for all fabric protocol messages
+ */
 trait FabricNetMsg extends AnyRef {
 
   /**
-    * TODO
-    *
-    * @return
-    */
+   * TODO
+   *
+   * @return
+   */
   def messageId: FabricNetMessageId
 
   /**
-    * Msg sender key
-    *
-    * @return
-    */
+   * Msg sender key
+   *
+   * @return
+   */
   def senderKey: FabricNode
 
   /**
-    * Msg receiver key
-    *
-    * @return
-    */
+   * Msg receiver key
+   *
+   * @return
+   */
   def receiverKey: FabricNode
 
   /**
-    * Translate between Netty and Kryo Worlds
-    *
-    * @param buffer the buffer to decode from
-    * @return this
-    */
+   * Translate between Netty and Kryo Worlds
+   *
+   * @param buffer the buffer to decode from
+   * @return this
+   */
   def decode(buffer: Array[Byte]): this.type
 
   /**
-    * Translate between Netty and Kryo Worlds
-    *
-    * @param buffer the buffer to encode into
-    * @return this
-    */
+   * Translate between Netty and Kryo Worlds
+   *
+   * @param buffer the buffer to encode into
+   * @return this
+   */
   def encode(buffer: ByteBuf): this.type
 
   /**
-    * Show that this message is linked to another message
-    *
-    * @param msg the message to link to
-    * @return this
-    */
+   * Show that this message is linked to another message
+   *
+   * @param msg the message to link to
+   * @return this
+   */
   def link(msg: FabricNetMsg): this.type
 
 }
 
 
 /**
-  * An abstract message within the FabricNet Protocol
-  *
-  * @group FabricNetMsg
-  */
+ * An abstract message within the FabricNet Protocol
+ *
+ * @group FabricNetMsg
+ */
 abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
   extends AnyRef with FabricNetMsg with KryoSerializable {
 
@@ -91,42 +93,36 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
   ////////////////////////////////////////////////////////////////////////////////////
 
   /**
-    * connection unique request id
-    *
-    * @return
-    */
-  final
-  def messageId: FabricNetMessageId = _messageId
+   * connection unique request id
+   *
+   * @return
+   */
+  final def messageId: FabricNetMessageId = _messageId
 
   /**
-    * connection unique id
-    *
-    * @param id
-    */
-  final
-  def messageId_=(id: FabricNetMessageId): Unit = _messageId = id
+   * connection unique id
+   *
+   * @param id
+   */
+  final def messageId_=(id: FabricNetMessageId): Unit = _messageId = id
 
   /**
-    * Msg sender key
-    *
-    * @return
-    */
-  final
-  def senderKey: FabricNode = _senderKey
+   * Msg sender key
+   *
+   * @return
+   */
+  final def senderKey: FabricNode = _senderKey
 
-  final
-  def senderKey_=(key: FabricNode): Unit = _senderKey = key
+  final def senderKey_=(key: FabricNode): Unit = _senderKey = key
 
   /**
-    * Msg receiver key
-    *
-    * @return
-    */
-  final
-  def receiverKey: FabricNode = _receiverKey
+   * Msg receiver key
+   *
+   * @return
+   */
+  final def receiverKey: FabricNode = _receiverKey
 
-  final
-  def receiverKey_=(key: FabricNode): Unit = _receiverKey = key
+  final def receiverKey_=(key: FabricNode): Unit = _receiverKey = key
 
   ////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -160,14 +156,32 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
   // CODEC
   ////////////////////////////////////////////////////////////////////////////////////
 
+  protected def readMap[T](kryo: Kryo, input: Input): Map[String, T] = {
+    val sz = input.readInt()
+    val m = mutable.Map[String, T]()
+    for (_ <- 0 until sz) {
+      val k = input.readString()
+      val e = kryo.readClassAndObject(input).asInstanceOf[T]
+      m.put(k, e)
+    }
+    m.toMap
+  }
+
+  protected def writeMap[T](kryo: Kryo, output: Output, map: Map[String, T]): Unit = {
+    output.writeInt(map.size)
+    for ((k, e) <- map) {
+      output.writeString(k)
+      kryo.writeClassAndObject(output, e)
+    }
+  }
+
   /**
-    * Translate between Netty and Kryo Worlds
-    *
-    * @param buffer
-    * @return
-    */
-  final
-  def decode(buffer: Array[Byte]): this.type = {
+   * Read this message's contents from the netty buffer
+   *
+   * @param buffer the netty buffer contents
+   * @return this message
+   */
+  final def decode(buffer: Array[Byte]): this.type = {
     val k = acquireKryo
     try {
       try {
@@ -182,13 +196,12 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
   }
 
   /**
-    * Translate between Netty and Kryo Worlds
-    *
-    * @param buffer
-    * @return
-    */
-  final
-  def encode(buffer: ByteBuf): this.type = {
+   * Write this message into a netty buffer
+   *
+   * @param buffer the netty buffer to encode into
+   * @return this message
+   */
+  final def encode(buffer: ByteBuf): this.type = {
     try {
       buffer.writeInt(messageType.code)
       val k = acquireKryo

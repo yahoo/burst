@@ -2,7 +2,7 @@
 package org.burstsys.fabric.net.server
 
 import org.burstsys.fabric.net.message
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 
 /**
@@ -23,7 +23,7 @@ trait FabricNetServerListener extends Any {
   /**
     * tell a fabric server-supervisor that fabric client-worker has ''tethered'' (heartbeat after connection)
     */
-  def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {}
+  def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = {}
 
   /**
    * tell a fabric server-supervisor that fabric client-worker cache assessment request is delivering a response

@@ -45,13 +45,16 @@ class FabricMultiWorkerBootSpec extends FabricSupervisorWorkerBaseSpec
 
   it should "start multiple workers" in {
 
+    log debug "awaiting worker starts"
     gate.await(20, TimeUnit.SECONDS) should equal(true)
+
+    log debug "asserting lengths"
     supervisorContainer.topology.healthyWorkers.length should equal(workerCount)
 
   }
 
   override def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = {
-    log info s"worker ${worker.nodeId} gain"
+    log debug s"worker ${worker.nodeId} gain"
     gate.countDown()
   }
 }

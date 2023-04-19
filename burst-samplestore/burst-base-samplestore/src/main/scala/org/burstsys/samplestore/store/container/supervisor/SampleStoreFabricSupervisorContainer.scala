@@ -6,7 +6,7 @@ import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainerContext
 import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
 import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
-import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
+import org.burstsys.fabric.net.message.assess.FabricNetHeartbeatMsg
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.net.FabricNetworkConfig
 import org.burstsys.fabric.net.message
@@ -148,7 +148,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
     filteredForeach[FabricSupervisorListener](_.onDisconnect(connection))
   }
 
-  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
+  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = {
     filteredForeach[FabricSupervisorListener](_.onNetServerTetherMsg(connection,msg))
   }
 
@@ -185,20 +185,20 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   private def convertToLocus(worker: FabricTopologyWorker): SampleStoreDataLocus = {
     val nexusPort: VitalsHostPort = {
-      if (worker.assessment != null && worker.assessment.parameters != null)
-        worker.assessment.parameters(NexusConnectedPortAssessParameterName).asInstanceOf[VitalsHostPort]
+      if (worker.accessParameters != null)
+        worker.accessParameters(NexusConnectedPortAccessParameter).asInstanceOf[VitalsHostPort]
       else
         -1
     }
     val nexusName: VitalsHostName = {
-      if (worker.assessment != null && worker.assessment.parameters != null)
-        worker.assessment.parameters(NexusHostNameAssessParameterName).asInstanceOf[VitalsHostName]
+      if (worker.accessParameters != null)
+        worker.accessParameters(NexusHostNameAccessParameter).asInstanceOf[VitalsHostName]
       else
         worker.nodeName
     }
     val nexusAddr: VitalsHostAddress = {
-      if (worker.assessment != null && worker.assessment.parameters != null)
-        worker.assessment.parameters(NexusHostAddrAssessParameterName).asInstanceOf[VitalsHostAddress]
+      if (worker.accessParameters != null)
+        worker.accessParameters(NexusHostAddrAccessParameter).asInstanceOf[VitalsHostAddress]
       else
         worker.nodeAddress
     }

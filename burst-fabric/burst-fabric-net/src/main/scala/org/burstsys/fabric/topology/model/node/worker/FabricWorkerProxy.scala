@@ -3,12 +3,14 @@ package org.burstsys.fabric.topology.model.node.worker
 
 import org.burstsys.fabric.configuration._
 import org.burstsys.fabric.container.metrics.FabricAssessment
+import org.burstsys.fabric.net.message.{AccessParameters, FabricAccessMonikerParameter}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.topology.model.node.FabricNodeId
-import org.burstsys.vitals
+import org.burstsys.{fabric, vitals}
 import org.burstsys.vitals.json.VitalsJsonRepresentable
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, VitalsHostPort, convertHostAddressToHostname}
 
+import java.util.concurrent.atomic.AtomicReference
 import scala.language.implicitConversions
 
 /**
@@ -39,10 +41,23 @@ trait FabricWorkerProxy extends FabricWorkerROProxy {
   def assessLatencyNanos_=(t: Long): Unit
 
   /**
+   * update the worker's access parameters
+   */
+  def accessParameters_=(ap: AccessParameters): Unit
+
+  /**
    * the time between worker epoch send and supervisor epoch recv times.
    * Note this includes both send time and any clock skew
    */
   def tetherSkewMs_=(t: Long): Unit
+
+  /**
+   * update the worker's state, ensuring that nobody else has already done so
+   * @param from the caller's expectation of the worker's current state
+   * @param to the new state for the worker
+   * @return if the state transition occurred
+   */
+  def changeState(from: FabricWorkerState, to: FabricWorkerState): Boolean
 }
 
 trait FabricWorkerROProxy extends FabricWorkerNode with VitalsJsonRepresentable[JsonFabricWorker] {
@@ -88,6 +103,11 @@ trait FabricWorkerROProxy extends FabricWorkerNode with VitalsJsonRepresentable[
   def assessment: FabricAssessment
 
   /**
+   * Other information needed to access the worker
+   */
+  def accessParameters: AccessParameters
+
+  /**
    * the time it took to return the last assessment
    */
   def assessLatencyNanos: Long
@@ -100,26 +120,29 @@ trait FabricWorkerROProxy extends FabricWorkerNode with VitalsJsonRepresentable[
 
   def mismatched: Boolean = commitId != vitals.git.commitId
 
-  def state: FabricWorkerState = {
-    if (isConnected) {
-      val homogeneous = burstFabricTopologyHomogeneous.get
-      if (homogeneous && mismatched) FabricWorkerStateExiled else FabricWorkerStateLive
-    }
-    else FabricWorkerStateDead
-  }
+  def isHealthy: Boolean = state.isHealthy && isConnected
+
+  def state: FabricWorkerState
 
 }
 
 object FabricWorkerProxy {
 
-  def apply(connection: FabricNetServerConnection, gitCommit: String): FabricWorkerProxy =
-    FabricWorkerProxyContext(connection, gitCommit)
+  def apply(
+             connection: FabricNetServerConnection,
+             gitCommit: String,
+             accessParameters: AccessParameters
+           ): FabricWorkerProxy =
+    FabricWorkerProxyContext(connection, gitCommit, accessParameters)
 
 }
 
 private[fabric] final case
-class FabricWorkerProxyContext(connection: FabricNetServerConnection, commitId: String)
-  extends FabricWorkerProxy {
+class FabricWorkerProxyContext(
+                                connection: FabricNetServerConnection,
+                                commitId: String,
+                                var accessParameters: AccessParameters
+                              ) extends FabricWorkerProxy {
 
   override def toString: String = s"FabricWorkerProxy(nodeName=$nodeName, nodeAddress=$nodeAddress, supervisorPort=$fabricPort)"
 
@@ -132,82 +155,69 @@ class FabricWorkerProxyContext(connection: FabricNetServerConnection, commitId: 
   // STATE
   ////////////////////////////////////////////////////////////////////////////////////
 
-  private[this]
-  val _connectionTime: Long = System.currentTimeMillis()
+  private val _state = new AtomicReference[FabricWorkerState](FabricWorkerStateLive)
 
-  private[this]
-  var _lastUpdateTime: Long = _
+  private val _connectionTime: Long = System.currentTimeMillis()
 
-  private[this]
-  var _processId: Int = _
+  private var _lastUpdateTime: Long = _
 
-  private[this]
-  var _assessLatencyNs: Long = _
+  private var _processId: Int = _
 
-  private[this]
-  var _tetherSkewMs: Long = _
+  private var _assessLatencyNs: Long = _
 
-  private[this]
-  var _assessment: FabricAssessment = _
+  private var _tetherSkewMs: Long = _
+
+  private var _assessment: FabricAssessment = _
 
   ////////////////////////////////////////////////////////////////////////////////////
   // HOST INFO
-  // TODO make these all  a FabricHostKey ??
+  // TODO make these all a FabricHostKey ??
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def connectionTime: Long = _connectionTime
+  override def connectionTime: Long = _connectionTime
 
-  override
-  def lastUpdateTime: Long = _lastUpdateTime
+  override def lastUpdateTime: Long = _lastUpdateTime
 
-  override
-  def lastUpdateTime_=(ts: Long): Unit = _lastUpdateTime = ts
+  override def lastUpdateTime_=(ts: Long): Unit = _lastUpdateTime = ts
 
-  override
-  def nodeId: FabricNodeId = connection.clientKey.nodeId
+  override def nodeId: FabricNodeId = connection.clientKey.nodeId
 
-  override
-  lazy val nodeName: VitalsHostName = convertHostAddressToHostname(nodeAddress)
+  override lazy val nodeName: VitalsHostName = convertHostAddressToHostname(nodeAddress)
 
-  override
-  lazy val nodeMoniker: VitalsHostName = nodeName
+  override def nodeMoniker: VitalsHostName = accessParameters.getOrElse(FabricAccessMonikerParameter, nodeName).asInstanceOf[String]
 
-  override
-  def nodeAddress: VitalsHostAddress = connection.remoteAddress
+  override def nodeAddress: VitalsHostAddress = connection.remoteAddress
 
-  override
-  def fabricPort: VitalsHostPort = connection.remotePort
+  override def fabricPort: VitalsHostPort = connection.remotePort
 
-  override
-  def workerProcessId: VitalsHostPort = _processId
+  override def workerProcessId: VitalsHostPort = _processId
 
-  override
-  def workerProcessId_=(p: VitalsHostPort): Unit = _processId = p
+  override def workerProcessId_=(p: VitalsHostPort): Unit = _processId = p
 
-  override
-  def assessLatencyNanos: Long = _assessLatencyNs
+  override def assessLatencyNanos: Long = _assessLatencyNs
 
-  override
-  def assessLatencyNanos_=(t: Long): Unit = _assessLatencyNs = t
+  override def assessLatencyNanos_=(t: Long): Unit = _assessLatencyNs = t
 
-  override
-  def tetherSkewMs: Long = _tetherSkewMs
+  override def tetherSkewMs: Long = _tetherSkewMs
 
-  override
-  def tetherSkewMs_=(t: Long): Unit = _tetherSkewMs = t
+  override def tetherSkewMs_=(t: Long): Unit = _tetherSkewMs = t
 
-  override
-  def assessment: FabricAssessment = _assessment
+  override def assessment: FabricAssessment = _assessment
 
-  override
-  def assessment_=(a: FabricAssessment): Unit = _assessment = a
+  override def assessment_=(a: FabricAssessment): Unit = _assessment = a
 
-  override def link: VitalsHostAddress = {
-    connection.link
-  }
+  override def link: VitalsHostAddress = connection.link
 
-  override def isConnected: Boolean = {
-    connection.isConnected
+  override def isConnected: Boolean = connection.isConnected
+
+  override def changeState(from: FabricWorkerState, to: FabricWorkerState): Boolean = _state.compareAndSet(from, to)
+
+  override def state: FabricWorkerState = {
+    if (connection.isConnected) {
+      if (fabric.configuration.burstFabricTopologyHomogeneous.get && mismatched)
+        FabricWorkerStateExiled
+      else _state.get
+    }
+    else FabricWorkerStateDead
   }
 }

@@ -6,8 +6,8 @@ import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.test.FabricWaveSupervisorWorkerBaseSpec
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorListener
-import org.burstsys.fabric.wave.container.worker.FabricWaveWorkerListener
+import org.burstsys.fabric.wave.container.supervisor.{FabricWaveSupervisorListener, MockWaveSupervisorContainer}
+import org.burstsys.fabric.wave.container.worker.{FabricWaveWorkerListener, MockWaveWorkerContainer}
 import org.burstsys.fabric.wave.data
 import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheSearch
@@ -21,18 +21,14 @@ class FabricWaveWaveNetCacheManageSpec extends FabricWaveSupervisorWorkerBaseSpe
 
   override protected def wantsContainers = true
 
-  override protected
-  def beforeAll(): Unit = {
-    data.worker.cache.instance.start
-    supervisorContainer.talksTo(this)
-    workerContainer1.talksTo(this)
-    super.beforeAll()
+  override protected def configureSupervisor(supervisor: MockWaveSupervisorContainer): Unit = {
+    super.configureSupervisor(supervisor)
+    supervisor.talksTo(this)
   }
 
-  override protected
-  def afterAll(): Unit = {
-    super.afterAll()
-    data.worker.cache.instance.stop
+  override protected def configureWorker(worker: MockWaveWorkerContainer): Unit = {
+    super.configureWorker(worker)
+    workerContainer1.talksTo(this)
   }
 
   val sliceFetchGate = new CountDownLatch(2)
@@ -44,29 +40,29 @@ class FabricWaveWaveNetCacheManageSpec extends FabricWaveSupervisorWorkerBaseSpe
 
     val key = FabricGenerationKey()
 
-    log info s"----------------------- cacheOperation"
+    log info s"$marker cacheOperation"
     supervisorContainer.data.cacheGenerationOp(guid, FabricCacheSearch, key, None)
     operationGate.await(30, TimeUnit.SECONDS) should equal(true)
 
-    log info s"----------------------- sliceFetch"
+    log info s"$marker sliceFetch"
     supervisorContainer.data.cacheSliceOp(guid, key)
     sliceFetchGate.await(30, TimeUnit.SECONDS) should equal(true)
   }
 
-  override
-  def onNetClientCacheOperationReqMsg(connection: FabricNetClientConnection, msg: FabricNetCacheOperationReqMsg): Unit = operationGate.countDown()
-
-  override
-  def onNetServerCacheOperationRespMsg(connection: FabricNetServerConnection, msg: FabricNetCacheOperationRespMsg): Unit = {
+  override def onNetClientCacheOperationReqMsg(connection: FabricNetClientConnection, msg: FabricNetCacheOperationReqMsg): Unit = {
     operationGate.countDown()
   }
 
-  override
-  def onNetServerSliceFetchRespMsg(connection: FabricNetServerConnection, msg: FabricNetSliceFetchRespMsg): Unit = {
+  override def onNetServerCacheOperationRespMsg(connection: FabricNetServerConnection, msg: FabricNetCacheOperationRespMsg): Unit = {
+    operationGate.countDown()
+  }
+
+  override def onNetServerSliceFetchRespMsg(connection: FabricNetServerConnection, msg: FabricNetSliceFetchRespMsg): Unit = {
     sliceFetchGate.countDown()
   }
 
-  override
-  def onNetClientSliceFetchReqMsg(connection: FabricNetClientConnection, msg: FabricNetSliceFetchReqMsg): Unit = sliceFetchGate.countDown()
+  override def onNetClientSliceFetchReqMsg(connection: FabricNetClientConnection, msg: FabricNetSliceFetchReqMsg): Unit = {
+    sliceFetchGate.countDown()
+  }
 
 }

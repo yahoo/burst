@@ -161,7 +161,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
 
         markRunning
       }
-      log info s"FABRIC_CONTAINER_BOOT containerId=$containerId"
+      log info s"FABRIC_CONTAINER_BOOT $serviceName containerId=$containerId"
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(t)

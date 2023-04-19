@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.data.worker.cache
 
-import org.burstsys.fabric.wave.data.model.limits.{FabricSnapCacheLimits, FabricSnapCachePropertyLimits}
+import org.burstsys.fabric.wave.data.model.limits.{FabricSnapCacheLimits, FabricSnapCacheLimitsContext}
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheOps
 import org.burstsys.fabric.wave.data.model.slice.FabricSlice
 import org.burstsys.fabric.wave.data.model.snap.{FabricSnap, FailedSnap, HotSnap, NoDataSnap}
@@ -118,16 +118,16 @@ class FabricSnapCacheContext() extends AnyRef
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[cache]
-  var _limits: FabricSnapCacheLimits = FabricSnapCachePropertyLimits()
+  var _limits: FabricSnapCacheLimits = FabricSnapCacheLimitsContext()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
-    if (isRunning)
+  override def start: this.type = {
+    if (isRunning) {
       return this
+    }
     ensureNotRunning
     markRunning
     log info startingMessage
@@ -148,9 +148,10 @@ class FabricSnapCacheContext() extends AnyRef
     this
   }
 
-  override
-  def stop: this.type = {
-    if (!isRunning) return this
+  override def stop: this.type = {
+    if (!isRunning) {
+      return this
+    }
     ensureRunning
     log info stoppingMessage
     talk(_.onSnapCacheStop(this))

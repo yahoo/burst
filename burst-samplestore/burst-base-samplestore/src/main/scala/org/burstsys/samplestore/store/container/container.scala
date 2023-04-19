@@ -4,8 +4,8 @@ package org.burstsys.samplestore.store
 import org.burstsys.vitals.logging.VitalsLogger
 
 package object container extends VitalsLogger {
-  val NexusPortAssessParameterName = "burstsys.nexus.port"
-  val NexusConnectedPortAssessParameterName = "burstsys.nexus.connectedPort"
-  val NexusHostNameAssessParameterName = "burstsys.nexus.hostname"
-  val NexusHostAddrAssessParameterName = "burstsys.nexus.hostaddr"
+  val NexusPortAccessParameter = "burstsys.nexus.port"
+  val NexusConnectedPortAccessParameter = "burstsys.nexus.connectedPort"
+  val NexusHostNameAccessParameter = "burstsys.nexus.hostname"
+  val NexusHostAddrAccessParameter = "burstsys.nexus.hostAddress"
 }

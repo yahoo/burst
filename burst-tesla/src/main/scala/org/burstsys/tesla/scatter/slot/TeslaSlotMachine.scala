@@ -46,13 +46,7 @@ trait TeslaSlotMachine extends Any {
         return
       }
 
-      log error s"TeslaScatter.slotFail $this, $slot EXCEPTION"
-
-      if (_updates.remainingCapacity < _activeSlots.size) {
-        // if we might not be able to report this failure we go ahead and print it out right now so
-        // somebody has a chance to see it before everything goes pear shaped
-        log error(s"TeslaScatter.slotFail $this, $slot", update.throwable)
-      }
+      log info(s"TeslaScatter.slotFail $this, $slot", update.throwable)
 
       pushUpdate(update)
       moveSlotTo(slot, _failSlots)
@@ -64,7 +58,7 @@ trait TeslaSlotMachine extends Any {
     lockScatter("slot tardy")
     try {
       if (isActive(slot)) {
-        log warn s"TeslaScatter.slotTardy $this $slot TARDY"
+        log debug s"TeslaScatter.slotTardy $this $slot TARDY"
         pushUpdate(update)
       }
     } finally unlockScatter("slot tardy")

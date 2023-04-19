@@ -11,16 +11,14 @@ import io.netty.buffer.ByteBuf
 trait FabricNetAssessReqMsg extends FabricNetMsg {
 
   /**
-    * TODO
-    *
-    * @return
-    */
+   * the supervisor JVM's System.nanoTime
+   */
   def sentNanos: Long
 }
 
 /**
-  * sent from server to client to get a current assessment
-  */
+ * sent from server to client to get a current assessment
+ */
 object FabricNetAssessReqMsg {
 
   def apply(ruid: FabricNetMessageId, senderKey: FabricNode, receiverKey: FabricNode): FabricNetAssessReqMsg = {

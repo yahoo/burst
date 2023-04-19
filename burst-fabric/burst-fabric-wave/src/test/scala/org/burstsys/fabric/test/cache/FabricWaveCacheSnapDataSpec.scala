@@ -27,11 +27,11 @@ class FabricWaveCacheSnapDataSpec extends FabricWaveSupervisorWorkerBaseSpec {
     super.afterAll()
   }
 
-  val tmpFolder = Files.createTempDirectory("snap")
-  val tmpPath = Paths.get(tmpFolder.toString, "mock")
-  val worker = FabricWorkerNode(workerId = UnknownFabricNodeId, workerNodeAddress = getPublicHostAddress)
-  val slice = MockSlice(newBurstUid, 0, newBurstUid, 1, FabricDatasource(-1, -1, -1), "", worker)
-  val snap = FabricSnap(tmpPath, slice)
+  private val tmpFolder = Files.createTempDirectory("snap")
+  private val tmpPath = Paths.get(tmpFolder.toString, "mock")
+  private val worker = FabricWorkerNode(workerId = UnknownFabricNodeId, workerNodeAddress = getPublicHostAddress)
+  private val slice = MockSlice(newBurstUid, 0, newBurstUid, 1, FabricDatasource(-1, -1, -1), "", worker)
+  private val snap = FabricSnap(tmpPath, slice)
 
   it should "manage regions" in {
     val data = FabricSliceData(snap)

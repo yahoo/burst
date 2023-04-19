@@ -3,7 +3,7 @@ package org.burstsys.fabric.test.topology
 
 import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
 import org.burstsys.fabric.container.worker.FabricWorkerListener
-import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
+import org.burstsys.fabric.net.message.assess.FabricNetHeartbeatMsg
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.test.{FabricSupervisorWorkerBaseSpec, MockTestSupervisorContainer, MockTestWorkerContainer}
 import org.burstsys.fabric.topology.FabricTopologyWorker
@@ -75,7 +75,7 @@ class FabricTopologySpec extends FabricSupervisorWorkerBaseSpec
   }
 
   override
-  def onNetServerTetherMsg(c: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = tether.countDown()
+  def onNetServerTetherMsg(c: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = tether.countDown()
 
   override
   def onDisconnect(c: FabricNetServerConnection): Unit = {

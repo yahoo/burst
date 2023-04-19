@@ -1,29 +1,22 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.topology.supervisor
 
-import org.burstsys.fabric.configuration.burstFabricTopologyHomogeneous
+import org.burstsys.fabric.configuration.{burstFabricTopologyHomogeneous, burstFabricTopologyTardyThresholdMs}
 import org.burstsys.fabric.container.FabricSupervisorService
-import org.burstsys.fabric.container.metrics.FabricAssessment
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
-import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
-import org.burstsys.fabric.net.message.assess.FabricNetTetherMsg
+import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorListener}
+import org.burstsys.fabric.net.message.AccessParameters
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.topology.model.node.FabricNode
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerProxy
+import org.burstsys.fabric.topology.model.node.worker._
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
+import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.git
-import org.burstsys.vitals.healthcheck.VitalsComponentHealth
-import org.burstsys.vitals.healthcheck.VitalsHealthMarginal
-import org.burstsys.vitals.healthcheck.VitalsHealthUnhealthy
-import org.burstsys.vitals.logging.burstLocMsg
-import org.burstsys.vitals.logging.burstStdMsg
-import org.burstsys.vitals.net.VitalsHostAddress
+import org.burstsys.vitals.healthcheck.{VitalsComponentHealth, VitalsHealthMarginal, VitalsHealthUnhealthy}
+import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 
-import java.lang
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
@@ -31,9 +24,9 @@ import scala.jdk.CollectionConverters._
   * Maintain a ''topology'' of active workers in various states of dynamic ''health'' on the ''supervisor''
   * This involved the following elements:
   * <ol>
-  * <li>'''Tethering:''' [[org.burstsys.fabric.net.client.FabricNetClient]] (`worker`) regularly sends an
-  * async ''tether'' message to [[org.burstsys.fabric.net.server.FabricNetServer]] (supervisor) that indicates
-  * its alive. This acts as a heartbeat from worker to supervisor that is evaluated by both. </li>
+  * <li>'''Heartbeat:''' [[org.burstsys.fabric.net.client.FabricNetClient]] (`worker`) regularly sends an
+  * async ''heartbeat'' message to [[org.burstsys.fabric.net.server.FabricNetServer]] (supervisor) that indicates
+  * its alive.</li>
   * <li>'''Assessing:''' [[org.burstsys.fabric.net.server.FabricNetServer]] (`supervisor`) regularly sends a
   * sync (RPC) ''assess'' request message to [[org.burstsys.fabric.net.client.FabricNetClient]] (`worker`) requesting
   * health or load stats which is returned as an ''assess'' response.
@@ -120,7 +113,7 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
     } else if (healthyWorkers.isEmpty) {
       VitalsComponentHealth(VitalsHealthMarginal, "no healthy workers connected")
     } else {
-      VitalsComponentHealth(message = s"healthy_workers=${_healthyWorkers.size} unhealth_workers=${_unhealthyWorkers.size}")
+      VitalsComponentHealth(message = s"workers=${_workers.size} healthy_workers=${healthyWorkers.length}")
     }
   }
 
@@ -130,38 +123,16 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
   // state
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private[this]
-  val _listenerSet: ConcurrentHashMap.KeySetView[FabricTopologyListener, lang.Boolean] = ConcurrentHashMap.newKeySet[FabricTopologyListener]()
+  private val _listenerSet = ConcurrentHashMap.newKeySet[FabricTopologyListener]()
 
-  private[this]
-  val _healthyWorkers: ConcurrentHashMap[FabricNode, FabricWorkerProxy] = new ConcurrentHashMap[FabricNode, FabricWorkerProxy]()
-
-  private[this]
-  val _unhealthyWorkers: ConcurrentHashMap[FabricNode, FabricWorkerProxy] = new ConcurrentHashMap[FabricNode, FabricWorkerProxy]()
+  private val _workers = new ConcurrentHashMap[FabricNode, FabricWorkerProxy]()
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override def getWorker(key: FabricWorkerNode, mustBeConnected: Boolean = true): Option[FabricWorkerProxy] = {
-    _healthyWorkers.get(key) match {
-      case null =>
-        if (!mustBeConnected) {
-          _unhealthyWorkers.get(key) match {
-            case null =>
-              None
-            case worker =>
-              Some(worker)
-          }
-        } else
-          None
-      case workerProxy =>
-        if (workerProxy.isConnected || !mustBeConnected)
-          Some(workerProxy)
-        else
-          None
-    }
-
+  override def getWorker(key: FabricWorkerNode, onlyHealthy: Boolean = true): Option[FabricWorkerProxy] = {
+    Option(_workers.get(key)).filter(!onlyHealthy || _.isHealthy)
   }
 
   override def talksTo(listeners: FabricTopologyListener*): this.type = {
@@ -171,11 +142,11 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
 
   override def allWorkers: Array[FabricWorkerNode] = {
     log trace burstStdMsg("all workers")
-    (_healthyWorkers.values().asScala ++ _unhealthyWorkers.values().asScala).toArray
+    _workers.values.toArray(Array.empty[FabricWorkerNode])
   }
 
   override def healthyWorkers: Array[FabricWorkerNode] = {
-    _healthyWorkers.values.asScala.toArray
+    _workers.values.stream.filter(_.isHealthy).toArray(new Array[FabricWorkerNode](_))
   }
 
   override def bestWorkers(count: Int): Array[FabricWorkerNode] = {
@@ -187,135 +158,116 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override def onDisconnect(connection: FabricNetServerConnection): Unit = {
-    lazy val tag = s"FabricSupervisorTopology.onNetServerDisconnect(${connection.link})"
-    log debug tag
-    _healthyWorkers.synchronized {
-      _healthyWorkers.get(connection.clientKey) match {
-        case null =>
-          log warn s"FAB_TOPO_WORKER_NOT_CONNECTED $tag"
-        case workerProxy =>
-          log info s"FAB_TOPO_WORKER_DISCONNECT (mark unhealthy...) $workerProxy $tag"
-          lostWorker(workerProxy)
-      }
+    val tag = s"FabricSupervisorTopology.onNetServerDisconnect(${connection.link})"
+    _workers.get(connection.clientKey) match {
+      case null =>
+        log warn s"FAB_TOPO_WORKER_NOT_CONNECTED ${connection.link}"
+      case worker =>
+        log info s"FAB_TOPO_WORKER_DISCONNECT $worker $tag"
+        _workers.remove(worker.forExport)
+        _listenerSet.forEach(_.onTopologyWorkerLoss(worker))
+        _listenerSet.forEach(_.onTopologyWorkerLost(worker))
     }
-    validateConnections
+    validateConnections("worker-disconnected")
   }
 
-  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
+  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = {
     log debug burstLocMsg(s"${connection.link} $msg")
-    val fabricWorker = fetchWorker(connection, msg.gitCommit, None)
+    val fabricWorker = fetchWorker(connection, msg.gitCommit, msg.parameters)
+    fabricWorker.accessParameters = msg.parameters
     fabricWorker.lastUpdateTime = System.currentTimeMillis()
     fabricWorker.tetherSkewMs = fabricWorker.lastUpdateTime - msg.tetherSendEpoch
   }
 
   override def onNetServerAssessRespMsg(connection: FabricNetServerConnection, msg: FabricNetAssessRespMsg): Unit = {
-    val fabricWorker = fetchWorker(connection, msg.gitCommit, Some(msg.assessment))
-    fabricWorker.lastUpdateTime = System.currentTimeMillis()
-    fabricWorker.assessLatencyNanos = msg.elapsedNanos
-    val isFirstWorkerAssessment: Boolean = (fabricWorker.assessment == null) && (msg.assessment != null)
-    fabricWorker.assessment = msg.assessment
-    if (isFirstWorkerAssessment)
-      updateAddWorker(fabricWorker)
+    _workers.get(connection.clientKey) match {
+      case null =>
+        log warn burstLocMsg(s"FAB_TOPO_WAYWARD_ASSESS ${connection.link} $msg response in ${prettyTimeFromNanos(msg.elapsedNanos)}")
 
-    log debug burstLocMsg(s"${connection.link} $msg response in ${prettyTimeFromNanos(fabricWorker.assessLatencyNanos)}")
+      case worker =>
+        worker.lastUpdateTime = System.currentTimeMillis()
+        worker.assessLatencyNanos = msg.elapsedNanos
+        worker.assessment = msg.assessment
+        log debug burstLocMsg(s"${connection.link} $msg response in ${prettyTimeFromNanos(worker.assessLatencyNanos)}")
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // internal
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private def addWorker(worker: FabricWorkerProxy): Unit = {
-    lazy val tag = s"FabricSupervisorTopology.addWorker(${worker.link})"
-    log debug tag
-    val key = worker.forExport
-    if (_unhealthyWorkers.contains(key)) {
-      _unhealthyWorkers.remove(key)
+  private def tardyDeadline: Long = System.currentTimeMillis - burstFabricTopologyTardyThresholdMs.get.toMillis
+
+  private def notifyListeners(notification: FabricTopologyListener => Unit): Unit = {
+    _listenerSet forEach { l =>
+      try notification(l)
+      catch safely {
+        case t => log info s"Failed to notify listener $l. $t"
+      }
     }
-    _healthyWorkers.put(key, worker)
-    validateConnections
-  }
-
-  private def updateAddWorker(worker: FabricWorkerProxy): Unit = {
-    _listenerSet.forEach(_.onTopologyWorkerGain(worker))
-    _listenerSet.forEach(_.onTopologyWorkerGained(worker))
-  }
-
-  private def lostWorker(worker: FabricWorkerProxy): Unit = {
-    lazy val tag = s"FabricSupervisorTopology.lostWorker(${worker.link})"
-    log debug tag
-    val key = worker.forExport
-    _healthyWorkers.remove(key)
-    _unhealthyWorkers.put(key, worker)
-    _listenerSet.forEach(_.onTopologyWorkerLoss(worker))
-    _listenerSet.forEach(_.onTopologyWorkerLost(worker))
   }
 
   private def recheckWorkers(newValue: Option[Boolean]): Unit = {
-    lazy val tag = s"FabricSupervisorTopology.recheckWorkers()"
-    log debug tag
-    val commitId = git.commitId
+    log debug s"FabricSupervisorTopology.recheckWorkers()"
     val homogeneityRequired = newValue.getOrElse(burstFabricTopologyHomogeneous.get)
+    val markTardyBefore = tardyDeadline
 
-    _healthyWorkers.synchronized {
-      val workers = allWorkers
-      workers.foreach { worker =>
-        _healthyWorkers.get(worker) match {
-          case null =>
-            _unhealthyWorkers.get(worker) match {
-              case proxy =>
-                if (!homogeneityRequired && proxy.isConnected)
-                  addWorker(proxy)
+    _workers.synchronized {
+      _workers.values.asScala.foreach { worker =>
+        worker.state match {
+          // ignore unrecoverable states
+          case FabricWorkerStateDead | FabricWorkerStateUnknown =>
 
-              case null =>
-                log warn s"TOPO_WORKER_BAD_STATE worker=$worker (neither healthy nor unhealthy) $tag"
+          // check to see if exiled workers can be readmitted
+          case FabricWorkerStateExiled =>
+            if (worker.commitId == git.commitId || !homogeneityRequired) {
+              val state = if (worker.lastUpdateTime > markTardyBefore) FabricWorkerStateTardy else FabricWorkerStateLive
+              worker.changeState(FabricWorkerStateExiled, state)
             }
-          case proxy =>
-            if (homogeneityRequired && proxy.commitId != commitId)
-              lostWorker(proxy)
+
+          // check any remaining workers to see if they should be exiled
+          case state =>
+            if (worker.commitId != git.commitId && homogeneityRequired)
+              worker.changeState(state, FabricWorkerStateExiled)
         }
       }
-    }
-  }
+    }  }
 
-  private def fetchWorker(connection: FabricNetServerConnection, gitCommit: String, assessment: Option[FabricAssessment]): FabricWorkerProxy = {
-    lazy val tag = s"FabricSupervisorTopology.fetchWorker(${connection.link}, gitCommit=$gitCommit)"
+  private def fetchWorker(connection: FabricNetServerConnection, gitCommit: String, accessParameters: AccessParameters): FabricWorkerProxy = {
+    val tag = s"FabricSupervisorTopology.fetchWorker(${connection.link}, gitCommit=$gitCommit)"
     log debug s"TOPO_FETCH_WORKER $tag"
     val workerKey = connection.clientKey
     val requireHomogeneity = burstFabricTopologyHomogeneous.get
+    var workerAdded = false
 
-    _healthyWorkers.synchronized {
-      _healthyWorkers.get(workerKey) match {
-        case null =>
-          _unhealthyWorkers.remove(workerKey) match {
-            case null =>
-              log info s"TOPO_NEW_WORKER $workerKey $tag"
-            case worker =>
-              if (!requireHomogeneity || worker.commitId == git.commitId)
-                log info s"TOPO_RECONNECT_WORKER $workerKey $tag"
-          }
-          val worker = FabricWorkerProxy(connection, gitCommit)
-          if (assessment.isDefined)
-            worker.assessment = assessment.get
-          if (!requireHomogeneity || gitCommit == git.commitId) {
-            addWorker(worker)
-          } else {
-            // not lost worker here because it wasn't in _healthyWorkers
-            _unhealthyWorkers.put(workerKey, worker)
-          }
-          worker
-        case fetched =>
-          fetched
+    val worker = _workers.computeIfAbsent(workerKey, _ => {
+      log info s"TOPO_NEW_WORKER $workerKey $tag"
+      val newWorker = FabricWorkerProxy(connection, gitCommit, accessParameters)
+      if (requireHomogeneity && gitCommit != git.commitId) {
+        log info s"FAB_TOPO FETCH_WORKER_EXILED worker=${workerKey.nodeName}"
+        newWorker.changeState(newWorker.state, FabricWorkerStateExiled)
       }
+      workerAdded = true
+      newWorker
+    })
+    if (workerAdded) {
+      notifyListeners(_.onTopologyWorkerGain(worker))
+      notifyListeners(_.onTopologyWorkerGained(worker))
+      validateConnections("worker-connected")
     }
+    worker
   }
 
-  def validateConnections: Boolean = {
+  private def validateConnections(trigger: String): Boolean = {
     val active = container.activeConnections
-    _healthyWorkers.synchronized {
-      var valid = active.length == _healthyWorkers.size()
-      valid = valid && active.forall(c => _healthyWorkers.get(c.clientKey) != null)
+    _workers.synchronized {
+      var valid = active.length == _workers.size()
+      valid = valid && active.forall(c => _workers.get(c.clientKey) != null)
       if (!valid) {
-        log debug burstStdMsg(s"toplogy mismatch health(${healthyWorkers.mkString(",")}) connections(${active.mkString(",")})")
+        val workers = healthyWorkers
+        val healthy = workers.map(n => s"${n.nodeId}#${n.nodeAddress}").mkString(",")
+        val connections = active.map(c => s"${c.remoteAddress}:${c.remotePort}").mkString(",")
+        log debug burstStdMsg(s"topology mismatch trigger=$trigger nodes=${workers.length} conns=${active.length} healthy($healthy) connections($connections)")
       }
       valid
     }
@@ -329,7 +281,7 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
   /**
    * System info about component.
    *
-   * @return Case classs that will be serialized to Json
+   * @return Case class that will be serialized to Json
    */
   override def status: AnyRef = {
     case class TopologyStatus(healthyWorkers: Array[FabricWorkerNode] = healthyWorkers.map(_.forExport))

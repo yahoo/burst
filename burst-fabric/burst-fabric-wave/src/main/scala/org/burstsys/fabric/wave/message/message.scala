@@ -10,18 +10,18 @@ package object message extends VitalsLogger {
   // stream request/response
   ////////////////////////////////////////////////////////////////////////////////
 
-  object FabricNetParticleReqMsgType extends FabricNetMsgType(12)
+  object FabricNetParticleReqMsgType extends FabricNetMsgType(100)
 
-  object FabricNetParticleRespMsgType extends FabricNetMsgType(13)
+  object FabricNetParticleRespMsgType extends FabricNetMsgType(101)
 
-  object FabricNetProgressMsgType extends FabricNetMsgType(15)
+  object FabricNetProgressMsgType extends FabricNetMsgType(102)
 
-  object FabricNetCacheOperationReqMsgType extends FabricNetMsgType(16)
+  object FabricNetCacheOperationReqMsgType extends FabricNetMsgType(103)
 
-  object FabricNetCacheOperationRespMsgType extends FabricNetMsgType(17)
+  object FabricNetCacheOperationRespMsgType extends FabricNetMsgType(104)
 
-  object FabricNetSliceFetchReqMsgType extends FabricNetMsgType(18)
+  object FabricNetSliceFetchReqMsgType extends FabricNetMsgType(105)
 
-  object FabricNetSliceFetchRespMsgType extends FabricNetMsgType(19)
+  object FabricNetSliceFetchRespMsgType extends FabricNetMsgType(106)
 
 }

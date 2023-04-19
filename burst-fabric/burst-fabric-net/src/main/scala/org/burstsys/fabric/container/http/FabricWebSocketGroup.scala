@@ -20,6 +20,7 @@ import org.glassfish.grizzly.websockets.WebSocketEngine
 
 import java.io.StringWriter
 import java.util.concurrent.ConcurrentHashMap
+import scala.annotation.nowarn
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -256,7 +257,8 @@ class WebSocketGroupContext(url: String, listener: FabricWebSocketListener)
     try {
       val json = FabricWebSocket.decode(text)
       listener.onWebSocketReceive(this, websocket, json)
-      json match {
+      @nowarn("msg=the type test for.*?has type parameters eliminated by erasure")
+      val _ = json match {
         case map: Map[String, Any] => // cast removed by erasure, but json implies that if this _is_ a map it must be [String, Any]
           map.get("action") match {
             case Some(action: String) =>

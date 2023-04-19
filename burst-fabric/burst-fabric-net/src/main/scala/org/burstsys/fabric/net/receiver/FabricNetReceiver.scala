@@ -20,8 +20,7 @@ final case
 class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: Channel)
   extends SimpleChannelInboundHandler[ByteBuf] with FabricNetLink {
 
-  private[this]
-  var connection: Option[FabricNetConnection] = None
+  private var connection: Option[FabricNetConnection] = None
 
   override def toString: String = s"FabricNetReceiver(containerId=${container.containerId.getOrElse("Not Set")}, $link)"
 
@@ -62,7 +61,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
       connection match {
         case None =>
           log warn burstStdMsg(s"FAB_NET_NO_CONNECTION $this $messageId")
-        case Some(c) =>
+        case Some(connection) =>
           val bytes: Array[Byte] = {
             val oldPosition = buffer.nioBuffer().position()
             val array = new Array[Byte](buffer.nioBuffer().remaining)
@@ -72,7 +71,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
           }
           TeslaRequestFuture {
             try {
-              c.onMessage(messageId, bytes)
+              connection.onMessage(messageId, bytes)
             } catch safely {
               case t: Throwable =>
                 log error burstStdMsg(s"FAB_NET_RECEIVER_DISPATCH_FAIL $this", t)

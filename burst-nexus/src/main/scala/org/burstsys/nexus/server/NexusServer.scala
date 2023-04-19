@@ -42,16 +42,12 @@ import java.net.InetAddress
 trait NexusServer extends VitalsService {
 
   /**
-    * the config defined ''or'' dynamically bound port for this server (available once the server has started)
-    *
-    * @return
+    * @return the config defined ''or'' dynamically bound port for this server (available once the server has started)
     */
   def serverPort: VitalsHostPort
 
   /**
-    * the hostname/address for this how
-    *
-    * @return
+    * @return the hostname/address for this how
     */
   def serverHost: VitalsHostName
 

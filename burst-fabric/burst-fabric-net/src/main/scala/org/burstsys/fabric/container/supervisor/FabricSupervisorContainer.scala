@@ -4,7 +4,7 @@ package org.burstsys.fabric.container.supervisor
 import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.{FabricContainer, FabricContainerContext}
 import org.burstsys.fabric.net.{FabricNetworkConfig, message}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetTetherMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.server.{FabricNetServer, FabricNetServerListener}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
 import org.burstsys.fabric.topology.supervisor.FabricSupervisorTopology
@@ -129,7 +129,7 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
     _listenerSet.stream().forEach(_.onDisconnect(connection))
   }
 
-  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetTetherMsg): Unit = {
+  override def onNetServerTetherMsg(connection: FabricNetServerConnection, msg: FabricNetHeartbeatMsg): Unit = {
     _listenerSet.stream().forEach(_.onNetServerTetherMsg(connection, msg))
   }
 

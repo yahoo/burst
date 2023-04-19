@@ -278,8 +278,7 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
     * connect to the server - we need to detect and recover from connection loss.
     * Detecting connection loss appears to happen in [[org.burstsys.nexus.receiver.NexusReceiver.channelInactive]]
     */
-  private
-  def connectToServer: ChannelFuture = {
+  private def connectToServer: ChannelFuture = {
 
     if (burstNexusSslEnableProperty.get) {
       val certificate = new File(certPath)

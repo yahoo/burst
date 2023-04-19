@@ -76,15 +76,14 @@ class FabricNetAssessRespMsgContext()
   // API
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def link(msg: FabricNetMsg): this.type = {
+  override def link(msg: FabricNetMsg): this.type = {
     super.link(msg)
     sentNanos = msg.asInstanceOf[FabricNetAssessReqMsg].sentNanos
     this
   }
 
-  override
-  def elapsedNanos: Long = System.nanoTime - sentNanos
+  // this call is only valid on the supervisor JVM
+  override def elapsedNanos: Long = System.nanoTime - sentNanos
 
   ////////////////////////////////////////////////////////////////////////////////////
   // CODEC

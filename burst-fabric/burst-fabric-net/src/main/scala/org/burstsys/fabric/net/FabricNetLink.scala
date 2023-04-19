@@ -67,8 +67,7 @@ trait FabricNetLink extends Any {
   /**
     * A string useful for debugging
     */
-  final
-  def link: String = {
+  final def link: String = {
     s"local=$localAddress:$localPort, remote=$remoteAddress:$remotePort"
   }
 

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--This config used in the running system, not during tests-->
 <Configuration status="info" packages="org.burstsys.vitals.logging" monitorInterval="30" >
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">

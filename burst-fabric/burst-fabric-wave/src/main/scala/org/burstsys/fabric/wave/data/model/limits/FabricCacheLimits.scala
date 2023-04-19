@@ -65,7 +65,7 @@ trait FabricSnapCacheLimits extends Any {
 }
 
 final case
-class FabricSnapCachePropertyLimits() extends AnyRef with FabricSnapCacheLimits {
+class FabricSnapCacheLimitsContext() extends AnyRef with FabricSnapCacheLimits {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // private state

@@ -2,11 +2,13 @@
 package org.burstsys.fabric.net.client.connection
 
 import io.netty.channel.Channel
+import org.burstsys.fabric
+import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.FabricWorkerService
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetTetherMsg}
-import org.burstsys.fabric.net.message.{AccessParameters, FabricNetAssessReqMsgType, FabricNetMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetHeartbeatMsg}
+import org.burstsys.fabric.net.message.{AccessParameters, FabricNetAssessReqMsgType, FabricNetMsg, FabricNetShutdownMsgType}
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, newRequestId}
@@ -15,6 +17,7 @@ import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
+import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.git
 import org.burstsys.vitals.healthcheck.{VitalsComponentHealth, VitalsHealthMarginal, VitalsHealthMonitoredComponent}
 import org.burstsys.vitals.logging.burstStdMsg
@@ -47,7 +50,7 @@ object FabricNetClientConnection {
              receiver: FabricNetReceiver,
              client: FabricNetClient
            ): FabricNetClientConnection =
-    FabricNetClientConnectionContext(container, channel, transmitter, receiver, client )
+    FabricNetClientConnectionContext(container, channel, transmitter, receiver, client)
 
 }
 
@@ -79,6 +82,8 @@ class FabricNetClientConnectionContext(
   private[this]
   val _listenerSet = ConcurrentHashMap.newKeySet[FabricNetClientListener]()
 
+  private var _heartbeatFunction: VitalsBackgroundFunction = _
+
   ////////////////////////////////////////////////////////////////////////////////////
   // API
   ////////////////////////////////////////////////////////////////////////////////////
@@ -100,22 +105,40 @@ class FabricNetClientConnectionContext(
   // Lifecycle
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     ensureNotRunning
     log info startingMessage
     receiver connectedTo this
-    tetherLineFunction.start
+    _heartbeatFunction = new VitalsBackgroundFunction(
+      "fab-client-heartbeat", 100 milliseconds, fabric.configuration.burstFabricTopologyHeartbeatPeriodMs.get, {
+        log debug "Attempting heartbeat"
+        val c = channel
+        if (c != null && c.isActive) {
+          transmitter transmitControlMessage FabricNetHeartbeatMsg(newRequestId, clientKey, serverKey, git.commitId, accessParameters)
+        } else {
+          log warn s"Failed to send client heartbeat $this isConnected=${if (c != null) c.isActive else "null"}"
+        }
+      }).start
     assessorBackgroundFunction.start
     markRunning
     this
   }
 
-  override
-  def stop: this.type = {
+  private def accessParameters: AccessParameters = {
+    var parameters: AccessParameters = Map.empty
+    _listenerSet.stream.forEach { l =>
+      try parameters = l.prepareAccessParameters(parameters)
+      catch safely {
+        case t => log info s"Failed to get access parameters from $l: $t"
+      }
+    }
+    parameters
+  }
+
+  override def stop: this.type = {
     ensureRunning
     log info stoppingMessage
-    tetherLineFunction.stop
+    _heartbeatFunction.stop
     assessorBackgroundFunction.stop
     markNotRunning
     this
@@ -130,11 +153,11 @@ class FabricNetClientConnectionContext(
         serverKey.nodeId = msg.senderKey.nodeId
         _listenerSet.stream.forEach(_.onNetClientAssessReqMsg(this, msg))
 
-        var parameters: AccessParameters = Map.empty
-        _listenerSet.stream.forEach{l =>
-          parameters = l.prepareAccessRespParameters(parameters)
-        }
-        assessRequest(msg, parameters)
+        sendAssessResponse(msg)
+
+      /////////////////// Shutdown /////////////////
+      case FabricNetShutdownMsgType =>
+        client.stopIfNotAlreadyStopped
 
       case _ =>
         _listenerSet.stream.forEach(_.onNetMessage(this, messageId, buffer))
@@ -145,19 +168,6 @@ class FabricNetClientConnectionContext(
     log trace burstStdMsg(s"disconnect $this")
     _listenerSet.stream.forEach(_.onDisconnect(this))
   }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // Tethering
-  ////////////////////////////////////////////////////////////////////////////////////
-
-  lazy val tetherLineFunction = new VitalsBackgroundFunction("fab-client-tether", 100 milliseconds, 10 seconds, {
-      val c = channel
-      if (c != null && c.isActive) {
-        val message = FabricNetTetherMsg(newRequestId, clientKey, serverKey, git.commitId)
-        transmitter.transmitControlMessage(message)
-      }
-    }
-  )
 
   ////////////////////////////////////////////////////////////////////////////////////
   // Keys

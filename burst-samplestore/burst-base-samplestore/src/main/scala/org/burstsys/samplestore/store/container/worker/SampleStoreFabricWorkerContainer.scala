@@ -12,11 +12,12 @@ import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
 import org.burstsys.samplestore.configuration.{sampleStoreNexusHostAddrOverride, sampleStoreNexusHostNameAddrOverride}
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
-import org.burstsys.samplestore.store.container.{NexusConnectedPortAssessParameterName, NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
+import org.burstsys.samplestore.store.container.{NexusConnectedPortAccessParameter, NexusHostAddrAccessParameter, NexusHostNameAccessParameter, NexusPortAccessParameter}
 import org.burstsys.samplestore.store.message.FabricStoreMetadataReqMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.net.VitalsHostAddress
 import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 
 /**
@@ -101,35 +102,15 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
   }
 
 
-  override def prepareAccessRespParameters(parameters: AccessParameters): AccessParameters = {
-    var p = parameters
-
-    p = p ++ Map(
-      NexusHostAddrAssessParameterName -> {
-        sampleStoreNexusHostAddrOverride.asOption match {
-          case Some(addr) =>
-            addr.asInstanceOf[Serializable]
-          case None =>
-            SampleSourceNexusServer.nexusServer.serverHost.asInstanceOf[Serializable]
-            //SampleSourceNexusServer.nexusServer.nettyChannel.localAddress().toString.asInstanceOf[Serializable]
-        }
-      },
-      NexusHostNameAssessParameterName -> {
-        sampleStoreNexusHostNameAddrOverride.asOption match {
-          case Some(name) =>
-            name.asInstanceOf[Serializable]
-          case None =>
-            SampleSourceNexusServer.nexusServer.serverHost.asInstanceOf[Serializable]
-        }
-      },
-      NexusConnectedPortAssessParameterName -> SampleSourceNexusServer.nexusServer.serverPort.asInstanceOf[Serializable],
-      NexusPortAssessParameterName -> nexus.port.asInstanceOf[Serializable]
+  override def prepareAccessParameters(parameters: AccessParameters): AccessParameters = {
+    super.prepareAccessParameters(parameters) ++ Map(
+      NexusHostAddrAccessParameter -> sampleStoreNexusHostAddrOverride.asOption
+        .getOrElse(SampleSourceNexusServer.nexusServer.serverHost).asInstanceOf[Serializable],
+      NexusHostNameAccessParameter -> sampleStoreNexusHostNameAddrOverride.asOption
+        .getOrElse(SampleSourceNexusServer.nexusServer.serverHost).asInstanceOf[Serializable],
+      NexusConnectedPortAccessParameter -> SampleSourceNexusServer.nexusServer.serverPort.asInstanceOf[Serializable],
+      NexusPortAccessParameter -> nexus.port.asInstanceOf[Serializable]
     )
-
-    _listener.foreach { l =>
-      p = l.prepareAccessRespParameters(p)
-    }
-    p
   }
 
   override def log4JPropertiesFileName: String = WorkerLog4JPropertiesFileName

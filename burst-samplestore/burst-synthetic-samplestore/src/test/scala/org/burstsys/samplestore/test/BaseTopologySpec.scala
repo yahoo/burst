@@ -4,7 +4,7 @@ package org.burstsys.samplestore.test
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
 import org.burstsys.nexus
-import org.burstsys.samplestore.store.container.{NexusConnectedPortAssessParameterName, NexusHostAddrAssessParameterName, NexusHostNameAssessParameterName, NexusPortAssessParameterName}
+import org.burstsys.samplestore.store.container.{NexusConnectedPortAccessParameter, NexusHostAddrAccessParameter, NexusHostNameAccessParameter, NexusPortAccessParameter}
 import org.burstsys.samplestore.store.container.supervisor.SampleStoreFabricSupervisorContainer
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
@@ -62,14 +62,14 @@ class BaseTopologySpec extends BaseSupervisorWorkerBaseSpec
 
   override
   def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = {
-    worker.assessment should not equal(null)
-    worker.assessment.parameters.nonEmpty should equal(true)
-    worker.assessment.parameters.keys should contain(NexusPortAssessParameterName)
-    worker.assessment.parameters(NexusPortAssessParameterName) should equal(2000)
-    worker.assessment.parameters.keys should contain(NexusConnectedPortAssessParameterName)
-    worker.assessment.parameters(NexusConnectedPortAssessParameterName) should equal(2000)
-    worker.assessment.parameters.keys should contain(NexusHostAddrAssessParameterName)
-    worker.assessment.parameters.keys should contain(NexusHostNameAssessParameterName)
+    worker.accessParameters should not equal(null)
+    worker.accessParameters.nonEmpty should equal(true)
+    worker.accessParameters.keys should contain(NexusPortAccessParameter)
+    worker.accessParameters(NexusPortAccessParameter) should equal(2000)
+    worker.accessParameters.keys should contain(NexusConnectedPortAccessParameter)
+    worker.accessParameters(NexusConnectedPortAccessParameter) should equal(2000)
+    worker.accessParameters.keys should contain(NexusHostAddrAccessParameter)
+    worker.accessParameters.keys should contain(NexusHostNameAccessParameter)
     workerGain.countDown()
   }
 

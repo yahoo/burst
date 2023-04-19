@@ -129,7 +129,8 @@ class FabricCacheImpellerContext(
   def spawnWorker: Future[Unit] = {
     val tag = s"FabricCacheImpeller.spawnWorker(regionTag=$regionTag)"
     TeslaRequestFuture {
-      Thread.currentThread().setName(f"fab-impeller-$impellerId%02d")
+      val name = Thread.currentThread.getName
+      Thread.currentThread.setName(f"fab-impeller-$impellerId%02d")
       try {
         while (_running.get) {
           val writer = _writerQueue.poll(writerQueuePoolWait.toMillis, TimeUnit.MILLISECONDS)
@@ -138,6 +139,8 @@ class FabricCacheImpellerContext(
       } catch safely {
         case t: Throwable =>
           log error burstStdMsg(s"IMPELLER_THREAD_DIED!!! $tag", t)
+      } finally {
+        Thread.currentThread.setName(name)
       }
     }
   }

@@ -38,6 +38,9 @@ class FabricMetricsSpec extends FabricWaveSupervisorWorkerBaseSpec {
   override def workerCount = 2
 
   it should "do a wave execution and collect metrics" in {
+    val itemCount = 500
+    val sliceCount = 2
+    val regionCount = Runtime.getRuntime.availableProcessors * sliceCount
 
     val guid = newBurstUid
     val promise = Promise[FabricGather]()
@@ -60,56 +63,33 @@ class FabricMetricsSpec extends FabricWaveSupervisorWorkerBaseSpec {
       datasource
     )
 
-    def FAIL(t: Throwable): Unit = {
-      log error s"FAIL $t"
-      promise.failure(t)
+    log info s"healthy workers count=${supervisorContainer.topology.healthyWorkers.length}"
+    supervisorContainer.topology.healthyWorkers.length shouldEqual sliceCount
+
+    val result = supervisorContainer.data.slices(guid, datasource) flatMap { slices =>
+      log info s"sliced mock data sliceCount=${slices.length}"
+      // get appropriate set of slices and create particles out of them
+      val particles = slices.map(FabricParticle(guid, _, scanner))
+      // create a wave from the particles
+      val wave = FabricWave(guid, particles)
+      supervisorContainer.execution.executionWaveOp(wave)
     }
-
-    supervisorContainer.data.slices(guid, datasource) onComplete {
-      case Failure(t) => FAIL(t)
-      case Success(slices) =>
-        Try {
-          // get appropriate set of slices and create particles out of them
-          val particles = slices map (slice => FabricParticle(guid, slice, scanner))
-          // create a wave from the particles
-          FabricWave(guid, particles)
-        } match {
-          case Failure(t) => FAIL(t)
-          case Success(wave) =>
-            supervisorContainer.execution.executionWaveOp(wave) onComplete {
-              case Failure(t) => FAIL(t)
-              case Success(gather) => promise.success(gather)
-            }
-        }
-    }
-
-    val itemCount = 500
-    val sliceCount = 2
-    val regionCount = Runtime.getRuntime.availableProcessors * sliceCount
-
-    // execute the wave - wait for future - get back a gather
-    val gather = Await.result(promise.future, 10 minutes)
+    val gather = Await.result(result, 2 minutes)
 
     val metrics = gather.gatherMetrics
     log info metrics.toString
 
-    metrics.generationKey.domainKey should equal(domainKey)
-    metrics.generationKey.viewKey should equal(viewKey)
-    metrics.generationKey.generationClock should equal(generationClock)
-    metrics.generationMetrics.generationKey.domainKey should equal(domainKey)
-    metrics.generationMetrics.generationKey.viewKey should equal(viewKey)
-    metrics.generationMetrics.generationKey.generationClock should equal(generationClock)
+    metrics.generationKey.domainKey shouldEqual domainKey
+    metrics.generationKey.viewKey shouldEqual viewKey
+    metrics.generationKey.generationClock shouldEqual generationClock
+    metrics.generationMetrics.generationKey.domainKey shouldEqual domainKey
+    metrics.generationMetrics.generationKey.viewKey shouldEqual viewKey
+    metrics.generationMetrics.generationKey.generationClock shouldEqual generationClock
 
-    metrics.generationMetrics.byteCount should equal(2882152)
-    metrics.generationMetrics.itemCount should equal(itemCount * sliceCount)
-    metrics.generationMetrics.regionCount should equal(regionCount)
-    metrics.generationMetrics.sliceCount should equal(sliceCount)
-
-/*
-    metrics.executionMetrics.scanTime.toInt should be(70876499 +- (70876499 / 2))
-    metrics.executionMetrics.scanWork.toInt should be(90571463 +- (90571463 / 2))
-*/
-
+    metrics.generationMetrics.byteCount shouldEqual 2882152
+    metrics.generationMetrics.itemCount shouldEqual itemCount * sliceCount
+    metrics.generationMetrics.regionCount shouldEqual regionCount
+    metrics.generationMetrics.sliceCount shouldEqual sliceCount
   }
 
 }
