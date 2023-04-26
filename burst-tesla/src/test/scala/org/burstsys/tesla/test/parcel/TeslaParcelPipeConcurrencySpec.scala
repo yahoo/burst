@@ -24,33 +24,24 @@ class TeslaParcelPipeConcurrencySpec extends TeslaAbstractSpec {
   // THREADING
   //////////////////////////////////////////////////////////////////////////////////////////////
 
+  behavior of "TeslaParcelPipe"
 
-  "Tesla Parcel Pipe" should "handle high concurrency" in {
-    doTest(concurrency = 1, packets = 1e6)
-    doTest(concurrency = 2, packets = 1e6)
-    doTest(concurrency = 3, packets = 1e6)
-    doTest(concurrency = 4, packets = 1e6)
-    doTest(concurrency = 5, packets = 1e6)
-    doTest(concurrency = 6, packets = 1e6)
-    doTest(concurrency = 7, packets = 1e6)
-    doTest(concurrency = 8, packets = 1e6)
-    doTest(concurrency = 9, packets = 1e6)
-    doTest(concurrency = 10, packets = 1e6)
-    doTest(concurrency = 18, packets = 1e6)
-    doTest(concurrency = 24, packets = 1e6)
+  Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18, 24) foreach { concurrency =>
+    it should s"handle concurrency of $concurrency" in {
+      pushParcelsThroughPipe(concurrency, packets = 1e6)
+    }
   }
 
-
-  private def doTest(concurrency: Int, packets: Double): Unit = {
+  private def pushParcelsThroughPipe(concurrency: Int, packets: Double): Unit = {
     val start = System.nanoTime()
     var packetSentTally = new LongAdder
     var packetRecvTally = new LongAdder
     val gate = new CountDownLatch(concurrency)
     val pipe = TeslaParcelPipe(name = "nexus.concurrency.tests", guid = "g1", suid = "s1", depth = 100, timeout = 5 minute).start
-    val outcomes = for (i <- 0 until concurrency) yield {
+    val outcomes = for (_ <- 0 until concurrency) yield {
       TeslaRequestFuture {
         while (packetSentTally.sum < packets) {
-          pipe.put(TeslaMockMarkerParcel)
+          pipe.put(TeslaHeartbeatMarkerParcel)
           packetSentTally.increment()
         }
         pipe.put(TeslaEndMarkerParcel)
@@ -62,7 +53,7 @@ class TeslaParcelPipeConcurrencySpec extends TeslaAbstractSpec {
         case TeslaEndMarkerParcel =>
           gate.countDown()
           finishes += 1
-        case TeslaMockMarkerParcel =>
+        case TeslaHeartbeatMarkerParcel =>
           packetRecvTally.increment()
         case TeslaTimeoutMarkerParcel =>
           throw VitalsException(s"timeout!!!")
@@ -75,7 +66,7 @@ class TeslaParcelPipeConcurrencySpec extends TeslaAbstractSpec {
       s"""
          |---------------------------------------------------------------------------------------------------
          |  concurrency=$concurrency ,
-         |  items/thread = $packets ,
+         |  items/thread = ${packets / concurrency} ,
          |  packets=$packets ,
          |  packetSentTally=${packetSentTally.sum()} ,
          |  packetRecvTally=${packetRecvTally.sum()} ,

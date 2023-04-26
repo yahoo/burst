@@ -2,6 +2,7 @@
 package org.burstsys.nexus.server
 
 import org.burstsys.nexus.message.{NexusStreamAbortMsg, NexusStreamInitiateMsg}
+import org.burstsys.nexus.server.connection.NexusServerConnection
 import org.burstsys.nexus.stream.NexusStream
 
 /**
@@ -11,21 +12,13 @@ trait NexusServerListener extends Any {
 
   /**
     * Tells server side code that the client has requested a stream be initiated
-    *
-    * @param stream
-    * @param request
     */
-  def onStreamInitiate(stream: NexusStream, request: NexusStreamInitiateMsg): Unit = {
-
-  }
+  def onStreamInitiate(stream: NexusStream, request: NexusStreamInitiateMsg): Unit = {}
 
   /**
     * client asked for stream to be aborted and cleaned up
-    * @param stream
-    * @param request
     */
-  def onStreamAbort(stream: NexusStream, request: NexusStreamAbortMsg):Unit = {
+  def onStreamAbort(stream: NexusStream, request: NexusStreamAbortMsg):Unit = {}
 
-  }
-
+  def onClientDisconnect(connection: NexusServerConnection): Unit = {}
 }

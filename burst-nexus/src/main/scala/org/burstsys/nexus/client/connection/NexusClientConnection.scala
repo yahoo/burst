@@ -4,9 +4,9 @@ package org.burstsys.nexus.client.connection
 import io.netty.channel.Channel
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
 import org.burstsys.nexus.client.{NexusClientListener, NexusClientReporter}
-import org.burstsys.nexus.message.{NexusMsg, NexusStreamCompleteMsg, NexusStreamInitiatedMsg, msgIds}
+import org.burstsys.nexus.message.{NexusMsg, NexusStreamAbortMsg, NexusStreamCompleteMsg, NexusStreamHeartbeatMsg, NexusStreamInitiateMsg, NexusStreamInitiatedMsg, NexusStreamParcelMsg, msgIds}
 import org.burstsys.nexus.receiver.NexusClientMsgListener
-import org.burstsys.nexus.stream.{NexusStream, streamIds}
+import org.burstsys.nexus.stream.{NexusStream, newRuid, streamIds}
 import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.nexus.trek.{NexusClientStreamStartTrekMark, NexusClientStreamTerminateTrekMark}
 import org.burstsys.nexus.{NexusConnection, NexusSliceKey, NexusStreamUid}
@@ -21,7 +21,7 @@ import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.uid._
 
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.LongAdder
+import java.util.concurrent.atomic.{AtomicBoolean, LongAdder}
 import java.util.concurrent.locks.{Condition, ReentrantLock}
 import scala.concurrent.Promise
 import scala.language.postfixOps
@@ -45,10 +45,19 @@ trait NexusClientConnection extends NexusConnection with NexusClientMsgListener 
   def talksTo(listener: NexusClientListener): this.type
 
   /**
-   * Start a stream
+   * Start a stream, blocking until the nexus server connects
    */
-  def startStream(guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
-                  pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName): NexusStream
+  def startStream(
+                   guid: VitalsUid,
+                   suid: NexusStreamUid,
+                   properties: VitalsPropertyMap,
+                   schema: BrioSchemaName,
+                   filter: BurstMotifFilter,
+                   pipe: TeslaParcelPipe,
+                   sliceKey: NexusSliceKey,
+                   clientHostname: VitalsHostName,
+                   serverHostname: VitalsHostName
+                 ): NexusStream
 
   /**
    * abort the current stream on this connection with a specific [[TeslaParcelStatus]]
@@ -66,55 +75,39 @@ object NexusClientConnection {
 
 protected final case
 class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitter)
-  extends AnyRef with NexusClientConnection with NexusClientParcelHandler {
+  extends NexusClientConnection {
 
   ////////////////////////////////////////////////////////////////////////////////////
   // State
   ////////////////////////////////////////////////////////////////////////////////////
 
-  protected[this]
-  val _gate: ReentrantLock = new ReentrantLock()
+  private val _gate: ReentrantLock = new ReentrantLock()
 
-  protected[this]
-  val _initiateResponded: Condition = _gate.newCondition()
+  private val _initiateReceived: Condition = _gate.newCondition()
 
-  protected[this]
-  var _isStreamingData: Boolean = false
+  private val _isStreamingData = new AtomicBoolean(false)
 
-  protected[this]
-  var _startTime: Long = _
+  private var _startTime: Long = _
 
-  protected[this]
-  var _startNanos: Long = _
+  private var _startNanos: Long = _
 
-  protected[this]
-  var _initiatedNanos: Long = _
+  private var _initiatedNanos: Long = _
 
-  protected[this]
-  var _firstBatchNanos: Long = _
+  private var _firstBatchNanos: Long = _
 
-  protected[this]
-  var _lastProgressMs: Long = _
+  private var _lastProgressMs: Long = _
 
-  protected[this]
-  val _itemCount = new LongAdder
+  private val _itemCount = new LongAdder
 
-  protected[this]
-  val _byteCount = new LongAdder
+  private val _byteCount = new LongAdder
 
-  protected[this]
-  val _batchCount = new LongAdder
+  private val _batchCount = new LongAdder
 
-  protected[this]
-  var _listener: NexusClientListener = _
+  private var _listener: NexusClientListener = _
 
-  protected[this]
-  var _promise: Promise[NexusStream] = _
+  private var _stream: NexusStream = _
 
-  protected[this]
-  var _stream: NexusStream = _
-
-  protected def startMetrics(): Unit = {
+  private def startMetrics(): Unit = {
     _startTime = System.currentTimeMillis()
     _startNanos = System.nanoTime()
     _initiatedNanos = 0
@@ -133,6 +126,10 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
   protected def msgHeader(msg: NexusMsg): String = s"$link, ${streamIds(_stream)} ${msgIds(msg)}"
 
   protected def msgOnThisStream(msg: NexusMsg, tag: String): Boolean = {
+    if (_stream == null) {
+      log warn s"CLOSED_NEXUS_STREAM $tag received message on a closed stream! msg=${msg.messageName} ${msgIds(msg)}"
+      return false
+    }
     val sameStream = _stream.guid == msg.guid && _stream.suid == msg.suid
     if (!sameStream) {
       log warn s"CROSSED_NEXUS_STREAMS $tag received message from the wrong stream! msg=${msg.messageName} ${streamIds(_stream)} ${msgIds(msg)}"
@@ -145,34 +142,54 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
   // API
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def isActive: Boolean = _isStreamingData
+  override def isActive: Boolean = _isStreamingData.get
 
-  protected def waitForStreamStart(stream: NexusStream): Unit = {
+  override def startStream(
+                            guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
+                            pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName
+                          ): NexusStream = {
+    val hdr = s"NexusClientConnection.startStream($link, guid=$guid, suid=$suid)"
+    if (isActive) {
+      log warn s"$hdr already in a stream"
+      throw VitalsException(s"$hdr already in a stream")
+    }
+    startMetrics()
+    log info s"$hdr"
+    transmitter.transmitControlMessage(
+      NexusStreamInitiateMsg(newRuid, guid, suid, properties, schema, filter, sliceKey, clientHostname, serverHostname)
+    )
+
+    _gate.lock()
+    try {
+      _stream = NexusStream(connection = this, guid, suid, properties, schema, filter, pipe, sliceKey, clientHostname, serverHostname)
+      waitForStreamStart(_stream)
+      _stream
+    } finally _gate.unlock()
+  }
+
+  private def waitForStreamStart(stream: NexusStream): Unit = {
     val span = NexusClientStreamStartTrekMark.begin(stream.guid, stream.suid)
     lazy val tag = s"NexusClientConnection.streamStart($transmitter, stream=$stream)"
-    _gate.lock()
     var waitTimeout = false
+
+    _gate.lock()
     try {
       var waits = 0
-      val waitStart = System.nanoTime()
       var waitElapsed = 0L
-      var streamReady = false
-      while (!isActive && !streamReady && !waitTimeout) {
+      val waitStart = System.nanoTime()
+      while (!(isActive || waitTimeout)) {
 
-        // check writable status
-        streamReady = _initiateResponded.await(initiateWaitPeriodMs, TimeUnit.MILLISECONDS)
-
+        // wait for server connection
+        _initiateReceived.await(initiateWaitPeriodMs, TimeUnit.MILLISECONDS)
         waitElapsed = System.nanoTime - waitStart
 
         // check timeout status
-        if (!streamReady && (waits < initiateMaxWaits)) {
+        if (!isActive && (waits < initiateMaxWaits)) {
           waits += 1
-          log warn s"NEXUS_CLIENT_SLOW waits=$waits, maxWaits=$initiateMaxWaits, elapsed=$waitElapsed (${prettyTimeFromNanos(waitElapsed)}) $tag "
+          log debug s"NEXUS_CLIENT_SLOW waits=$waits, maxWaits=$initiateMaxWaits, elapsed=$waitElapsed (${prettyTimeFromNanos(waitElapsed)}) $tag "
           NexusClientReporter.onClientSlow(waitElapsed)
-          waitTimeout = false
         } else {
-          waitTimeout = !streamReady
+          waitTimeout = !isActive
         }
       }
 
@@ -182,29 +199,25 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
         NexusClientStreamStartTrekMark.fail(span)
         log error msg
         throw VitalsException(msg)
+      } else {
+        log debug s"NEXUS_STREAM_STARTED elapsed=${System.nanoTime - _startNanos} (${prettyTimeFromNanos(System.nanoTime - _startNanos)}) $tag"
       }
       NexusClientStreamStartTrekMark.end(span)
+
     } catch safely {
       case t: Throwable =>
         NexusClientReporter.onClientStreamFail()
         NexusClientStreamStartTrekMark.fail(span)
         log error burstStdMsg(s"FAIL $t $tag", t)
-        if (!_promise.isCompleted)
-          _promise.failure(t)
+        _stream.completeExceptionally(t)
         throw t
-    } finally {
-      if (!waitTimeout) {
-        log info s"NEXUS_STREAM_STARTED elapsed=${System.nanoTime - _startNanos} (${prettyTimeFromNanos(System.nanoTime - _startNanos)}) $tag"
-      }
-      _gate.unlock()
-    }
+    } finally _gate.unlock()
   }
 
-  override
-  def onStreamInitiatedMsg(msg: NexusStreamInitiatedMsg): Unit = {
+  override def onStreamInitiatedMsg(msg: NexusStreamInitiatedMsg): Unit = {
     lazy val hdr = s"NexusClientConnection.onStreamInitiatedResponse($link, ${msgIds(msg)})"
     try {
-      log info s"NEXUS_STREAM_INITATE_RESPONSE $hdr"
+      log debug s"NEXUS_STREAM_INITIATE_RESPONSE $hdr"
       _gate.lock()
       try {
         if (!msgOnThisStream(msg, "NexusClientConnection.onStreamInitiatedResponse")) {
@@ -215,83 +228,137 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
           log warn s"$hdr already in stream"
           throw VitalsException(s"NEXUS_ALREADY_IN_STREAM $hdr")
         }
-        _isStreamingData = true
-        _initiateResponded.signalAll()
+        _isStreamingData.set(true)
+        _initiateReceived.signalAll()
       } finally _gate.unlock()
-      if (_listener != null) {
-        TeslaRequestFuture {
-          _listener.onStreamInitiated(msg)
-        }
-      }
+
+      forward(_.onStreamInitiated(msg))
       _initiatedNanos = System.nanoTime()
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(s"$hdr", t)
-        if (!_promise.isCompleted)
-          _promise.failure(t)
+        _stream.completeExceptionally(t)
     }
   }
 
-  protected
-  def onStreamCompletion(update: NexusStreamCompleteMsg, stream: NexusStream): Unit = {
-    lazy val tag = s"NexusClientConnection.onCompletion($link, ${msgIds(update)})"
-    val span = NexusClientStreamTerminateTrekMark.begin(stream.guid, stream.suid)
+  override def onStreamParcelMsg(msg: NexusStreamParcelMsg): Unit = {
+    val tag = s"NexusClientConnection.onStreamParcelMsg(${msgHeader(msg)})"
     try {
-      stream.itemCount = update.itemCount
-      stream.expectedItemCount = update.expectedItemCount
-      stream.potentialItemCount = update.potentialItemCount
-      stream.rejectedItemCount = update.rejectedItemCount
+      log debug s"NexusStreamParcelMsg ${streamIds(_stream)} ${msgIds(msg)} count=${msg.parcel.bufferCount} action=receive"
 
-      if (_itemCount.longValue != update.itemCount)
-        log warn s"SEND_RECEIVE_MISMATCH $stream did not receive expected number of items! sentItems=${update.itemCount} receivedItems=${_itemCount.longValue} $tag"
-
-      if (_listener != null) {
-        TeslaRequestFuture {
-          _listener.onStreamComplete(update)
-        }
+      if (!msgOnThisStream(msg, "NexusClientConnection.onStreamParcelMsg")) {
+        return
       }
-      val elapsedNanos = System.nanoTime() - _startNanos
-      val endTime = System.currentTimeMillis()
-      val itemSize = if (_itemCount.longValue == 0) 0 else _byteCount.longValue / _itemCount.longValue
-      val batchSize = if (_batchCount.longValue == 0) 0 else _byteCount.longValue / _batchCount.longValue
-      log info
-        s"""
-           |$tag STREAM RECV END ,
-           |  startTime=${_startTime} (${prettyDateTimeFromMillis(_startTime)}) ,
-           |  endTime=$endTime (${prettyDateTimeFromMillis(endTime)}) ,
-           |  initiatedNanos=${_initiatedNanos - _startNanos} (${prettyTimeFromNanos(_initiatedNanos - _startNanos)}) ,
-           |  firstBatchNanos=${_firstBatchNanos - _startNanos} (${prettyTimeFromNanos(_firstBatchNanos - _startNanos)}) ,
-           |  finishedNanos=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) ,
-           |  itemCount=${_itemCount} (${prettyFixedNumber(_itemCount.longValue)}) ,
-           |  potentialItemCount=${stream.potentialItemCount} (${prettyFixedNumber(stream.potentialItemCount)})
-           |  reportedItemCount=${update.itemCount} (${prettyFixedNumber(update.itemCount)}) ,
-           |  reportedPotentialItemCount=${update.potentialItemCount} (${prettyFixedNumber(update.potentialItemCount)}) ,
-           |  reportedRejectedItemCount=${update.rejectedItemCount} (${prettyFixedNumber(update.rejectedItemCount)}) ,
-           |  byteCount=${_byteCount} (${prettyByteSizeString(_byteCount.longValue)}) ,
-           |  batchCount=${_batchCount} ,
-           |  itemSize=$itemSize (${prettyByteSizeString(itemSize)}) ,
-           |  batchSize=$batchSize (${prettyByteSizeString(batchSize)}) ,
-           |  ${prettyRateString("byte", _byteCount.longValue, elapsedNanos)} ,
-           """.stripMargin
-      _isStreamingData = false
-      if (!_promise.isCompleted) {
-        log info s"PROMISE_SUCCESS $tag "
-        _promise.success(stream)
+
+      if (_firstBatchNanos == 0) {
+        _firstBatchNanos = System.nanoTime()
+      }
+      _batchCount add 1
+      _itemCount add msg.parcel.bufferCount
+      _byteCount add msg.parcel.inflatedSize
+
+
+      NexusClientReporter.onParcelRead(msg.parcel.deflatedSize, msg.parcel.inflatedSize)
+
+      if (_stream == null) {
+        log warn burstStdMsg(s"$tag stream was null")
       } else {
-        log info s"PROMISE_HAD_FAILED_PREVIOUSLY $tag"
+        _stream put msg.parcel
       }
-      NexusClientReporter.onClientStreamSucceed()
-      NexusClientStreamTerminateTrekMark.end(span)
+      forward(_.onStreamParcel(msg))
+
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
-        NexusClientReporter.onClientStreamFail()
-        NexusClientStreamTerminateTrekMark.fail(span)
-        if (!_promise.isCompleted)
-          _promise.failure(t)
-        // clear this out
-        _isStreamingData = false
+        log error burstStdMsg(s"NEXUS_PARCEL_FAIL $tag", t)
+        _stream.completeExceptionally(t)
     }
   }
 
+  override def onStreamCompleteMsg(msg: NexusStreamCompleteMsg): Unit = {
+    val tag = s"NexusClientConnection.onStreamCompleteMsg(${msgHeader(msg)})"
+    if (!msgOnThisStream(msg, "NexusClientConnection.onStreamCompleteMsg")) {
+      return
+    }
+    try {
+      log info s"$tag ${msg.status} items=${msg.itemCount} expected=${msg.expectedItemCount} potential=${msg.potentialItemCount} rejected=${msg.rejectedItemCount}"
+      val span = NexusClientStreamTerminateTrekMark.begin(_stream.guid, _stream.suid)
+      try {
+        if (_itemCount.longValue != msg.itemCount) {
+          log warn s"SEND_RECEIVE_MISMATCH ${_stream} did not receive expected number of items! sentItems=${msg.itemCount} receivedItems=${_itemCount.longValue} $tag"
+        }
+
+        val elapsedNanos = System.nanoTime() - _startNanos
+        val endTime = System.currentTimeMillis()
+        val itemSize = if (_itemCount.longValue == 0) 0 else _byteCount.longValue / _itemCount.longValue
+        val batchSize = if (_batchCount.longValue == 0) 0 else _byteCount.longValue / _batchCount.longValue
+        // TODO: map this to metrics
+        log debug
+          s"""$tag STREAM RECV END ,
+             |  startTime=${_startTime} (${prettyDateTimeFromMillis(_startTime)}) ,
+             |  endTime=$endTime (${prettyDateTimeFromMillis(endTime)}) ,
+             |  initiatedNanos=${_initiatedNanos - _startNanos} (${prettyTimeFromNanos(_initiatedNanos - _startNanos)}) ,
+             |  firstBatchNanos=${_firstBatchNanos - _startNanos} (${prettyTimeFromNanos(_firstBatchNanos - _startNanos)}) ,
+             |  finishedNanos=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) ,
+             |  itemCount=${_itemCount} (${prettyFixedNumber(_itemCount.longValue)}) ,
+             |  potentialItemCount=${_stream.potentialItemCount} (${prettyFixedNumber(_stream.potentialItemCount)})
+             |  reportedItemCount=${msg.itemCount} (${prettyFixedNumber(msg.itemCount)}) ,
+             |  reportedPotentialItemCount=${msg.potentialItemCount} (${prettyFixedNumber(msg.potentialItemCount)}) ,
+             |  reportedRejectedItemCount=${msg.rejectedItemCount} (${prettyFixedNumber(msg.rejectedItemCount)}) ,
+             |  byteCount=${_byteCount} (${prettyByteSizeString(_byteCount.longValue)}) ,
+             |  batchCount=${_batchCount} ,
+             |  itemSize=$itemSize (${prettyByteSizeString(itemSize)}) ,
+             |  batchSize=$batchSize (${prettyByteSizeString(batchSize)}) ,
+             |  ${prettyRateString("byte", _byteCount.longValue, elapsedNanos)} ,
+   """.stripMargin
+
+        _isStreamingData.set(false)
+        _stream.complete(msg.itemCount, msg.expectedItemCount, msg.potentialItemCount, msg.rejectedItemCount, msg.marker)
+        forward(_.onStreamComplete(msg))
+
+        NexusClientReporter.onClientStreamSucceed()
+        NexusClientStreamTerminateTrekMark.end(span)
+      } catch safely {
+        case t: Throwable =>
+          log error burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t)
+          NexusClientReporter.onClientStreamFail()
+          NexusClientStreamTerminateTrekMark.fail(span)
+          _stream.completeExceptionally(t)
+          _isStreamingData.set(false)
+      }
+    } finally _stream = null
+  }
+
+  override def abortStream(status: TeslaParcelStatus): Unit = {
+    _isStreamingData.set(false)
+    transmitter.transmitControlMessage(
+      NexusStreamAbortMsg(_stream, status)
+    )
+  }
+
+  override def onStreamHeartbeatMsg(msg: NexusStreamHeartbeatMsg): Unit = {
+    val tag = s"NexusClientConnection.onStreamHeartbeatMsg(${msgHeader(msg)})"
+    NexusClientReporter.onClientHeartbeat()
+    try {
+      if (!msgOnThisStream(msg, "NexusClientConnection.onStreamHeartbeatMsg")) {
+        return
+      }
+
+      if (_stream != null) {
+        _stream put msg.marker
+        forward(_.onStreamHeartbeat(msg))
+      }
+    } catch safely {
+      case t: Throwable =>
+        log error burstStdMsg(s"NEXUS_HEARTBEAT_FAIL $tag", t)
+        _stream.completeExceptionally(t)
+    }
+  }
+
+  private def forward(action: NexusClientListener => Unit): Unit = {
+    if (_listener != null) {
+      TeslaRequestFuture {
+        action(_listener)
+      }
+    }
+  }
 }

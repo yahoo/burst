@@ -76,7 +76,7 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
   final def initializeLoader(): Unit = {
     val tag = s"SampleStoreLoader.initializeLoader($parameters)"
     try {
-      log info burstStdMsg(tag)
+      log debug burstStdMsg(tag)
       val depth = configuration.burstNexusPipeSizeProperty.get
       val timeout = 3 * burstSampleStoreHeartbeatDuration // no parcels in a 3 heartbeat interval means it's dead Jim
       _pipe = TeslaParcelPipe(s"samplestore.mux n=${slice.loci.length}", snap.guid, _suids, depth, timeout)
@@ -94,16 +94,15 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
    */
   final def acquireStreams(): Unit = {
     lazy val tag = s"SampleStoreLoader.acquireStreams($parameters)"
-    val metadata: FabricSliceMetadata = snap.metadata
+    val metadata = snap.metadata
     try {
-      log info s"SAMPLE_STORE_STREAMS_ACQUIRE $tag"
+      log debug s"SAMPLE_STORE_STREAMS_ACQUIRE $tag"
       slice.loci foreach {
         l =>
           val client = nexus.grabClientFromPool(l.hostAddress, l.port)
           val serverHostname = convertHostAddressToHostname(l.hostAddress)
           _nexusClients += client
-          log info
-            s"SAMPLE_STORE_ACQUIRE_STREAM serverHostname=$serverHostname, serverIPAddress=${l.hostAddress}, serverPort=${l.port}, properties=${l.partitionProperties} $tag"
+          log debug s"SAMPLE_STORE_ACQUIRE_STREAM serverHostname=$serverHostname serverIPAddress=${l.hostAddress} serverPort=${l.port} $tag"
           try {
             _streams += client.startStream(
               snap.guid, l.suid, l.partitionProperties, slice.datasource.view.schemaName, Some(slice.motifFilter), _pipe,
@@ -111,7 +110,7 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
             )
           } catch safely {
             case t: Throwable =>
-              log error burstStdMsg(s"SAMPLE_STORE_START_STREAM_FAILURE $t $tag", t)
+              log error burstStdMsg(s"SAMPLE_STORE_START_STREAM_FAILURE $tag", t)
               _exceptionStreamCount add 1
               metadata.failure(t)
           }
@@ -130,8 +129,8 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
   final def releaseStreams(): Unit = {
     lazy val tag = s"SampleStoreLoader.releaseStreams($parameters)"
     try {
-      val metadata: FabricSliceMetadata = snap.metadata
-      log info burstStdMsg(tag)
+      val metadata = snap.metadata
+      log debug burstStdMsg(tag)
       // make sure all streams have completed
       // wait long period - we really do not want to give up easily at this point just for hygiene
       _streams foreach {
@@ -139,7 +138,7 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
           try {
             // TODO: if `!stream.receipt.isCompleted`, send abort message telling the server to shut down.
             //       we hold the snap's write lock for as long as we wait so we should end quickly here
-            Await.result(stream.receipt, releaseStreamTimeout)
+            Await.result(stream.completion, releaseStreamTimeout)
           } catch safely {
             case _: TimeoutException =>
               val msg = s"SAMPLE_STORE_RELEASE_STREAM_TIMEOUT timeout=$releaseStreamTimeout stream=$stream"
@@ -172,9 +171,9 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
    */
   final def processStreamData(): FabricDataState = {
     lazy val tag = s"SampleStoreLoader.processStreamData($parameters)"
-    val metadata: FabricSliceMetadata = snap.metadata
+    val metadata = snap.metadata
     try {
-      log info burstStdMsg(tag)
+      log debug burstStdMsg(tag)
       // process all streams
       val start = System.nanoTime
 
@@ -203,44 +202,42 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
           // this is a special case marker that is generated when the pipe doesn't have anything for us
           case TeslaTimeoutMarkerParcel =>
             timeouts += 1
-            val msg = s"SAMPLE_STORE_PIPE_TIMEOUT duration=${prettyTimeFromNanos(start - System.nanoTime)} pipeTimeout=${_pipe.timeoutDuration} $xferStatus"
-            log info s"$msg $tag"
+            val msg = s"SAMPLE_STORE_PIPE_TIMEOUT"
+            log info s"$msg $tag duration=${prettyTimeFromNanos(start - System.nanoTime)} pipeTimeout=${_pipe.timeoutDuration} $xferStatus"
 
           // -------------------------------------
           // marker processing
           // -------------------------------------
           case TeslaEndMarkerParcel =>
             streamsCompleted += 1
-            log info s"SAMPLE_STORE_PIPE_END $tag $xferStatus"
+            log debug s"SAMPLE_STORE_PIPE_END $tag $xferStatus"
 
           case TeslaNoDataMarkerParcel =>
             streamsCompleted += 1
             streamsNoData += 1
-            log info s"SAMPLE_STORE_PIPE_NO_DATA $tag $xferStatus"
+            log debug s"SAMPLE_STORE_PIPE_NO_DATA $tag $xferStatus"
 
           case TeslaExceptionMarkerParcel =>
             streamsCompleted += 1
             _exceptionStreamCount add 1
             val msg = s"SAMPLE_STORE_PIPE_EXCEPTION"
-            log warn s"$msg $tag $xferStatus"
+            log info s"$msg $tag $xferStatus"
             metadata.failure(s"$msg $xferStatus")
 
           case TeslaAbortMarkerParcel =>
             streamsCompleted += 1
             streamsAborted += 1
             val msg = s"SAMPLE_STORE_PIPE_ABORT"
-            log warn s"$msg $tag $xferStatus"
+            log info s"$msg $tag $xferStatus"
             metadata.failure(s"$msg $xferStatus")
 
           case TeslaHeartbeatMarkerParcel =>
-            log info s"SAMPLE_STORE_PIPE_HEARTBEAT $tag $xferStatus"
+            log debug s"SAMPLE_STORE_PIPE_HEARTBEAT $tag $xferStatus"
 
           // -----------------------------------
           // normal processing
           // -----------------------------------
           case _ =>
-
-            // record this parcel
             dataReceived = true
             _itemCount add parcel.bufferCount
             _byteCount add parcel.inflatedSize
@@ -317,8 +314,8 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
    * Finalize timings and print a status message
    */
   final def processCompletion(): Unit = {
-    lazy val hdr = s"SampleStoreLoader.processCompletion($parameters)"
-    val metadata: FabricSliceMetadata = snap.metadata
+    lazy val tag = s"SampleStoreLoader.processCompletion($parameters)"
+    val metadata = snap.metadata
     val elapsedNanos = System.nanoTime - _startNanos
 
     val loadDurationMs = (elapsedNanos / 1e6).toLong
@@ -332,11 +329,9 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
         )
       case _ =>
     }
-    log info
+    log debug
       burstStdMsg(
-        s"""
-           |$hdr
-           |  worker finished read(s) from samplestore & write slice to fabric data cache
+        s"""$tag
            |  startEpoch=${_startEpoch} (${prettyDateTimeFromMillis(_startEpoch)})
            |  guid=${snap.guid}, suid=${_suids}
            |  state=${metadata.state}

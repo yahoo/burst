@@ -162,7 +162,7 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
 
   override
   def generatedSourceToTravelerClassNames(key: FeltArtifactKey, tag: FeltArtifactTag, source: FeltCode): Try[Array[FeltClassName]] = {
-    startIfNotRunning
+    startIfNotAlreadyStarted
     try {
       val compiler = takeCompiler
       val oldLoader = Thread.currentThread.getContextClassLoader
@@ -182,7 +182,7 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
 
   override
   def generatedSourceToSweepInstance(key: FeltArtifactKey, tag: FeltArtifactTag, source: FeltCode): Try[Array[Any]] = {
-    startIfNotRunning
+    startIfNotAlreadyStarted
     try {
       val compiler = takeCompiler
       val oldLoader = Thread.currentThread.getContextClassLoader

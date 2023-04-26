@@ -13,6 +13,7 @@ import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType
+import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType.ByDuration
 import org.burstsys.supervisor.http.service.provider.BurnInDatasetDescriptor.LookupType
 import org.burstsys.supervisor.http.service.provider.{BurnInBatch, BurnInDatasetDescriptor, BurnInEvent, BurnInLogEvent}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.logging.Level
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, Future}
 import scala.util.control.Breaks._
 import scala.util.{Failure, Success, Try}
@@ -179,10 +180,12 @@ case class BurnInRunBatch(
     _didCreateDatasets = true
     registerLogEvent(s"Creating ${datasets.length} temporary datasets")
     for (dataset <- datasets) {
+      registerLogEvent(s"Inserting domain ${dataset.domain.domainKey}")
       catalog.insertDomainWithPk(CatalogDomain(dataset.domain, s"Burn-In Domain ${dataset.domain.domainKey}", udk = None, Some(Map("Burn-In" -> "")))) match {
         case Failure(e) => registerLogEvent(s"Failed to insert domain pk=${dataset.domain.domainKey}: ${e.getMessage}", Level.WARNING)
         case Success(_) =>
       }
+      registerLogEvent(s"Inserting view ${dataset.view.viewKey}")
       catalog.insertViewWithPk(CatalogView(dataset.view, "moniker", udk = None, Some(Map("Burn-In" -> "")))) match {
         case Failure(e) => registerLogEvent(s"Failed to insert view pk=${dataset.view.viewKey}: ${e.getMessage}", Level.WARNING)
         case Success(_) => dataset.ready = true
@@ -195,11 +198,12 @@ case class BurnInRunBatch(
       return BurnInRunBatchStats(BatchDidNotRun)
     }
     workers = (0 until config.concurrency).map { i =>
-      BurnInWorker(i, agent, catalog, this.workerShouldContinue, () => getNextDataset, registerEvent)
+      BurnInWorker(i, agent, catalog, this.workerShouldContinue, this.nextDataset, registerEvent)
     }.toArray
     val workerRuns = workers.map(_.run()).toSeq
     val mergedStats = Future.reduceLeft(workerRuns)(_.merge(_))
-    Await.result(mergedStats, config.maxDuration.getOrElse(10.minutes))
+    registerLogEvent(s"Run started waiting ${config.runWait} for results. duration=${config.desiredDuration} max=${config.maxDuration}")
+    Await.result(mergedStats, config.runWait)
   }
 
   private def workerShouldContinue(): Boolean = {
@@ -220,9 +224,9 @@ case class BurnInRunBatch(
 
   private def shouldContinueDuration: Boolean = System.currentTimeMillis() < startTimeMillis + config.desiredDuration.get.toMillis
 
-  private def getNextDataset: BurnInRunDataset = {
+  private def nextDataset(): BurnInRunDataset = {
     val _ = _totalDatasetCounter.getAndIncrement()
-    datasets(_nextDatasetCounter.getAndUpdate(_ % datasets.length))
+    datasets(_nextDatasetCounter.getAndUpdate(n => (n + 1) % datasets.length))
   }
 
   def cleanUp(): Unit = {
@@ -260,9 +264,9 @@ case class BurnInWorker(
           break()
         }
 
-        val guidBase = s"BurnIn_${Math.abs(dataset.view.viewKey)}"
+        val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
         flushDataset(dataset)
-        registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}")
+        registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
         if (!shouldContinue()) {
           break()
         }
@@ -272,7 +276,7 @@ case class BurnInWorker(
             registerLogEvent(s"Failed to load view=${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
 
           case Success(loadStats) =>
-            registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}")
+            registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}", Level.FINE)
             result = result.merge(loadStats)
             //            reportStats(loadStats)
             for (queryIdx <- dataset.queries.indices) {

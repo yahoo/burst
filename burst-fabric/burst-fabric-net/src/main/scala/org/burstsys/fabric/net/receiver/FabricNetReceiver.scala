@@ -10,6 +10,8 @@ import org.burstsys.tesla.thread.request.{TeslaRequestCoupler, TeslaRequestFutur
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 
+import scala.annotation.unused
+
 /**
  * receive inbound messages in the form of netty [[ByteBuf]], identity and convert
  * to [[org.burstsys.fabric.net.message.FabricNetMsg]] instances and then dispatch to either a server or client listener.
@@ -30,29 +32,29 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
   }
 
   override def channelRegistered(ctx: ChannelHandlerContext): Unit = {
-    log debug burstStdMsg(s"$this CHANNEL REGISTERED")
+    log debug burstStdMsg(s"CHANNEL_REGISTERED $this")
     super.channelRegistered(ctx)
   }
 
   override def channelUnregistered(ctx: ChannelHandlerContext): Unit = {
-    log debug burstStdMsg(s"$this CHANNEL UNREGISTERED")
+    log debug burstStdMsg(s"CHANNEL_UNREGISTERED $this")
     super.channelUnregistered(ctx)
   }
 
   override def channelActive(ctx: ChannelHandlerContext): Unit = {
-    log info burstStdMsg(s"$this CHANNEL ACTIVE")
+    log info burstStdMsg(s"CHANNEL_ACTIVE $this")
     super.channelActive(ctx)
   }
 
   override def channelInactive(ctx: ChannelHandlerContext): Unit = {
     super.channelInactive(ctx)
-    log info burstStdMsg(s"FAB_NET_CHANNEL_INACTIVE $this ")
+    log info burstStdMsg(s"CHANNEL_INACTIVE $this ")
     connection.foreach(_.onDisconnect())
   }
 
   override def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
     // gather basics
-    buffer.readInt() // first field is the message length
+    @unused val _ = buffer.readInt() // first field is the message length
     val messageTypeKey = buffer.readInt()
     FabricNetReporter.onMessageRecv(buffer.capacity)
 

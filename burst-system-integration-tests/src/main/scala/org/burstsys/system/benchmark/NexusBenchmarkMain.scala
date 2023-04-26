@@ -232,7 +232,7 @@ object NexusBenchmarkMain {
       }
       log info s"server #$serverId, client #$clientId finished"
 
-      Await.result(stream.receipt, 60 seconds)
+      Await.result(stream.completion, 60 seconds)
     } finally client.stop
   }
 }

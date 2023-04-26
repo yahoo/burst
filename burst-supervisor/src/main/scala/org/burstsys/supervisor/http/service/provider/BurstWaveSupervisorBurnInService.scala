@@ -17,7 +17,7 @@ import org.burstsys.vitals.properties.VitalsPropertyMap
 
 import java.util.logging.Level
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, DurationInt}
 
 trait BurstWaveBurnInListener {
   def burnInStarted(config: BurnInConfig): Unit = {}
@@ -126,6 +126,13 @@ class BurnInBatch(
     case DurationType.Datasets => DurationType.ByIterations
     case DurationType.Duration => DurationType.ByDuration
     case _ => DurationType.Unknown
+  }
+
+  def runWait: Duration = {
+    if (durationSource == DurationType.ByDuration)
+      desiredDuration.get + 1.minute // a little buffer to let any queries that are in flight continue
+    else
+      maxDuration.getOrElse(Duration.Inf)
   }
 
   def validate(): (Boolean, Array[String]) = {

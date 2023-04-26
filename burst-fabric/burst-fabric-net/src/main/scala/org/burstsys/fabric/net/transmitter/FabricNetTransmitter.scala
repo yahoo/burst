@@ -2,14 +2,13 @@
 package org.burstsys.fabric.net.transmitter
 
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
-import io.netty.util.concurrent.{GenericFutureListener, Future => NettyFuture}
 import org.burstsys.fabric.container.FabricContainer
+import org.burstsys.fabric.net.FabricNetLink
 import org.burstsys.fabric.net.message.FabricNetMsg
-import org.burstsys.fabric.net.{FabricNetLink, FabricNetReporter}
-import org.burstsys.tesla.thread.request.TeslaRequestCoupler
-import org.burstsys.vitals.errors.{VitalsException, safely}
+import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 
+import java.net.SocketAddress
 import scala.concurrent.{Future, Promise}
 
 /**
@@ -26,9 +25,29 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
 
   override def toString: String = s"FabricNetTransmitter($link, ${if (isServer) "server" else "client"} containerId=${container.containerId})"
 
+  override def bind(ctx: ChannelHandlerContext, localAddress: SocketAddress, promise: ChannelPromise): Unit = {
+    super.bind(ctx, localAddress, promise)
+    log debug burstStdMsg(s"CHANNEL_BIND $this")
+  }
+
+  override def connect(ctx: ChannelHandlerContext, remoteAddress: SocketAddress, localAddress: SocketAddress, promise: ChannelPromise): Unit = {
+    super.connect(ctx, remoteAddress, localAddress, promise)
+    log debug burstStdMsg(s"CHANNEL_CONNECT $this")
+  }
+
   override def disconnect(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
     super.disconnect(ctx, promise)
-    log debug burstStdMsg(s"$this CHANNEL DISCONNECT")
+    log debug burstStdMsg(s"CHANNEL_DISCONNECT $this")
+  }
+
+  override def close(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
+    super.close(ctx, promise)
+    log debug burstStdMsg(s"CHANNEL_CLOSE $this")
+  }
+
+  override def deregister(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
+    super.deregister(ctx, promise)
+    log debug burstStdMsg(s"CHANNEL_DEREGISTER $this")
   }
 
   /**
@@ -37,48 +56,17 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
    * network write is done on a channel thread asynchronously
    */
   def transmitControlMessage(msg: FabricNetMsg): Future[Unit] = {
-    lazy val tag = s"FabricNetTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort)"
-    val promise = Promise[Unit]()
+    val tag = s"FabricNetTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort)"
 
     if (!channel.isOpen || !channel.isActive) {
       val msg = s"$tag cannot transmit channelOpen=${channel.isOpen} channelActive=${channel.isActive} "
       log trace burstStdMsg(msg)
-      promise.failure(VitalsException(msg).fillInStackTrace())
-      return promise.future
+      return Future.failed(VitalsException(msg).fillInStackTrace())
     }
 
-    // do the write/flush on the channel thread, because netty likes it that way
-    channel.eventLoop.submit(new Runnable {
-      override def run(): Unit = {
-        try{
-          val encodeStart = System.nanoTime
-          val buffer = channel.alloc().buffer()
-          msg.encode(buffer)
-          val buffSize = buffer.capacity
-          val encodeDuration = System.nanoTime - encodeStart
-          val transmitEnqueued = System.nanoTime
-          channel.writeAndFlush(buffer).addListener(new GenericFutureListener[NettyFuture[_ >: Void]] {
-            override def operationComplete(future: NettyFuture[_ >: Void]): Unit = {
-              val transmitDuration = System.nanoTime - transmitEnqueued
-              log trace burstStdMsg(s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration")
-              if (future.isSuccess) {
-                FabricNetReporter.onMessageXmit(buffSize)
-                promise.success(())
-              } else {
-                log warn burstStdMsg(s"$tag FAIL  ${future.cause}", future.cause)
-                if (!promise.isCompleted)
-                  promise.failure(future.cause())
-              }
-            }
-          })
-        } catch safely {
-          case t:Throwable  =>
-            log error burstStdMsg(s"XMIT_FAIL $t $tag", t)
-            promise.failure(t)
-        }
-      }
-    })
-    promise.future
+    val nettySend = new NettyMessageSendRunnable(channel, msg, tag)
+    channel.eventLoop.submit(nettySend)
+    nettySend.completion
   }
 
   /**
@@ -89,51 +77,17 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
    * @param msg
    */
   def transmitDataMessage(msg: FabricNetMsg): Future[Unit] = {
-    lazy val tag = s"FabricNetTransmitter.transmitDataMessage(${msg.getClass.getName} ${remotePort}:${remotePort}"
-    val promise = Promise[Unit]()
+    val tag = s"FabricNetTransmitter.transmitDataMessage(${msg.getClass.getName} ${remotePort}:${remotePort}"
 
     if (!channel.isOpen || !channel.isActive) {
       val msg = s"$tag cannot transmit channelOpen=${channel.isOpen} channelActive=${channel.isActive}"
       log warn burstStdMsg(msg)
-      promise.failure(VitalsException(msg).fillInStackTrace())
-      return promise.future
+      return Future.failed(VitalsException(msg).fillInStackTrace())
     }
 
-    // submit the write/flush on the channel thread, because netty likes it that way
-    channel.eventLoop.submit(new Runnable {
-      override def run(): Unit = {
-        TeslaRequestCoupler { // TODO why is this necessary? can't we do the encode before the submit??
-          try {
-            val encodeStart = System.nanoTime
-            val buffer = channel.alloc().buffer()
-            msg.encode(buffer)
-            val buffSize = buffer.capacity
-            val encodeDuration = System.nanoTime - encodeStart
-
-            val transmitEnqueued = System.nanoTime
-            channel.writeAndFlush(buffer).addListener(new GenericFutureListener[NettyFuture[_ >: Void]] {
-              override def operationComplete(future: NettyFuture[_ >: Void]): Unit = {
-                val transmitDuration = System.nanoTime - transmitEnqueued
-                log trace burstStdMsg(s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration")
-                if (future.isSuccess) {
-                  FabricNetReporter.onMessageXmit(buffSize)
-                  promise.success(())
-                } else {
-                  log warn burstStdMsg(s"$tag FAIL  ${future.cause}", future.cause)
-                  if (!promise.isCompleted)
-                    promise.failure(future.cause())
-                }
-              }
-            })
-          } catch safely {
-            case t:Throwable  =>
-              log error burstStdMsg(s"XMIT_FAIL $t $tag", t)
-              promise.failure(t)
-          }
-        }
-      }
-    })
-    promise.future
+    val nettySend = new NettyMessageSendRunnable(channel, msg, tag)
+    channel.eventLoop.submit(nettySend)
+    nettySend.completion
   }
 
 }

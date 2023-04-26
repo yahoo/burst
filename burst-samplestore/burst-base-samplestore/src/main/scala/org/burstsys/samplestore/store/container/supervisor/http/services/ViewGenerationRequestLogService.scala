@@ -5,20 +5,23 @@ import org.burstsys.samplestore.api.BurstSampleStoreApiViewGenerator
 import org.burstsys.samplestore.api.BurstSampleStoreDataSource
 import org.burstsys.samplestore.api.SampleStoreApiListener
 import org.burstsys.samplestore.configuration.sampleStoreViewRequestLogSize
+import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLog.ViewGenerationRequest
 import org.jctools.queues.MpmcArrayQueue
 
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
-trait ViewGenerationRequestLog {
-
+object ViewGenerationRequestLog {
   case class ViewGenerationRequest(
                                     guid: String,
                                     datasource: BurstSampleStoreDataSource,
                                     now: Date = new Date(),
                                     var response: Option[BurstSampleStoreApiViewGenerator] = None
                                   )
+
+}
+trait ViewGenerationRequestLog {
 
   def requests: Array[ViewGenerationRequest]
 

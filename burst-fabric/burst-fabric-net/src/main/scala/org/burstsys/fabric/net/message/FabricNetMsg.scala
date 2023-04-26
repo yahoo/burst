@@ -18,23 +18,17 @@ import scala.collection.mutable
 trait FabricNetMsg extends AnyRef {
 
   /**
-   * TODO
-   *
-   * @return
+   * @return the id of this message
    */
   def messageId: FabricNetMessageId
 
   /**
-   * Msg sender key
-   *
-   * @return
+   * @return Node key for the sending node
    */
   def senderKey: FabricNode
 
   /**
-   * Msg receiver key
-   *
-   * @return
+   * @return Node key for the receiving node
    */
   def receiverKey: FabricNode
 

@@ -5,18 +5,8 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties.VitalsPropertyRegistry
 import org.burstsys.tesla
 import org.burstsys.vitals
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-package object test extends VitalsLogger {
-
-  trait NexusSpec extends AnyFlatSpec with Matchers {
-    VitalsLog.configureLogging("nexus", consoleOnly = true)
-    VitalsPropertyRegistry.logReport
-    vitals.configuration.configureForUnitTests()
-    tesla.configuration.configureForUnitTests()
-
-  }
-
-
-}
+package object test extends VitalsLogger

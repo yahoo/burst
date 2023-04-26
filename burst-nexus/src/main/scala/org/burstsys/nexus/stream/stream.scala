@@ -14,10 +14,14 @@ package object stream extends VitalsLogger {
 
   def newRuid: NexusRequestUid = _ruidGenerator.incrementAndGet()
 
-  private
-  val _ruidGenerator = new AtomicInteger
+  private val _ruidGenerator = new AtomicInteger
 
-  def streamIds(stream: NexusStream) =
-    s"stream(guid=${if (stream == null) "null" else stream.guid} suid=${if (stream == null) "null" else stream.guid})"
+  def streamIds(stream: NexusStream): String = {
+    if (stream == null) {
+      "stream(null)"
+    } else {
+      s"stream(guid=${stream.guid} suid=${stream.suid})"
+    }
+  }
 
 }

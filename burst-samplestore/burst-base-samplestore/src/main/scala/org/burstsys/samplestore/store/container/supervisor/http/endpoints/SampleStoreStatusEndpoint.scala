@@ -7,6 +7,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.supervisor.FabricSupervisorTopology
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.service.MetadataParameters
@@ -27,11 +28,24 @@ class SampleStoreStatusEndpoint {
   def status(): Response = {
     Response.ok(
       Map(
-        "workers" -> topology.healthyWorkers.map(_.forExport),
-        "requests" -> requestLog.requests,
+        "workerCount" -> topology.healthyWorkers.length,
+        "workers" -> topology.healthyWorkers.map(_.nodeMoniker),
+        "requestCount" -> requestLog.requests.length,
         "stores" -> SampleSourceHandlerRegistry.getSources.map(StoreInfo),
       )
     ).build
+  }
+
+  @GET
+  @Path("/workers")
+  def workers(): Array[FabricWorkerNode] = {
+    topology.healthyWorkers.map(_.forExport)
+  }
+
+  @GET
+  @Path("/requests")
+  def requests: Array[ViewGenerationRequestLog.ViewGenerationRequest] = {
+    requestLog.requests
   }
 }
 

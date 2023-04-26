@@ -153,7 +153,7 @@ object FeltSweep extends FeltArtifactory[FeltAnalysisDecl, FeltSweepArtifact] {
   final protected override
   def generateContent(artifact: FeltSweepArtifact): Unit = {
     lazy val tag = s"FeltSweep.generateContent(key=${artifact.key})"
-    startIfNotRunning
+    startIfNotAlreadyStarted
     val analysis = artifact.input
 
     /**

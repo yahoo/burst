@@ -191,8 +191,7 @@ package object nexus extends VitalsReporterSource with VitalsLogger {
      *
      * @return
      */
-    final
-    def remoteAddress: VitalsHostName = {
+    final def remoteAddress: VitalsHostName = {
       if (channel.remoteAddress == null) "unknown"
       else channel.remoteAddress.asInstanceOf[InetSocketAddress].getAddress.getHostAddress
     }
@@ -202,8 +201,7 @@ package object nexus extends VitalsReporterSource with VitalsLogger {
      *
      * @return
      */
-    final
-    def remotePort: VitalsHostPort = {
+    final def remotePort: VitalsHostPort = {
       if (channel.remoteAddress == null) -1
       else channel.remoteAddress.asInstanceOf[InetSocketAddress].getPort
     }
@@ -213,8 +211,7 @@ package object nexus extends VitalsReporterSource with VitalsLogger {
      *
      * @return
      */
-    final
-    def localAddress: VitalsHostName = {
+    final def localAddress: VitalsHostName = {
       if (channel.remoteAddress == null) "unknown"
       else channel.localAddress.asInstanceOf[InetSocketAddress].getAddress.getHostAddress
     }
@@ -224,8 +221,7 @@ package object nexus extends VitalsReporterSource with VitalsLogger {
      *
      * @return
      */
-    final
-    def localPort: VitalsHostPort = {
+    final def localPort: VitalsHostPort = {
       if (channel.remoteAddress == null) -1
       else channel.localAddress.asInstanceOf[InetSocketAddress].getPort
     }

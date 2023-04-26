@@ -10,36 +10,32 @@ import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, convertHostAd
 trait FabricWorkerNode extends FabricNode with Equals {
 
   /**
-   * turn this into a simple serializable universal worker key
-   *
-   * @return
+   * @return turn this into a simple serializable universal worker key
    */
-  final
-  def forExport: FabricWorkerNode = FabricWorkerNode(this)
+  final def forExport: FabricWorkerNode = FabricWorkerNode(this)
 }
 
 object FabricWorkerNode {
 
   def apply(workerId: FabricNodeId, workerNodeAddress: VitalsHostAddress): FabricWorkerNode =
-    FabricWorkerNodeContext(
-      workerId = workerId, workerNodeName = convertHostAddressToHostname(workerNodeAddress),
-      workerNodeAddress = workerNodeAddress
-    )
+    new FabricWorkerNodeContext(workerId, convertHostAddressToHostname(workerNodeAddress), workerNodeAddress, "")
 
   /**
    * constructor to take any type of worker key and turn it into a simple serializable universal one
    */
-  def apply(worker: FabricWorkerNode): FabricWorkerNode = FabricWorkerNodeContext(
-    workerId = worker.nodeId, workerNodeName = worker.nodeName,
-    workerNodeAddress = worker.nodeAddress
-  )
+  def apply(worker: FabricWorkerNode): FabricWorkerNode =
+    new FabricWorkerNodeContext(worker.nodeId, worker.nodeName, worker.nodeAddress, worker.nodeMoniker)
 }
 
-private[fabric] case
-class FabricWorkerNodeContext(workerId: FabricNodeId, workerNodeName: VitalsHostName, workerNodeAddress: VitalsHostAddress)
-  extends FabricNodeContext(nodeId = workerId, nodeName = workerNodeName, nodeAddress = workerNodeAddress) with FabricWorkerNode {
+private[fabric] class FabricWorkerNodeContext(
+                                               workerId: FabricNodeId,
+                                               workerNodeName: VitalsHostName,
+                                               workerNodeAddress: VitalsHostAddress,
+                                               override val nodeMoniker: VitalsHostName
+                                             )
+  extends FabricNodeContext(workerId, workerNodeName, workerNodeAddress) with FabricWorkerNode {
 
-  def this() = this(UnknownFabricNodeId, null, null)
+  def this() = this(UnknownFabricNodeId, null, null, null)
 
   override
   def toString: String = s"worker(${super.toString})"

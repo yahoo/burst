@@ -63,7 +63,7 @@ case class MockNexusStream(
 
   override def serverHostname: VitalsHostName = ???
 
-  override def receipt: Future[NexusStream] = ???
+  override def completion: Future[NexusStream] = ???
 
   override def put(chunk: TeslaParcel): Unit = ???
 
@@ -83,7 +83,7 @@ case class MockNexusStream(
    * @param potentialItemCount the number of items that exist in the dataset
    * @param rejectedItemCount  the number of items that failed to press
    */
-  override def complete(itemCount: Long, expectedItemCount: Long, potentialItemCount: Long, rejectedItemCount: Long): Unit = {
+  override def complete(itemCount: Long, expectedItemCount: Long, potentialItemCount: Long, rejectedItemCount: Long, parcel: TeslaParcel): Unit = {
     this.itemCount = itemCount
     this.expectedItemCount = expectedItemCount
     this.potentialItemCount = potentialItemCount

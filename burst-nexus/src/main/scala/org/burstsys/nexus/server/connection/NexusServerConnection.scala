@@ -2,14 +2,16 @@
 package org.burstsys.nexus.server.connection
 
 import java.util.concurrent.locks.ReentrantLock
-
-import org.burstsys.nexus.NexusConnection
-import org.burstsys.nexus.message.{NexusStreamInitiateMsg, msgIds}
+import org.burstsys.nexus.{NexusConnection, NexusGlobalUid, NexusStreamUid}
+import org.burstsys.nexus.message.{NexusStreamAbortMsg, NexusStreamInitiateMsg, NexusStreamInitiatedMsg, msgIds}
 import org.burstsys.nexus.receiver.NexusServerMsgListener
 import org.burstsys.nexus.server.{NexusServerListener, NexusStreamFeeder}
 import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.vitals.errors._
 import io.netty.channel.Channel
+import org.burstsys.nexus.configuration.burstNexusPipeSizeProperty
+import org.burstsys.nexus.stream.NexusStream
+import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.vitals.logging._
 
 /**
@@ -41,7 +43,7 @@ object NexusServerConnection {
 
 protected final case
 class NexusServerConnectionContext(channel: Channel, transmitter: NexusTransmitter, feeder: NexusStreamFeeder)
-  extends AnyRef with NexusServerConnection with NexusServerParcelHandler {
+  extends NexusServerConnection {
 
   ////////////////////////////////////////////////////////////////////////////////////
   // State
@@ -66,16 +68,39 @@ class NexusServerConnectionContext(channel: Channel, transmitter: NexusTransmitt
   // events
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def onStreamInitiateMsg(request: NexusStreamInitiateMsg): Unit = {
+  override def onStreamInitiateMsg(request: NexusStreamInitiateMsg): Unit = {
     _gate.lock()
     try {
-      initiateStream(request, request.guid, request.suid)
+      val pipe = TeslaParcelPipe(name = "nexus.server.stream", guid = request.guid, suid = request.suid, depth = burstNexusPipeSizeProperty.get).start
+      _stream = NexusStream(connection = this, request.guid, request.suid, request, pipe)
+      log info s"NEXUS_STREAM_INITIATE NexusServerParcelHandler.initiateStream($link, ${msgIds(request)}) "
+      transmitter.transmitControlMessage(NexusStreamInitiatedMsg(request, request.suid))
+
+      _inStream = true
+      transmitter.transmitDataStream(_stream)
+
+      if (feeder != null)
+        feeder.feedStream(_stream.start)
+
+      if (_listener != null)
+        _listener.onStreamInitiate(_stream, request)
+
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(t)
         throw t
     } finally _gate.unlock()
   }
+
+  private var _stream: NexusStream = _
+
+  override def onStreamAbortMsg(request: NexusStreamAbortMsg): Unit = {
+    lazy val hdr = s"NexusServerParcelHandler.onStreamAbortMsg($link, ${msgIds(request)})"
+    if (feeder != null)
+      feeder.abortStream(_stream, request.status)
+    if (_listener != null)
+      _listener.onStreamAbort(_stream, request)
+  }
+
 
 }

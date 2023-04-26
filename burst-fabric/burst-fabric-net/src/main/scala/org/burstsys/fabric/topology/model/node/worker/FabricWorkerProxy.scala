@@ -144,7 +144,7 @@ class FabricWorkerProxyContext(
                                 var accessParameters: AccessParameters
                               ) extends FabricWorkerProxy {
 
-  override def toString: String = s"FabricWorkerProxy(nodeName=$nodeName, nodeAddress=$nodeAddress, supervisorPort=$fabricPort)"
+  override def toString: String = s"FabricWorkerProxy(node=$nodeName moniker=$nodeMoniker ip=$nodeAddress remotePort=$fabricPort)"
 
   override def toJson: JsonFabricWorker = JsonFabricWorker(
     assessLatencyNanos, assessment, commitId, connectionTime, lastUpdateTime, fabricPort, mismatched,

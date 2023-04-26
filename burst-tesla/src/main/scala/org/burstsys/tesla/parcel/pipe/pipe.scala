@@ -5,7 +5,7 @@ import org.burstsys.vitals.logging._
 
 package object pipe extends VitalsLogger {
 
-  val logOnNonStatus: Boolean = true
+  val logOnNonStatus: Boolean = false
   val queueLogInterval: Long = 10
 
   def logNonStatusParcel(count: Long): Boolean = logOnNonStatus && (count % queueLogInterval == 0)

@@ -15,6 +15,7 @@ import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, new
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
+import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.errors.safely
@@ -27,6 +28,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
+import scala.util.{Failure, Success}
 
 /**
  * This is the client side representative of a [[FabricNetConnection]].
@@ -111,12 +113,20 @@ class FabricNetClientConnectionContext(
     receiver connectedTo this
     _heartbeatFunction = new VitalsBackgroundFunction(
       "fab-client-heartbeat", 100 milliseconds, fabric.configuration.burstFabricTopologyHeartbeatPeriodMs.get, {
-        log debug "Attempting heartbeat"
-        val c = channel
-        if (c != null && c.isActive) {
-          transmitter transmitControlMessage FabricNetHeartbeatMsg(newRequestId, clientKey, serverKey, git.commitId, accessParameters)
-        } else {
-          log warn s"Failed to send client heartbeat $this isConnected=${if (c != null) c.isActive else "null"}"
+        try {
+          if (channel != null && channel.isActive) {
+            val heartbeat = FabricNetHeartbeatMsg(newRequestId, clientKey, serverKey, git.commitId, accessParameters)
+            transmitter.transmitControlMessage(heartbeat) onComplete {
+              case Success(_) =>
+                log debug "heartbeat transmitted successfully"
+              case Failure(exception) =>
+                log debug s"heartbeat failed to transmit $exception"
+            }
+          } else {
+            log warn s"Did not attempt to send client heartbeat $this isConnected=${if (channel != null) channel.isActive else "null"}"
+          }
+        } catch safely {
+          case t: Throwable => log debug s"rescued heartbeat thread from $t"
         }
       }).start
     assessorBackgroundFunction.start

@@ -3,7 +3,6 @@ package org.burstsys.vitals
 
 import org.burstsys.vitals.configuration.burstVitalsReflectionScanPrefixProperty
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.properties.VitalsPropertyRegistry.log
 import org.reflections.Reflections
 import org.reflections.util.{ClasspathHelper, ConfigurationBuilder}
 

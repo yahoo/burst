@@ -9,6 +9,7 @@ import org.burstsys.samplestore.model.SampleStoreSlice
 import org.burstsys.samplestore.trek._
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.uid.VitalsUid
 
 import scala.language.postfixOps
 
@@ -26,68 +27,32 @@ trait SampleStoreInitializer extends FabricWorkerLoader {
 
     val sslSpan = SampleStoreLoadTrekMark.begin(guid)
     val state = try {
-      snap.metadata.reset() // make sure metadata is in a clean state for the load
+      // make sure metadata is in a clean state for the load
+      snap.metadata.reset()
 
       val loader = SampleStoreLoader(snap, slice)
 
-      {
-        val span = SampleStoreLoaderInitializeTrekMark.begin(guid)
-        loader.initializeLoader()
-        SampleStoreLoaderInitializeTrekMark.end(span)
-      }
-      {
-        val span = SampleStoreLoaderOpenTrekMark.begin(guid)
-        snap.data.openForWrites()
-        SampleStoreLoaderOpenTrekMark.end(span)
-      }
+      initializeLoader(guid, loader)
+
+      openSnapForWrites(guid, snap)
+
       try {
-        // get nexus servers ready to feed data
-        {
-          val span = SampleStoreLoaderAcquireTrekMark.begin(guid)
-          loader.acquireStreams()
-          SampleStoreLoaderAcquireTrekMark.end(span)
-        }
+        acquireStreams(guid, loader)
         publishPipelineEvent(ParticleStreamsAcquired(slice.guid))
 
         try {
-          // fetch stream data, this call blocks until all stream data has been received
-          val state = {
-            val span = SampleStoreLoaderProcessStreamTrekMark.begin(guid)
-            val state = loader.processStreamData()
-            SampleStoreLoaderProcessStreamTrekMark.end(span)
-            state
-          }
+          val state = processStreamData(guid, loader)
           publishPipelineEvent(ParticleStreamsFinished(slice.guid))
 
-          // wait for fabric cache to finish writes
-          {
-            val span = SampleStoreLoaderWaitForWritesTrekMark.begin(guid)
-            snap.data.waitForWritesToComplete()
-            SampleStoreLoaderWaitForWritesTrekMark.end(span)
-          }
+          waitForWritesToComplete(guid, snap)
           publishPipelineEvent(ParticleWritesFinished(slice.guid))
 
           state
-        } finally {
-          // clean up nexus connections
-          val span = SampleStoreLoaderReleaseStreamsTrekMark.begin(guid)
-          loader.releaseStreams()
-          SampleStoreLoaderReleaseStreamsTrekMark.end(span)
-        }
+        } finally releaseStreams(guid, loader)
 
       } finally {
-        // clean up fabric cache writers
-        {
-          val span = SampleStoreLoaderCloseWritesTrekMark.begin(guid)
-          snap.data.closeForWrites()
-          SampleStoreLoaderCloseWritesTrekMark.end(span)
-        }
-
-        {
-          val span = SampleStoreLoaderProcessCompletionTrekMark.begin(guid)
-          loader.processCompletion()
-          SampleStoreLoaderProcessCompletionTrekMark.end(span)
-        }
+        closeSnapForWrites(guid, snap)
+        processLoadCompletion(guid, loader)
       }
 
     } catch safely {
@@ -98,5 +63,59 @@ trait SampleStoreInitializer extends FabricWorkerLoader {
     }
     SampleStoreLoadTrekMark.end(sslSpan)
     state
+  }
+
+  private def initializeLoader(guid: VitalsUid, loader: SampleStoreLoader): Unit = {
+    val span = SampleStoreLoaderInitializeTrekMark.begin(guid)
+    loader.initializeLoader()
+    SampleStoreLoaderInitializeTrekMark.end(span)
+  }
+
+  private def openSnapForWrites(guid: VitalsUid, snap: FabricSnap): Unit = {
+    val span = SampleStoreLoaderOpenTrekMark.begin(guid)
+    snap.data.openForWrites()
+    SampleStoreLoaderOpenTrekMark.end(span)
+  }
+
+  // get nexus servers ready to feed data
+  private def acquireStreams(guid: VitalsUid, loader: SampleStoreLoader): Unit = {
+    val span = SampleStoreLoaderAcquireTrekMark.begin(guid)
+    loader.acquireStreams()
+    SampleStoreLoaderAcquireTrekMark.end(span)
+  }
+
+  // fetch stream data, this call blocks until all stream data has been received
+  private def processStreamData(guid: VitalsUid, loader: SampleStoreLoader): FabricDataState = {
+    val span = SampleStoreLoaderProcessStreamTrekMark.begin(guid)
+    val state = loader.processStreamData()
+    SampleStoreLoaderProcessStreamTrekMark.end(span)
+    state
+  }
+
+  // wait for fabric cache to finish writes
+  private def waitForWritesToComplete(guid: VitalsUid, snap: FabricSnap): Unit = {
+    val span = SampleStoreLoaderWaitForWritesTrekMark.begin(guid)
+    snap.data.waitForWritesToComplete()
+    SampleStoreLoaderWaitForWritesTrekMark.end(span)
+  }
+
+  // clean up nexus connections
+  private def releaseStreams(guid: VitalsUid, loader: SampleStoreLoader): Unit = {
+    val span = SampleStoreLoaderReleaseStreamsTrekMark.begin(guid)
+    loader.releaseStreams()
+    SampleStoreLoaderReleaseStreamsTrekMark.end(span)
+  }
+
+  // clean up fabric cache writers
+  private def closeSnapForWrites(guid: VitalsUid, snap: FabricSnap): Unit = {
+    val span = SampleStoreLoaderCloseWritesTrekMark.begin(guid)
+    snap.data.closeForWrites()
+    SampleStoreLoaderCloseWritesTrekMark.end(span)
+  }
+
+  private def processLoadCompletion(guid: VitalsUid, loader: SampleStoreLoader): Unit = {
+    val span = SampleStoreLoaderProcessCompletionTrekMark.begin(guid)
+    loader.processCompletion()
+    SampleStoreLoaderProcessCompletionTrekMark.end(span)
   }
 }

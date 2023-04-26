@@ -102,7 +102,7 @@ object FeltTraveler extends FeltArtifactory[FeltGlobal, FeltTravelerArtifact] {
 
   protected override
   def generateContent(artifact: FeltTravelerArtifact): Unit = {
-    startIfNotRunning
+    startIfNotAlreadyStarted
     val generationStart = System.nanoTime
     try {
       val generator = FeltTravelerGenerator(

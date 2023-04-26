@@ -172,7 +172,7 @@ class NexusServerContext(
     // inbound goes in forward pipeline order
     pipeline.addLast("server-inbound-stage-1", NexusInboundFrameDecoder())
     pipeline.addLast("server-inbound-stage-2",
-      NexusReceiver(serverId, isServer = true, transmitter = transmitter, serverListener = connection)
+      NexusReceiver(serverId, isServer = true, transmitter, serverListener = connection)
     )
 
     // outbound goes in reverse pipeline order
