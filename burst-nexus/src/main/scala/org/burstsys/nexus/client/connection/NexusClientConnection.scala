@@ -209,7 +209,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
         NexusClientReporter.onClientStreamFail()
         NexusClientStreamStartTrekMark.fail(span)
         log error burstStdMsg(s"FAIL $t $tag", t)
-        _stream.completeExceptionally(t)
+        stream.completeExceptionally(t)
         throw t
     } finally _gate.unlock()
   }

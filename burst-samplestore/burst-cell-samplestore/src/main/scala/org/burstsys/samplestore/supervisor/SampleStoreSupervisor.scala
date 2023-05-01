@@ -2,7 +2,6 @@
 package org.burstsys.samplestore.supervisor
 
 import org.burstsys.api._
-import org.burstsys.fabric.configuration.burstFabricTopologyHomogeneous
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.fabric.wave.data.model.slice.FabricSlice
@@ -10,25 +9,21 @@ import org.burstsys.fabric.wave.data.model.store._
 import org.burstsys.fabric.wave.data.supervisor.store._
 import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.samplestore.SampleStoreName
-import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiNotReady
-import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestException
-import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestInvalid
-import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestSuccess
-import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState.BurstSampleStoreApiRequestTimeout
+import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState._
 import org.burstsys.samplestore.api._
 import org.burstsys.samplestore.api.client.SampleStoreApiClient
 import org.burstsys.samplestore.api.configuration.{burstSampleStoreApiHostProperty, burstSampleStoreApiPortProperty, burstSampleStoreApiSslEnableProperty}
-import org.burstsys.samplestore.model.SampleStoreLocus
-import org.burstsys.samplestore.model.SampleStoreSlice
-import org.burstsys.samplestore.model._
+import org.burstsys.samplestore.model.{SampleStoreLocus, SampleStoreSlice, _}
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.healthcheck._
-import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.logging.burstStdMsg
-import org.burstsys.vitals.net.VitalsHostAddress
+import org.burstsys.vitals.net.{VitalsHostName, VitalsHostPort}
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.uid.VitalsUid
+import org.burstsys.vitals.properties._
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -44,15 +39,31 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
   ///////////////////////////////////////////////////////////////////
 
   private[this]
-  var _apiClient: SampleStoreApiClient = SampleStoreApiClient()
+  var _defaultClient: SampleStoreApiClient = SampleStoreApiClient()
+
+  private val _clients = new ConcurrentHashMap[(VitalsHostName, VitalsHostPort), SampleStoreApiClient]()
 
   ///////////////////////////////////////////////////////////////////
   // API
   ///////////////////////////////////////////////////////////////////
 
-  def apiClient: SampleStoreApiClient = {
+  private def defaultSampleStoreHost: VitalsHostName = _defaultClient.apiHost
+
+  private def defaultSampleStorePort: VitalsHostPort = _defaultClient.apiPort
+
+  def apiClient(datasource: FabricDatasource): SampleStoreApiClient = {
     sampleStoreServerLock synchronized {
-      _apiClient
+      val storeProperties = datasource.view.storeProperties
+      (storeProperties.get(sampleStoreHostName), storeProperties.get(sampleStoreHostPort).map(_.toInt)) match {
+        case (Some(hostName), None) =>
+          _clients.computeIfAbsent((hostName, defaultSampleStorePort), _ => SampleStoreApiClient(hostName).start)
+        case (None, Some(hostPort)) =>
+          _clients.computeIfAbsent((defaultSampleStoreHost, hostPort), _ => SampleStoreApiClient(apiPort = hostPort).start)
+        case (Some(hostname), Some(hostPort)) =>
+          _clients.computeIfAbsent((hostname, hostPort), _ => SampleStoreApiClient(hostname, hostPort).start)
+        case (None, None) =>
+          _defaultClient
+      }
     }
   }
 
@@ -62,10 +73,10 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
 
   override
   def start: this.type = {
-    sampleStoreServerLock synchronized {
+    synchronized {
       ensureNotRunning
       log info startingMessage
-      _apiClient.start
+      _defaultClient.start
     }
     markRunning
     this
@@ -73,10 +84,11 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
 
   override
   def stop: this.type = {
-    sampleStoreServerLock synchronized {
+    synchronized {
       ensureRunning
       log info stoppingMessage
-      _apiClient.stop
+      _defaultClient.stop
+      _clients.forEach((_, client) => client.stop)
     }
     markNotRunning
     this
@@ -90,8 +102,7 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     val tag = s"SampleStoreMaster.slices(guid=$guid, datasource=$datasource)"
     val start = System.nanoTime
 
-    // call the samplesource coordinator
-    twitterFutureToScalaFuture(apiClient.getViewGenerator(guid, datasource)) map { response =>
+    twitterFutureToScalaFuture(apiClient(datasource).getViewGenerator(guid, datasource)) map { response =>
       response.context.state match {
         case BurstSampleStoreApiRequestSuccess if response.loci.isEmpty || response.loci.get.isEmpty =>
           throw VitalsException("Got no loci from sample store supervisor")
@@ -148,9 +159,9 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
   private def watchHostProperty(v: Option[_]): Unit = {
     log info burstStdMsg(s"detected to sample store properties, restarting client")
     sampleStoreServerLock synchronized {
-      _apiClient.stop
-      _apiClient = SampleStoreApiClient()
-      _apiClient.start
+      _defaultClient.stop
+      _defaultClient = SampleStoreApiClient()
+      _defaultClient.start
     }
   }
 }

@@ -49,34 +49,17 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[samplestore]
-  val burstSampleStoreApiTimeoutMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
-    key = "burst.samplestore.api.timeout.ms",
-    description = "",
-    default = Some((120 seconds).toMillis)
-  )
-
-  private[samplestore]
-  def burstSampleStoreApiTimeoutDuration: Duration = Duration(burstSampleStoreApiTimeoutMsProperty.get, TimeUnit.MILLISECONDS)
-
-  private[samplestore]
-  val burstSampleStoreServerConnectionLifeMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
-    key = "burst.samplestore.server.connect.life.ms",
+  val burstSampleStoreServerConnectionLifeMsProperty: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.samplestore.server.connect.life",
     description = "samplestore server connect lifetime",
-    default = Some((5 minutes).toMillis)
+    default = Some(5 minutes)
   )
 
   private[samplestore]
-  def burstSampleStoreServerConnectionLifeDuration: Duration = Duration(burstSampleStoreServerConnectionLifeMsProperty.get, TimeUnit.MILLISECONDS)
-
-  private[samplestore]
-  val burstSampleStoreServerConnectionIdleMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
-    key = "burst.samplestore.server.connect.idle.ms",
+  val burstSampleStoreServerConnectionIdleMsProperty: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
+    key = "burst.samplestore.server.connect.idle",
     description = "samplestore server connect idletime",
-    default = Some((5 minutes).toMillis)
+    default = Some(5 minutes)
   )
-
-  private[samplestore]
-  def burstSampleStoreServerConnectionIdleDuration: Duration = Duration(burstSampleStoreServerConnectionIdleMsProperty.get, TimeUnit.MILLISECONDS)
-
 
 }

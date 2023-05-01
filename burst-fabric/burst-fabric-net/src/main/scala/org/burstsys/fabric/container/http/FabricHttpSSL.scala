@@ -19,7 +19,7 @@ import javax.net.ssl.SSLContext
  */
 trait FabricHttpSSL {
 
-  final val SSL_KEYSTORE_FILE = "/.keystore"
+  private final val SSL_KEYSTORE_FILE = "/.keystore"
 
   def httpSSLContext: SSLContext = {
     val keystorePath = configuration.burstHttpSslKeystorePath.asOption.getOrElse("")
