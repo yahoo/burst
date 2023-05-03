@@ -518,7 +518,11 @@
                 <!-- marking this dependency as provided here forces exclusion in submodules -->
                 <scope>provided</scope>
             </dependency>
-
+            <dependency>
+                <groupId>com.splunk.logging</groupId>
+                <artifactId>splunk-library-javalogging</artifactId>
+                <version>1.11.7</version>
+            </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
@@ -1263,6 +1267,14 @@
             <artifactId>netty-handler-proxy</artifactId>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>splunk-artifactory</id>
+            <name>Splunk Releases</name>
+            <url>https://splunk.jfrog.io/splunk/ext-releases-local</url>
+        </repository>
+    </repositories>
 
     <build>
         <extensions>
