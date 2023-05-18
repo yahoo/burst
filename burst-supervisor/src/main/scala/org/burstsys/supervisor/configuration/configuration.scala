@@ -11,11 +11,4 @@ package object configuration extends VitalsPropertyRegistry {
     description = "Location of properties file containing environment specific variables",
     default = Some("burst-supervisor-local.properties")
   )
-
-  val burstSupervisorJsonWatchDirectoryProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.supervisor.jsonfilemanager.watchdirectory",
-    description = "Location of directory the JSON file manager will monitor [default=empty and manager is disabled]",
-    default = None
-  )
-
 }

@@ -7,7 +7,7 @@ package org.burstsys.felt.compile.artifact
  */
 abstract
 class
-FeltArtifact[INPUT]() extends AnyRef with FeltArtifactLocker with Equals {
+FeltArtifact[INPUT: Manifest]() extends AnyRef with FeltArtifactLocker with Equals {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // private state

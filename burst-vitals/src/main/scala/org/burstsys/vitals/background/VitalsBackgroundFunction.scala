@@ -30,8 +30,7 @@ class VitalsBackgroundFunction(name: String, startWait: Duration, period: Durati
   private var continueExecutionLatch = new CountDownLatch(1)
   private var didStopLatch = new CountDownLatch(1)
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     synchronized {
       if (isRunning) return this
 
@@ -66,10 +65,10 @@ class VitalsBackgroundFunction(name: String, startWait: Duration, period: Durati
     this
   }
 
-  override
-  def stop: this.type = {
+  override def stop: this.type = {
     synchronized {
       if (!isRunning) return this
+
       log info stoppingMessage
       continueExecutionLatch.countDown()
       while (!didStopLatch.await(25, TimeUnit.MILLISECONDS)) {

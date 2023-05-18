@@ -61,4 +61,9 @@ class RelateTestPersister() extends RelatePersister[BurstSqlTestEntity] {
     }
   }
 
+  /**
+   * @param entity the entity to insert
+   * @return the sql required to insert a new record
+   */
+  override protected def insertEntityWithPkSql(entity: BurstSqlTestEntity): WriteSql = ???
 }

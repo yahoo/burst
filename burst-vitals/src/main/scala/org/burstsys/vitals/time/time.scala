@@ -39,14 +39,7 @@ package object time {
   }
 
   def printTimeInFuture(dateTime: DateTime): String = {
-    s"${
-      new PeriodFormatterBuilder()
-        .appendDays().appendSuffix(" day(s) ")
-        .appendHours().appendSuffix(" hour(s) ")
-        .appendMinutes().appendSuffix(" min(s) ")
-        .appendSeconds().appendSuffix(" sec(s) ")
-        .toFormatter.print(new Period(new DateTime, dateTime)).trim
-    }"
+    buildRelativeTimeFormatter.print(new Period(new DateTime, dateTime)).trim
   }
 
   def printTimeInFuture(ms: Long): String = {
@@ -55,14 +48,16 @@ package object time {
 
 
   def printTimeInPast(dateTime: DateTime): String = {
-    s"${
-      new PeriodFormatterBuilder()
-        .appendDays().appendSuffix(" day(s) ")
-        .appendHours().appendSuffix(" hour(s) ")
-        .appendMinutes().appendSuffix(" min(s) ")
-        .appendSeconds().appendSuffix(" sec(s) ")
-        .toFormatter.print(new Period(dateTime, new DateTime)).trim
-    }"
+    buildRelativeTimeFormatter.print(new Period(dateTime, new DateTime)).trim
+  }
+
+  private def buildRelativeTimeFormatter = {
+    new PeriodFormatterBuilder()
+      .appendDays().appendSuffix(" day(s) ")
+      .appendHours().appendSuffix(" hour(s) ")
+      .appendMinutes().appendSuffix(" min(s) ")
+      .appendSeconds().appendSuffix(" sec(s) ")
+      .toFormatter
   }
 
   def printTimeInPast(ms: Long): String = {

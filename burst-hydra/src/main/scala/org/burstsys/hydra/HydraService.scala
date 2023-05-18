@@ -2,13 +2,13 @@
 package org.burstsys.hydra
 
 import org.burstsys.fabric.container.FabricSupervisorService
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.execution.supervisor.group.FabricGroupExecuteContext
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.gather.data.FabricDataGather
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
+import org.burstsys.fabric.wave.execution.supervisor.group.FabricGroupExecuteContext
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.gather.data.FabricDataGather
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.felt.FeltService
 import org.burstsys.felt.model.collectors.result.FeltCollectorResultGroup
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorGather
@@ -42,12 +42,12 @@ trait HydraService extends FabricSupervisorService {
 
 object HydraService {
 
-  def apply(container: FabricSupervisorContainer): HydraService = HydraServiceContext(container: FabricSupervisorContainer)
+  def apply(container: FabricWaveSupervisorContainer): HydraService = HydraServiceContext(container: FabricWaveSupervisorContainer)
 
 }
 
 final case
-class HydraServiceContext(container: FabricSupervisorContainer) extends FabricGroupExecuteContext with HydraWaveExecutor {
+class HydraServiceContext(container: FabricWaveSupervisorContainer) extends FabricGroupExecuteContext with HydraWaveExecutor {
 
   override def modality: VitalsService.VitalsServiceModality = VitalsPojo
 

@@ -24,12 +24,11 @@ package object parcel extends VitalsLogger {
    * @param statusMarker the marker status 'ptr' - this must be a negative number (so it is not mistaken
    *                     for a real off heap memory pointer)
    */
-  sealed case
-  class TeslaParcelStatus(statusMarker: Int) {
+  sealed case class TeslaParcelStatus(statusMarker: Int) {
 
     def statusName: String = "normal"
 
-    def isMarker: Boolean = false
+    def isMarker: Boolean = true
 
     def isError: Boolean = false
 
@@ -43,14 +42,15 @@ package object parcel extends VitalsLogger {
   /**
    * Nothing wrong
    */
-  object TeslaNormalStatus extends TeslaParcelStatus(0)
+  object TeslaNormalStatus extends TeslaParcelStatus(0) {
+    override val isMarker = false
+  }
 
   /**
    * Nothing wrong
    */
   object TeslaEndStatus extends TeslaParcelStatus(-100) {
     override val statusName = "end-marker"
-    override val isMarker = true
     override val isEnd = true
   }
 
@@ -59,7 +59,6 @@ package object parcel extends VitalsLogger {
    */
   object TeslaTimeoutStatus extends TeslaParcelStatus(-200) {
     override val statusName = "timeout-marker"
-    override val isMarker = true
     override val isError = true
   }
 
@@ -68,7 +67,6 @@ package object parcel extends VitalsLogger {
    */
   object TeslaExceptionStatus extends TeslaParcelStatus(-300) {
     override val statusName = "exception-marker"
-    override val isMarker = true
     override val isError = true
   }
 
@@ -77,25 +75,14 @@ package object parcel extends VitalsLogger {
    */
   object TeslaNoDataStatus extends TeslaParcelStatus(-400) {
     override val statusName = "nodata-marker"
-    override val isMarker = true
     override val isError = false
   }
 
   /**
-   * Mock
-   */
-  object TeslaMockStatus extends TeslaParcelStatus(-500) {
-    override val statusName = "mock-parcel"
-    override val isMarker = false
-    override val isError = false
-  }
-
-  /**
-   * abort propogation
+   * abort propagation
    */
   object TeslaAbortStatus extends TeslaParcelStatus(-600) {
     override val statusName = "abort-marker"
-    override val isMarker = true
     override val isError = true
   }
 
@@ -104,7 +91,6 @@ package object parcel extends VitalsLogger {
    */
   object TeslaHeartbeatStatus extends TeslaParcelStatus(-700) {
     override val statusName = "heartbeat-marker"
-    override val isMarker = true
     override val isError = false
     override val isHeartbeat = true
   }
@@ -131,7 +117,6 @@ package object parcel extends VitalsLogger {
         case TeslaAbortStatus.statusMarker => TeslaAbortStatus
         case TeslaEndStatus.statusMarker => TeslaEndStatus
         case TeslaHeartbeatStatus.statusMarker => TeslaHeartbeatStatus
-        case TeslaMockStatus.statusMarker => TeslaMockStatus
         case TeslaNoDataStatus.statusMarker => TeslaNoDataStatus
         case TeslaTimeoutStatus.statusMarker => TeslaTimeoutStatus
         case TeslaExceptionStatus.statusMarker => TeslaExceptionStatus
@@ -154,13 +139,18 @@ package object parcel extends VitalsLogger {
       throw VitalsException(s"ptrToMarkerParcel($statusMarker) should not use for non marker parcels")
     else
       statusMarker match {
-        case TeslaAbortStatus.statusMarker => TeslaAbortMarkerParcel
-        case TeslaEndStatus.statusMarker => TeslaEndMarkerParcel
-        case TeslaHeartbeatStatus.statusMarker => TeslaHeartbeatMarkerParcel
-        case TeslaMockStatus.statusMarker => TeslaMockMarkerParcel
-        case TeslaNoDataStatus.statusMarker => TeslaNoDataMarkerParcel
-        case TeslaTimeoutStatus.statusMarker => TeslaTimeoutMarkerParcel
-        case TeslaExceptionStatus.statusMarker => TeslaExceptionMarkerParcel
+        case TeslaAbortStatus.statusMarker =>
+          TeslaAbortMarkerParcel
+        case TeslaEndStatus.statusMarker =>
+          TeslaEndMarkerParcel
+        case TeslaHeartbeatStatus.statusMarker =>
+          TeslaHeartbeatMarkerParcel
+        case TeslaNoDataStatus.statusMarker =>
+          TeslaNoDataMarkerParcel
+        case TeslaTimeoutStatus.statusMarker =>
+          TeslaTimeoutMarkerParcel
+        case TeslaExceptionStatus.statusMarker =>
+          TeslaExceptionMarkerParcel
         case _ =>
           throw VitalsException(s"ptrToMarkerParcel($statusMarker) unknown marker ptr")
       }
@@ -174,12 +164,7 @@ package object parcel extends VitalsLogger {
    * This indicates normal end of a successful stream of data over pipe.
    * Most pipe transfers end by placing one of these on the end of the queue
    */
-  final val TeslaEndMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaEndStatus.statusMarker)
-
-  /**
-   * used for unit tests
-   */
-  final val TeslaMockMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaMockStatus.statusMarker)
+  final val TeslaEndMarkerParcel: TeslaParcel = TeslaParcelAnyVal(TeslaEndStatus.statusMarker)
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // marker parcels that represent an error
@@ -191,28 +176,28 @@ package object parcel extends VitalsLogger {
    * sent. It is a fatal error to send this after other data has been sent.
    * Do not send a [[TeslaEndMarkerParcel]] after this...
    */
-  final val TeslaNoDataMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaNoDataStatus.statusMarker)
+  final val TeslaNoDataMarkerParcel: TeslaParcel = TeslaParcelAnyVal(TeslaNoDataStatus.statusMarker)
 
   /**
    * This indicates that there was a timeout while waiting for the producer
    * to send data across
    */
-  final val TeslaTimeoutMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaTimeoutStatus.statusMarker)
+  final val TeslaTimeoutMarkerParcel: TeslaParcel = TeslaParcelAnyVal(TeslaTimeoutStatus.statusMarker)
 
   /**
    * This indicates that there was a runtime exception
    */
-  final val TeslaExceptionMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaExceptionStatus.statusMarker)
+  final val TeslaExceptionMarkerParcel: TeslaParcel = TeslaParcelAnyVal(TeslaExceptionStatus.statusMarker)
 
   /**
    * abort propogation
    */
-  final val TeslaAbortMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaAbortStatus.statusMarker)
+  final val TeslaAbortMarkerParcel: TeslaParcel = TeslaParcelAnyVal(TeslaAbortStatus.statusMarker)
 
   /**
    * heartbeat marker
    */
-  final val TeslaHeartbeatMarkerParcel:TeslaParcel = TeslaParcelAnyVal(TeslaHeartbeatStatus.statusMarker)
+  final val TeslaHeartbeatMarkerParcel: TeslaParcel = TeslaParcelAnyVal(TeslaHeartbeatStatus.statusMarker)
 
   /**
    * support parcel status management

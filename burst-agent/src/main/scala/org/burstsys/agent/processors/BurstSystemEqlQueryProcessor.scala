@@ -4,11 +4,11 @@ package org.burstsys.agent.processors
 import org.burstsys.agent.{AgentLanguage, AgentService}
 import org.burstsys.catalog.CatalogService
 import org.burstsys.eql.EqlContext
-import org.burstsys.fabric.exception.FabricQueryProcessingException
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.logging.burstStdMsg
 

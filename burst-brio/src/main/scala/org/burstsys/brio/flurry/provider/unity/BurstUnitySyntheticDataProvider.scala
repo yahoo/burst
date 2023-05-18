@@ -1,55 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.brio.flurry.provider.unity
 
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.appVersionIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.appVersionIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.applicationIdDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.applicationIdKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.channelIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.channelIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.crashPercentDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.crashPercentKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.deviceModelIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.deviceModelIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventCountDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventCountKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventDurationDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventDurationKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventIntervalDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventIntervalKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventParametersCountDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventParametersCountKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventParametersPerEventDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.eventParametersPerEventKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.installDateIntervalDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.installDateIntervalKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.installDateStartDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.installDateStartKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.languageIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.languageIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.localeCountryIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.localeCountryIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.mappedOriginsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.mappedOriginsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.originMethodIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.originSourceIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.originSourceIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.osVersionIdsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.osVersionIdsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.providedOriginsDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.providedOriginsKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionCountDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionCountKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionDurationDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionDurationKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionIntervalDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionIntervalKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionParameterCountDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionParameterCountKey
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionParametersPerSessionDefault
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.sessionParametersPerSessionKey
+import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.{appVersionIdsDefault, appVersionIdsKey, applicationIdDefault, applicationIdKey, channelIdsDefault, channelIdsKey, crashPercentDefault, crashPercentKey, deviceModelIdsDefault, deviceModelIdsKey, eventCountDefault, eventCountKey, eventDurationDefault, eventDurationKey, eventIdsDefault, eventIdsKey, eventIntervalDefault, eventIntervalKey, eventParametersCountDefault, eventParametersCountKey, eventParametersPerEventDefault, eventParametersPerEventKey, installDateIntervalDefault, installDateIntervalKey, installDateStartDefault, installDateStartKey, languageIdsDefault, languageIdsKey, localeCountryIdsDefault, localeCountryIdsKey, mappedOriginsDefault, mappedOriginsKey, originMethodIdsKey, originSourceIdsDefault, originSourceIdsKey, osVersionIdsDefault, osVersionIdsKey, providedOriginsDefault, providedOriginsKey, sessionCountDefault, sessionCountKey, sessionDurationDefault, sessionDurationKey, sessionIntervalDefault, sessionIntervalKey, sessionParameterCountDefault, sessionParameterCountKey, sessionParametersPerSessionDefault, sessionParametersPerSessionKey, userIdPrefixDefault, userIdPrefixKey}
 import org.burstsys.brio.flurry.provider.unity.press.SyntheticAppVersionData
 import org.burstsys.brio.flurry.provider.unity.press.SyntheticApplicationData
 import org.burstsys.brio.flurry.provider.unity.press.SyntheticApplicationUseData
@@ -59,18 +11,25 @@ import org.burstsys.brio.flurry.provider.unity.press.SyntheticSessionData
 import org.burstsys.brio.flurry.provider.unity.press.SyntheticUserData
 import org.burstsys.brio.press.BrioPressInstance
 import org.burstsys.brio.press.BrioPressSource
-import org.burstsys.brio.provider.BrioSyntheticDataProvider
-import org.burstsys.brio.provider.BrioSyntheticDataProvider.SyntheticRepeatedValue
+import org.burstsys.brio.provider.{BrioSyntheticDataProvider, SyntheticDataProvider}
+import org.burstsys.brio.provider.SyntheticDataProvider.SyntheticRepeatedValue
 import org.burstsys.vitals.properties._
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import scala.annotation.unused
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration.DurationInt
 
 object BurstUnitySyntheticDataProvider {
+  /** `string` - The prefix for the user id */
+  val userIdPrefixKey = "synthetic.unity.userId.prefix"
+
+  /** Default prefix for user id */
+  val userIdPrefixDefault = "User#"
+
   /** `Long` - The application id */
   val applicationIdKey = "synthetic.unity.applicationId"
 
@@ -226,10 +185,12 @@ object BurstUnitySyntheticDataProvider {
 /**
  * A simple synthetic data model for unity schema
  */
+@unused  // found by reflection
 case class BurstUnitySyntheticDataProvider() extends BrioSyntheticDataProvider {
 
   override def data(itemCount: Int, properties: VitalsPropertyMap): Iterator[BrioPressInstance] = {
     val extended: VitalsRichExtendedPropertyMap = properties.extend
+    val userIdPrefix = extended.getValueOrDefault(userIdPrefixKey, userIdPrefixDefault)
     val applicationId = extended.getValueOrDefault(applicationIdKey, applicationIdDefault)
     val installDateStart = Instant.from(ISO_DATE_TIME.parse(extended.getValueOrDefault(installDateStartKey, installDateStartDefault))).toEpochMilli
     val installDateInterval = extended.getValueOrDefault(installDateIntervalKey, installDateIntervalDefault).toMillis
@@ -269,9 +230,11 @@ case class BurstUnitySyntheticDataProvider() extends BrioSyntheticDataProvider {
         val installTime: Long = installDateStart + userIdx * installDateInterval
         val appVersion = SyntheticAppVersionData(appVersionIds.value(userIdx))
         val sessionIds = new AtomicLong()
+        val idVal = s"${userIdPrefix}${userIdx + 1}"
+        log debug s"id=$idVal"
 
         SyntheticUserData(
-          id = s"User#${userIdx + 1}",
+          id = idVal,
           deviceModelId = deviceModelIds.value(userIdx),
           deviceSubmodelId = Option.empty,
           deviceFormat = unspecified.toByte,

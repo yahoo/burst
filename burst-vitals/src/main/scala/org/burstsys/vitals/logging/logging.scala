@@ -1,64 +1,117 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
-import java.lang.management.{ManagementFactory, ThreadInfo}
-
+import org.burstsys.vitals.configuration.burstIncludeStackTracesProperty
 import org.burstsys.vitals.errors.messageFromException
+import sourcecode.Enclosing
+import sourcecode.FileName
+import sourcecode.Line
+import sourcecode.Pkg
 
+import java.io.{PrintWriter, StringWriter}
+import java.lang.management.ManagementFactory
+import java.lang.management.ThreadInfo
+import scala.annotation.unused
+import scala.collection.mutable
 import scala.language.implicitConversions
 
 package object logging extends VitalsLogger {
 
-  final case class BurstModuleName(value: String) extends AnyVal {
-    override def toString: String = value
-  }
+  def packageToModuleName(pkg: Pkg): String = s"BURST${pkg.value.stripPrefix(burstPackage).toUpperCase.replaceAll("\\.", "_")}"
 
-  implicit def stringToModuleName(s: String): BurstModuleName = BurstModuleName(s)
-
-  implicit def moduleToString(m: BurstModuleName): String = m.value
-
-  private[logging]
-  def bridgeJul: this.type = {
+  private[logging] def bridgeJul: this.type = {
     System.setProperty("java.util.logging.manager", classOf[org.apache.logging.log4j.jul.LogManager].getName)
     this
   }
 
   final val MAX_FRAMES: Int = 100
 
-  final
-  def burstStdMsg(msg: String)(implicit burstModuleName: BurstModuleName): String = {
-    printMsg(msg, burstModuleName, getFirstBurstTrace(Thread.currentThread.getStackTrace))
+  /**
+   * Format a message including a package prefix and file/line number
+   *
+   * @param msg the message to format
+   * @return the formatted message
+   */
+  final def burstStdMsg(msg: String)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    formatMsg(msg, located = false)
   }
 
-  private
-  def printMsg(msg: String, burstModuleName: BurstModuleName, trace: Option[StackTraceElement]) = {
-    trace match {
-      case None => s"$burstModuleName '$msg' unknown source location on $burstHost"
-      case Some(location) =>
-        val className = location.getClassName match {
-          case null => "(unknown class)"
-          case name => name.split('.').last.stripSuffix("$class").stripSuffix("$").replaceAll("\\$\\$anonfun\\$", ".")
-        }
-        val fileName = location.getFileName match {
-          case null => "(unknown file)"
-          case name => name
-        }
-        s"$burstModuleName $msg at $fileName:${location.getLineNumber} on $burstHost"
+  /**
+   * Format a message including a package prefix, file/line number, and enclosing call site
+   *
+   * @param msg the message to format
+   * @return the formatted message
+   */
+  final def burstLocMsg(msg: String)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    formatMsg(msg, located = true)
+  }
+
+  /**
+   * Extract a message from an exception including a package prefix and file/line number and enclosing call.
+   *
+   * @param t the throwable to extract a mesasge from
+   * @return the formatted message
+   */
+  final def burstStdMsg(t: Throwable)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    burstLocMsg(t)
+  }
+
+  /**
+   * Extract a message from an exception including a package prefix, file/line number, and enclosing call site
+   *
+   * @param t the throwable to extract a mesasge from
+   * @return the formatted message
+   */
+  final def burstLocMsg(t: Throwable)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    formatMsg(errors.messageFromException(t), located = true)
+  }
+
+  /**
+   * Extract a message from an exception including a package prefix and file/line number
+   *
+   * @param msg the message to format
+   * @param t   the throwable to extract a mesasge from
+   * @return the formatted message
+   */
+  final def burstStdMsg(msg: String, t: Throwable)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    val tail = if (burstIncludeStackTracesProperty.get) {
+      val sw = new StringWriter()
+      t.printStackTrace(new PrintWriter(sw))
+      s"\n${sw.toString}"
+    } else
+      s""
+    val m = formatMsg(s"$msg: ${errors.messageFromException(t): String}", located = false)
+    s"$m$tail"
+  }
+
+  /**
+   * Extract a message from an exception including a package prefix, file/line number, and enclosing call site
+   *
+   * @param msg the message to format
+   * @param t   the throwable to extract a mesasge from
+   * @return the formatted message
+   */
+  final def burstLocMsg(msg: String, t: Throwable)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    formatMsg(s"$msg: ${errors.messageFromException(t): String}", located = true)
+  }
+
+  private def formatMsg(msg: String, located: Boolean)(implicit site: Enclosing, pkg: Pkg, file: FileName, line: Line): String = {
+    val location = if (located) s" ${enclosingToLocation(site)}" else ""
+    s"${packageToModuleName(pkg)}:$location $msg at ${file.value}:${line.value}"
+  }
+
+  private def enclosingToLocation(site: Enclosing): String = {
+    val loc = site.value
+    val trimmed = if (loc.contains("package")) {
+      val components = loc.split("""\.""")
+      components.slice(components.indexOf("package") - 1, components.size).mkString(".")
+    } else {
+      loc.substring(loc.lastIndexOf(".") + 1)
     }
+    trimmed.replace("#", ".")
   }
 
-  final
-  def burstStdMsg(t: Throwable)(implicit burstModuleName: BurstModuleName): String = {
-    printMsg(messageFromException(t), burstModuleName, getFirstBurstTrace(t.getStackTrace))
-  }
-
-  final
-  def burstStdMsg(msg: String, t: Throwable)(implicit burstModuleName: BurstModuleName): String = {
-    printMsg(s"$msg: ${t: String}", burstModuleName, getFirstBurstTrace(t.getStackTrace))
-  }
-
-  final
-  def getFirstBurstTrace(stack: Array[StackTraceElement]): Option[StackTraceElement] = {
+  final def getFirstBurstTrace(stack: Array[StackTraceElement]): Option[StackTraceElement] = {
     if (stack.isEmpty) return None
     stack foreach {
       s =>
@@ -85,12 +138,14 @@ package object logging extends VitalsLogger {
     Some(stack.head)
   }
 
+  @unused
   final
   def getAllThreadsDump: Array[String] = {
     val threadMxBean = ManagementFactory.getThreadMXBean
     for (ti <- threadMxBean.dumpAllThreads(true, true)) yield verboseThreadToString(ti)
   }
 
+  @unused
   final
   def getPrunedThreadsDump(f: ThreadInfo => Option[ThreadInfo]): Array[ThreadInfo] = {
     val threadMxBean = ManagementFactory.getThreadMXBean
@@ -98,6 +153,7 @@ package object logging extends VitalsLogger {
   }
 
 
+  @unused
   final
   def getThisThreadDump: String = {
     val threadMxBean = ManagementFactory.getThreadMXBean
@@ -106,7 +162,7 @@ package object logging extends VitalsLogger {
 
   final
   def verboseThreadToString(thread: ThreadInfo): String = {
-    val sb = new StringBuilder("\"" + thread.getThreadName + "\"" + " Id=" + thread.getThreadId + " " + thread.getThreadState)
+    val sb = new mutable.StringBuilder("\"" + thread.getThreadName + "\"" + " Id=" + thread.getThreadId + " " + thread.getThreadState)
     if (thread.getLockName != null) sb.append(" on " + thread.getLockName)
     if (thread.getLockOwnerName != null) sb.append(" owned by \"" + thread.getLockOwnerName + "\" Id=" + thread.getLockOwnerId)
     if (thread.isSuspended) sb.append(" (suspended)")
@@ -142,10 +198,7 @@ package object logging extends VitalsLogger {
         }
       }
 
-      {
-        i += 1;
-        i - 1
-      }
+      i += 1
     }
     if (i < stackTrace.length) {
       sb.append("\t...")

@@ -6,7 +6,6 @@ import org.burstsys.tesla.part.factory.TeslaPartFactory
 import org.burstsys.tesla.pool.TeslaPoolId
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.metrics.{OpsMetricType, VitalsMetricsAgent, VitalsMetricsGauge}
 
 package object factory extends TeslaPartFactory[java.lang.Long, TeslaBlockPool]
   with TeslaBlockShop with VitalsLogger {

@@ -4,7 +4,6 @@ package org.burstsys.api
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsStandaloneServer
 import org.burstsys.vitals.logging.{VitalsLog, VitalsLogger}
-import org.burstsys.vitals.metrics.VitalsMetricsRegistry
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostPort}
 import org.burstsys.vitals.properties.VitalsPropertyRegistry
 import org.scalatest.BeforeAndAfterAll
@@ -46,8 +45,6 @@ package object test extends VitalsLogger {
   }
 
   abstract class TestApiSpecSupport extends AnyFlatSpec with Matchers with BeforeAndAfterAll  {
-    VitalsMetricsRegistry.disable()
-
     VitalsLog.configureLogging("api", consoleOnly = true)
 
     val testServer: TestApiService = TestApiService(VitalsStandaloneServer)

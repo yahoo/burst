@@ -5,7 +5,7 @@ import java.util
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.vitals.instrument.prettyByteSizeString
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.logging._
 import org.jctools.queues.MpmcArrayQueue
 

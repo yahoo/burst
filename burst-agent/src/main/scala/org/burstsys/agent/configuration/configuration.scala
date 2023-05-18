@@ -39,7 +39,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[agent]
-  def burstAgentApiSslEnabled: Boolean = burstAgentApiSslEnableProperty.getOrThrow
+  def burstAgentApiSslEnabled: Boolean = burstAgentApiSslEnableProperty.get
 
   val burstAgentApiTimeoutMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
     key = "burst.agent.api.timeout.ms",
@@ -48,7 +48,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[agent]
-  def burstAgentApiTimeoutDuration: Duration = Duration(burstAgentApiTimeoutMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstAgentApiTimeoutDuration: Duration = Duration(burstAgentApiTimeoutMsProperty.get, TimeUnit.MILLISECONDS)
 
   private[agent]
   val burstAgentServerConnectionLifeMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
@@ -58,7 +58,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[agent]
-  def burstAgentServerConnectionLifeDuration: Duration = Duration(burstAgentServerConnectionLifeMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstAgentServerConnectionLifeDuration: Duration = Duration(burstAgentServerConnectionLifeMsProperty.get, TimeUnit.MILLISECONDS)
 
   private[agent]
   val burstAgentServerConnectionIdleMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
@@ -68,6 +68,6 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[agent]
-  def burstAgentServerConnectionIdleDuration: Duration = Duration(burstAgentServerConnectionIdleMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstAgentServerConnectionIdleDuration: Duration = Duration(burstAgentServerConnectionIdleMsProperty.get, TimeUnit.MILLISECONDS)
 
 }

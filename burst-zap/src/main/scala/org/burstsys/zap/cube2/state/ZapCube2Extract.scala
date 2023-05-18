@@ -4,7 +4,7 @@ package org.burstsys.zap.cube2.state
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.brio.types.BrioPrimitives._
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.result.row._
+import org.burstsys.fabric.wave.execution.model.result.row._
 import org.burstsys.felt.model.collectors.cube.FeltCubeBuilder
 import org.burstsys.felt.model.collectors.cube.FeltCubeCollector
 import org.burstsys.vitals.text.VitalsTextCodec

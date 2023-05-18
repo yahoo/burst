@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.model.collectors.shrub.result
 
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetName
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetName
 import org.burstsys.felt.model.collectors.result.{FeltCollectorResultSet, FeltCollectorResultSetContext}
 import org.burstsys.felt.model.collectors.shrub.plane.FeltShrubPlane
 import org.burstsys.felt.model.collectors.shrub.{FeltShrubBuilder, FeltShrubCollector}

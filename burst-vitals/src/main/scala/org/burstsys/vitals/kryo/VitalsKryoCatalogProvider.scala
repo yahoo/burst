@@ -20,8 +20,11 @@ trait VitalsKryoCatalogProvider {
   val feltCatalogStart: VitalsKryoKey = hydraCatalogStart + 150
   val unitCatalogStart: VitalsKryoKey = feltCatalogStart + 150
   val fabricCatalogStart: VitalsKryoKey = unitCatalogStart + 150
-  val fabricMockCatalogStart: VitalsKryoKey = fabricCatalogStart + 150
-  val fabricSampleStoreStart: VitalsKryoKey = fabricMockCatalogStart + 150
-  val fuseSampleStoreStart: VitalsKryoKey = fabricSampleStoreStart + 150
+  val waveCatalogStart: VitalsKryoKey = fabricCatalogStart + 150
+  val fabricMockCatalogStart: VitalsKryoKey = waveCatalogStart + 150
+  val fabricCellSampleStoreStart: VitalsKryoKey = fabricMockCatalogStart + 150
+  val fabricSupervisorSampleStoreStart: VitalsKryoKey = fabricCellSampleStoreStart + 150
+
+  val lastStart: VitalsKryoKey = fabricSupervisorSampleStoreStart +1000
 
 }

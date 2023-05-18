@@ -5,22 +5,22 @@ import org.burstsys.alloy.store.exceptional
 import org.burstsys.alloy.store.exceptional.log
 import org.burstsys.alloy.store.exceptional.ExceptionalSlice
 import org.burstsys.alloy.store.exceptional.FailureMode
-import org.burstsys.fabric.container.worker.FabricWorkerContainer
-import org.burstsys.fabric.data.FabricDataException
-import org.burstsys.fabric.data.model.slice.state.FabricDataNoData
-import org.burstsys.fabric.data.model.slice.state.FabricDataState
-import org.burstsys.fabric.data.model.slice.state.FabricDataWarm
-import org.burstsys.fabric.data.model.snap.FabricSnap
-import org.burstsys.fabric.data.model.store.FabricStoreName
-import org.burstsys.fabric.data.worker.store.FabricStoreWorker
-import org.burstsys.fabric.data.worker.store.FabricWorkerLoader
+import org.burstsys.fabric.wave.data.FabricDataException
+import org.burstsys.fabric.wave.data.model.slice.state.FabricDataNoData
+import org.burstsys.fabric.wave.data.model.slice.state.FabricDataState
+import org.burstsys.fabric.wave.data.model.slice.state.FabricDataWarm
+import org.burstsys.fabric.wave.data.model.snap.FabricSnap
+import org.burstsys.fabric.wave.data.model.store.FabricStoreName
+import org.burstsys.fabric.wave.data.worker.store.FabricStoreWorker
+import org.burstsys.fabric.wave.data.worker.store.FabricWorkerLoader
+import org.burstsys.fabric.wave.container.worker.FabricWaveWorkerContainer
 import org.burstsys.tesla
 
 import java.util.concurrent.TimeUnit
 import scala.util.Random
 
 final case
-class ExceptionalStoreWorker(container: FabricWorkerContainer) extends FabricStoreWorker with FabricWorkerLoader {
+class ExceptionalStoreWorker(container: FabricWaveWorkerContainer) extends FabricStoreWorker with FabricWorkerLoader {
 
   override protected def initializeSlice(snap: FabricSnap): FabricDataState = {
     val slice = snap.slice.asInstanceOf[ExceptionalSlice]

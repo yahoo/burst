@@ -3,7 +3,7 @@ package org.burstsys.felt.model.collectors.runtime
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt
 import org.burstsys.felt.binding.FeltBinding
 import org.burstsys.felt.model.frame.FeltFrameElement

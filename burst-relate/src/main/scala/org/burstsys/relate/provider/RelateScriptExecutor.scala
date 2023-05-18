@@ -3,6 +3,7 @@ package org.burstsys.relate.provider
 
 import org.burstsys.relate.RelateService
 import org.burstsys.vitals.errors.safely
+import org.burstsys.vitals.logging.burstStdMsg
 import scalikejdbc.{DBSession, SQL}
 
 /**
@@ -47,7 +48,7 @@ trait RelateScriptExecutor extends AnyRef with RelateService {
         builder.clear()
       } catch safely {
         case e: Exception =>
-          log warn s"$burstModuleName exception:${e.toString}"
+          log warn burstStdMsg(e)
           throw e
       }
     } else {

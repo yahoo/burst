@@ -3,13 +3,20 @@ package org.burstsys.vitals
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.StringKeySerializer
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializerBase
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.VitalsLogger
 import org.owasp.html.HtmlPolicyBuilder
 
 package object json extends VitalsLogger {
+
+  def buildJsonMapper: JsonMapper = JsonMapper.builder()
+    .addModule(DefaultScalaModule)
+    .addModule(DurationModule)
+    .build()
 
   /**
    * add an aspect to this type that allows it to export its state as a simple immutable

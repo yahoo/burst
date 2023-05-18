@@ -17,18 +17,22 @@ object RelateDerbyDialect extends RelateDialect  {
     else e
   }
 
-  override def limitClause(limit: Option[Int]): SQLSyntax = limit.collect({
-    case l if l > 0 => sqls"FETCH FIRST $l ROWS ONLY"
+ // https://db.apache.org/derby/docs/10.7/ref/rrefsqljoffsetfetch.html
+  override def limitClause(limit: Option[Int], offset: Option[Int]): SQLSyntax = limit.collect({
+    case l if l > 0 => offset match {
+      case Some(o) if o > 0 => sqls"OFFSET $o ROWS FETCH NEXT $l ROWS ONLY"
+      case _ => sqls"FETCH FIRST $l ROWS ONLY"
+    }
   }).getOrElse(sqls"")
 
   final def jdbcDriver: Class[_] = classOf[org.apache.derby.jdbc.EmbeddedDriver]
 
   final def jdbcUrl(jdbcHost: String, jdbcPort: Int, databaseName: String): String = {
-    s"jdbc:derby:memory:$databaseName;${configuration.burstRelateDerbyConnectionOpts.getOrThrow}"
+    s"jdbc:derby:memory:$databaseName;${configuration.burstRelateDerbyConnectionOpts.get}"
   }
 
   final def jdbcSystemUrl(jdbcHost: String, jdbcPort: Int): String = {
-    s"jdbc:derby:memory:system;${configuration.burstRelateDerbyConnectionOpts.getOrThrow}"
+    s"jdbc:derby:memory:system;${configuration.burstRelateDerbyConnectionOpts.get}"
   }
 
   final override

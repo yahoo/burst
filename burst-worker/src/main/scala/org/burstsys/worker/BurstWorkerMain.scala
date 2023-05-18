@@ -4,9 +4,8 @@ package org.burstsys.worker
 import org.burstsys.fabric
 import org.burstsys.fabric.configuration.burstFabricWorkerStandaloneProperty
 import org.burstsys.fabric.container.WorkerLog4JPropertiesFileName
-import org.burstsys.vitals.git
-import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.VitalsLog
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.worker.configuration.burstWorkerPropertiesFileProperty
 
 object BurstWorkerMain {
@@ -26,20 +25,19 @@ object BurstWorkerMain {
 
     parser.parse(args.toSeq, defaultArguments) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         System.exit(-1)
       case Some(arguments) =>
         if (arguments.standalone) {
           burstFabricWorkerStandaloneProperty.set(true)
-          git.turnOffBuildValidation()
         }
 
         /**
          * first get a set of basic config properties - this will eventually just be catalog DB connection info...
          */
         VitalsLog.configureLogging(WorkerLog4JPropertiesFileName)
-        loadSystemPropertiesFromJavaPropertiesFile(burstWorkerPropertiesFileProperty.getOrThrow)
-        fabric.container.workerContainer.start.run.stop
+        loadSystemPropertiesFromJavaPropertiesFile(burstWorkerPropertiesFileProperty.get)
+        fabric.wave.container.workerContainer.start.run.stop
     }
 
   }

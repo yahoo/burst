@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="info" packages="org.burstsys.vitals.logging">
+<!--This config used in the running system, not during tests-->
+<Configuration status="info" packages="org.burstsys.vitals.logging" monitorInterval="30" >
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
         </Console>
@@ -16,38 +17,6 @@
             <blocking>false</blocking>
             <bufferSize>524288</bufferSize>
         </Async>
-        <RollingFile name="queries" fileName="${sys:log.home}/logs/burst-queries-${sys:burst.log.location}.log"
-                     filePattern="${sys:log.home}/logs/burst-queries-${sys:burst.log.location}.%i.log" >
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="25 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-        <Async name="asyncQueries">
-            <AppenderRef ref="queries"/>
-            <blocking>false</blocking>
-        </Async>
-        <RollingFile name="metrics" fileName="${sys:log.home}/metrics/burst-metrics-${sys:burst.log.location}.log"
-            filePattern="${sys:log.home}/metrics/burst-metrics-${sys:burst.log.location}.%i.log" >
-            <!--
-            <CsvParameterLayout delimiter="," quoteMode="ALL" >
-                <quote>"</quote>
-                <header>"metric_timestamp","metric_name","_value", "cell_name"</header>
-            </CsvParameterLayout>
-            -->
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="25 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-        <Async name="asyncMetrics">
-            <AppenderRef ref="metrics"/>
-            <blocking>false</blocking>
-        </Async>
         <Fanout name="fan">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
             <AppenderRef ref="console"/>
@@ -59,29 +28,10 @@
             <AppenderRef ref="fan"/>
         </Root>
         <Logger name="org.reflections" level="error"/>
-        <Logger name="Remoting" level="error"/>
-        <Logger name="BlockStateChange" level="error"/>
-        <Logger name="org.mortbay" level="error"/>
         <Logger name="com.twitter" level="warn"/>
         <Logger name="com.twitter.finagle" level="warn"/>
-        <Logger name="akka.event" level="error"/>
-        <Logger name="akka.remote" level="error"/>
-        <Logger name="org.spark-project" level="error"/>
         <Logger name="org.eclipse.jetty" level="error"/>
-        <Logger name="org.apache.spark" level="warn"/>
-        <Logger name="org.apache.spark.ContextCleaner" level="warn"/>
-        <Logger name="org.apache.spark.storage" level="error"/>
-        <Logger name="org.apache.spark.broadcast" level="error"/>
-        <Logger name="org.apache.zookeeper" level="error"/>
-        <Logger name="org.apache.hbase" level="error"/>
         <Logger name="org.glassfish.grizzly" level="warn"/>
-        <Logger name="org.glassfish.tyrus" level="warn"/>
-        <Logger name="AgentLanguageLog" level="info" additivity="false">
-            <AppenderRef ref="asyncQueries"/>
-        </Logger>
-        <Logger name="org.burstsys.vitals.metrics" level="info" additivity="false">
-            <AppenderRef ref="asyncMetrics"/>
-        </Logger>
     </Loggers>
 </Configuration>
 

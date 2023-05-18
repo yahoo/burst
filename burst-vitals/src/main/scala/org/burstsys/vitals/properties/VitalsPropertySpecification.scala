@@ -36,8 +36,24 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
 
   private var setProgrammatically = false
 
+  private def notifyListeners(): Unit = {
+    val current = asOption
+    listeners.foreach(l => l(current))
+  }
+
   def useDefault(): Unit = {
     System.clearProperty(key)
+    setProgrammatically = false
+  }
+
+  def setString(value: String): Unit = {
+    if (value != null) {
+      System.setProperty(key, value)
+      setProgrammatically = true
+    } else {
+      useDefault()
+    }
+    notifyListeners()
   }
 
   def set(value: C): Unit = {
@@ -46,25 +62,22 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
       setProgrammatically = true
     } else {
       useDefault()
-      setProgrammatically = false
     }
-
-    val current = get
-    listeners.foreach(l => l(current))
+    notifyListeners()
   }
 
   /**
    * @return the value of this property
    * @throws VitalsException if the property is not set and has a default of `None`
    */
-  def getOrThrow: C = {
-    get match {
+  def get: C = {
+    asOption match {
       case None => throw VitalsException(s"label=$key not found and no default provided")
       case Some(value) => value
     }
   }
 
-  def get: Option[C] = {
+  def asOption: Option[C] = {
     System.getenv(environmentVariableKey) match {
       case null => System.getProperty(key) match {
         case null => default
@@ -85,7 +98,7 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
       "default"
   }
 
-  def fallback: C = {
+  private def fallback: C = {
     default match {
       case Some(value) => value.asInstanceOf[C]
       case None =>
@@ -108,7 +121,6 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
   }
 
   val keyPadding = 41
-  val envVarPadding = 41
   val typeNamePadding = 10
   val descriptionPadding = 40
 
@@ -118,7 +130,7 @@ class VitalsPropertySpecification[C <: VitalsPropertyAtomicDataType : ClassTag](
     val keyName = s"$key".padded(keyPadding)
     val sourceStr = s"[$source]".padded(sourcePadding)
     val desc = s"${description.initialCase}".padded(descriptionPadding)
-    s" $typeStr $keyName $sourceStr - $desc [ ${get.map(v => if (sensitive) "REDACTED" else v).getOrElse("None")} ]"
+    s" $typeStr $keyName $sourceStr - $desc [ ${asOption.map(v => if (sensitive) "REDACTED" else v).getOrElse("None")} ]"
   }
 
   private def propertyToEnvironment(key: String): String = {

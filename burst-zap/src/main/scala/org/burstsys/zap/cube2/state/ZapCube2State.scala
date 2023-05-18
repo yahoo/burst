@@ -2,6 +2,7 @@
 package org.burstsys.zap.cube2.state
 
 import org.burstsys.brio.dictionary.flex.{BrioFlexDictionary, BrioFlexDictionaryAnyVal}
+import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes.{SizeOfLong, TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
@@ -9,10 +10,10 @@ import org.burstsys.tesla.block.TeslaBlockAnyVal
 import org.burstsys.tesla.offheap
 import org.burstsys.tesla.pool.{TeslaPoolId, TeslaPooledResource}
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.io.log
 import org.burstsys.zap.cube2.key.{ZapCube2Key, ZapCube2KeyAnyVal}
 import org.burstsys.zap.cube2.row.{ZapCube2Row, ZapCube2RowAnyVal, limitExceededMarkerRow}
 import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AnyVal, ZapCube2Builder}
+import org.burstsys.zap.log
 
 /**
  * ==Off Heap G2 Cube State==
@@ -227,7 +228,9 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   def dictionary: BrioFlexDictionary = BrioFlexDictionaryAnyVal(offheap.getInt(basePtr + dictionaryFieldOffset))
 
   @inline final override
-  def dictionary_=(d: BrioFlexDictionary): Unit = offheap.putInt(basePtr + dictionaryFieldOffset, d.index)
+  def dictionary_=(d: BrioMutableDictionary): Unit = {
+    offheap.putInt(basePtr + dictionaryFieldOffset, d.asInstanceOf[BrioFlexDictionary].index)
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Cursors

@@ -2,37 +2,27 @@
 package org.burstsys.nexus.stream
 
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
-import org.burstsys.nexus.NexusConnection
-import org.burstsys.nexus.NexusGlobalUid
-import org.burstsys.nexus.NexusSliceKey
-import org.burstsys.nexus.NexusStreamUid
+import org.burstsys.nexus.{NexusConnection, NexusGlobalUid, NexusSliceKey, NexusStreamUid}
 import org.burstsys.nexus.configuration.burstNexusStreamParcelPackerConcurrencyProperty
 import org.burstsys.nexus.message.NexusStreamInitiateMsg
+import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
-import org.burstsys.tesla.parcel.TeslaEndMarkerParcel
-import org.burstsys.tesla.parcel.TeslaExceptionMarkerParcel
-import org.burstsys.tesla.parcel.TeslaHeartbeatMarkerParcel
-import org.burstsys.tesla.parcel.TeslaNoDataMarkerParcel
-import org.burstsys.tesla.parcel.TeslaParcel
-import org.burstsys.tesla.parcel.TeslaTimeoutMarkerParcel
-import org.burstsys.tesla.parcel.packer
 import org.burstsys.tesla.parcel.packer.TeslaParcelPacker
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
+import org.burstsys.tesla.parcel.{TeslaAbortMarkerParcel, TeslaEndMarkerParcel, TeslaExceptionMarkerParcel, TeslaHeartbeatMarkerParcel, TeslaNoDataMarkerParcel, TeslaParcel, TeslaTimeoutMarkerParcel}
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsPojo
 import org.burstsys.vitals.background.VitalsBackgroundFunction
-import org.burstsys.vitals.errors.safely
+import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostName
-import org.burstsys.vitals.properties.BurstMotifFilter
-import org.burstsys.vitals.properties.VitalsPropertyMap
-import org.burstsys.vitals.properties._
+import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap, _}
 
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.{Future, Promise}
 import scala.language.postfixOps
 import scala.reflect.ClassTag
 
@@ -108,7 +98,7 @@ trait NexusStream extends VitalsService {
    */
   def rejectedItemCount: Long
 
-  def rejectedItemCount_=(rItems: Long): Unit
+  def rejectedItemCount_=(items: Long): Unit
 
   /**
    * The FabricSliceKey equivalent in the context of NexusStream
@@ -128,7 +118,7 @@ trait NexusStream extends VitalsService {
   /**
    * A future that will complete when all the stream data has been received
    */
-  def receipt: Future[NexusStream]
+  def completion: Future[NexusStream]
 
   /**
    * put a parcel on the stream.
@@ -157,7 +147,7 @@ trait NexusStream extends VitalsService {
    * @param potentialItemCount the number of items that exist in the dataset
    * @param rejectedItemCount  the number of items that failed to press
    */
-  def complete(itemCount: Long, expectedItemCount: Long, potentialItemCount: Long, rejectedItemCount: Long): Unit
+  def complete(itemCount: Long, expectedItemCount: Long, potentialItemCount: Long, rejectedItemCount: Long, parcel: TeslaParcel = null): Unit
 
   /**
    * Called by the server to mark the stream as timed out, usually because pressing took too long, and send
@@ -166,6 +156,12 @@ trait NexusStream extends VitalsService {
    * @param limit the timeout used by the server
    */
   def timedOut(limit: Duration): Unit
+
+  /**
+   * Called by the server to mark the stream as aborted
+   *
+   */
+  def abort(): Unit
 
   /**
    * Called by the server to mark the stream as failed and to send the appropriate signoff to the client
@@ -181,20 +177,55 @@ object NexusStream {
   /**
    * Server-side constructor for a nexus stream. Parcel packing is enabled, and the stream has no receipt.
    */
-  def apply(connection: NexusConnection, guid: NexusGlobalUid, suid: NexusStreamUid,
-            initMsg: NexusStreamInitiateMsg, pipe: TeslaParcelPipe): NexusStream =
-    NexusStreamContext(connection, guid, suid, initMsg.properties, initMsg.schema, initMsg.filter, pipe,
-      initMsg.sliceKey, initMsg.clientHostname, initMsg.serverHostname, receipt = null, parcelPackingEnabled = true)
+  def apply(
+             connection: NexusConnection,
+             guid: NexusGlobalUid,
+             suid: NexusStreamUid,
+             initMsg: NexusStreamInitiateMsg,
+             pipe: TeslaParcelPipe
+           ): NexusStream =
+    NexusStreamContext(
+      connection,
+      guid,
+      suid,
+      initMsg.properties,
+      initMsg.schema,
+      initMsg.filter,
+      pipe,
+      initMsg.sliceKey,
+      initMsg.clientHostname,
+      initMsg.serverHostname,
+      outbound = true
+    )
 
   /**
    * Client-side constructor for a nexus stream. Parcel packing is disabled.
    */
-  def apply(connection: NexusConnection, guid: NexusGlobalUid, suid: NexusStreamUid,
-            properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter, pipe: TeslaParcelPipe,
-            sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName,
-            receipt: Future[NexusStream]): NexusStream =
-    NexusStreamContext(connection, guid, suid, properties, schema, filter, pipe,
-      sliceKey, clientHostname, serverHostname, receipt, parcelPackingEnabled = false)
+  def apply(
+             connection: NexusConnection,
+             guid: NexusGlobalUid,
+             suid: NexusStreamUid,
+             properties: VitalsPropertyMap,
+             schema: BrioSchemaName,
+             filter: BurstMotifFilter,
+             pipe: TeslaParcelPipe,
+             sliceKey: NexusSliceKey,
+             clientHostname: VitalsHostName,
+             serverHostname: VitalsHostName,
+           ): NexusStream =
+    NexusStreamContext(
+      connection,
+      guid,
+      suid,
+      properties,
+      schema,
+      filter,
+      pipe,
+      sliceKey,
+      clientHostname,
+      serverHostname,
+      outbound = false
+    )
 }
 
 private[stream] final case
@@ -212,15 +243,8 @@ class NexusStreamContext(
                           clientHostname: VitalsHostName,
                           serverHostname: VitalsHostName,
 
-                          receipt: Future[NexusStream],
-                          parcelPackingEnabled: Boolean
+                          outbound: Boolean
                         ) extends NexusStream {
-
-
-  var itemCount: Long = 0
-  var expectedItemCount: Long = 0
-  var potentialItemCount: Long = 0
-  var rejectedItemCount: Long = 0
 
   override def toString: String = s"NexusStream(${connection.link} guid=$guid, suid=$suid)"
 
@@ -228,32 +252,38 @@ class NexusStreamContext(
   // state
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private[this]
-  val _parcelPackers = ArrayBuffer[TeslaParcelPacker]()
+  private val _itemCount = new AtomicLong()
 
-  private[this]
-  var _parcelPackerConcurrency: Int = _
+  private val _expectedItemCount = new AtomicLong()
 
-  private[this]
-  val _parcelPackerIndex = new AtomicInteger(0)
+  private val _potentialItemCount = new AtomicLong()
 
-  private[this]
-  var heartbeat: Option[VitalsBackgroundFunction] = None
+  private val _rejectedItemCount = new AtomicLong()
+
+  private val _parcelPackers = ArrayBuffer[TeslaParcelPacker]()
+
+  private var _parcelPackerConcurrency: Int = _
+
+  private val _parcelPackerIndex = new AtomicInteger(0)
+
+  private var heartbeat: Option[VitalsBackgroundFunction] = None
+
+  private var _completion = Promise[NexusStream]()
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Lifecycle
+  // Lifecycle (use by nexus servers)
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   def start: this.type = {
     ensureNotRunning
-    //    log info startingMessage
-    if (parcelPackingEnabled) {
-      _parcelPackerConcurrency = burstNexusStreamParcelPackerConcurrencyProperty.getOrThrow
+    log debug startingMessage
+    if (outbound) {
+      _parcelPackerConcurrency = burstNexusStreamParcelPackerConcurrencyProperty.get
       if (_parcelPackerConcurrency > 0) {
-        log info burstStdMsg(s"Grabbing ${_parcelPackerConcurrency} parcel packers for $this")
+        log debug burstStdMsg(s"Grabbing ${_parcelPackerConcurrency} parcel packers for $this")
         for (_ <- 0 until _parcelPackerConcurrency) {
-          _parcelPackers.append(packer.grabPacker(guid, pipe))
+          _parcelPackers.append(tesla.parcel.packer.grabPacker(guid, pipe))
         }
       }
     }
@@ -262,11 +292,16 @@ class NexusStreamContext(
   }
 
   override def stop: this.type = {
-    log info stoppingMessage
+    log debug stoppingMessage
 
-    log info burstStdMsg(s"Releasing ${_parcelPackerConcurrency} parcel packers for ${this}")
-    drainParcelPackers()
-    stopHeartbeat()
+    if (outbound) {
+      log debug burstStdMsg(s"Releasing ${_parcelPackerConcurrency} parcel packers for ${this}")
+      drainParcelPackers()
+      stopHeartbeat()
+    }
+    if (!_completion.isCompleted) {
+      _completion.failure(VitalsException(s"$this was stopped before a finalizing method was called"))
+    }
 
     markNotRunning
     this
@@ -274,7 +309,7 @@ class NexusStreamContext(
 
   private def drainParcelPackers(): Unit = {
     markNotRunning
-    _parcelPackers.foreach(packer.releasePacker)
+    _parcelPackers.foreach(tesla.parcel.packer.releasePacker)
     _parcelPackers.clear()
   }
 
@@ -282,10 +317,30 @@ class NexusStreamContext(
   // API
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  override def completion: Future[NexusStream] = _completion.future
+
+  override def itemCount: Long = _itemCount.get
+
+  override def itemCount_=(items: Long): Unit = _itemCount.set(items)
+
+  override def expectedItemCount: Long = _expectedItemCount.get
+
+  override def expectedItemCount_=(items: Long): Unit = _expectedItemCount.set(items)
+
+  override def potentialItemCount: Long = _potentialItemCount.get
+
+  override def potentialItemCount_=(items: Long): Unit = _potentialItemCount.set(items)
+
+  override def rejectedItemCount: Long = _rejectedItemCount.get
+
+  override def rejectedItemCount_=(items: Long): Unit = _rejectedItemCount.set(items)
+
   override def put(chunk: TeslaParcel): Unit = pipe put chunk
 
   override def put(buffer: TeslaMutableBuffer): Unit = {
-    ensureRunning
+    if (!outbound) {
+      throw VitalsException("Only outbound streams should use #put(TeslaMutableBuffer)")
+    }
     val nextPacker = _parcelPackerIndex.getAndSet((_parcelPackerIndex.get() + 1) % _parcelPackers.size)
     _parcelPackers(nextPacker).put(buffer)
   }
@@ -293,6 +348,10 @@ class NexusStreamContext(
   override def take: TeslaParcel = pipe.take
 
   override def startHeartbeat(interval: Duration): Unit = {
+    if (!outbound) {
+      throw VitalsException("Only outbound streams should send heartbeats")
+    }
+
     heartbeat = Some(new VitalsBackgroundFunction(s"$suid-heartbeat", 0 seconds, interval, {
       try {
         pipe.put(TeslaHeartbeatMarkerParcel)
@@ -307,30 +366,49 @@ class NexusStreamContext(
     heartbeat.foreach(_.stopIfNotAlreadyStopped)
   }
 
-  override def complete(items: Long, expectedItems: Long, potentialItems: Long, rejectedItems: Long): Unit = {
+  override def complete(items: Long, expectedItems: Long, potentialItems: Long, rejectedItems: Long, status: TeslaParcel = null): Unit = {
     itemCount = items
     expectedItemCount = expectedItems
     potentialItemCount = potentialItems
     rejectedItemCount = rejectedItems
 
-    drainParcelPackers()
-    val status = if (items == 0) TeslaNoDataMarkerParcel else TeslaEndMarkerParcel
-    pipe.put(status)
+    _parcelPackers.foreach(_.finishWrites())
+    pipe.put(
+      if (status != null)
+        status
+      else if (items == 0)
+        TeslaNoDataMarkerParcel
+      else TeslaEndMarkerParcel
+    )
+    _completion.success(this)
 
     stop
   }
 
   override def timedOut(limit: Duration): Unit = {
-    log info s"$this failed to complete after $limit"
-    drainParcelPackers()
-    pipe.put(TeslaTimeoutMarkerParcel)
+    log debug s"$this failed to complete after $limit"
+    if (outbound) {
+      pipe.put(TeslaTimeoutMarkerParcel)
+    }
+    _completion.failure(new TimeoutException(s"$this failed to complete after $limit"))
+    stop
+  }
+
+  override def abort(): Unit = {
+    log debug s"$this aborted"
+    if (outbound) {
+      pipe.put(TeslaAbortMarkerParcel)
+    }
+    _completion.failure(VitalsException("Stream aborted"))
     stop
   }
 
   override def completeExceptionally(exception: Throwable): Unit = {
     log error(s"$this failed to complete", exception)
-    drainParcelPackers()
-    pipe.put(TeslaExceptionMarkerParcel)
+    if (outbound) {
+      pipe.put(TeslaExceptionMarkerParcel)
+    }
+    _completion.failure(exception)
     stop
   }
 }

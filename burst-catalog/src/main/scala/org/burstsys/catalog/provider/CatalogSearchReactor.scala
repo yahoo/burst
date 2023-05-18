@@ -56,7 +56,7 @@ trait CatalogSearchReactor extends CatalogService {
 
           if (whereClause.trim == "WHERE") whereClause = ""
 
-          val limitClause = configuration.dialect.limitClause(limit)
+          val limitClause = configuration.dialect.limitClause(limit, None)
           params ++= limitClause.parameters
 
           val query =
@@ -70,6 +70,7 @@ trait CatalogSearchReactor extends CatalogService {
                |FROM ${d.tableName} d
                |  LEFT JOIN ${v.tableName} v ON v.${v.domainFkColumn} = d.${d.entityPkColumn}
                |$whereClause
+               |ORDER BY d.${d.entityPkColumn} ASC
                |${limitClause.value}
                |""".stripMargin.trim
 

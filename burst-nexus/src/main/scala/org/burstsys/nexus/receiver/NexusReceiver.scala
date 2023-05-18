@@ -12,6 +12,8 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.vitals.logging._
 
+import scala.annotation.unused
+
 /**
  * receive inbound messages in the form of netty [[ByteBuf]], identity and convert
  * to [[NexusMsg]] instances and then dispatch to either a server or client listener.
@@ -20,7 +22,9 @@ import org.burstsys.vitals.logging._
  */
 final case
 class NexusReceiver(
-                     id: Int, isServer: Boolean, transmitter: NexusTransmitter,
+                     id: Int,
+                     isServer: Boolean,
+                     transmitter: NexusTransmitter,
                      clientListener: NexusClientMsgListener = null,
                      serverListener: NexusServerMsgListener = null,
                      disconnectCallback: () => Unit = null
@@ -28,11 +32,9 @@ class NexusReceiver(
 
   val debug = false
 
-  override
-  def toString: String = s"NexusReceiver(${transmitter.link}, ${if (isServer) "server" else "client"} id=$id)"
+  override def toString: String = s"NexusReceiver(${if (isServer) "server" else "client"} id=$id ${transmitter.link})"
 
-  override
-  def channelRegistered(ctx: ChannelHandlerContext): Unit = {
+  override def channelRegistered(ctx: ChannelHandlerContext): Unit = {
     super.channelRegistered(ctx)
     if (isServer)
       NexusServerReporter.onServerConnectionStart()
@@ -40,8 +42,7 @@ class NexusReceiver(
       NexusClientReporter.onClientConnectionStart()
   }
 
-  override
-  def channelUnregistered(ctx: ChannelHandlerContext): Unit = {
+  override def channelUnregistered(ctx: ChannelHandlerContext): Unit = {
     super.channelUnregistered(ctx)
     if (isServer)
       NexusServerReporter.onServerConnectionStop()
@@ -49,24 +50,21 @@ class NexusReceiver(
       NexusClientReporter.onClientConnectionStop()
   }
 
-  override
-  def channelActive(ctx: ChannelHandlerContext): Unit = {
+  override def channelActive(ctx: ChannelHandlerContext): Unit = {
     super.channelActive(ctx)
   }
 
-  override
-  def channelInactive(ctx: ChannelHandlerContext): Unit = {
+  override def channelInactive(ctx: ChannelHandlerContext): Unit = {
     super.channelInactive(ctx)
-    log warn s"FAB_NET_CHANNEL_INACTIVE $this "
-    if (!isServer && disconnectCallback != null) {
+    log debug burstStdMsg(s"NEXUS_CHANNEL_INACTIVE $this")
+    if (disconnectCallback != null) {
       disconnectCallback()
     }
   }
 
-  override
-  def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
+  override def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
     // gather basics
-    val messageLength = buffer.readInt()
+    @unused val messageLength = buffer.readInt()
     val messageTypeKey = buffer.readInt()
 
     TeslaRequestCoupler {
@@ -97,7 +95,7 @@ class NexusReceiver(
     }
   }
 
-  def dispatchMessage[T <: NexusMsg](msg: T, cb: T => Unit): Unit = {
+  private def dispatchMessage[T <: NexusMsg](msg: T, cb: T => Unit): Unit = {
     if (debug)
       log info s"$this ${msg.getClass.getSimpleName}"
     val oldName = Thread.currentThread().getName
@@ -106,7 +104,7 @@ class NexusReceiver(
       cb(msg)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error burstLocMsg(s"Failed to dispatch: $msg", t)
     } finally Thread.currentThread().setName(oldName)
   }
 

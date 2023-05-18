@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.model.collectors.runtime
 
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlaneGather
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlaneGather
 import org.burstsys.felt.binding.FeltBinding
 import org.burstsys.felt.kryo.FeltKryoSerializable
 import org.burstsys.vitals.errors.VitalsException

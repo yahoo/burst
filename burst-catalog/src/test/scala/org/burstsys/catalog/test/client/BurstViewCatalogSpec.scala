@@ -1,18 +1,15 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog.test.client
 
-import org.burstsys.catalog
 import org.burstsys.catalog.model.domain._
 import org.burstsys.catalog.model.view._
 import org.burstsys.catalog.test.BurstCatalogSpecSupport
-import org.burstsys.fabric
+import org.burstsys.{catalog, fabric}
 import org.joda.time.DateTime
 
-import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
 
@@ -191,7 +188,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
 
   it should "expire genclock after stale" in {
 
-    val oldDuration = catalog.configuration.burstCatalogGenerationStaleMsProperty.getOrThrow
+    val oldDuration = catalog.configuration.burstCatalogGenerationStaleMsProperty.get
     val view = {
       catalogServer.findViewByMoniker("Domain1View2") match {
         case Failure(t) => throw t
@@ -328,7 +325,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
     ensured.domainFk shouldBe domainPk
     ensured.schemaName shouldBe "quo"
     ensured.storeProperties shouldBe Map("store_prop_1" -> "bar", "store_prop_2" -> "bar", "store_prop_3" -> "baz")
-    ensured.viewProperties shouldBe Map("view_prop_1" -> "bar", "view_prop_2" -> "bar", "view_prop_3" -> "baz", fabric.metadata.ViewEarliestLoadAtProperty -> s"${ensured.generationClock}")
+    ensured.viewProperties shouldBe Map("view_prop_1" -> "bar", "view_prop_2" -> "bar", "view_prop_3" -> "baz", fabric.wave.metadata.ViewEarliestLoadAtProperty -> s"${ensured.generationClock}")
     ensured.labels shouldBe Some(Map("label_1" -> "bar", "label_2" -> "bar"))
     ensured.udk shouldBe Some(viewUdk)
   }
@@ -364,7 +361,7 @@ class BurstViewCatalogSpec extends BurstCatalogSpecSupport {
     ensured.domainFk shouldBe domainPk
     ensured.schemaName shouldBe "quo"
     ensured.storeProperties shouldBe Map("store_prop_1" -> "bar", "store_prop_2" -> "bar", "store_prop_3" -> "baz")
-    ensured.viewProperties shouldBe Map("view_prop_1" -> "bar", "view_prop_2" -> "bar", "view_prop_3" -> "baz", fabric.metadata.ViewEarliestLoadAtProperty -> s"${ensured.generationClock}")
+    ensured.viewProperties shouldBe Map("view_prop_1" -> "bar", "view_prop_2" -> "bar", "view_prop_3" -> "baz", fabric.wave.metadata.ViewEarliestLoadAtProperty -> s"${ensured.generationClock}")
     ensured.labels shouldBe Some(Map("label_1" -> "bar", "label_2" -> "bar"))
     ensured.udk shouldBe Some(viewUdk)
   }

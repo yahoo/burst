@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--This is the config used by the tests-->
 <Configuration status="error" packages="org.burstsys.vitals.logging">
     <Appenders>
         <Console name="console" target="SYSTEM_OUT"/>
         <Fanout name="fanlocal">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss:SSS} [%-5p][%-37t] %m%n"/>
             <AppenderRef ref="console"/>
         </Fanout>
     </Appenders>
     <Loggers>
+<!--        <Logger name="org.burstsys.nexus" level="debug"/>-->
+<!--        <Logger name="org.burstsys.nexus.client.connection" level="info"/>-->
+<!--        <Logger name="org.burstsys.fabric.wave.data.model" level="info"/>-->
+<!--        <Logger name="org.burstsys.fabric.wave.data.worker.pump" level="warn"/>-->
         <Root level="${sys:burst.loglevel:-info}">
             <AppenderRef ref="fanlocal"/>
         </Root>

@@ -65,9 +65,9 @@ object TeslaBlockSizes {
       case s if between(s, 32768 * pageSize, 65536 * pageSize) => 65536 * pageSize
       case s if between(s, 65536 * pageSize, 131072 * pageSize) => 131072 * pageSize
       case _ =>
-        throw new RuntimeException(s"TESLA_BAD_BLOCK_SIZE_REQUEST: request for unsupported block size: $byteSize (${ vitals.instrument.prettyByteSizeString(byteSize)})")
+        throw new RuntimeException(s"TESLA_BAD_BLOCK_SIZE_REQUEST: request for unsupported block size: $byteSize (${ vitals.reporter.instrument.prettyByteSizeString(byteSize)})")
     }
-    //log debug s"$burstModuleName for request size $byteSize, allocated blocksize $size"
+    //log debug burstStdMsg(s"for request size $byteSize, allocated blocksize $size")
     size
   }
 }

@@ -45,7 +45,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[catalog]
-  def burstCatalogApiTimeoutDuration: Duration = Duration(burstCatalogApiTimeoutMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstCatalogApiTimeoutDuration: Duration = Duration(burstCatalogApiTimeoutMsProperty.get, TimeUnit.MILLISECONDS)
 
   private[catalog]
   val burstCatalogServerConnectionLifeMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
@@ -55,7 +55,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[catalog]
-  def burstCatalogServerConnectionLifeDuration: Duration = Duration(burstCatalogServerConnectionLifeMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstCatalogServerConnectionLifeDuration: Duration = Duration(burstCatalogServerConnectionLifeMsProperty.get, TimeUnit.MILLISECONDS)
 
   private[catalog]
   val burstCatalogServerConnectionIdleMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
@@ -65,7 +65,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   )
 
   private[catalog]
-  def burstCatalogServerConnectionIdleDuration: Duration = Duration(burstCatalogServerConnectionIdleMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstCatalogServerConnectionIdleDuration: Duration = Duration(burstCatalogServerConnectionIdleMsProperty.get, TimeUnit.MILLISECONDS)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // RDBMS
@@ -99,7 +99,7 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
   val burstCatalogDbHostProperty: VitalsPropertySpecification[VitalsHostName] = VitalsPropertySpecification[VitalsHostName](
     key = "burst.catalog.db.host",
     description = "burst catalog sql db hostname",
-    default = Some(burstCellSupervisorHostProperty.getOrThrow)
+    default = Some(burstCellSupervisorHostProperty.get)
   )
 
   val burstCatalogDbPortProperty: VitalsPropertySpecification[VitalsHostPort] = VitalsPropertySpecification[VitalsHostPort](

@@ -45,8 +45,8 @@ public class Generate {
         var cellSupervisorCpu = 0.5;
         var sampleSupervisorCpu = 0.5;
         var workerCpu = (double) (processors - 1) - K8S_CPU_OVERHEAD;
-        var cellWorkerCpu = workerCpu * 2 / 3.0;
-        var sampleWorkerCpu = workerCpu / 3;
+        var cellWorkerCpu = Math.min(2, workerCpu * 2 / 3.0);
+        var sampleWorkerCpu = Math.min(2, workerCpu / 3);
         print("Computed processor allocation: cell-supervisor=%s cell-worker=%s samplesource-supervisor=%s samplesource-worker=%s",
               toMilliCpu(cellSupervisorCpu), toMilliCpu(cellWorkerCpu), toMilliCpu(sampleSupervisorCpu), toMilliCpu(sampleWorkerCpu));
 
@@ -63,10 +63,10 @@ public class Generate {
         }
 
         allocatableMem -= K8S_MEM_OVERHEAD; // pad the available memory
-        var sampleSupervisorMb = Math.min(512, allocatableMem / 8);
-        var cellSupervisorMb = Math.min(512, allocatableMem / 4);
-        var cellWorkerMb = (long) (allocatableMem - sampleSupervisorMb - cellSupervisorMb) / 2;
-        var sampleWorkerMb = allocatableMem - sampleSupervisorMb - cellSupervisorMb - cellWorkerMb;
+        var sampleSupervisorMb = Math.min(500, allocatableMem / 10);
+        var cellSupervisorMb = Math.min(3000, allocatableMem / 5);
+        var cellWorkerMb = (long) Math.min((allocatableMem - sampleSupervisorMb - cellSupervisorMb) / 2, 2000);
+        var sampleWorkerMb = Math.min(allocatableMem - sampleSupervisorMb - cellSupervisorMb - cellWorkerMb, 750);
 
         print("Computed memory allocation: cell-supervisor=%sMi cell-worker=%sMi samplesource-supervisor=%sMi samplesource-worker=%sMi",
               df.format(cellSupervisorMb), df.format(cellWorkerMb), df.format(sampleSupervisorMb), df.format(sampleWorkerMb));

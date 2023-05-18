@@ -3,8 +3,8 @@ package org.burstsys.felt.model.collectors
 
 import org.burstsys.felt.model.collectors.decl.FeltCollectorProvider
 import org.burstsys.felt.model.collectors.tablet.decl.{FeltTabletDecl, FeltTabletRef}
-import org.burstsys.vitals.instrument.MB
-import org.burstsys.vitals.io.KB
+import org.burstsys.vitals.reporter.instrument.MB
+import org.burstsys.vitals.stats.KB
 
 package object tablet {
 

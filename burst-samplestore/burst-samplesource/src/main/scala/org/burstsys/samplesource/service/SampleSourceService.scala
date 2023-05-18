@@ -14,7 +14,7 @@ trait SampleSourceService[C <: SampleSourceSupervisorService, W <: SampleSourceW
   /**
    * @return the class responsible for computing view generations
    */
-  def coordinatorClass: Class[C]
+  def supervisorClass: Class[C]
 
   /**
    * @return the class responsible for feeding streams sent to cell workers

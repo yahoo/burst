@@ -15,11 +15,11 @@ trait TestApiService extends VitalsService with SslGlobalProperties {
 
   override val serviceName: String = "test-api"
 
-  def apiHost: VitalsHostAddress = configuration.burstTestApiHostProperty.getOrThrow
+  def apiHost: VitalsHostAddress = configuration.burstTestApiHostProperty.get
 
-  def apiPort: VitalsHostPort = configuration.burstTestApiPortProperty.getOrThrow
+  def apiPort: VitalsHostPort = configuration.burstTestApiPortProperty.get
 
-  def enableSsl: Boolean = configuration.burstTestApiSslEnableProperty.getOrThrow
+  def enableSsl: Boolean = configuration.burstTestApiSslEnableProperty.get
 
   def requestTimeout: Duration = configuration.burstTestApiTimeoutDuration
 

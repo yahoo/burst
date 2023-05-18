@@ -1,11 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplesource.service
 
-import org.burstsys.samplestore.api.BurstSampleStoreDataSource
-import org.burstsys.samplestore.api.SampleStoreGeneration
+import org.burstsys.samplesource.SampleStoreTopology
+import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreDataLocus, SampleStoreGeneration}
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsStandardServer
-import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.properties._
 
 import scala.concurrent.Future
@@ -40,6 +39,7 @@ trait SampleSourceSupervisorService extends VitalsService {
    */
   def getViewGenerator(guid: String,
                        dataSource: BurstSampleStoreDataSource,
+                       topology: SampleStoreTopology,
                        listenerProperties: VitalsPropertyMap): Future[SampleStoreGeneration]
 
 
@@ -75,20 +75,18 @@ trait SampleSourceSupervisorService extends VitalsService {
    *
    * @return
    */
-  def getBroadcastVars: Map[VitalsPropertyKey, java.io.Serializable] = Map.empty
+  def getBroadcastVars: MetadataParameters = {
+    Map.empty
+  }
 
   /**
    * The action to be performed on the supervisor when a locus goes offline
-   *
-   * @param hostName
    */
-  def onSampleStoreDataLocusRemoved(hostName: VitalsHostName): Unit = {}
+  def onSampleStoreDataLocusRemoved(locus: SampleStoreDataLocus): Unit = {}
 
   /**
    * The action to be performed on the supervisor when a locus comes online
-   *
-   * @param hostName
    */
-  def onSampleStoreDataLocusAdded(hostName: VitalsHostName): Unit = {}
+  def onSampleStoreDataLocusAdded(locus: SampleStoreDataLocus): Unit = {}
 
 }

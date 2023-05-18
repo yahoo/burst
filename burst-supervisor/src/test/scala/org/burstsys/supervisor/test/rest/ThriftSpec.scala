@@ -4,33 +4,32 @@ package org.burstsys.supervisor.test.rest
 import org.burstsys.client.client.BurstSyncClient
 import org.burstsys.client.client.model.BParameter
 import org.burstsys.client.client.model.results.BCell
-import org.burstsys.dash
-import org.burstsys.dash.configuration
-import org.burstsys.supervisor.test.support.BurstSupervisorSpecSupport
+import org.burstsys.fabric
+import org.burstsys.supervisor.test.support.BurstSupervisorContainterSpec
 import org.burstsys.vitals.uid.newBurstUid
 
 import scala.jdk.CollectionConverters._
 
-class ThriftSpec extends BurstSupervisorSpecSupport {
+class ThriftSpec extends BurstSupervisorContainterSpec {
 
   private val schema = "unity"
 
   private var useHttps = true
 
   override def beforeAll(): Unit = {
-    useHttps = configuration.burstRestUsesHttpsProperty.getOrThrow
-    configuration.burstRestUsesHttpsProperty.set(false)
+    useHttps = fabric.configuration.burstUseHttpsProperty.get
+    fabric.configuration.burstUseHttpsProperty.set(false)
     super.beforeAll()
   }
 
   override def afterAll(): Unit = {
     super.afterAll()
-    configuration.burstRestUsesHttpsProperty.set(useHttps)
+    fabric.configuration.burstUseHttpsProperty.set(useHttps)
   }
 
   private lazy val client = BurstSyncClient.httpClient(
-    dash.configuration.burstRestHostProperty.getOrThrow,
-    dash.configuration.burstRestPortProperty.getOrThrow
+    fabric.configuration.burstHttpHostProperty.get,
+    supervisorContainer.httpPort
   )
 
   private def getFirstRowFromThrift(query: String, args: Option[Array[BParameter]] = None): List[BCell] = {

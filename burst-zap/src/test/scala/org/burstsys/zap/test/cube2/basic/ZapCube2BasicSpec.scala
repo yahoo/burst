@@ -3,7 +3,7 @@ package org.burstsys.zap.test.cube2.basic
 
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.brio.types.BrioTypes.BrioLongKey
-import org.burstsys.fabric.execution.model.result.row.{FabricAggregationCell, FabricDimensionCell}
+import org.burstsys.fabric.wave.execution.model.result.row.{FabricAggregationCell, FabricDimensionCell}
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}

@@ -34,6 +34,26 @@ class CatalogQueryPersister(service: RelateService) extends NamedCatalogEntityPe
     case RelateDerbyDialect => derbyCreateTableSql
   }
 
+  override def insertEntityWithPkSql(entity: CatalogQuery): WriteSql = {
+    sql"""
+     INSERT INTO  ${this.table}
+       (${this.column.pk}, ${this.column.labels}, ${this.column.moniker}, ${this.column.languageType}, ${this.column.source})
+     VALUES
+       (
+          {pk}
+          {labels},
+          {moniker},
+          {languageType},
+          {source}
+        )
+     """.bindByName(
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("moniker") -> entity.moniker,
+      Symbol("languageType") -> entity.languageType.name,
+      Symbol("source") -> entity.source
+    )
+  }
+
   override def insertEntitySql(entity: CatalogQuery): WriteSql = {
     sql"""
      INSERT INTO  ${this.table}

@@ -11,13 +11,13 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.BrioPressInstance
 import org.burstsys.brio.press.BrioPressSource
 import org.burstsys.brio.types.BrioTypes.BrioVersionKey
-import org.burstsys.fabric.data.model.generation.metrics.FabricGenerationMetrics
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.metadata.model.FabricDomainKey
-import org.burstsys.fabric.metadata.model.FabricViewKey
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.data.model.generation.metrics.FabricGenerationMetrics
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.FabricViewKey
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.vitals.properties.VitalsPropertyMap
 
 trait UnitMiniView extends MiniView with FabricDatasource

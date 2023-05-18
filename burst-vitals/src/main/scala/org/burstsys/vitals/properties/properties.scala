@@ -1,26 +1,19 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
-import com.esotericsoftware.kryo.io.Input
-import com.esotericsoftware.kryo.io.Output
+import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 
-import java.io.ObjectInput
-import java.io.ObjectOutput
+import java.io.{InputStream, ObjectInput, ObjectOutput}
 import java.util
 import java.util.Properties
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration.FiniteDuration
-import scala.language.existentials
-import scala.language.higherKinds
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import scala.reflect.ClassTag
-import scala.reflect.classTag
+import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.jdk.CollectionConverters._
+import scala.language.{existentials, higherKinds, implicitConversions, postfixOps}
+import scala.reflect.{ClassTag, classTag}
 
 
 package object properties extends VitalsLogger {
@@ -167,6 +160,55 @@ package object properties extends VitalsLogger {
       case (k, v) =>
         output writeUTF k
         output writeUTF v
+    }
+  }
+
+
+  def readJavaPropertiesFile(input: InputStream): Properties = {
+    val properties = new Properties()
+    input match {
+      case null =>
+        throw VitalsException("Input Stream is not valid")
+      case stream =>
+        properties.load(input)
+    }
+    properties
+  }
+
+  def loadPropertyMapFromJavaPropertiesFile(propertiesFile: String): VitalsPropertyMap = {
+    val propertiesStream = getClass.getClassLoader.getResourceAsStream(propertiesFile)
+    try {
+      val properties = readJavaPropertiesFile(propertiesStream)
+      readPropertyMapFromJavaProperties(properties)
+    } catch safely {
+      case t: Throwable =>
+        throw VitalsException(s"Failed to read Java Properties from file", t)
+    } finally {
+      propertiesStream.close()
+    }
+  }
+
+  /**
+   * Load the properties as system properties
+   *
+   * @param propertiesFile
+   */
+  def loadSystemPropertiesFromJavaPropertiesFile(propertiesFile: String): Unit = {
+    var propertiesStream: InputStream = null
+    try {
+      propertiesStream = getClass.getClassLoader.getResourceAsStream(propertiesFile)
+      assert(propertiesStream != null, s"could not open stream for '$propertiesFile'")
+
+      val properties = readJavaPropertiesFile(propertiesStream)
+      for (propertyName <- properties.stringPropertyNames().asScala) {
+        System.setProperty(propertyName, properties.getProperty(propertyName))
+      }
+    } catch safely {
+      case t: Throwable =>
+        throw VitalsException(s"failed to read java properties from file '$propertiesFile'", t)
+    } finally {
+      if (propertiesStream != null)
+        propertiesStream.close()
     }
   }
 
@@ -331,7 +373,6 @@ package object properties extends VitalsLogger {
       val v = map.getOrElse(key, defaultValue)
       convertPropertyValue(v, tag)
     }
-
   }
 
   /**
@@ -439,7 +480,7 @@ package object properties extends VitalsLogger {
     final def getValueOrProperty[C <: VitalsPropertyComplexDataType : ClassTag](property: VitalsPropertySpecification[C]): C = {
       lazy val tag = s"VitalsRichExtendedPropertyMap.getValueOrDefault(key=$property)"
       map.get(property.key) match {
-        case None => property.getOrThrow
+        case None => property.get
         case Some(v) => castValue(tag, v)
       }
     }
@@ -499,13 +540,13 @@ package object properties extends VitalsLogger {
         stringValue.toDouble.asInstanceOf[C]
       } else if (e == classOf[java.lang.String]) {
         if (stringValue.isEmpty) return defaultValue
-        stringValue.toString.asInstanceOf[C]
+        stringValue.asInstanceOf[C]
       } else if (e == classOf[String]) {
         if (stringValue.isEmpty) return defaultValue
-        stringValue.toString.asInstanceOf[C]
+        stringValue.asInstanceOf[C]
       } else if (e == classOf[Duration]) {
         if (stringValue.isEmpty) return defaultValue
-        Duration(stringValue.toString).asInstanceOf[C]
+        Duration(stringValue).asInstanceOf[C]
       } else
         throw VitalsException(s"VITALS_PROP_NO_SUPPORT type=$e $tag")
     } catch safely {

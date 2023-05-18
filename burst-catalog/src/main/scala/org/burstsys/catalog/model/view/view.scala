@@ -6,12 +6,12 @@ import org.burstsys.catalog.api.BurstCatalogApiView
 import org.burstsys.catalog.cannedDataLabel
 import org.burstsys.catalog.persist.ScopedUdkCatalogEntity
 import org.burstsys.fabric
-import org.burstsys.fabric.data.model.generation.FabricGenerationIdentity
-import org.burstsys.fabric.data.model.store.FabricStoreNameProperty
-import org.burstsys.fabric.metadata.model.FabricDomainKey
-import org.burstsys.fabric.metadata.model.FabricGenerationClock
-import org.burstsys.fabric.metadata.model.FabricViewKey
-import org.burstsys.fabric.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.data.model.generation.FabricGenerationIdentity
+import org.burstsys.fabric.wave.data.model.store.FabricStoreNameProperty
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.FabricGenerationClock
+import org.burstsys.fabric.wave.metadata.model.FabricViewKey
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.relate.RelateEntity
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.json.VitalsJsonSanatizers._
@@ -29,7 +29,8 @@ package object view {
   object CatalogView {
     def apply(pk: FabricDomainKey, moniker: String, domainFk: FabricDomainKey, schemaName: String, generationClock: FabricDomainKey = 0, storeProperties: Map[String, String] = Map(), viewMotif: String = "", viewProperties: Map[String, String] = Map(), labels: Option[Map[String, String]] = None, udk: Option[String] = None): BurstCatalogApiView =
       BurstCatalogApiView(pk, moniker, domainFk, generationClock, storeProperties,
-        viewMotif, viewProperties, labels, schemaName, udk = udk)
+        viewMotif, viewProperties, labels, schemaName, udk = udk
+      )
 
     def apply(
                pk: Long, udk: String, moniker: String, domainFk: Long, generationClock: Long, storeProperties: Map[String, String],
@@ -40,6 +41,11 @@ package object view {
         viewMotif, viewProperties, Some(labels), schemaName, udk = Some(udk)
       ))
 
+    def apply(v: FabricView, moniker: String, udk: Option[String], labels: Option[Map[String, String]]): CatalogView =
+      BurstCatalogApiView(
+        v.viewKey, moniker, v.domainKey, v.generationClock, v.storeProperties,
+        v.viewMotif, viewProperties = v.viewProperties, labels, v.schemaName, udk = udk
+      )
     /**
      * Filter out the properties owned and updated internally by Burst.
      * They are not interesting for the purposes of determining if a view needs to be saved
@@ -59,10 +65,10 @@ package object view {
      */
     private val loadProps: Set[String] = Set(
       ViewLoadTimeoutMsProperty,
-      fabric.metadata.ViewNextLoadStaleMsProperty,
-      fabric.metadata.ViewLastLoadStaleMsProperty,
-      fabric.metadata.ViewEarliestLoadAtProperty,
-      fabric.metadata.ViewLastColdLoadAtProperty
+      fabric.wave.metadata.ViewNextLoadStaleMsProperty,
+      fabric.wave.metadata.ViewLastLoadStaleMsProperty,
+      fabric.wave.metadata.ViewEarliestLoadAtProperty,
+      fabric.wave.metadata.ViewLastColdLoadAtProperty
     )
   }
 

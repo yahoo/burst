@@ -14,7 +14,7 @@ import org.burstsys.catalog.model.query._
 import org.burstsys.catalog.model.view._
 import org.burstsys.catalog.persist.CatalogSqlProvider
 import org.burstsys.catalog.provider._
-import org.burstsys.fabric.metadata.model.FabricMetadataLookup
+import org.burstsys.fabric.wave.metadata.model.FabricMetadataLookup
 import org.burstsys.relate.RelatePk
 import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateDialect, RelateMySqlDialect}
 import org.burstsys.vitals.VitalsService
@@ -164,6 +164,8 @@ trait CatalogService extends VitalsService with CatalogApiProperties {
 
   def insertDomain(domain: CatalogDomain): Try[RelatePk]
 
+  def insertDomainWithPk(domain: CatalogDomain): Try[CatalogDomain]
+
   def updateDomain(domain: CatalogDomain): Try[RelatePk]
 
   /**
@@ -241,6 +243,8 @@ trait CatalogService extends VitalsService with CatalogApiProperties {
 
   def insertView(view: CatalogView): Try[RelatePk]
 
+  def insertViewWithPk(view: CatalogView): Try[CatalogView]
+
   def updateView(view: CatalogView): Try[RelatePk]
 
   /**
@@ -308,18 +312,6 @@ object CatalogService {
   }
 
   /**
-    * Bare bones Unit test Client
-    */
-  object CatalogUnitTestClientConfig extends CatalogConfiguration(
-    modality = VitalsStandardClient,
-    dialect = RelateDerbyDialect,
-    executeDDL = false,
-    loadAllCans = false,
-    loadOnlyQueryCans = false,
-    dropExistingTables = false
-  )
-
-  /**
     * Bare bones Unit test Server
     */
   object CatalogUnitTestServerConfig extends CatalogConfiguration(
@@ -380,16 +372,6 @@ object CatalogService {
     loadOnlyQueryCans = false,
     dropExistingTables = false
   )
-
-  object CatalogPlaygroundServerConfig extends CatalogConfiguration(
-    modality = VitalsStandaloneServer,
-    dialect = RelateDerbyDialect,
-    executeDDL = true,
-    loadAllCans = false,
-    loadOnlyQueryCans = true,
-    dropExistingTables = true
-  )
-
 
   def apply(mode: CatalogConfiguration): CatalogService = CatalogServiceContext(mode)
 
@@ -465,7 +447,7 @@ class CatalogServiceContext(configuration: CatalogConfiguration) extends AnyRef 
       }
 
       // load the canned data
-      if (burstCatalogCannedImportStandaloneOnlyProperty.get.isDefined) {
+      if (burstCatalogCannedImportStandaloneOnlyProperty.asOption.isDefined) {
         loadCannedData(queryOnly = true, addSecurity = true)
       } else if (configuration.loadAllCans || configuration.loadOnlyQueryCans) {
         loadCannedData(queryOnly = configuration.loadOnlyQueryCans)

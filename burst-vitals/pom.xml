@@ -9,6 +9,10 @@
     </parent>
     <artifactId>burst-vitals</artifactId>
 
+    <properties>
+        <spotlessFiles><![CDATA[src/.*/.*(?<!JacksonModule).scala]]></spotlessFiles>
+    </properties>
+
     <dependencies>
 
         <!-- ***************************************************** -->
@@ -55,6 +59,10 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.splunk.logging</groupId>
+            <artifactId>splunk-library-javalogging</artifactId>
+        </dependency>
         <!-- ***************************************************** -->
 
 
@@ -64,6 +72,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+
         <!-- ***************************************************** -->
 
 
@@ -75,6 +88,13 @@
         </dependency>
         <!-- ***************************************************** -->
 
+        <!-- ***************************************************** -->
+        <!-- source location macros -->
+        <dependency>
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>sourcecode_${scala-major.version}</artifactId>
+        </dependency>
+        <!-- ***************************************************** -->
 
         <!-- ***************************************************** -->
         <!-- our serde stuff -->
@@ -100,6 +120,26 @@
         </dependency>
 
         <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-logging-otlp</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
@@ -122,11 +162,6 @@
             <artifactId>owasp-java-html-sanitizer</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.lihaoyi</groupId>
-            <artifactId>sourcecode_${scala-major.version}</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

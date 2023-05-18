@@ -41,7 +41,9 @@ object SampleSourceNexusServer extends VitalsService {
   def start: this.type = {
     ensureNotRunning
     log info startingMessage
-    _nexusServer = nexus.grabServer(getPublicHostAddress) fedBy SampleSourceNexusFeeder()
+    val feeder = SampleSourceNexusFeeder()
+    org.burstsys.vitals.sysinfo.SystemInfoService.registerComponent(feeder)
+    _nexusServer = nexus.grabServer(getPublicHostAddress) fedBy feeder
     log info startedMessage
     markRunning
     this

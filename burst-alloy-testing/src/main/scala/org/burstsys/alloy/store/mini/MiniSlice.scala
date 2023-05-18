@@ -3,8 +3,8 @@ package org.burstsys.alloy.store.mini
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
-import org.burstsys.fabric.data.model.slice.{FabricGenerationHash, FabricSlice, FabricSliceContext, FabricSliceCount, FabricSliceKey}
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.data.model.slice.{FabricGenerationHash, FabricSlice, FabricSliceContext, FabricSliceCount, FabricSliceKey}
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.vitals.uid._
 

@@ -43,11 +43,8 @@ abstract class UdkCatalogEntityPersister[E <: UdkCatalogEntity] extends NamedCat
 
       } else {
         entity.pk match {
-          // pk is garbage
-          case pk if pk < 0 => throw VitalsException(s"Invalid pk $pk")
-
           // if the pk is provided it is trusted implicitly. Passing a pk allows clients to update a udk
-          case pk if pk > 0 =>
+          case pk if pk != 0 =>
             findEntityByPk(entity.pk, lockLevel = UpdateLock) match {
               // if the provided pk doesn't exist we can do nothing
               case None => throw BurstUnknownPrimaryKeyException(entity.pk)

@@ -10,7 +10,6 @@
     <name>Burst</name>
 
     <profiles>
-
         <profile>
             <id>java11</id>
             <activation>
@@ -37,7 +36,6 @@
 
             <build>
                 <plugins>
-
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
@@ -52,9 +50,8 @@
                                     <portNames>
                                         <portName>burst.agent.api.port</portName>
                                         <portName>burst.catalog.api.port</portName>
-                                        <portName>burst.fabric.supervisor.port</portName>
                                         <portName>burst.fabric.net.port</portName>
-                                        <portName>burst.liaison.port</portName>
+                                        <portName>burst.fabric.http.port</portName>
                                         <portName>burst.nexus.server.port</portName>
                                     </portNames>
                                 </configuration>
@@ -102,13 +99,12 @@
                             <argLine>${scalatest.jvm.args}</argLine>
                             <logForkedProcessCommand>true</logForkedProcessCommand>
                             <systemProperties>
-                                <burst.loglevel>error</burst.loglevel>
+                                <burst.loglevel>${burst.test.loglevel}</burst.loglevel>
                                 <burst.nexus.server.port>${burst.nexus.server.port}</burst.nexus.server.port>
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
-                                <burst.fabric.supervisor.port>${burst.fabric.supervisor.port}</burst.fabric.supervisor.port>
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
-                                <burst.liaison.port>${burst.liaison.port}</burst.liaison.port>
+                                <burst.fabric.http.port>${burst.fabric.http.port}</burst.fabric.http.port>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -139,6 +135,20 @@
         <tag>HEAD</tag>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>burst-snapshot</id>
+            <name>burst-snapshot</name>
+            <url>${snapshot-url}</url>
+        </snapshotRepository>
+        <repository>
+            <id>burst-release</id>
+            <name>burst-release</name>
+            <url>${release-url}</url>
+        </repository>
+    </distributionManagement>
+
+
     <properties>
         <revision/> <!-- provide empty value for revision -->
         <d>$</d>
@@ -150,20 +160,27 @@
         <artifact.skip-deploy>true</artifact.skip-deploy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>${java-short.version}</maven.compiler.source>
+        <maven.compiler.release>${java-short.version}</maven.compiler.release>
+        <maven.compiler.target>${java-short.version}</maven.compiler.target>
+        <maven.compiler.compilerVersion>${java-short.version}</maven.compiler.compilerVersion>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <scalatest.jvm.args>-Xmx8G ${java-exports} -Xverify:none -XX:TieredStopAtLevel=1 -XX:-TieredCompilation
         </scalatest.jvm.args>
+        <burst.test.loglevel>warn</burst.test.loglevel>
         <thrift-executable>thrift</thrift-executable>
         <copyright.text1>Copyright Yahoo, Licensed under the terms of the Apache 2.0 license</copyright.text1>
         <copyright.text2>See LICENSE file in project root for terms</copyright.text2>
         <copyright.text>${copyright.text1}. ${copyright.text2}.</copyright.text>
         <argLine/>
+        <snapshot-url/>
+        <release-url/>
 
         <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
         <build-helper.maven-plugin.version>3.3.0</build-helper.maven-plugin.version>
         <compiler.maven-plugin.version>3.10.0</compiler.maven-plugin.version>
         <deploy.maven-plugin.version>2.8.2</deploy.maven-plugin.version>
-        <flatten.maven-plugin.version>1.2.7</flatten.maven-plugin.version>
+        <flatten.maven-plugin.version>1.3.0</flatten.maven-plugin.version>
         <git-commit.maven-plugin.version>4.9.10</git-commit.maven-plugin.version>
         <jacoco.maven-plugin.version>0.8.8</jacoco.maven-plugin.version>
         <os.maven-plugin.version>1.7.0</os.maven-plugin.version>
@@ -188,14 +205,18 @@
         <bouncycastle.version>1.70</bouncycastle.version> <!-- Sane JDK public key|private key|certificate interface -->
         <common-io.version>2.11.0</common-io.version> <!-- apache io libraries -->
         <commons-csv.version>1.9.0</commons-csv.version> <!-- apache csv libraries -->
+        <commons-codec.version>1.15</commons-codec.version>
         <commons-dbcp-pool.version>2.9.0</commons-dbcp-pool.version>
         <commons-math3.version>3.6.1</commons-math3.version> <!-- apache math libraries -->
+        <commons-net.version>3.8.0</commons-net.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
         <derby.version>10.14.2.0</derby.version>
         <dropwizard-metrics.version>4.2.9</dropwizard-metrics.version>
+        <opentelemetry.version>1.20.0</opentelemetry.version>
         <findbugs.version>3.0.2</findbugs.version>
         <grizzly.version>3.0.1</grizzly.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.14.1</jackson.version>
         <jakarta-inject.version>2.6.1</jakarta-inject.version>
         <jakarta-servlet-api.version>5.0.0</jakarta-servlet-api.version>
         <jakarta-websocket-api.version>2.0</jakarta-websocket-api.version>
@@ -213,26 +234,28 @@
         <kryo.version>5.3.0</kryo.version>
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.17.2</log4j2.version>
-        <mysql.version>8.0.28</mysql.version>
-        <netty.version>4.1.75.Final</netty.version>
+        <mysql.version>8.0.32</mysql.version>
+        <netty.version>4.1.91.Final</netty.version>
         <oshi.version>6.1.5</oshi.version><!-- hardware information -->
         <owasp-html-sanitizer.version>20211018.2</owasp-html-sanitizer.version>
         <reflections.version>0.10.2</reflections.version>
         <scala-major.version>2.13</scala-major.version>
-        <scala-minor.version>8</scala-minor.version>
+        <scala-minor.version>10</scala-minor.version>
         <scala.version>${scala-major.version}.${scala-minor.version}</scala.version>
         <scalacompat.version>2.6.0</scalacompat.version>
         <scalatest.version>3.2.11</scalatest.version>
         <scalikejdbc.version>3.5.0</scalikejdbc.version>
-        <scopt.version>3.7.1</scopt.version> <!-- command line argument parsing -->
+        <scopt.version>4.0.1</scopt.version> <!-- command line argument parsing -->
         <slf4j.version>1.7.36</slf4j.version>
         <snappy.version>1.1.8.4</snappy.version> <!-- snappy compression-->
-        <sourcecode.version>0.2.8</sourcecode.version>
+        <sourcecode.version>0.3.0</sourcecode.version>
         <spotless.version>2.22.5</spotless.version>
-        <thrift-version>0.12.0</thrift-version>
+        <thrift-version>0.17.0</thrift-version>
         <trove.version>3.0.3</trove.version> <!-- high performance collections -->
         <twitter-library.version>20.1.0</twitter-library.version>
-        <jib.maven-plugin.version>3.2.1</jib.maven-plugin.version>
+        <jib.maven-plugin.version>3.3.1</jib.maven-plugin.version>
+        <protobuf.version>3.21.9</protobuf.version><!-- transitive dependency but need to remove vulnerability -->
+        <httpclient.version>4.5.14</httpclient.version>
     </properties>
 
     <modules>
@@ -251,17 +274,14 @@
         <module>burst-supervisor</module>
         <module>burst-motif</module>
         <module>burst-nexus</module>
-        <module>burst-torcher</module>
         <module>burst-relate</module>
         <module>burst-samplestore</module>
         <module>burst-tesla</module>
         <module>burst-vitals</module>
         <module>burst-worker</module>
         <module>burst-zap</module>
-        <module>burst-system</module>
-
-        <!-- may go away as move to EQL/HYDRA -->
-        <module>burst-services</module>
+        <module>burst-system-integration-tests</module>
+        <module>burst-application</module>
     </modules>
 
     <dependencyManagement>
@@ -329,6 +349,16 @@
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
+                <artifactId>burst-fabric-net</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
+                <artifactId>burst-fabric-wave</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
                 <artifactId>burst-felt</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -340,11 +370,6 @@
             <dependency>
                 <groupId>org.burstsys</groupId>
                 <artifactId>burst-hydra</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.burstsys</groupId>
-                <artifactId>burst-json-samplestore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -389,22 +414,27 @@
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
-                <artifactId>burst-services</artifactId>
+                <artifactId>burst-base-samplestore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
-                <artifactId>burst-system</artifactId>
+                <artifactId>burst-synthetic-samplestore</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
+                <artifactId>burst-application</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.burstsys</groupId>
+                <artifactId>burst-system-integration-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.burstsys</groupId>
                 <artifactId>burst-tesla</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.burstsys</groupId>
-                <artifactId>burst-torcher</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -488,11 +518,23 @@
                 <!-- marking this dependency as provided here forces exclusion in submodules -->
                 <scope>provided</scope>
             </dependency>
-
+            <dependency>
+                <groupId>com.splunk.logging</groupId>
+                <artifactId>splunk-library-javalogging</artifactId>
+                <version>1.11.7</version>
+            </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${dropwizard-metrics.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -512,6 +554,13 @@
                 <artifactId>commons-io</artifactId>
                 <version>${common-io.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -771,6 +820,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler-proxy</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.netty</groupId>
@@ -861,6 +920,17 @@
                 <artifactId>commons-math3</artifactId>
                 <version>${commons-math3.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>org.scalikejdbc</groupId>
@@ -997,6 +1067,11 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-framework</artifactId>
+                <version>${grizzly.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-grizzly2-http</artifactId>
                 <version>${jersey.version}</version>
@@ -1042,6 +1117,12 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-json-provider</artifactId>
                 <version>${jackson.version}</version>
@@ -1055,6 +1136,11 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.inject</groupId>
+                <artifactId>jakarta.inject-api</artifactId>
+                <version>2.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
@@ -1119,7 +1205,7 @@
             <dependency>
                 <groupId>com.vladsch.flexmark</groupId>
                 <artifactId>flexmark-all</artifactId>
-                <version>0.62.2</version>
+                <version>0.64.0</version>
             </dependency>
 
             <!-- plugins -->
@@ -1133,6 +1219,12 @@
                 <groupId>com.twitter</groupId>
                 <artifactId>scrooge-maven-plugin</artifactId>
                 <version>${twitter-library.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1161,7 +1253,28 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- added to remove transitive vulnerability-->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler-proxy</artifactId>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>splunk-artifactory</id>
+            <name>Splunk Releases</name>
+            <url>https://splunk.jfrog.io/splunk/ext-releases-local</url>
+        </repository>
+    </repositories>
 
     <build>
         <extensions>
@@ -1375,7 +1488,7 @@
                         </execution>
                     </executions>
                     <configuration>
-<!--                        <ratchetFrom>origin/supervisor</ratchetFrom>-->
+                        <ratchetFrom>origin/main</ratchetFrom>
                         <formats>
                             <format>
                                 <includes>
@@ -1392,12 +1505,14 @@
                         </formats>
 
                         <java>
+                            <toggleOffOn />
                             <licenseHeader>
                                 <content>/* ${copyright.text} */</content>
                             </licenseHeader>
                         </java>
 
                         <scala>
+                            <toggleOffOn />
                             <licenseHeader>
                                 <content>/* ${copyright.text} */</content>
                             </licenseHeader>
@@ -1426,14 +1541,12 @@
                         <jvmArgs>
                             <jvmArg>-Djava.net.preferIPv4Stack=true</jvmArg>
                             <jvmArg>${java-exports}</jvmArg>
-                            <javacArg>-release</javacArg>
-                            <javacArg>${java-short.version}</javacArg>
                         </jvmArgs>
                         <args>
                             <arg>-deprecation</arg>
                             <arg>-unchecked</arg>
                             <arg>-feature</arg>
-                            <arg>-target:${java-short.version}</arg>
+                            <arg>-release:${java-short.version}</arg>
                         </args>
                     </configuration>
                 </plugin>
@@ -1466,7 +1579,7 @@
                         <inherited>true</inherited>
                         <configuration>
                             <message>
-                                PROFILE: java.version=${java-short.version} scala.version=${scala.version}
+                                PROFILE: java.version=${java-short.version} scala.version=${scala.version} loglevel=${burst.test.loglevel}
                             </message>
                             <level>INFO</level>
                         </configuration>
@@ -1560,11 +1673,6 @@
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
-                        <configuration>
-                            <!-- work around from https://issues.apache.org/jira/browse/MSHADE-195 -->
-                            <!-- only required for shaded publications (which for now are all except for the thrift client -->
-                            <attach>${artifact.skip-deploy}</attach>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

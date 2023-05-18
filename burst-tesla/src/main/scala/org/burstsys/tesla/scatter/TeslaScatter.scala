@@ -1,10 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.scatter
 
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.ReentrantLock
-import java.util.concurrent.{ArrayBlockingQueue, ConcurrentHashMap, TimeUnit}
-
 import org.burstsys.tesla.scatter.TeslaScatter.maxSlotsPerScatter
 import org.burstsys.tesla.scatter.machine.{TeslaScatterLifecycle, TeslaScatterMachine, TeslaScatterTerminator}
 import org.burstsys.tesla.scatter.slot.{TeslaScatterSlot, TeslaScatterSlotUpdate, TeslaSlotMachine}
@@ -12,9 +8,12 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.uid._
 import org.jctools.queues.MpmcArrayQueue
 
-import scala.jdk.CollectionConverters._
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.{ArrayBlockingQueue, ConcurrentHashMap, TimeUnit}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**
@@ -320,7 +319,7 @@ class TeslaScatterContext(scatterId: TeslaScatterId) extends AnyRef
       val slot = try {
         _idleSlots.remove
       } catch safely {
-        case e: NoSuchElementException => throw VitalsException(s"ran out of slots! $printSlotCounts")
+        case _: NoSuchElementException => throw VitalsException(s"ran out of slots! $printSlotCounts")
       }
       _activeSlots += slot.slotId -> slot
       slot.open(request)

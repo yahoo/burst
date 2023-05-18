@@ -6,18 +6,8 @@ import org.burstsys.vitals.reporter.VitalsReporterSampler
 /**
  * base trait for all reporter metrics
  */
-trait VitalsReporterMetric extends AnyRef with VitalsReporterSampler {
-
-  /**
-   * implemented by concrete subtypes to generate the report
-   */
-  def report: String
-
-}
+trait VitalsReporterMetric extends AnyRef with VitalsReporterSampler
 
 abstract
-class VitalsReporterMetricContext(val dName: String) extends VitalsReporterMetric {
-
-
-}
+class VitalsReporterMetricContext(val dName: String) extends VitalsReporterMetric
 

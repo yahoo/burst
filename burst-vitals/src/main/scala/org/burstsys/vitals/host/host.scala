@@ -1,27 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
-import com.sun.management.{HotSpotDiagnosticMXBean, OperatingSystemMXBean, UnixOperatingSystemMXBean}
-import org.burstsys.vitals.instrument.prettyTimeFromMillis
+import com.sun.management.OperatingSystemMXBean
 import org.burstsys.vitals.logging._
-import oshi.SystemInfo
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromMillis
 
 import java.lang.management.ManagementFactory._
-import java.lang.management.{BufferPoolMXBean, GarbageCollectorMXBean, ManagementFactory}
+import java.lang.management.{BufferPoolMXBean, ManagementFactory}
 import java.net.InetAddress
 import scala.jdk.CollectionConverters._
 
 package object host extends VitalsLogger {
-
-  def openFiles: Long = getOperatingSystemMXBean match {
-    case osBean: UnixOperatingSystemMXBean => osBean.getOpenFileDescriptorCount
-    case _ => ???
-  }
-
-  def maxFiles: Long = getOperatingSystemMXBean match {
-    case osBean: UnixOperatingSystemMXBean => osBean.getMaxFileDescriptorCount
-    case _ => ???
-  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // JAVA Heap Memory
@@ -65,51 +54,10 @@ package object host extends VitalsLogger {
   // Native/Direct/OffHeap Memory
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private def directMemoryPoolBean = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.find(_.getName == "direct")
-
-  def directMemoryUsed: Long = directMemoryPoolBean.map(_.getMemoryUsed).getOrElse(-1)
-
-  def directMemoryMax: Long = directMemoryPoolBean.map(_.getTotalCapacity).getOrElse(-1)
-
   private def mappedMemoryPoolBean = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.find(_.getName == "mapped")
 
   def mappedMemoryUsed: Long = mappedMemoryPoolBean.map(_.getMemoryUsed).getOrElse(-1)
 
-  def mappedMemoryMax: Long = mappedMemoryPoolBean.map(_.getTotalCapacity).getOrElse(-1)
-
-  /**
-   * Returns the amount of used non heap memory in bytes.
-   *
-   * @return the amount of used non heap memory in bytes.
-   *
-   */
-  def nonHeapUsed: Long = getMemoryMXBean.getNonHeapMemoryUsage.getUsed
-
-  /**
-   * Returns the amount of non heap memory in bytes that is committed for
-   * the Java virtual machine to use.  This amount of non heap memory is
-   * guaranteed for the Java virtual machine to use.
-   *
-   * @return the amount of committed non heap memory in bytes.
-   *
-   */
-  def nonHeapCommitted: Long = getMemoryMXBean.getNonHeapMemoryUsage.getCommitted
-
-  /**
-   * Returns the maximum amount of non heap memory in bytes that can be
-   * used for non heap memory management.  This method returns <tt>-1</tt>
-   * if the maximum non heap memory size is undefined.
-   *
-   * <p> This amount of non heap memory is not guaranteed to be available
-   * for non heap memory management if it is greater than the amount of
-   * committed non heap memory.  The Java virtual machine may fail to allocate
-   * non heap memory even if the amount of used non heap memory does not exceed this
-   * maximum size.
-   *
-   * @return the maximum amount of non heap memory in bytes;
-   *         <tt>-1</tt> if undefined.
-   */
-  def nonHeapMax: Long = getMemoryMXBean.getNonHeapMemoryUsage.getMax
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // OS (all processes) Memory
@@ -122,20 +70,6 @@ package object host extends VitalsLogger {
    */
   def osTotalPhysMemory: Long = getOperatingSystemMXBean.asInstanceOf[OperatingSystemMXBean].getTotalPhysicalMemorySize
 
-  /**
-   * Returns the amount of free physical memory in bytes
-   *
-   * @return
-   */
-  def osFreePhysMemory: Long = getOperatingSystemMXBean.asInstanceOf[OperatingSystemMXBean].getFreePhysicalMemorySize
-
-  /**
-   * Returns the amount of virtual memory that is guaranteed to be available to the running process in bytes,
-   * or -1 if this operation is not supported.
-   *
-   * @return
-   */
-  def osCommittedVirtualMemory: Long = getOperatingSystemMXBean.asInstanceOf[OperatingSystemMXBean].getCommittedVirtualMemorySize
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -215,39 +149,6 @@ package object host extends VitalsLogger {
 
   private def garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans.asScala.toArray
 
-  /**
-   * Returns the total number of collections that have occurred.
-   * This method returns <tt>-1</tt> if the collection count is undefined for
-   * this collector.
-   *
-   * @return the total number of collections that have occurred.
-   */
-  def gcCollectionCount: Long = garbageCollectorMXBeans.map { b: GarbageCollectorMXBean =>
-    if (b.isValid)
-      b.getCollectionCount
-    else
-      0
-  }.sum
-
-  /**
-   * Returns the approximate accumulated collection elapsed time
-   * in milliseconds.  This method returns <tt>-1</tt> if the collection
-   * elapsed time is undefined for this collector.
-   * <p>
-   * The Java virtual machine implementation may use a high resolution
-   * timer to measure the elapsed time.  This method may return the
-   * same value even if the collection count has been incremented
-   * if the collection elapsed time is very short.
-   *
-   * @return the approximate accumulated collection elapsed time
-   *         in milliseconds.
-   */
-  def gcCollectionTime: Long = garbageCollectorMXBeans.map { b: GarbageCollectorMXBean =>
-    if (b.isValid)
-      b.getCollectionTime
-    else
-      0
-  }.sum
 
   def gcReadout: String = (for (b <- garbageCollectorMXBeans)
     yield s"${b.getCollectionCount}/${prettyTimeFromMillis(b.getCollectionTime)}").mkString(", ")
@@ -262,68 +163,4 @@ package object host extends VitalsLogger {
   val osName: String = getOperatingSystemMXBean.getName
   val osVersion: String = getOperatingSystemMXBean.getVersion
   val osArch: String = getOperatingSystemMXBean.getArch
-
-  def getHotspotMBean: HotSpotDiagnosticMXBean = {
-    val server = ManagementFactory.getPlatformMBeanServer
-    ManagementFactory.newPlatformMXBeanProxy(server,
-      "com.sun.management:type=HotSpotDiagnostic", classOf[HotSpotDiagnosticMXBean])
-  }
-
-  lazy val localProcessId: Int = VitalsNativeMemoryReporter.pid.toInt
-
-  final case
-  class VitalsDiskPerformance(
-                               diskName: String,
-                               readBytes: Long,
-                               writeBytes: Long,
-                               reads: Long,
-                               writes: Long,
-                               transferTime: Long
-                             )
-
-  final case
-  class VitalsNetworkPerformance(
-                                  interfaceName: String,
-                                  receivedBytes: Long,
-                                  sentBytes: Long,
-                                  receivedPackets: Long,
-                                  sentPackets: Long,
-                                  transferTime: Long
-                                )
-
-  // Requires glibc - 2.14
-  def diskPerformance(): Array[VitalsDiskPerformance] = {
-    val diskPerformance = new scala.collection.mutable.ArrayBuffer[VitalsDiskPerformance]
-    val si = new SystemInfo
-    for (disk <- si.getHardware.getDiskStores.asScala) {
-      val diskName = disk.getName
-      val readBytes = disk.getReadBytes
-      val writeBytes = disk.getWriteBytes
-      val reads = disk.getReads
-      val writes = disk.getWrites
-      val transferTime = disk.getTransferTime
-      diskPerformance += VitalsDiskPerformance(diskName, readBytes, writeBytes,
-        reads, writes, transferTime)
-    }
-    diskPerformance.toArray
-  }
-
-  // Requires glibc - 2.14
-  def networkPerformance(): Array[VitalsNetworkPerformance] = {
-    val networkPerformance = new scala.collection.mutable.ArrayBuffer[VitalsNetworkPerformance]
-    val si = new SystemInfo
-    for (interface <- si.getHardware.getNetworkIFs.asScala) {
-      val interfaceName = interface.getName
-      val receivedBytes = interface.getBytesRecv
-      val sentBytes = interface.getBytesSent
-      val receivedPackets = interface.getPacketsRecv
-      val sentPackets = interface.getPacketsSent
-      val transferTime = interface.getTimeStamp
-      networkPerformance += VitalsNetworkPerformance(interfaceName, receivedBytes,
-        sentBytes, receivedPackets, sentPackets, transferTime)
-    }
-    networkPerformance.toArray
-  }
-
-
 }

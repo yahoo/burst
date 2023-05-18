@@ -1,8 +1,14 @@
 *.settings
+*.swp
 .idea
 logs/
 tmp/
 target/
+project/
+.bsp/
+.bloop/
+.metals/
+.vscode/
 
 .metadata
 *.jfr
@@ -66,7 +72,7 @@ yarn-error.log*
 /burst-dash/src/main/resources/static/*.woff2
 /burst-dash/src/main/resources/static/*.txt
 
-/burst-services/contents/burst/jars/
+/burst-application/contents/burst/jars/
 
 /burst-motif/gen/
 /burst-hydra/gen/

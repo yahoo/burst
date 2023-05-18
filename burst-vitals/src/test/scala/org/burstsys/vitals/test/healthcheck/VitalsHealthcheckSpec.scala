@@ -26,12 +26,12 @@ class VitalsHealthcheckSpec extends VitalsAbstractSpec {
 
   it should "report healthy when not expired" in {
     val hc = VitalsHealthLifetimeComponent(null, oneHour)(now)
-    hc.componentHealth.status should equal(VitalsHealthHealthy)
+    hc.componentHealth.health should equal(VitalsHealthHealthy)
   }
 
   it should "report unhealthy when expired" in {
     val hc = VitalsHealthLifetimeComponent(null, oneHour)(now.minus(twoHours))
-    hc.componentHealth.status should equal(VitalsHealthUnhealthy)
+    hc.componentHealth.health should equal(VitalsHealthUnhealthy)
   }
 
   behavior of "period only"

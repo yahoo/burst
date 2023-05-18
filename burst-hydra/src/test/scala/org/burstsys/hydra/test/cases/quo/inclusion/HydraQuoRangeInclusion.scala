@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.hydra.test.cases.quo.inclusion
 
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.execution.model.result.row.FabricResultRow
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.row.FabricResultRow
 import org.burstsys.hydra.test.cases.quo.inclusion.HydraQuoInvertedInlineSetInclusion.{assertLimits, equal, frameName}
 import org.burstsys.hydra.test.cases.quo.inclusion.HydraQuoInvertedRangeInclusion.frameName
 import org.burstsys.hydra.test.cases.quo.parameters.HydraQuoParameters01.{analysisName, frameName}

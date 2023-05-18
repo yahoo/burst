@@ -3,5 +3,5 @@ package org.burstsys.alloy
 
 import org.burstsys.vitals.logging._
 
-package object usecase extends VitalsLogger {
-}
+package object usecase extends VitalsLogger
+

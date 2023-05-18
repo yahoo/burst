@@ -6,7 +6,7 @@ import org.burstsys.tesla.configuration.teslaPartsTtlInterval
 import org.burstsys.tesla.part.{TeslaPartPool, debugTending}
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.host
-import org.burstsys.vitals.instrument.prettyByteSizeString
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 
 import scala.collection.mutable
 import scala.concurrent.Future

@@ -36,7 +36,7 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some((5 minutes).toMillis)
   )
 
-  def burstTestApiTimeoutDuration: Duration = Duration(burstTestApiTimeoutMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstTestApiTimeoutDuration: Duration = Duration(burstTestApiTimeoutMsProperty.get, TimeUnit.MILLISECONDS)
 
   val burstTestServerConnectionLifeMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
     key = "burst.test.server.connect.life.ms",
@@ -44,7 +44,7 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some((5 minutes).toMillis)
   )
 
-  def burstTestServerConnectionLifeDuration: Duration = Duration(burstTestServerConnectionLifeMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstTestServerConnectionLifeDuration: Duration = Duration(burstTestServerConnectionLifeMsProperty.get, TimeUnit.MILLISECONDS)
 
   val burstTestServerConnectionIdleMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
     key = "burst.test.server.connect.idle.ms",
@@ -52,6 +52,6 @@ package object configuration extends VitalsPropertyRegistry {
     default = Some((5 minutes).toMillis)
   )
 
-  def burstTestServerConnectionIdleDuration: Duration = Duration(burstTestServerConnectionIdleMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstTestServerConnectionIdleDuration: Duration = Duration(burstTestServerConnectionIdleMsProperty.get, TimeUnit.MILLISECONDS)
 
 }

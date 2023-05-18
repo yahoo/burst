@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.supervisor.test.rest
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import org.burstsys.vitals
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -18,8 +17,7 @@ trait TestTrait {
 }
 
 class JsonSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
-  val mapper = new ObjectMapper()
-  mapper.registerModule(DefaultScalaModule)
+  private val mapper = vitals.json.buildJsonMapper
 
   it should "(de)serialize case classes" in {
     val toJson = mapper.writeValueAsString(TestClass())

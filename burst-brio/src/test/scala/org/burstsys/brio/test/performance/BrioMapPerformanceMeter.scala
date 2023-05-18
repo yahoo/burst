@@ -47,8 +47,8 @@ object BrioMapPerformanceMeter extends BrioAbstractSpec {
 
   log.info("%,f read(s) elapsed %s, %s per read".format(
     count,
-    org.burstsys.vitals.instrument.prettyTimeFromNanos(end - start),
-    org.burstsys.vitals.instrument.prettyTimeFromNanos((end - start) / count))
+    org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos(end - start),
+    org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos((end - start) / count))
   )
 
 }

@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.sweep
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
 import org.burstsys.felt.compile.FeltCompileEngine
 import org.burstsys.felt.compile.artifact.{FeltArtifact, FeltArtifactKey, FeltArtifactTag, FeltArtifactory}
 import org.burstsys.felt.configuration.{burstFeltMaxCachedSweepProperty, burstFeltSweepCleanSecondsProperty}
@@ -128,9 +128,9 @@ object FeltSweep extends FeltArtifactory[FeltAnalysisDecl, FeltSweepArtifact] {
 
   override val lruEnabled: Boolean = true
 
-  override lazy val cleanDuration: Duration = Duration(burstFeltSweepCleanSecondsProperty.getOrThrow, TimeUnit.SECONDS)
+  override lazy val cleanDuration: Duration = Duration(burstFeltSweepCleanSecondsProperty.get, TimeUnit.SECONDS)
 
-  override protected lazy val maxCount: Int = burstFeltMaxCachedSweepProperty.getOrThrow
+  override protected lazy val maxCount: Int = burstFeltMaxCachedSweepProperty.get
 
   override protected def onCacheHit(): Unit = FeltReporter.recordSweepCacheHit()
 
@@ -153,7 +153,7 @@ object FeltSweep extends FeltArtifactory[FeltAnalysisDecl, FeltSweepArtifact] {
   final protected override
   def generateContent(artifact: FeltSweepArtifact): Unit = {
     lazy val tag = s"FeltSweep.generateContent(key=${artifact.key})"
-    startIfNotRunning
+    startIfNotAlreadyStarted
     val analysis = artifact.input
 
     /**

@@ -33,10 +33,10 @@ the [Jersey](https://jersey.java.net/) reference implementation for all Burst se
 |  system property |  default |  description |
 |---|---|---|
 | burst.liaison.name |  'burst' |  user friendly name of application  |
-| burst.liaison.host |  0.0.0.0 |  hostname/interface for REST API  |
-| burst.liaison.port |  443 |  port for REST API  |
+| burst.fabric.http.host |  0.0.0.0 |  hostname/interface for REST API  |
+| burst.fabric.http.port |  443 |  port for REST API  |
 | burst.liaison.homepage |  "burst.html" |  home page for UI  |
-| burst.liaison.keystore.path | "" | the keystore to use
+| burst.fabric.http.keystore.path | "" | the keystore to use
 
 ## Overview
 
@@ -47,7 +47,7 @@ the [Burst Dash](../burst-dash/readme.md) browser application.
 
 The keystore packaged with Burst contains an insecure, self-signed cert/key pair. Running the dash in this insecure
 configuration will prevent the use of the CLI (or any other java client). If you wish to issue queries you will need to
-run the dash using a certificate trusted by java. You can do with the property `burst.liaison.keystore.path`.
+run the dash using a certificate trusted by java. You can do with the property `burst.fabric.http.keystore.path`.
 
 One way to generate an appropriate keystore is to use [mkcert](https://github.com/FiloSottile/mkcert):
 

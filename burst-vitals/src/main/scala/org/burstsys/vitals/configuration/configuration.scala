@@ -53,40 +53,18 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some("vitals")
   )
 
+  val burstIncludeStackTracesProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
+    key = "burst.log.includeStackTraces",
+    description = "include stack traces in exception logging",
+    default = Some(true)
+  )
+
   // ----------------------------- TREKS -----------------------------
 
   val vitalsEnableTrekProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
     key = "burst.vitals.trek.enable",
     description = "enable trek logging",
     default = Some(true)
-  )
-
-  // ----------------------------- HTTP METRICS -----------------------------
-
-  val burstVitalsMetricsHttpPeriodMsProperty: VitalsPropertySpecification[VitalsMs] = VitalsPropertySpecification[VitalsMs](
-    key = "burst.metrics.http.period.ms",
-    description = "metrics http report frequency",
-    default = Some((1 minute).toMillis)
-  )
-
-  def burstVitalsMetricsHttpPeriodDuration: Duration = Duration(burstVitalsMetricsHttpPeriodMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
-
-  val burstVitalsMetricsHttpUrlProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.metrics.http.url",
-    description = "The endpoint to send metrics",
-    default = None
-  )
-
-  val burstVitalsMetricsHttpProxyHostProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.metrics.http.proxy.host",
-    description = "Hostname of the http proxy to use",
-    default = None
-  )
-
-  val burstVitalsMetricsHttpProxyPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.metrics.http.proxy.port",
-    description = "Port to connect to the http proxy",
-    default = None
   )
 
   // ----------------------------- SSL -----------------------------
@@ -131,18 +109,12 @@ package object configuration extends VitalsLogger with VitalsPropertyRegistry {
     default = Some((5 seconds).toMillis)
   )
 
-  def burstVitalsHealthCheckPeriodDuration: Duration = Duration(burstVitalsHealthCheckPeriodMsProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def burstVitalsHealthCheckPeriodDuration: Duration = Duration(burstVitalsHealthCheckPeriodMsProperty.get, TimeUnit.MILLISECONDS)
 
-  val burstVitalsHealthCheckPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
-    key = "burst.healthcheck.http.port",
-    description = "Port to expose the health check on",
-    default = Some(37100)
-  )
-
-  val burstVitalsHealthCheckPathsProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
-    key = "burst.healthcheck.http.paths",
-    description = "The paths the health check responds to. This is a comma separated list",
-    default = Some("/akamai,/status.html")
+  val burstVitalsReflectionScanPrefixProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](
+    key = "burst.reflections.scan.prefix",
+    description = "An additional package prefix for reflection scans",
+    default = None
   )
 
 }

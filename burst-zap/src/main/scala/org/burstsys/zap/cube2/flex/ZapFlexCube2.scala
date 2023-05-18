@@ -6,7 +6,7 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.brio.dictionary.flex.BrioFlexDictionary
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
 import org.burstsys.brio.types.BrioPrimitives.BrioPrimitive
-import org.burstsys.fabric.execution.model.result.row.FeltCubeResultData
+import org.burstsys.fabric.wave.execution.model.result.row.FeltCubeResultData
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.flex
@@ -176,7 +176,7 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
   def dictionary: BrioFlexDictionary = internalCollector.dictionary
 
   @inline override
-  def dictionary_=(d: BrioFlexDictionary): Unit = internalCollector.dictionary_=(d)
+  def dictionary_=(d: BrioMutableDictionary): Unit = internalCollector.dictionary_=(d)
 
   @inline override
   def cursorRow: TeslaMemoryOffset = internalCollector.cursorRow
@@ -220,24 +220,6 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
     }
   }
 
-  override
-  def normalizeThatCubeToThis(thatCube: ZapCube2, builder: ZapCube2Builder, text: VitalsTextCodec): ZapCube2 = {
-    runWithRetry{
-      internalCollector.normalizeThatCubeToThis(thatCube, builder, text)
-
-    }
-  }
-
-
-  @inline override
-  def normalize(builder: FeltCubeBuilder,
-                         thisCube: FeltCubeCollector,
-                         thisDictionary: BrioMutableDictionary,
-                         thatCube: FeltCubeCollector,
-                         thatDictionary: BrioMutableDictionary)(implicit text: VitalsTextCodec): FeltCubeCollector = {
-    internalCollector.normalize(builder, thisCube, thisDictionary, thatCube, thatDictionary)
-  }
-
 
   override
   def navigate(key: ZapCube2Key): ZapCube2Row = {
@@ -268,23 +250,20 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
   }
 
   override
-  def interMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary): Unit = {
-    assert(this == thisCube)
+  def interMerge(builder: FeltCubeBuilder, thatCube: FeltCubeCollector)
+                (implicit codec: VitalsTextCodec): Unit = {
     internalCollector.resetDirtyRows()
     runWithRetry{
-      internalCollector.interMerge(builder, internalCollector, thisDictionary, thatCube, thatDictionary)
+      internalCollector.interMerge(builder, thatCube)
     }
   }
 
   override
-  def intraMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary,
+  def intraMerge(builder: FeltCubeBuilder, theDictionary: BrioMutableDictionary, thatCube: FeltCubeCollector,
                  dimensionMask: VitalsBitMapAnyVal, aggregationMask: VitalsBitMapAnyVal): Unit = {
-    assert(this == thisCube)
     internalCollector.resetDirtyRows()
     runWithRetry {
-      internalCollector.intraMerge(builder, internalCollector, thisDictionary, thatCube, thatDictionary, dimensionMask, aggregationMask)
+      internalCollector.intraMerge(builder, theDictionary, thatCube, dimensionMask, aggregationMask)
     }
   }
 
@@ -419,10 +398,6 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
 
   @inline override
   def validateRow(row: ZapCube2Row): Boolean = internalCollector.validateRow(row)
-
-  @inline override private[cube2]
-  def rowNormalize(thatBuilder: ZapCube2Builder, thatDictionary: BrioFlexDictionary, text: VitalsTextCodec): Unit =
-    internalCollector.rowNormalize(thatBuilder, thatDictionary, text)
 
   //
   @inline

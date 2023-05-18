@@ -5,10 +5,9 @@ import org.burstsys.catalog.CatalogService.CatalogSupervisorConfig
 import org.burstsys.catalog.CatalogUtilManager
 import org.burstsys.catalog.configuration.{burstCatalogDbHostProperty, burstCatalogDbPasswordProperty, burstCatalogDbUserProperty}
 import org.burstsys.supervisor.configuration.burstSupervisorPropertiesFileProperty
-import org.burstsys.vitals.configuration.burstCellNameProperty
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.io.loadSystemPropertiesFromJavaPropertiesFile
 import org.burstsys.vitals.logging.{VitalsLog, burstStdMsg}
+import org.burstsys.vitals.properties.loadSystemPropertiesFromJavaPropertiesFile
 
 /**
  * Burst Util Main is the entry point for the Command Line Interface for the system.  It is used for
@@ -39,9 +38,9 @@ object BurstUtilMain {
 
   final case class BurstUtilArguments(
                                        /* sql connection info*/
-                                       dbHost: String = burstCatalogDbHostProperty.getOrThrow,
-                                       dbUser: String = burstCatalogDbUserProperty.getOrThrow,
-                                       dbPassword: String = burstCatalogDbPasswordProperty.getOrThrow,
+                                       dbHost: String = burstCatalogDbHostProperty.get,
+                                       dbUser: String = burstCatalogDbUserProperty.get,
+                                       dbPassword: String = burstCatalogDbPasswordProperty.get,
                                        dbDropTables: Boolean = false,
                                        /* command */
                                        command: String = "",
@@ -51,7 +50,7 @@ object BurstUtilMain {
 
     val defaultArguments = BurstUtilArguments()
 
-    loadSystemPropertiesFromJavaPropertiesFile(burstSupervisorPropertiesFileProperty.getOrThrow)
+    loadSystemPropertiesFromJavaPropertiesFile(burstSupervisorPropertiesFileProperty.get)
 
     val parser = new scopt.OptionParser[BurstUtilArguments]("BurstUtilMain") {
       cmd("catalog")
@@ -92,7 +91,7 @@ object BurstUtilMain {
     VitalsLog.configureLogging("Util", consoleOnly = true)
     parser.parse(args.toSeq, defaultArguments) match {
       case None =>
-        parser.showUsageAsError()
+        parser.showUsageOnError
         System.exit(-1)
       case Some(arguments) =>
         burstCatalogDbHostProperty.set(arguments.dbHost)
@@ -111,7 +110,7 @@ object BurstUtilMain {
                 System.exit(-1)
             }
           case _ =>
-            parser.showUsage()
+            parser.usage
         }
     }
   }

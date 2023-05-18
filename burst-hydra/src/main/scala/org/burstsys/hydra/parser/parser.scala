@@ -17,7 +17,7 @@ package object parser extends VitalsLogger {
    */
   private lazy val hydraParserQueue: LinkedBlockingQueue[HydraParser] = {
     val q = new LinkedBlockingQueue[HydraParser]
-    (1 to configuration.burstHydraParserCountProperty.getOrThrow) foreach (_ => q put HydraParser())
+    (1 to configuration.burstHydraParserCountProperty.get) foreach (_ => q put HydraParser())
     q
   }
 

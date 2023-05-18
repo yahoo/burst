@@ -1,7 +1,7 @@
 # This deployment file contains:
 # - a namespace
-# - a service for the cell supervisor
-# - a service for the catalog sql server
+# - a source for the cell supervisor
+# - a source for the catalog sql server
 # - a deployment for the supervisor
 # - a deployment for the worker
 # - a deployment for the catalog mysql
@@ -27,6 +27,8 @@ spec:
             port: 4443
         -   name: fabric
             port: 37060
+        -   name: store
+            port: 37061
     selector:
         appName: burst
         workload: supervisor
@@ -45,6 +47,31 @@ spec:
             port: 3306
     selector:
         workload: catalog
+
+# config map
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: app-config
+    namespace: burst-local
+data:
+    pre-start.sh: |
+        #!/usr/bin/env bash
+        echo "Additional Startup for ${APP_NAME} Here"
+        export PS_HOME="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        . ${PS_HOME}/keystore-setup.sh
+    keystore-setup.sh: |
+        #!/usr/bin/env bash
+        
+        #install keys into keystore
+        export KEYSTORE_FILE=$BURST_HOME/classpath-files/keystore.pkcs12
+        
+        cat $SSL_CERT_BUNDLE_PATH $SSL_CERT_PATH > ${BURST_HOME}/${APP_NAME}.cert.pem
+        openssl pkcs12 -export -inkey $SSL_KEY_PATH -in ${BURST_HOME}/${APP_NAME}.cert.pem -out $KEYSTORE_FILE -password pass:$KEYSTORE_PASS
+        
+        # add keystore to java environment
+        envConfig="${envConfig} -Dburst.fabric.http.keystore.password=${KEYSTORE_PASS} -Dburst.fabric.http.keystore.path=$KEYSTORE_FILE"
 
 # Deployment burst-supervisor
 ---
@@ -73,8 +100,8 @@ spec:
                 -   name: supervisor
                     image: burst-cell:IMAGE_VERSION # TODO replace with script
                     env:
-                        -   name: POD_NAME
-                            valueFrom: { fieldRef: { fieldPath: metadata.name } }
+                        -   name: APP_NAME
+                            value: supervisor
                         -   name: POD_IP
                             valueFrom: { fieldRef: { fieldPath: status.podIP } }
                         -   name: HOST_IP
@@ -96,9 +123,11 @@ spec:
                         -   name: DB_PASS
                             value: burst-catalog-password
                         -   name: JVM_DIRECT
-                            value: '1'
+                            value: '1G'
                         -   name: JVM_HEAP
-                            value: '1'
+                            value: '1G'
+                        -   name: JVM_METADATA
+                            value: '256M'
                         -   name: KEYSTORE_PASS
                             value: burstburstburst
                         -   name: SAMPLESTORE_HOST
@@ -111,6 +140,8 @@ spec:
                             value: /var/run/certs/rootCA.pem
                         -   name: WORKLOAD
                             value: supervisor
+                        -   name: KEEPALIVE
+                            value: 'true'
                     ports:
                         -   name: https
                             containerPort: 4443
@@ -128,21 +159,47 @@ spec:
                             mountPath: /app/burst/data1/burst
                         -   name: certs-volume
                             mountPath: /var/run/certs
-                -   name: syntetic-samplesource-supervisor
+                        - name: config-volume
+                          mountPath: /app/burst/supervisor-conf
+                -   name: synthetic-samplesource-supervisor
                     image: burst-synthetic-samplesource:IMAGE_VERSION # TODO replace with script
                     env:
+                        -   name: APP_NAME
+                            value: synthetic-samplesource-supervisor
                         -   name: WORKLOAD
                             value: supervisor
                         -   name: BURST_SAMPLESTORE_API_PORT
                             value: '50515'
+                        -   name: BURST_STORE_FABRIC_PORT
+                            value: '37061'
+                        -   name: BURST_STORE_SUPERVISOR_HOST
+                            value: burst-supervisor.burst-local
+                        -   name: KEYSTORE_PASS
+                            value: burstburstburst
+                        -   name: SSL_CERT_PATH
+                            value: /var/run/certs/cert.pem
+                        -   name: SSL_KEY_PATH
+                            value: /var/run/certs/key.pem
+                        -   name: SSL_CERT_BUNDLE_PATH
+                            value: /var/run/certs/rootCA.pem
+                        -   name: KEEPALIVE
+                            value: 'true'
                     ports:
                         -   name: thrift
                             containerPort: 50515
+                        -   name: store
+                            containerPort: 37061
                     resources:
                         limits:
                             memory: SAMPLE_SUPER_MEM
                             cpu: SAMPLE_SUPER_CPU
-
+                    volumeMounts:
+                        -   name: app-logs-0
+                            mountPath: /app/burst/logs/
+                        -   name: certs-volume
+                            mountPath: /var/run/certs
+                        - name: config-volume
+                          mountPath: /app/burst/synthetic-samplesource-supervisor-conf
             volumes:
                 -   name: app-logs-0
                     emptyDir: { }
@@ -152,6 +209,9 @@ spec:
                     hostPath:
                         path: CERT_HOST_PATH # TODO replace with script
                         type: Directory
+                -   name: config-volume
+                    configMap:
+                        name: app-config
 
 # worker deployment
 ---
@@ -180,8 +240,8 @@ spec:
                 -   name: worker
                     image: burst-cell:IMAGE_VERSION # TODO replace with script
                     env:
-                        -   name: POD_NAME
-                            valueFrom: { fieldRef: { fieldPath: metadata.name } }
+                        -   name: APP_NAME
+                            value: worker
                         -   name: POD_IP
                             valueFrom: { fieldRef: { fieldPath: status.podIP } }
                         -   name: HOST_IP
@@ -197,9 +257,11 @@ spec:
                         -   name: DB_PASS
                             value: burst-catalog-password
                         -   name: JVM_DIRECT
-                            value: '1'
+                            value: '750M'
                         -   name: JVM_HEAP
-                            value: '1'
+                            value: '750M'
+                        -   name: JVM_METADATA
+                            value: '256M'
                         -   name: KEYSTORE_PASS
                             value: burstburstburst
                         -   name: BURST_SUPERVISOR_HOST
@@ -212,6 +274,8 @@ spec:
                             value: /var/run/certs/rootCA.pem
                         -   name: WORKLOAD
                             value: worker
+                        -   name: KEEPALIVE
+                            value: 'true'
                     ports:
                         -   name: https
                             containerPort: 4443
@@ -229,11 +293,29 @@ spec:
                             mountPath: /app/burst/data1/burst
                         -   name: certs-volume
                             mountPath: /var/run/certs
+                        - name: config-volume
+                          mountPath: /app/burst/worker-conf
                 -   name: synthetic-samplesource-worker
                     image: burst-synthetic-samplesource:IMAGE_VERSION # TODO replace with script
                     env:
+                        -   name: APP_NAME
+                            value: synthetic-samplesource-worker
                         -   name: WORKLOAD
                             value: worker
+                        -   name: BURST_STORE_FABRIC_PORT
+                            value: '37061'
+                        -   name: BURST_STORE_SUPERVISOR_HOST
+                            value: burst-supervisor.burst-local
+                        -   name: KEYSTORE_PASS
+                            value: burstburstburst
+                        -   name: SSL_CERT_PATH
+                            value: /var/run/certs/cert.pem
+                        -   name: SSL_KEY_PATH
+                            value: /var/run/certs/key.pem
+                        -   name: SSL_CERT_BUNDLE_PATH
+                            value: /var/run/certs/rootCA.pem
+                        -   name: KEEPALIVE
+                            value: 'true'
                     ports:
                         -   name: nexus
                             containerPort: 1270
@@ -241,6 +323,11 @@ spec:
                         limits:
                             memory: SAMPLE_WORKER_MEM
                             cpu: SAMPLE_WORKER_CPU
+                    volumeMounts:
+                        -   name: certs-volume
+                            mountPath: /var/run/certs
+                        - name: config-volume
+                          mountPath: /app/burst/synthetic-samplesource-worker-conf
 
             volumes:
                 -   name: app-logs-0
@@ -251,6 +338,9 @@ spec:
                     hostPath:
                         path: CERT_HOST_PATH # TODO replace with script
                         type: Directory
+                -   name: config-volume
+                    configMap:
+                        name: app-config
 # mysql deployment
 ---
 apiVersion: apps/v1

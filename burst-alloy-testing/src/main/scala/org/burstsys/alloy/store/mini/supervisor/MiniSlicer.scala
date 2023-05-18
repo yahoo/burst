@@ -2,9 +2,9 @@
 package org.burstsys.alloy.store.mini.supervisor
 
 import org.burstsys.alloy.store.mini.MiniSlice
-import org.burstsys.fabric.data.model.slice.{FabricSlice, FabricSliceKey}
-import org.burstsys.fabric.data.supervisor.store.FabricStoreSupervisor
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.data.model.slice.{FabricSlice, FabricSliceKey}
+import org.burstsys.fabric.wave.data.supervisor.store.FabricStoreSupervisor
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.uid._

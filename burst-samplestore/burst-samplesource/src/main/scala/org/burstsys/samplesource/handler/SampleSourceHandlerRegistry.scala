@@ -1,16 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplesource.handler
 
-import org.burstsys.samplesource.service.SampleSourceSupervisorService
-import org.burstsys.samplesource.service.SampleSourceService
-import org.burstsys.samplesource.service.SampleSourceWorkerService
-import org.burstsys.vitals.VitalsService
+import org.burstsys.samplesource.service.{SampleSourceService, SampleSourceSupervisorService, SampleSourceWorkerService}
 import org.burstsys.vitals.VitalsService.VitalsSingleton
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.reflection
+import org.burstsys.vitals.{VitalsService, reflection}
 
 import java.util.concurrent.ConcurrentHashMap
+import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 
 object SampleSourceHandlerRegistry extends VitalsService {
@@ -32,6 +30,9 @@ object SampleSourceHandlerRegistry extends VitalsService {
   private[this]
   val _supervisors = new ConcurrentHashMap[String, SampleSourceSupervisorService]()
 
+  private[this]
+  var _allowScanning = true
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
   //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +40,12 @@ object SampleSourceHandlerRegistry extends VitalsService {
   def getSupervisor(name: String): SampleSourceSupervisorService = {
     ensureRunning
     _supervisors.computeIfAbsent(name,
-      _ => _services.get(name).coordinatorClass.getDeclaredConstructor().newInstance().asInstanceOf[SampleSourceSupervisorService].start)
+      _ => _services.get(name).supervisorClass.getDeclaredConstructor().newInstance().asInstanceOf[SampleSourceSupervisorService].start)
+  }
+
+  def getSources: Iterator[String] = {
+    ensureRunning
+    _services.keys().asScala
   }
 
   def getWorker(name: String): SampleSourceWorkerService = {
@@ -49,6 +55,20 @@ object SampleSourceHandlerRegistry extends VitalsService {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Testing Only
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+  @unused
+  def setSources(sources: SampleSourceService[_, _]*): Unit = {
+    log warn s"Disabling sample source registry scan"
+    _allowScanning = false
+    _workers.clear()
+    _supervisors.clear()
+    for (s <- sources)
+      _services.put(s.name, s)
+  }
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,10 +76,12 @@ object SampleSourceHandlerRegistry extends VitalsService {
     ensureNotRunning
     log info startingMessage
     log info s"$serviceName scanning for handler(s)"
-    _services.clear()
-    _supervisors.clear()
-    _workers.clear()
-    scanForSampleSources()
+    if (_allowScanning) {
+      _services.clear()
+      _supervisors.clear()
+      _workers.clear()
+      scanForSampleSources()
+    }
     markRunning
     this
   }

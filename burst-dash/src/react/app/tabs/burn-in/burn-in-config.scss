@@ -1,0 +1,50 @@
+
+.dragging {
+  .burn-in-config {
+    background-color: fade-out(green, 0.9)
+  }
+}
+
+.burn-in-config {
+  --alt-bg-color: rgba(0, 0, 0, 0.03);
+  --config-item-pad: 0.25rem;
+
+  input[type=number] {
+    width: 5rem;
+    margin-right: 0.5rem;
+  }
+  > .config-row {
+    padding-top: var(--config-item-pad);
+    padding-bottom: var(--config-item-pad);
+  }
+  .config-row {
+    align-items: baseline;
+    padding-bottom: var(--config-item-pad);
+
+    textarea {
+      font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+      margin-right: calc(4 * var(--config-item-pad));
+      white-space: nowrap;
+    }
+  }
+
+  .batches {
+    .batch-row:nth-of-type(even) {
+      background-color: var(--alt-bg-color);
+    }
+    > .config-row {
+      padding-top: var(--config-item-pad);
+      padding-bottom: var(--config-item-pad);
+    }
+  }
+
+  .datasets {
+    & > .dataset:nth-of-type(even) {
+      background-color: var(--alt-bg-color);
+    }
+  }
+}
+
+.event-message {
+  white-space: pre;
+}

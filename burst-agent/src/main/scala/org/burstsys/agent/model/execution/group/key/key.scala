@@ -2,9 +2,9 @@
 package org.burstsys.agent.model.execution.group
 
 import org.burstsys.agent.api.BurstQueryApiGroupKey
-import org.burstsys.fabric.execution.model.execute
-import org.burstsys.fabric.execution.model.execute.group
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupKey
+import org.burstsys.fabric.wave.execution.model.execute
+import org.burstsys.fabric.wave.execution.model.execute.group
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupKey
 
 import scala.language.implicitConversions
 

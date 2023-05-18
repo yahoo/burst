@@ -6,7 +6,7 @@ import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeoutException}
 
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.errors.messageFromException
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutorService, Future}

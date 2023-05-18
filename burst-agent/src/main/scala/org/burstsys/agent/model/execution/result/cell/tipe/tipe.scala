@@ -3,7 +3,7 @@ package org.burstsys.agent.model.execution.result.cell
 
 import org.burstsys.agent.api.BurstQueryApiCellType
 import org.burstsys.agent.api.BurstQueryApiCellType.{AggregationCell, DimensionCell}
-import org.burstsys.fabric.execution.model.result.row.{FabricAggregationCell, FabricDimensionCell, FabricResultCellType}
+import org.burstsys.fabric.wave.execution.model.result.row.{FabricAggregationCell, FabricDimensionCell, FabricResultCellType}
 
 import scala.language.implicitConversions
 

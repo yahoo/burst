@@ -4,7 +4,7 @@ package org.burstsys.agent.model.cache
 import org.burstsys.agent.api.{BurstQueryCacheSlice, BurstQuerySliceKey}
 import org.burstsys.agent.model.cache.generation.metrics._
 import org.burstsys.agent.model.cache.slice.state._
-import org.burstsys.fabric.data.model.slice.metadata.FabricSliceMetadata
+import org.burstsys.fabric.wave.data.model.slice.metadata.FabricSliceMetadata
 
 import scala.language.implicitConversions
 

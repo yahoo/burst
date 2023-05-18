@@ -4,7 +4,7 @@ package org.burstsys.agent.model.execution.result.set
 import org.burstsys.agent.api.{BurstQueryApiResultSet, BurstQueryDataType}
 import org.burstsys.agent.model.execution.result.cell.AgentResultCell
 import org.burstsys.agent.model.execution.result.set.metrics.AgentResultSetMetrics
-import org.burstsys.fabric.execution.model.result.set.{FabricResultSetIndex, FabricResultSetName}
+import org.burstsys.fabric.wave.execution.model.result.set.{FabricResultSetIndex, FabricResultSetName}
 
 import scala.language.implicitConversions
 

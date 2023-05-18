@@ -3,8 +3,8 @@ package org.burstsys.agent.model.cache.generation
 
 import org.burstsys.agent.api.BurstQueryCacheGenerationMetrics
 import org.burstsys.agent.model.cache.generation.key._
-import org.burstsys.fabric.data.model.generation.metrics.FabricGenerationMetrics
-import org.burstsys.fabric.data.model.slice.state.FabricDataCold
+import org.burstsys.fabric.wave.data.model.generation.metrics.FabricGenerationMetrics
+import org.burstsys.fabric.wave.data.model.slice.state.FabricDataCold
 
 import scala.language.implicitConversions
 

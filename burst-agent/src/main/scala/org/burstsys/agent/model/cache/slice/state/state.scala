@@ -3,7 +3,7 @@ package org.burstsys.agent.model.cache.slice
 
 import org.burstsys.agent.api.BurstQueryGenerationState
 import org.burstsys.agent.api.BurstQueryGenerationState._
-import org.burstsys.fabric.data.model.slice.state._
+import org.burstsys.fabric.wave.data.model.slice.state._
 
 import scala.language.implicitConversions
 

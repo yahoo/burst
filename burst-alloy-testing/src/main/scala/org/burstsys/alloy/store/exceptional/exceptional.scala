@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.store
 
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.alloy.store.exceptional.FailureMode.{DefaultFailureRate, OnWorker, UncaughtException}
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.properties._

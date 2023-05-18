@@ -7,8 +7,8 @@ import org.burstsys.alloy.alloy.views.AlloyJsonUseCaseViews.generateAlloy
 import org.burstsys.alloy.views.unity.UnityGenerator.generateIterator
 import org.burstsys.alloy.views.unity.UnityUseCaseViews.unitySchema
 import org.burstsys.eql.test.support.EqlAlloyTestRunner
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyTimeFromNanos}
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyTimeFromNanos}
 import org.burstsys.vitals.logging.log
 
 import java.nio.file.Files
@@ -21,7 +21,7 @@ final
 class EqlPerfSpec extends EqlAlloyTestRunner {
   var view: AlloyJsonFileView = _
   override def localAfterStartup(): Unit = {
-    log info s"Creating alloy dataset"
+    log info s"Creating synthetic dataset"
     view = generateAlloy(unitySchema, 6666, 6666, generateIterator(userCount = 200, sessionCount = 50, eventCount = 200, parameterCount = 1)).asInstanceOf[AlloyJsonFileView]
     log info s"Created JSON file ${view.source} of size ${prettyByteSizeString(Files.size(view.source))}"
   }

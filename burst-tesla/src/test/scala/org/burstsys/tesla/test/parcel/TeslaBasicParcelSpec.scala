@@ -3,6 +3,8 @@ package org.burstsys.tesla.test.parcel
 
 import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes._
+import org.burstsys.tesla.block
+import org.burstsys.tesla.block.factory.TeslaBlockSizes
 import org.burstsys.tesla.test.support.TeslaAbstractSpec
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
@@ -18,7 +20,8 @@ class TeslaBasicParcelSpec extends TeslaAbstractSpec {
         parcel.inflatedSize should equal(0)
         parcel.isInflated should equal(true)
         parcel.nextSlotOffset should equal(28)
-        parcel.maxAvailableMemory should equal(4056)
+
+        parcel.maxAvailableMemory should equal(TeslaBlockSizes.pageSize-(parcel.headerSize + block.SizeofBlockHeader))
       } finally tesla.parcel.factory.releaseParcel(parcel)
     }
   }

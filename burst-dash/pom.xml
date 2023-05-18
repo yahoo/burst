@@ -8,6 +8,10 @@
     </parent>
     <artifactId>burst-dash</artifactId>
 
+    <properties>
+        <node.version>14.21.3</node.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -17,7 +21,7 @@
                 <configuration>
                     <installDirectory>target</installDirectory>
                     <workingDirectory>src/react</workingDirectory>
-                    <nodeVersion>v14.16.1</nodeVersion>
+                    <nodeVersion>v${node.version}</nodeVersion>
                 </configuration>
                 <executions>
                     <execution>

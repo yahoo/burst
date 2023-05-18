@@ -5,16 +5,16 @@ import org.burstsys.catalog.configuration
 
 trait CatalogSqlProperties extends Any {
 
-  final def dbName: String = configuration.burstCatalogDbNameProperty.getOrThrow
+  final def dbName: String = configuration.burstCatalogDbNameProperty.get
 
-  final def dbUser: String = configuration.burstCatalogDbUserProperty.getOrThrow
+  final def dbUser: String = configuration.burstCatalogDbUserProperty.get
 
-  final def dbPassword: String = configuration.burstCatalogDbPasswordProperty.getOrThrow
+  final def dbPassword: String = configuration.burstCatalogDbPasswordProperty.get
 
-  final def dbHost: String = configuration.burstCatalogDbHostProperty.getOrThrow
+  final def dbHost: String = configuration.burstCatalogDbHostProperty.get
 
-  final def dbPort: Int = configuration.burstCatalogDbPortProperty.getOrThrow
+  final def dbPort: Int = configuration.burstCatalogDbPortProperty.get
 
-  final def dbConnections: Int = configuration.burstCatalogDbConnectionsProperty.getOrThrow
+  final def dbConnections: Int = configuration.burstCatalogDbConnectionsProperty.get
 
 }

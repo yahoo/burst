@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets
 import java.sql.{Blob, Clob, SQLException}
 import org.burstsys.relate.RelateExceptions.{BurstDuplicateKeyException, BurstSqlException}
 import org.burstsys.relate.dialect.RelateDialect
-import org.burstsys.vitals.io._
+import org.burstsys.vitals.stats._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.properties._
 
@@ -118,6 +118,12 @@ package object relate extends VitalsLogger {
     new SerialBlob(s.getBytes(StandardCharsets.UTF_8))
   }
 
+  implicit def byteBufferToString(buffer: ByteBuffer): String = {
+    val oldPosition = buffer.position()
+    val r = StandardCharsets.UTF_8.decode(buffer).toString
+    buffer.position(oldPosition)
+    r
+  }
   implicit def byteBufferToBlob(buffer: ByteBuffer): java.sql.Blob = {
     val s = byteBufferToString(buffer)
     val oldPosition = buffer.position()

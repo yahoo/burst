@@ -25,13 +25,13 @@ abstract class NamedCatalogEntityPersister[E <: NamedCatalogEntity] extends Rela
 
   final def searchEntitiesByMoniker(descriptor: String, limit: Option[Int])(implicit session: DBSession): List[E] = {
     sql"""SELECT * FROM ${this.table}
-         WHERE LOWER(${this.column.moniker}) LIKE LOWER({descriptor}) ${service.dialect.limitClause(limit)}
+         WHERE LOWER(${this.column.moniker}) LIKE LOWER({descriptor}) ${service.dialect.limitClause(limit, None)}
       """.bindByName(Symbol("descriptor") -> s"%$descriptor%").map(resultToEntity).list().apply()
   }
 
   final def searchEntitiesByLabel(label: String, value: Option[String], limit: Option[Int])(implicit session: DBSession): List[E] = {
     sql"""SELECT * FROM ${this.table}
-         WHERE ${this.column.labels} LIKE {label} ${service.dialect.limitClause(limit)}
+         WHERE ${this.column.labels} LIKE {label} ${service.dialect.limitClause(limit, None)}
       """.bindByName(Symbol("label") -> likeLabel(label, value)).map(resultToEntity).list().apply()
   }
 

@@ -2,7 +2,7 @@
 package org.burstsys.zap.route
 
 import org.burstsys.tesla.TeslaTypes._
-import org.burstsys.vitals.io._
+import org.burstsys.vitals.stats._
 import org.burstsys.vitals.logging.VitalsLogger
 
 

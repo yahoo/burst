@@ -29,9 +29,7 @@ object NexusStreamCompleteMsg {
   }
 }
 
-final
-class NexusStreamCompleteMsg()
-  extends NexusMsg(NexusStreamCompleteMsgType) {
+final class NexusStreamCompleteMsg() extends NexusMsg(NexusStreamCompleteMsgType) {
 
   var statusCode: Int = TeslaNormalStatus.statusMarker
   var itemCount: Long = 0

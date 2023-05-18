@@ -4,7 +4,7 @@ package org.burstsys.nexus
 import java.util.concurrent.ConcurrentHashMap
 
 import org.burstsys.nexus.client.NexusClient
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyTimeFromNanos}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyTimeFromNanos}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostAddress
 import org.burstsys.vitals.time.nsToSec

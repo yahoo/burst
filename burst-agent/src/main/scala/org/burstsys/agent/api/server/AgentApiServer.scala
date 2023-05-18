@@ -21,9 +21,9 @@ import org.burstsys.agent.model.execution.result.ThriftAgentExecuteResult
 import org.burstsys.agent.model.execution.result._
 import org.burstsys.api.BurstApiServer
 import org.burstsys.api._
-import org.burstsys.fabric.data.model.ops.FabricCacheOpParameter
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.group.sanitizeGuid
+import org.burstsys.fabric.wave.data.model.ops.FabricCacheOpParameter
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.group.sanitizeGuid
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.VitalsService.VitalsServiceModality

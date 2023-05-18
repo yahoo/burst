@@ -10,7 +10,7 @@ import org.burstsys.alloy.views.quo.QuoUseCaseViews
 import org.burstsys.alloy.views.unity.UnityUseCaseViews
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.BrioPressInstance
-import org.burstsys.fabric.metadata.model
+import org.burstsys.fabric.wave.metadata.model
 import org.burstsys.vitals.time.VitalsTimeZones
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}

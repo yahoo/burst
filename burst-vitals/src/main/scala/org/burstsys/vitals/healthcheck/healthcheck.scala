@@ -35,15 +35,7 @@ package object healthcheck extends VitalsLogger {
     override def toString: String = "unhealthy"
   }
 
-  final case class VitalsComponentHealth(status: VitalsHealthStatus = VitalsHealthHealthy, message: String = "ok") {
-    def asJson: String = s"""{"health": "$status", "msg": "${message.replace("\n", "\\n").replace("\"", "\\\"")}"}"""
-  }
-
-  lazy val threadFactory: ThreadFactory = new ThreadFactory {
-    def newThread(r: Runnable): Thread = new Thread(burstThreadGroupGlobal, r, "health-check-service")
-  }
-
-  lazy val executor: ExecutorService = Executors.newFixedThreadPool(1, threadFactory)
+  final case class VitalsComponentHealth(health: VitalsHealthStatus = VitalsHealthHealthy, message: String = "ok")
 
   trait VitalsHealthMonitoredComponent {
 
@@ -54,18 +46,6 @@ package object healthcheck extends VitalsLogger {
   }
 
   trait VitalsHealthStatusDelegate {
-
-    /**
-     *
-     * @return
-     */
-    def healthCheckPort: Int
-
-    /**
-     *
-     * @param port
-     */
-    def healthCheckPort_=(port: Int): Unit
 
     /**
      * TODO
@@ -94,10 +74,9 @@ package object healthcheck extends VitalsLogger {
       var unhealthySystems = 0
       val iter = componentResults.entrySet.iterator
       while (iter.hasNext) {
-        val entry = iter.next
-        val status = entry.getValue
-        health = aggregateHealth(health, status.status)
-        status.status match {
+        val status = iter.next.getValue
+        health = aggregateHealth(health, status.health)
+        status.health match {
           case VitalsHealthHealthy => healthySystems += 1
           case VitalsHealthMarginal => marginalSystems += 1
           case VitalsHealthUnhealthy => unhealthySystems += 1

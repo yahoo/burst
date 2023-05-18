@@ -4,7 +4,7 @@ package org.burstsys
 import org.burstsys.eql.context.EqlContextImpl
 import org.burstsys.eql.generators.Declaration
 import org.burstsys.eql.paths.DynamicVisitPath
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger

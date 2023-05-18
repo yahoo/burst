@@ -7,10 +7,10 @@ import org.burstsys.agent.model.cache.operator._
 import org.burstsys.agent.model.cache.operator.parameter._
 import org.burstsys.agent.{AgentService, AgentServiceContext}
 import org.burstsys.api._
-import org.burstsys.fabric.data.model.generation._
-import org.burstsys.fabric.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.data.model.ops.{FabricCacheManageOp, FabricCacheOpParameter, FabricCacheOps}
-import org.burstsys.fabric.data.model.slice.metadata.FabricSliceMetadata
+import org.burstsys.fabric.wave.data.model.generation._
+import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
+import org.burstsys.fabric.wave.data.model.ops.{FabricCacheManageOp, FabricCacheOpParameter, FabricCacheOps}
+import org.burstsys.fabric.wave.data.model.slice.metadata.FabricSliceMetadata
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.uid._

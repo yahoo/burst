@@ -8,7 +8,7 @@ import org.burstsys.brio.types.BrioTypes.{BrioDictionaryKey, BrioDictionaryNotFo
 import org.burstsys.tesla.TeslaTypes.TeslaMemoryOffset
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument.prettyFixedNumber
+import org.burstsys.vitals.reporter.instrument.prettyFixedNumber
 import org.burstsys.vitals.text.VitalsTextCodec
 import org.burstsys.vitals.logging._
 
@@ -169,11 +169,13 @@ trait BrioDictionaryWriteAccessor extends Any with BrioDictionaryInternals with 
     words = words + 1
 
     // check to see if we have allocated any slots yet
-    val slotOffset = if (nextSlotOffset == NullSlotOffset) {
-      // if not, use the first one
-      nextSlotOffset(firstSlotOffset)
-      firstSlotOffset
-    } else nextSlotOffset // use the next one
+    val slotOffset =
+      if (nextSlotOffset == NullSlotOffset) {
+        // if not, use the first one
+        nextSlotOffset(firstSlotOffset)
+        firstSlotOffset
+      } else
+        nextSlotOffset // use the next one
 
     /**
       * here we check to see if there is enough room to add another slot.

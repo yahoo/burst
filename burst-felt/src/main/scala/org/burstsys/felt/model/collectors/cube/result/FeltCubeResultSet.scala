@@ -3,8 +3,8 @@ package org.burstsys.felt.model.collectors.cube.result
 
 import org.burstsys.brio.types.BrioTypes
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.result.row.{FabricResultRow, FeltCubeRowData}
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetName
+import org.burstsys.fabric.wave.execution.model.result.row.{FabricResultRow, FeltCubeRowData}
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetName
 import org.burstsys.felt.model.collectors.cube.plane.FeltCubePlane
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.felt.model.collectors.result.{FeltCollectorResultSet, FeltCollectorResultSetContext}

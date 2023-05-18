@@ -3,11 +3,11 @@ package org.burstsys.zap.cube2.factory
 
 import org.burstsys.tesla
 import org.burstsys.tesla.TeslaTypes._
-import org.burstsys.tesla.block.{TeslaBlock, TeslaBlockAnyVal}
+import org.burstsys.tesla.block.TeslaBlockAnyVal
 import org.burstsys.tesla.part
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AnyVal, ZapCube2Builder}
+import org.burstsys.zap.cube2.{ZapCube2, ZapCube2AnyVal, ZapCube2Builder, ZapCube2Reporter}
 
 import scala.language.postfixOps
 
@@ -25,6 +25,7 @@ case class ZapCube2Pool(poolId: TeslaPoolId, partByteSize: TeslaMemoryOffset)
     val part = partQueue poll match {
       case null =>
         incrementPartsAllocated()
+        ZapCube2Reporter.alloc(startSize)
         val size = builder.chooseSize(startSize)
         val cube = ZapCube2AnyVal(tesla.block.factory.grabBlock(size).blockBasePtr)
         cube.initialize(pId = poolId, builder)
@@ -34,18 +35,21 @@ case class ZapCube2Pool(poolId: TeslaPoolId, partByteSize: TeslaMemoryOffset)
         cube
     }
     incrementPartsInUse()
+    ZapCube2Reporter.grab()
     part
   }
 
   @inline override
   def releaseCube2(d: ZapCube2): Unit = {
     decrementPartsInUse()
+    ZapCube2Reporter.release()
     partQueue add d
   }
 
   @inline override
   def freePart(part: ZapCube2): Long = {
     tesla.block.factory.releaseBlock(TeslaBlockAnyVal(part.blockPtr))
+    ZapCube2Reporter.free(partByteSize)
     partByteSize
   }
 

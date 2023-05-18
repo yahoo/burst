@@ -2,9 +2,9 @@
 package org.burstsys.alloy.store.mini.supervisor
 
 import org.burstsys.alloy.store.mini
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.data.model.store.FabricStoreName
-import org.burstsys.fabric.data.supervisor.store.FabricStoreSupervisor
+import org.burstsys.fabric.wave.data.model.store.FabricStoreName
+import org.burstsys.fabric.wave.data.supervisor.store.FabricStoreSupervisor
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 
 import scala.language.postfixOps
 
@@ -13,7 +13,7 @@ import scala.language.postfixOps
  * used for semantic/unit/performance tests
  */
 final case
-class MiniStoreSupervisor(container: FabricSupervisorContainer) extends FabricStoreSupervisor
+class MiniStoreSupervisor(container: FabricWaveSupervisorContainer) extends FabricStoreSupervisor
   with MiniMetadataLookup with MiniSlicer {
 
   override lazy val storeName: FabricStoreName = mini.MiniStoreName

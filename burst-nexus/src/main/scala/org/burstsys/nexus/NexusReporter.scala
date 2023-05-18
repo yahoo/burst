@@ -2,7 +2,7 @@
 package org.burstsys.nexus
 
 import org.burstsys.vitals.reporter.VitalsReporter
-import org.burstsys.vitals.reporter.metric.VitalsReporterByteOpMetric
+import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
 
 private[nexus]
 object NexusReporter extends VitalsReporter {
@@ -14,16 +14,7 @@ object NexusReporter extends VitalsReporter {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _transmitMetric = VitalsReporterByteOpMetric("nexus_transmit")
-  this += _transmitMetric
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // LIFECYCLE
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  override def sample(sampleMs: NexusSliceKey): Unit = {
-    super.sample(sampleMs)
-  }
+  val _transmitMetric = VitalsReporterUnitOpMetric("nexus_transmit")
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // API
@@ -31,18 +22,6 @@ object NexusReporter extends VitalsReporter {
 
   final
   def onTransmit(ns: Long, bytes: Long): Unit = {
-    newSample()
     _transmitMetric.recordOpWithTimeAndSize(ns, bytes)
   }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // REPORT
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  final override
-  def report: String = {
-    if (nullData) return ""
-    s"${_transmitMetric.report}"
-  }
-
 }

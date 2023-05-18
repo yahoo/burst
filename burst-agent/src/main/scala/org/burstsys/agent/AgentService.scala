@@ -6,11 +6,11 @@ import org.burstsys.agent.api.server.AgentApiServer
 import org.burstsys.agent.event.AgentEventTalker
 import org.burstsys.agent.ops.{AgentCacheOps, AgentExecuteOps}
 import org.burstsys.agent.transform.AgentTransform
-import org.burstsys.fabric.data.model.ops.FabricCacheOps
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.data.model.ops.FabricCacheOps
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsStandardClient, VitalsStandardServer}
 import org.burstsys.vitals.healthcheck.VitalsHealthMonitoredService

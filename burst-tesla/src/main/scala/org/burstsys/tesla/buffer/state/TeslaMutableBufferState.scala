@@ -122,7 +122,7 @@ trait TeslaMutableBufferState extends Any with TeslaMutableBuffer with TeslaBuff
 
   @inline
   def loadBytes(bytes: Array[Byte]): Unit = {
-    //    log info s"$burstModuleName loading array of size ${bytes.length} to ${blockDataPtr + dataStart}"
+    //    log info burstStdMsg(s"loading array of size ${bytes.length} to ${blockDataPtr + dataStart}")
     checkPtr(dataPtr + bytes.length)
     offheap.copyMemory(bytes, dataPtr, bytes.length)
     currentUsedMemory(bytes.length)
@@ -141,7 +141,7 @@ trait TeslaMutableBufferState extends Any with TeslaMutableBuffer with TeslaBuff
    */
   @inline
   def loadBytes(source: TeslaMemoryPtr, size: TeslaMemorySize): Unit = {
-    //    log info s"$burstModuleName loading off heap memory of size $size from $source to ${blockDataPtr + dataStart}"
+    //    log info burstStdMsg(s"loading off heap memory of size $size from $source to ${blockDataPtr + dataStart}")
     checkPtr(dataPtr + size)
     offheap.copyMemory(source, dataPtr, size)
     currentUsedMemory(size)

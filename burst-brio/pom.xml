@@ -8,6 +8,10 @@
         <version>5.0.0${revision}-SNAPSHOT</version>
     </parent>
     <artifactId>burst-brio</artifactId>
+    <properties>
+        <artifact.skip-deploy>false</artifact.skip-deploy>
+    </properties>
+
 
     <dependencies>
         <dependency>

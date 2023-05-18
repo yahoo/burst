@@ -2,7 +2,7 @@
 package org.burstsys.agent.model.execution.group
 
 import org.burstsys.agent.api.BurstQueryApiOver
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 
 import scala.language.implicitConversions
 

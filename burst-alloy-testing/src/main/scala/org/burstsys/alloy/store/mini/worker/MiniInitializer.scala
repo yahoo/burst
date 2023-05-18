@@ -1,10 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.store.mini.worker
 
-import org.burstsys.fabric.data.model.slice.state.{FabricDataNoData, FabricDataWarm, FabricDataState}
-import org.burstsys.fabric.data.model.snap.FabricSnap
-import org.burstsys.fabric.data.model.slice.data.FabricSliceData
-import org.burstsys.fabric.data.worker.store.FabricWorkerLoader
+import org.burstsys.fabric.wave.data.model.slice.state.{FabricDataNoData, FabricDataWarm, FabricDataState}
+import org.burstsys.fabric.wave.data.model.snap.FabricSnap
+import org.burstsys.fabric.wave.data.model.slice.data.FabricSliceData
+import org.burstsys.fabric.wave.data.worker.store.FabricWorkerLoader
 import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel.TeslaParcel

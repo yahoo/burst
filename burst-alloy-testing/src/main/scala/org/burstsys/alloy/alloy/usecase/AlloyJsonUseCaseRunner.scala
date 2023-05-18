@@ -1,22 +1,27 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.alloy.alloy.usecase
 
-import org.burstsys.fabric.container.supervisor.MockSupervisorContainer
-import org.burstsys.fabric.container.worker.MockWorkerContainer
-import org.burstsys.fabric.data.worker.cache
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
+import org.burstsys.fabric.configuration.burstHttpPortProperty
+import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
+import org.burstsys.fabric.wave.container.supervisor.MockWaveSupervisorContainer
+import org.burstsys.fabric.wave.container.worker.MockWaveWorkerContainer
+import org.burstsys.fabric.wave.data.worker.cache
 import org.burstsys.tesla.part.factory.TeslaFactoryBoss
-import org.burstsys.vitals.configuration.burstVitalsHealthCheckPortProperty
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
-import org.burstsys.{fabric, tesla, vitals}
+import org.burstsys.fabric
+import org.burstsys.fabric.container
+import org.burstsys.tesla
+import org.burstsys.vitals
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, Suite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Suite
 
 import java.util.concurrent.CountDownLatch
 import scala.language.postfixOps
+import scala.util.Random
 
 abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
   with Suite with Matchers with BeforeAndAfterAll with FabricTopologyListener with AlloyUnitMetadataLookup {
@@ -24,14 +29,18 @@ abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
   VitalsLog.configureLogging("unit", consoleOnly = true)
   vitals.configuration.configureForUnitTests()
   tesla.configuration.configureForUnitTests()
-  fabric.configuration.configureForUnitTests()
+  fabric.wave.configuration.configureForUnitTests()
 
-  val supervisorContainer: MockSupervisorContainer = MockSupervisorContainer(logFile = "unit", containerId = 1)
-  protected var workerContainer: MockWorkerContainer = {
-    // we mix supervisor and worker in the same JVM so move the health port
-    val port = burstVitalsHealthCheckPortProperty.getOrThrow
-    burstVitalsHealthCheckPortProperty.set(port + 1)
-    MockWorkerContainer(logFile = "unit", containerId = 1)
+
+  val supervisorContainer: MockWaveSupervisorContainer = {
+    burstHttpPortProperty.set(container.getNextHttpPort)
+    MockWaveSupervisorContainer(logFile = "unit", containerId = 1)
+  }
+
+  protected var workerContainer: MockWaveWorkerContainer = {
+    // we mix supervisor and worker in the same JVM so move the http port
+    burstHttpPortProperty.set(container.getNextHttpPort)
+    MockWaveWorkerContainer(logFile = "unit", containerId = 1)
   }
 
   val workerGainGate = new CountDownLatch(1)
@@ -83,7 +92,7 @@ abstract class AlloyJsonUseCaseRunner extends AnyFlatSpec
     TeslaFactoryBoss.assertNoInUseParts()
   }
 
-  final override def onTopologyWorkerGained(worker: FabricWorkerNode): Unit = {
+  final override def onTopologyWorkerGained(worker: FabricTopologyWorker): Unit = {
     workerGainGate.countDown()
   }
 }

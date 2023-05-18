@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.collectors.cube.result
 
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.result.row.{FabricColumnCell, FabricResultCell, FabricResultRow, FeltCubeRowData}
+import org.burstsys.fabric.wave.execution.model.result.row.{FabricColumnCell, FabricResultCell, FabricResultRow, FeltCubeRowData}
 import org.burstsys.felt.model.collectors.cube.plane.FeltCubePlane
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
@@ -44,32 +44,15 @@ class FeltCubeResultRowContext(cube: FeltCubePlane, row: FeltCubeRowData) extend
   // API
   //////////////////////////////////////////////////////////////////////
 
-  override
-  def cells: Array[FabricResultCell] = _cells.toArray
+  override def cells: Array[FabricResultCell] = _cells.toArray
 
-  override
-  def apply(columnNumber: Int): FabricResultCell = cells(columnNumber)
+  override def apply(columnNumber: Int): FabricResultCell = cells(columnNumber)
 
-  override
-  def apply[C <: BrioDataType](relationName: BrioRelationName)(implicit t: ClassTag[C]): C = {
+  override def apply[C <: BrioDataType](relationName: BrioRelationName)(implicit t: ClassTag[C]): C = {
     val fieldKey = cube.planeBuilder.fieldKeyMap(relationName)
     cells(fieldKey).bData.asInstanceOf[C]
   }
-
-  override
-  def isNull(relationName: BrioRelationName): Boolean = {
-    val fieldKey = cube.planeBuilder.fieldKeyMap(relationName)
-    cells(fieldKey).isNull
-  }
-
-  override
-  def isNaN(relationName: BrioRelationName): Boolean = {
-    val fieldKey = cube.planeBuilder.fieldKeyMap(relationName)
-    cells(fieldKey).isNan
-  }
-
-  override
-  def extractCells: this.type = {
+  override def extractCells: this.type = {
     try {
       row foreach (_cells += FabricColumnCell(_))
       this

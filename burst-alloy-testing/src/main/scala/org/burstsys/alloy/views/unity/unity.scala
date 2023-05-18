@@ -4,8 +4,8 @@ package org.burstsys.alloy.views
 import org.burstsys.brio.flurry.provider.unity._
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.BrioPressInstance
-import org.burstsys.fabric.metadata.model.FabricDomainKey
-import org.burstsys.fabric.metadata.model.FabricViewKey
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.FabricViewKey
 import org.burstsys.vitals.logging._
 
 package object unity extends VitalsLogger {

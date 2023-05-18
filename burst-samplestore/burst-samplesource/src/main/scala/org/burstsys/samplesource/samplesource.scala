@@ -7,4 +7,5 @@ package object samplesource extends VitalsLogger {
 
   type SampleSourceVersion = String
 
+
 }

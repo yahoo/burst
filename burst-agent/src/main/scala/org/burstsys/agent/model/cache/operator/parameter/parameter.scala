@@ -4,7 +4,7 @@ package org.burstsys.agent.model.cache.operator
 import org.burstsys.agent.api.BurstQueryCacheParamValue.{BoolVal, DoubleVal, LongVal}
 import org.burstsys.agent.api.BurstQueryCacheParameter._
 import org.burstsys.agent.api.{BurstQueryCacheOperationParameter, BurstQueryCacheParameter}
-import org.burstsys.fabric.data.model.ops._
+import org.burstsys.fabric.wave.data.model.ops._
 
 import scala.language.implicitConversions
 

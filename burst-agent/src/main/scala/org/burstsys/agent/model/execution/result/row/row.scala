@@ -5,7 +5,7 @@ import org.burstsys.agent.api.BurstQueryApiDatum._
 import org.burstsys.agent.api.BurstQueryApiResultCell
 import org.burstsys.agent.model.execution.result.cell.tipe._
 import org.burstsys.brio.types.BrioTypes
-import org.burstsys.fabric.execution.model.result.row.{FabricResultCell, FabricResultRow}
+import org.burstsys.fabric.wave.execution.model.result.row.{FabricResultCell, FabricResultRow}
 import org.burstsys.vitals.errors.VitalsException
 
 import scala.language.implicitConversions

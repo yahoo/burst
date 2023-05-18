@@ -2,7 +2,7 @@
 package org.burstsys.agent.model.execution.result.set
 
 import org.burstsys.agent.api.BurstQueryApiResultSetMetrics
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetMetrics
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetMetrics
 
 import scala.language.implicitConversions
 

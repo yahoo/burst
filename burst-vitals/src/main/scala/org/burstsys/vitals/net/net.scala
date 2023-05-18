@@ -17,7 +17,6 @@ package object net extends VitalsLogger {
   type VitalsHostAddress = String
   type VitalsUrl = String
   type VitalsHostPort = Int
-  type VitalsSparkExecutorId = String
 
   def fqdnToShortForm(host: VitalsHostAddress): VitalsHostAddress = {
     val index = host.indexOf('.')

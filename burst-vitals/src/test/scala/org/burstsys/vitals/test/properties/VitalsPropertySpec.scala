@@ -16,13 +16,13 @@ class VitalsPropertySpec extends VitalsAbstractSpec {
 
   it should "export/import durations 1" in {
     System.setProperty(mockDurationProperty2.key, (5 minutes).toString)
-    val duration = mockDurationProperty2.getOrThrow
+    val duration = mockDurationProperty2.get
     duration should equal (5 minutes)
   }
 
   it should "export/import durations 2" in {
     VitalsPropertyRegistry.importProperties(Map[String, String]("freddy" -> (10 minutes).toString))
-    mockDurationProperty.getOrThrow should equal (10 minutes)
+    mockDurationProperty.get should equal (10 minutes)
     System.setProperty("freddy", (10 minutes).toString)
     System.getProperty("freddy") should equal("10 minutes")
     Duration(System.getProperty("freddy")) should equal (10 minutes)

@@ -1,17 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.flex
 
-import java.util
-import java.util.concurrent.ConcurrentHashMap
-
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyFixedNumber}
-import org.burstsys.vitals.uid._
+import org.burstsys.vitals.reporter.VitalsByteQuantReporter
 import org.jctools.queues.MpmcArrayQueue
 
-import scala.collection.mutable.ArrayBuffer
+import java.util
 import scala.language.postfixOps
 
 /**
@@ -31,6 +27,8 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
 
   def collectorName: String
 
+  private val reporter =  new VitalsByteQuantReporter(collectorName, "proxies") {}
+
   /**
    * max slots for a give collector. This is forced to be a power of two.
    *
@@ -41,7 +39,7 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
   // power of two aligned slot count
   private lazy val slotCount: Int = math.pow(2, powersOf2SlotCount).toInt
 
-  // a way to schedule usage of the slots as dictionaries come and go
+  // a way to schedule usage of the slots as flex proxies come and go
   final lazy val slotQueue: util.Queue[TeslaFlexSlotIndex] = new MpmcArrayQueue[TeslaFlexSlotIndex](slotCount) {
 
     // initialize by placing all slot indexes into queue
@@ -66,9 +64,6 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
    * given a memory pointer looked up in the slot table, return a Collector
    * <br/>'''NOTE:''' the assumption here is that this call does not create new objects i.e. the collector
    * is a value class wrapping a memory ptr.
-   *
-   * @param ptr
-   * @return
    */
   def instantiateCollector(ptr: TeslaMemoryPtr): Collector
 
@@ -80,23 +75,16 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
    * TODO THIS DOES NOT SEEM TO BE HOLDING TRUE -- THIS MUST BE FIXED!!! DIVE INTO THE BYTE CODE AND FIGURE
    * TODO OUT HOW TO STOP OBJECT INSTANTIATION
    *<hr/>
-   * @param index
-   * @return
    */
   def instantiateProxy(index: TeslaFlexSlotIndex): Proxy
 
   /**
    * allocate a new internal collector of a given size
-   *
-   * @param size
-   * @return
    */
   def allocateInternalCollector(builder: Builder, size: TeslaMemorySize): Collector
 
   /**
    * allocate as internal collector
-   *
-   * @param collector
    */
   def releaseInternalCollector(collector: Collector): Unit
 
@@ -106,9 +94,6 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
 
   /**
    * lookup the underlying fixed size dictionary and return
-   *
-   * @param index
-   * @return
    */
   final
   def lookupInternalCollector(index: TeslaFlexSlotIndex): Collector = {
@@ -125,9 +110,6 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
 
   /**
    * replace the existing too small internal fixed size offheap collector with a new upsized fixed size offheap collector
-   *
-   * @param index
-   * @param items
    */
   final
   def upsize(index: TeslaFlexSlotIndex, items: Int, builder: Builder): Unit = {
@@ -152,9 +134,6 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
 
   /**
    * grab a flex collector proxy
-   *
-   * @param builder
-   * @return
    */
   final
   def grabFlexCollectorProxy(builder: Builder, startSize: TeslaMemorySize): Proxy = {
@@ -163,6 +142,7 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
         throw VitalsException(s"$collectorName collector ran out of flex slots!")
       case index =>
         indexSlots(index) = allocateInternalCollector(builder, startSize).blockPtr
+        reporter.grab()
         instantiateProxy(index)
     }
   }
@@ -176,7 +156,7 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
     val collector = lookupInternalCollector(proxy.index)
     releaseInternalCollector(collector)
     indexSlots(proxy.index) = emptySlotValue
+    reporter.release()
     slotQueue add proxy.index
   }
-
 }

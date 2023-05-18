@@ -1,7 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.felt.kryo
 
-import org.burstsys.fabric.execution.model.execute.invoke.{FabricInvocationContext, FabricParameterizationContext}
+import org.burstsys.fabric.wave.execution.model.execute.invoke.{FabricInvocationContext, FabricParameterizationContext}
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation._
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.primitive._
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.take.{FeltCubeAggTakeSemRt, FeltCubeBottomTakeSemMode, FeltCubeTakeSemMode, FeltCubeTopTakeSemMode}

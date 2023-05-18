@@ -25,8 +25,11 @@ object RelateMySqlDialect extends RelateDialect  {
   }
 
 
-  override def limitClause(limit: Option[Int]): SQLSyntax = limit.collect({
-    case l if l > 0 => sqls"LIMIT $l"
+  override def limitClause(limit: Option[Int], offset: Option[Int]): SQLSyntax = limit.collect({
+    case l if l > 0 => offset match {
+      case Some(o) if o > 0 => sqls"LIMIT $l OFFSET $o"
+      case _ => sqls"LIMIT $l"
+    }
   }).getOrElse(sqls"")
 
   def pool: RelatePool = RelateCustomDbcp2Pool
@@ -36,9 +39,9 @@ object RelateMySqlDialect extends RelateDialect  {
   final def jdbcDriver: Class[_] = classOf[com.mysql.cj.jdbc.Driver]
 
   final def jdbcUrl(jdbcHost: String, jdbcPort: Int, databaseName: String): String =
-    s"jdbc:mysql://$jdbcHost:$jdbcPort/$databaseName?${configuration.burstRelateMysqlConnectionOpts.getOrThrow}"
+    s"jdbc:mysql://$jdbcHost:$jdbcPort/$databaseName?${configuration.burstRelateMysqlConnectionOpts.get}"
 
   final def jdbcSystemUrl(jdbcHost: String, jdbcPort: Int): String =
-    s"jdbc:mysql://$jdbcHost:$jdbcPort?${configuration.burstRelateMysqlConnectionOpts.getOrThrow}"
+    s"jdbc:mysql://$jdbcHost:$jdbcPort?${configuration.burstRelateMysqlConnectionOpts.get}"
 
 }

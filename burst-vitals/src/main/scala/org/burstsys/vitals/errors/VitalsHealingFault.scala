@@ -16,7 +16,7 @@ trait VitalsHealingFault {
   /**
    * heal this fault manually
    */
-  def manualHeal(): Unit
+  def heal(): Unit
 
   /**
    * how long before a recorded fault 'heals'
@@ -58,17 +58,29 @@ object VitalsHealingFault {
 private[vitals] final case
 class VitalsHealingFaultContext(var healDuration: Duration) extends VitalsHealingFault with KryoSerializable with VitalsLogger {
 
-  private[this] var _fault: Option[Throwable] = None
+  private var _fault: Option[Throwable] = None
 
-  private[this] var _lastFaultTime: Long = -1
+  private var _lastFaultTime: Long = -1
 
-  private[this] var _faultCount: Int = 0
+  private var _faultCount: Int = 0
 
-  private def healIfTime(): Unit = if ((System.currentTimeMillis - _lastFaultTime) > healDuration.toMillis) manualHeal()
+  private def healIfTime(): Unit = {
+    if (System.currentTimeMillis > (_lastFaultTime + healDuration.toMillis) ) {
+      log debug s"VitalsHealingFault.healIfTime($healDuration)"
+      reset()
+    } else {
+      log debug s"VitalsHealingFault timeTillHealed=${_lastFaultTime + healDuration.toMillis - System.currentTimeMillis}ms"
+    }
+  }
+
+  override def heal(): Unit = {
+    log debug s"VitalsHealingFault.heal()"
+    reset()
+  }
 
   override def recordFault(t: Throwable): Unit = {
     healIfTime()
-    _lastFaultTime = System.currentTimeMillis()
+    _lastFaultTime = System.currentTimeMillis
     _fault = Some(t)
     _faultCount += 1
   }
@@ -80,8 +92,8 @@ class VitalsHealingFaultContext(var healDuration: Duration) extends VitalsHealin
 
   override def fault: Option[Throwable] = _fault
 
-  override def manualHeal(): Unit = {
-    log info s"VitalsHealingFault.manualHeal($healDuration)"
+  private def reset(): Unit = {
+    _lastFaultTime = -1
     _faultCount = 0
     _fault = None
   }
@@ -93,17 +105,17 @@ class VitalsHealingFaultContext(var healDuration: Duration) extends VitalsHealin
   def this() = this(null)
 
   override def write(kryo: Kryo, output: Output): Unit = {
-    output.writeLong(_lastFaultTime)
     output.writeLong(healDuration.toNanos)
-    output.writeInt(_faultCount)
+    output.writeInt(faultCount)
+    output.writeLong(_lastFaultTime)
     output.writeBoolean(fault.nonEmpty)
     if (fault.nonEmpty) kryo.writeClassAndObject(output, fault)
   }
 
   override def read(kryo: Kryo, input: Input): Unit = {
-    _lastFaultTime = input.readLong
     healDuration = Duration.fromNanos(input.readLong)
     _faultCount = input.readInt
+    _lastFaultTime = input.readLong
     if (input.readBoolean) _fault = Some(kryo.readClassAndObject(input).asInstanceOf[Throwable]) else _fault = None
   }
 

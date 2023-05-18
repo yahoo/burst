@@ -26,8 +26,8 @@ package object thread extends VitalsLogger {
 
     def priority: Int = Thread.NORM_PRIORITY
 
-    /** @return specific type of executor service  */
-    protected def pool: ExecutorService
+    /** @return the java executor service used by the ExecutionContext  */
+    def pool: ExecutorService
 
     final def threadName = f"$poolName-${id.incrementAndGet}%02d"
 

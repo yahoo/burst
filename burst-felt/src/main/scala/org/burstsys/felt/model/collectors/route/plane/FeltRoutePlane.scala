@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.collectors.route.plane
 
 import org.burstsys.brio.dictionary.mutable.BrioMutableDictionary
-import org.burstsys.fabric.execution.model.gather.plane.FabricPlane
+import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt.model.collectors.route.runtime.FeltRouteFactory
 import org.burstsys.felt.model.collectors.route.{FeltRouteBuilder, FeltRouteCollector}
 import org.burstsys.felt.model.collectors.runtime.{FeltCollectorPlane, FeltCollectorPlaneContext}

@@ -8,7 +8,7 @@ import org.burstsys.brio.types.BrioTypes.BrioDictionaryKey
 import org.burstsys.tesla
 import org.burstsys.tesla.block.{TeslaBlock, TeslaBlockAnyVal}
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
-import org.burstsys.vitals.instrument._
+import org.burstsys.vitals.reporter.instrument._
 
 import scala.collection.mutable
 

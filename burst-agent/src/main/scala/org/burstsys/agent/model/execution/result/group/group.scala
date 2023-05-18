@@ -9,10 +9,10 @@ import org.burstsys.agent.model.execution.result.group.metrics._
 import org.burstsys.agent.model.execution.result.set._
 import org.burstsys.agent.model.execution.result.set.metrics._
 import org.burstsys.agent.model.execution.result.status._
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupKey
-import org.burstsys.fabric.execution.model.result.group.{FabricResultGroup, FabricResultGroupMetrics}
-import org.burstsys.fabric.execution.model.result.set.{FabricResultSet, FabricResultSetIndex, FabricResultSetName, FabricResultSets}
-import org.burstsys.fabric.execution.model.result.status.FabricResultStatus
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupKey
+import org.burstsys.fabric.wave.execution.model.result.group.{FabricResultGroup, FabricResultGroupMetrics}
+import org.burstsys.fabric.wave.execution.model.result.set.{FabricResultSet, FabricResultSetIndex, FabricResultSetName, FabricResultSets}
+import org.burstsys.fabric.wave.execution.model.result.status.FabricResultStatus
 
 import scala.collection.Map
 import scala.language.implicitConversions

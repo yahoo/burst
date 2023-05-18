@@ -107,32 +107,38 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
   // PUT/GET API
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def put(parcel: TeslaParcel): Unit = {
+  override def put(parcel: TeslaParcel): Unit = {
     lazy val tag = s"TeslaParcelPipe.put name=$pipeName"
     try {
       ensureRunning
-      if (parcel.status.isMarker || logNonStatusParcel(_parcels.size)) log info s"$tag action=PUT status=${parcel.status.statusName} $ids ${_parcels.size}"
+      if (parcel.status.isMarker) {
+        log debug s"$tag action=PUT status=${parcel.status.statusName} $ids parcelQueueSize=${_parcels.size}"
+      } else if (logNonStatusParcel(_parcels.size)) {
+        log debug s"$tag action=PUT status=${parcel.status.statusName} $ids parcelQueueSize=${_parcels.size} buffers=${parcel.bufferCount}"
+      }
       _parcels.put(parcel.blockPtr)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
+        log error burstStdMsg(s"PARCEL_PIPE_FAIL $tag", t)
         throw t
     }
   }
 
-  override
-  def take: TeslaParcel = {
+  override def take: TeslaParcel = {
     lazy val tag = s"TeslaParcelPipe.take name=$pipeName"
     ensureRunning
     try {
       val ptr = _parcels.poll(timeoutDuration.toNanos, TimeUnit.NANOSECONDS)
       val parcel: TeslaParcel = if (ptr == null) TeslaTimeoutMarkerParcel else TeslaParcelAnyVal(ptr)
-      if (parcel.status.isMarker || logNonStatusParcel(_parcels.size)) log info s"$tag action=TAKE status=${parcel.status.statusName} $ids ${_parcels.size}"
+      if (parcel.status.isMarker) {
+        log debug s"$tag action=TAKE status=${parcel.status.statusName} $ids parcelQueueSize=${_parcels.size}"
+      } else if (logNonStatusParcel(_parcels.size)) {
+        log debug s"$tag action=TAKE status=${parcel.status.statusName} $ids parcelQueueSize=${_parcels.size} buffers=${parcel.bufferCount}"
+      }
       parcel
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
+        log error burstStdMsg(s"PARCEL_PIPE_FAIL $t $tag", t)
         throw t
     }
   }
@@ -141,8 +147,7 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
   // lifecycle
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     synchronized {
       ensureNotRunning
       markRunning
@@ -150,8 +155,7 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
     this
   }
 
-  override
-  def stop: this.type = {
+  override def stop: this.type = {
     synchronized {
       ensureRunning
       markNotRunning

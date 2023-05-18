@@ -1,20 +1,29 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import org.burstsys.vitals.configuration.burstVitalsReflectionScanPrefixProperty
 import org.burstsys.vitals.errors.safely
-import org.burstsys.vitals.properties.VitalsPropertyRegistry.log
 import org.reflections.Reflections
 import org.reflections.util.{ClasspathHelper, ConfigurationBuilder}
 
 import java.lang.annotation.Annotation
+import java.net.URL
 import java.util
 import java.util.concurrent.atomic.AtomicReference
 import scala.jdk.CollectionConverters._
 
 package object reflection {
-  private val urls = ClasspathHelper.forPackage(burstPackage).asScala
+  private def urls: Iterable[URL] = {
+    val aux: Iterable[URL] = if (burstVitalsReflectionScanPrefixProperty.asOption.isDefined) {
+      log info s"Reflection prefix '${burstVitalsReflectionScanPrefixProperty.asOption.get}'"
+      ClasspathHelper.forPackage(burstVitalsReflectionScanPrefixProperty.asOption.get).asScala
+    } else {
+      Iterable.empty
+    }
+    ClasspathHelper.forPackage(burstPackage).asScala ++ aux
+  }
 
-  private val reflectConfig: ConfigurationBuilder = ConfigurationBuilder.build()
+  private def reflectConfig: ConfigurationBuilder = ConfigurationBuilder.build()
     .setExpandSuperTypes(false) // we limit the package search for speed
     .addUrls(urls.asJavaCollection)
 

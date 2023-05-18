@@ -1,10 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.supervisor.test.rest
 
-import org.burstsys.supervisor.test.support.BurstSupervisorSpecSupport
 
-
-class CatalogSpec extends BurstSupervisorSpecSupport {
+class CatalogSpec extends SupervisorRestSpecBase {
 
   ///////////////////////////////////////////////
   // Queries
@@ -16,12 +14,6 @@ class CatalogSpec extends BurstSupervisorSpecSupport {
   }
 
   ignore should "be able to create, update, and delete queries"
-
-  ///////////////////////////////////////////////
-  // Cells
-  ///////////////////////////////////////////////
-
-  ignore should "fetch all cells"
 
   ///////////////////////////////////////////////
   // Domains

@@ -2,14 +2,14 @@
 package org.burstsys.hydra.execute
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.exception.FabricQueryProcessingException
-import org.burstsys.fabric.execution.supervisor.group.FabricGroupExecuteContext
-import org.burstsys.fabric.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
-import org.burstsys.fabric.execution.model.execute.invoke.FabricInvocation
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.metadata.model.datasource.FabricDatasource
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
+import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
+import org.burstsys.fabric.wave.execution.model.execute.invoke.FabricInvocation
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.supervisor.group.FabricGroupExecuteContext
+import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.hydra.parser.parse
 import org.burstsys.hydra.runtime.HydraScanner
 import org.burstsys.hydra.trek.{HydraSupervisorParse, HydraSupervisorSchemaLookup}
@@ -17,8 +17,7 @@ import org.burstsys.hydra.{HydraService, HydraServiceContext}
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{Future, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -40,14 +39,14 @@ trait HydraWaveExecutor extends FabricGroupExecuteContext with HydraService {
     var datasource: FabricDatasource = null
     var schema: BrioSchema = null
     Try {
-      HydraSupervisorSchemaLookup.begin(groupUid)
+      val hsslSpan = HydraSupervisorSchemaLookup.begin(groupUid)
       datasource = container.metadata.lookup.datasource(over = over, validate = true)
       schema = BrioSchema(datasource.view.schemaName)
-      HydraSupervisorSchemaLookup.end(groupUid)
+      HydraSupervisorSchemaLookup.end(hsslSpan)
 
-      HydraSupervisorParse.begin(groupUid)
+      val hspSpan = HydraSupervisorParse.begin(groupUid)
       val analysis = parse(source = hydraSource, schema = schema)
-      HydraSupervisorParse.end(groupUid)
+      HydraSupervisorParse.end(hspSpan)
       analysis
     } match {
       case Failure(t) => promise.failure(FabricQueryProcessingException("HYDRA", s"HYDRA_PARSE_FAIL $t $tag", t))

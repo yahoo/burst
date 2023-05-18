@@ -18,7 +18,7 @@ import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
 import org.burstsys.vitals.uid._
 
 import scala.concurrent.{Future, Promise}
@@ -38,12 +38,12 @@ trait BrioPressPipeline extends AnyRef {
   private[this]
   lazy val pressJobQueue = new LinkedBlockingQueue[BrioPressPipelineJob] {
 
-    log info burstStdMsg(s"start ${brioPressThreadsProperty.getOrThrow} press worker thread(s)")
+    log info burstStdMsg(s"start ${brioPressThreadsProperty.get} press worker thread(s)")
 
     /**
      * startup a fixed worker pool for parallel pressing
      */
-    (0 until brioPressThreadsProperty.getOrThrow).foreach {
+    (0 until brioPressThreadsProperty.get).foreach {
       i =>
         TeslaRequestFuture { // for waiting around
           Thread.currentThread setName f"brio-presser-$i%02d"
@@ -132,7 +132,7 @@ trait BrioPressPipeline extends AnyRef {
         p.complete(Success(blobBuffer))
       } catch safely {
         case t: Throwable =>
-          log warn burstStdMsg(s"BrioPressPipelineJob.press() jobId=$jobId, guid=$guid -- discarding press job... $t", t)
+          log warn burstLocMsg(s"jobId=$jobId, guid=$guid -- discarding press job... $t", t)
           BrioReporter.onPressReject()
           releaseBuffer(blobBuffer)
           p.failure(t)

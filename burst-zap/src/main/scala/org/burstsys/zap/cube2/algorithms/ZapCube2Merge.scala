@@ -6,9 +6,13 @@ import org.burstsys.brio.types.BrioTypes._
 import org.burstsys.felt.model.collectors.cube.decl.column.aggregation.FeltCubeAggSemRt
 import org.burstsys.felt.model.collectors.cube.{FeltCubeBuilder, FeltCubeCollector}
 import org.burstsys.vitals.bitmap.VitalsBitMapAnyVal
+import org.burstsys.vitals.git.log
+import org.burstsys.vitals.text.VitalsTextCodec
 import org.burstsys.zap.cube2.ZapCube2
 import org.burstsys.zap.cube2.row.ZapCube2Row
 import org.burstsys.zap.cube2.state._
+
+import scala.annotation.unused
 
 /**
  *
@@ -20,9 +24,8 @@ trait ZapCube2Merge extends Any with ZapCube2State with ZapCube2Nav {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   @inline final override
-  def interMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary): Unit = {
-    assert(this == thisCube)
+  def interMerge(builder: FeltCubeBuilder, thatCube: FeltCubeCollector)
+                (implicit codec: VitalsTextCodec): Unit = {
     try {
       rowMerge(builder, thatCube.asInstanceOf[ZapCube2], VitalsBitMapAnyVal(~0L), intra = false)
     } finally if (!rowsLimited)
@@ -30,11 +33,10 @@ trait ZapCube2Merge extends Any with ZapCube2State with ZapCube2Nav {
   }
 
   @inline final override
-  def intraMerge(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                 thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary,
+  def intraMerge(builder: FeltCubeBuilder, theDictionary: BrioMutableDictionary, thatCube: FeltCubeCollector,
                  dimensionMask: VitalsBitMapAnyVal, aggregationMask: VitalsBitMapAnyVal): Unit = {
-    assert(this == thisCube)
     try {
+      this.dictionary = theDictionary
       rowMerge(builder, thatCube.asInstanceOf[ZapCube2], aggregationMask, intra = true)
     } finally if (!rowsLimited)
       resizeCount = 0 // made it all the way through without a resize
@@ -50,7 +52,8 @@ trait ZapCube2Merge extends Any with ZapCube2State with ZapCube2Nav {
    * bucket sizes
    */
   @inline private
-  def rowMerge(builder: FeltCubeBuilder, thatCube: ZapCube2, aggregationMask: VitalsBitMapAnyVal, intra: Boolean): Unit = {
+  def rowMerge(builder: FeltCubeBuilder, thatCube: ZapCube2, aggregationMask: VitalsBitMapAnyVal, intra: Boolean)
+              (implicit codec: VitalsTextCodec): Unit = {
     if (thatCube.isEmpty)
       return // if the incoming cube is empty - nothing to do
 
@@ -59,6 +62,21 @@ trait ZapCube2Merge extends Any with ZapCube2State with ZapCube2Nav {
       val currentThatRow = thatCube.row(rc)
       val startRowsCount = rowsCount
       setCursorFrom(currentThatRow)
+
+      if (!intra) {
+        var d = 0
+        while (d < dimCount) {
+          if (!currentThatRow.dimIsNull(d) && builder.dimensionFieldTypes(d) == BrioStringKey) {
+            val stringIndex = this.dimRead(d)
+            val oldString = thatCube.dictionary.stringLookup(stringIndex.toShort)
+            val newIdx = this.dictionary.keyLookupWithAdd(oldString)
+            this.dimWrite(d, newIdx)
+            this.dictionary
+          }
+          d += 1
+        }
+      }
+
       val currentThisRow = navigate(cursor) // this might create a new row
       // check for overflow
       if (rowsLimited)
@@ -84,13 +102,13 @@ trait ZapCube2Merge extends Any with ZapCube2State with ZapCube2Nav {
    * Import the masked aggregations from the source row to the target row
    */
   @inline
-  def importAggs(builder: FeltCubeBuilder, aggregationMask: VitalsBitMapAnyVal,
+  private
+  def importAggs(@unused builder: FeltCubeBuilder, aggregationMask: VitalsBitMapAnyVal,
                  targetRow: ZapCube2Row, sourceRow: ZapCube2Row): Unit = {
     var aggregation = 0
     while (aggregation < aggCount) {
       // make sure that we do not aggregate for fields in other gathers
       if (aggregationMask.testBit(aggregation)) {
-        val semantic: FeltCubeAggSemRt = builder.aggregationSemantics(aggregation)
         if (!sourceRow.aggIsNull(aggregation)) {
           targetRow.aggWrite(aggregation, sourceRow.aggRead(aggregation))
         } else {
@@ -102,6 +120,7 @@ trait ZapCube2Merge extends Any with ZapCube2State with ZapCube2Nav {
   }
 
   @inline
+  private
   def mergeRows(builder: FeltCubeBuilder, aggregationMask: VitalsBitMapAnyVal,
                 existingRow: ZapCube2Row, incomingRow: ZapCube2Row, intra: Boolean) : Unit = {
     // merge the rows for this we require aggregation semantics

@@ -2,7 +2,7 @@
 package org.burstsys.tesla.part.factory
 
 import org.burstsys.tesla.part.{TeslaPartPool, debugTending}
-import org.burstsys.vitals.instrument.{prettyByteSizeString, prettySizeString}
+import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettySizeString}
 
 import scala.collection.mutable
 

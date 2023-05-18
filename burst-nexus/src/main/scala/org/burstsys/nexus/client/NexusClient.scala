@@ -4,7 +4,6 @@ package org.burstsys.nexus.client
 import java.io.File
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicInteger
-
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
 import org.burstsys.nexus.NexusIoMode._
 import org.burstsys.nexus.client.connection.NexusClientConnection
@@ -34,84 +33,80 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.handler.ssl.{SslContext, SslContextBuilder}
+import org.burstsys.tesla.thread.request.TeslaRequestFuture
 
 import scala.concurrent.duration.Duration._
 import scala.concurrent.duration._
 import org.burstsys.vitals.logging._
 
 /**
-  * A Nexus Client (stream data ''consumer'' side) in the protocol
-  */
+ * A Nexus Client (stream data ''consumer'' side) in the protocol
+ */
 trait NexusClient extends VitalsService {
 
   /**
-    * internal id for troubleshooting
-    *
-    * @return
-    */
+   * @return internal id for troubleshooting
+   */
   def clientId: Int
 
   /**
-    * The ip address of the remote nexus server
-    *
-    * @return
-    */
+   * @return The ip address of the remote nexus server
+   */
   def serverHost: VitalsHostAddress
 
   /**
-    * The ip port of the remote nexus server
-    *
-    * @return
-    */
+   * @return The ip port of the remote nexus server
+   */
   def serverPort: VitalsHostPort
 
   /**
-    * add a listener for nexus client events
-    * @param listener
-    * @return
-    */
+   * add a listener for nexus client events
+   *
+   * @param listener the listener to add
+   * @return this
+   */
   def talksTo(listener: NexusClientListener): this.type
 
   /**
-    * start a stream with the server associated with this client endpoint.
-    *
-    * @param guid a unique identifier for the request (load/query operation)
-    * @param suid a unique identifier for this stream
-    * @param properties
-    * @param schema the schema for the data to be loaded
-    * @param filter a filter to apply to the data when loading
-    * @param pipe
-    * @param sliceKey the slice information for this stream
-    * @param clientHostname the hostname for this machine
-    * @param serverHostname the hostname for the server
-    * @return the stream that is started
-    */
+   * start a stream with the server associated with this client endpoint.
+   *
+   * @param guid           a unique identifier for the request (load/query operation)
+   * @param suid           a unique identifier for this stream
+   * @param properties     properties sent on the stream to the remote
+   * @param schema         the schema for the data to be loaded
+   * @param filter         a filter to apply to the data when loading
+   * @param pipe           the pipe to deliver received parcels to
+   * @param sliceKey       the slice information for this stream
+   * @param clientHostname the hostname for this machine
+   * @param serverHostname the hostname for the server
+   * @return the stream that is started
+   */
   def startStream(guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
                   pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName): NexusStream
 
   /**
-    * abort the current stream (if any) on this client with a specific [[TeslaParcelStatus]]
-    */
+   * abort the current stream (if any) on this client with a specific [[TeslaParcelStatus]]
+   */
   def abortStream(status: TeslaParcelStatus): Unit
 
   /**
-    * the underlying NETTY channel
-    */
+   * the underlying NETTY channel
+   */
   def nettyChannel: Channel
 
   /**
-    * is the Channel still connected to the server
-    */
+   * is the Channel still connected to the server
+   */
   def isConnected: Boolean
 
   /**
-    * A callback to notify the client that the connection to the server was disconnected
-    */
+   * A callback to notify the client that the connection to the server was disconnected
+   */
   def channelDisconnected(): Unit
 
   /**
-    * Is the Channel still being used
-    */
+   * Is the Channel still being used
+   */
   def isActive: Boolean
 
 }
@@ -121,22 +116,20 @@ object NexusClient {
   final val idGenerator = new AtomicInteger()
 
   def apply(serverHost: VitalsHostAddress, serverPort: VitalsHostPort, config: NexusConfig = clientConfig): NexusClient =
-    NexusClientContext(
-      clientId = idGenerator.getAndIncrement, serverHost = serverHost: VitalsHostAddress,
-      serverPort = serverPort: VitalsHostPort, config = config: NexusConfig
-    )
+    NexusClientContext(clientId = idGenerator.getAndIncrement, serverHost, serverPort, config)
 
 }
 
 private[client] final case
-class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
-                         serverPort: VitalsHostPort,
-                         config: NexusConfig, timeout: Duration = Inf,
-                         ioMode: NexusIoMode = NioIoMode) extends NexusClient with NexusClientNetty with SslGlobalProperties {
+class NexusClientContext(
+                          clientId: Int, serverHost: VitalsHostAddress, serverPort: VitalsHostPort,
+                          config: NexusConfig, timeout: Duration = Inf, ioMode: NexusIoMode = NioIoMode
+                        )
+  extends NexusClient with NexusClientNetty with SslGlobalProperties {
 
   override def toString: String = serviceName
 
-  override def serviceName: String = s"nexus-client(#$clientId, SSL=${burstNexusSslEnableProperty.getOrThrow} $serverHost:$serverPort)"
+  override def serviceName: String = s"nexus-client(#$clientId, SSL=${burstNexusSslEnableProperty.get} $serverHost:$serverPort)"
 
   val modality: VitalsServiceModality = VitalsPojo
 
@@ -160,9 +153,6 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
   var _eventLoopGroup: EventLoopGroup = _
 
   private[this]
-  var _isActive: Boolean = false
-
-  private[this]
   var _connection: NexusClientConnection = _
 
   private[this]
@@ -178,19 +168,18 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
 
   override def isConnected: Boolean = _nettyChannel != null && _nettyChannel.isRegistered && _nettyChannel.isActive
 
-  override
-  def talksTo(listener: NexusClientListener): this.type = {
+  override def talksTo(listener: NexusClientListener): this.type = {
     _listener = listener
     if (_connection != null)
       _connection talksTo listener
     this
   }
 
-  override
-  def startStream(guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
-                  pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName): NexusStream = {
-    _connection.startStream(guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
-      pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName)
+  override def startStream(
+                            guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
+                            pipe: TeslaParcelPipe, sliceKey: NexusSliceKey, clientHostname: VitalsHostName, serverHostname: VitalsHostName
+                          ): NexusStream = {
+    _connection.startStream(guid, suid, properties, schema, filter, pipe, sliceKey, clientHostname, serverHostname)
   }
 
   override
@@ -199,7 +188,9 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
   }
 
   override def channelDisconnected(): Unit = {
-    stopIfNotAlreadyStopped
+    TeslaRequestFuture {
+      stopIfNotAlreadyStopped
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +213,7 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
       // inbound goes in forward pipeline order
       pipeline.addLast("client-inbound-stage-1", NexusInboundFrameDecoder())
       pipeline.addLast("client-inbound-stage-2",
-        NexusReceiver(clientId, isServer = false, transmitter = transmitter, clientListener = _connection, disconnectCallback = channelDisconnected)
+        NexusReceiver(clientId, isServer = false, transmitter, clientListener = _connection, disconnectCallback = channelDisconnected)
       )
 
       // outbound goes in reverse pipeline order
@@ -231,8 +222,7 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
     }
   }
 
-  private
-  def setupIoMode(): Unit = {
+  private def setupIoMode(): Unit = {
     ioMode match {
       case EPollIoMode =>
         _eventLoopGroup = new EpollEventLoopGroup()
@@ -254,14 +244,13 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
   // Lifecycle
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def start: this.type = {
+  override def start: this.type = {
     ensureNotRunning
     synchronized {
-      log info startingMessage
+      log debug startingMessage
       try {
         setupIoMode()
-        _nettyChannel = connectToServer.channel()
+        _nettyChannel = connectToServer().channel()
       } catch safely {
         case t: Throwable =>
           log error burstStdMsg(s"$serviceName: could not connect", t)
@@ -275,13 +264,11 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
   }
 
   /**
-    * connect to the server - we need to detect and recover from connection loss.
-    * Detecting connection loss appears to happen in [[org.burstsys.nexus.receiver.NexusReceiver.channelInactive]]
-    */
-  private
-  def connectToServer: ChannelFuture = {
-
-    if (burstNexusSslEnableProperty.getOrThrow) {
+   * connect to the server - we need to detect and recover from connection loss.
+   * Detecting connection loss appears to happen in [[org.burstsys.nexus.receiver.NexusReceiver.channelInactive]]
+   */
+  private def connectToServer(): ChannelFuture = {
+    if (burstNexusSslEnableProperty.get) {
       val certificate = new File(certPath)
       val privateKey = new File(keyPath)
       val caChain = new File(caPath)
@@ -309,18 +296,18 @@ class NexusClientContext(clientId: Int, serverHost: VitalsHostAddress,
     channelFuture
   }
 
-  override
-  def stop: this.type = {
+  override def stop: this.type = {
     synchronized {
       ensureRunning
-      log info stoppingMessage
-      try
-        _nettyChannel.close.syncUninterruptibly
-      finally _eventLoopGroup.shutdownGracefully
+      log debug stoppingMessage
+      try {
+        _nettyChannel.close().syncUninterruptibly()
+      } finally _eventLoopGroup.shutdownGracefully
       _eventLoopGroup = null
       _nettyChannel = null
       markNotRunning
       NexusClientReporter.onClientConnectionStop()
+      log debug stoppedMessage
       this
     }
   }

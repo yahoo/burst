@@ -67,6 +67,48 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
     case RelateDerbyDialect => derbyCreateTableSql
   }
 
+  override def insertEntityWithPkSql(entity: CatalogView): WriteSql = {
+    sql"""
+     INSERT INTO  ${this.table}
+       (
+        ${this.column.pk},
+        ${this.column.labels},
+        ${this.column.domainFk},
+        ${this.column.generationClock},
+        ${this.column.moniker},
+        ${this.column.storeProperties},
+        ${this.column.schemaName},
+        ${this.column.viewMotif},
+        ${this.column.viewProperties},
+        ${this.column.udk}
+      )
+     VALUES
+       (
+          {pk},
+          {labels},
+          {domainFk},
+          {generationClock},
+          {moniker},
+          {storeProperties},
+          {schemaName},
+          {viewMotif},
+          {viewProperties},
+          {udk}
+        )
+     """.bindByName(
+      Symbol("pk") -> entity.pk,
+      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
+      Symbol("domainFk") -> entity.domainFk,
+      Symbol("generationClock") -> System.currentTimeMillis(),
+      Symbol("moniker") -> entity.moniker,
+      Symbol("storeProperties") -> propertyMapToString(entity.storeProperties),
+      Symbol("schemaName") -> entity.schemaName,
+      Symbol("viewMotif") -> entity.viewMotif,
+      Symbol("viewProperties") -> propertyMapToString(entity.viewProperties),
+      Symbol("udk") -> entity.udk
+    )
+  }
+
   override def insertEntitySql(entity: CatalogView): WriteSql = {
     sql"""
      INSERT INTO  ${this.table}
@@ -224,7 +266,7 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
 
   private def updateGenerationClock(entity: CatalogView): (Long, VitalsPropertyMap) = {
     val now = System.currentTimeMillis()
-    (now, entity.viewProperties.concat(Array(fabric.metadata.ViewEarliestLoadAtProperty -> s"$now")))
+    (now, entity.viewProperties.concat(Array(fabric.wave.metadata.ViewEarliestLoadAtProperty -> s"$now")))
   }
 
   def updateGenClockAtomically(entity: CatalogView, minNewGenClock: Long)(implicit session: DBSession): CatalogView = {
@@ -286,7 +328,7 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
 
   def allViewsForDomain(domainFk: RelatePk, limit: Option[Int])(implicit session: DBSession): List[CatalogView] = {
     sql"""SELECT * FROM ${this.table}
-         WHERE ${this.column.domainFk} = {domainFk} ${service.dialect.limitClause(limit)}
+         WHERE ${this.column.domainFk} = {domainFk} ${service.dialect.limitClause(limit, None)}
       """.bindByName(Symbol("domainFk") -> domainFk).map(resultToEntity).list().apply()
   }
 

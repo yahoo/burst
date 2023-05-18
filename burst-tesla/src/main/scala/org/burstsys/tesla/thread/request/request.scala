@@ -1,12 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.thread
 
-import java.util.concurrent.{ExecutorService, Executors}
+import io.opentelemetry.context.Context
 
+import java.util.concurrent.{ExecutorService, Executors}
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.threading.burstThreadGroupGlobal
 
+import java.util.concurrent.Executor
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, CanAwait, ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -16,6 +18,8 @@ package object request {
 
   private lazy
   val teslaCommonRequestPool: TeslaRequestThreadPool = TeslaRequestThreadPool(poolName = "tesla-request")
+
+  lazy val teslaRequestExecutorService: ExecutorService = teslaCommonRequestPool.pool
 
   /**
    * the shared request pool executor
@@ -117,7 +121,7 @@ package object request {
       new Thread(burstThreadGroupGlobal, r, name) with TeslaRequestThread
     }
 
-    override protected lazy val pool: ExecutorService = Executors.newCachedThreadPool(factory)
+    override lazy val pool: ExecutorService = Context.taskWrapping(Executors.newCachedThreadPool(factory))
   }
 
 

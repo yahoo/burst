@@ -42,16 +42,12 @@ import java.net.InetAddress
 trait NexusServer extends VitalsService {
 
   /**
-    * the config defined ''or'' dynamically bound port for this server (available once the server has started)
-    *
-    * @return
+    * @return the config defined ''or'' dynamically bound port for this server (available once the server has started)
     */
   def serverPort: VitalsHostPort
 
   /**
-    * the hostname/address for this how
-    *
-    * @return
+    * @return the hostname/address for this how
     */
   def serverHost: VitalsHostName
 
@@ -103,7 +99,7 @@ class NexusServerContext(
                         ) extends NexusServer with NexusServerNetty with SslGlobalProperties {
   override def toString: String = serviceName
 
-  override def serviceName: String = s"nexus-server(#$serverId, SSL=${burstNexusSslEnableProperty.getOrThrow} $serverHost:$serverPort)"
+  override def serviceName: String = s"nexus-server(#$serverId, SSL=${burstNexusSslEnableProperty.get} $serverHost:$serverPort)"
 
   val modality: VitalsServiceModality = VitalsPojo
 
@@ -167,7 +163,7 @@ class NexusServerContext(
     val pipeline: ChannelPipeline = nettyChannel.pipeline
 
     val transmitter = NexusTransmitter(serverId, isServer = true, channel = nettyChannel, maxQueuedWrites = 1)
-    val connection = NexusServerConnection(_nettyChannel, transmitter, _feeder) talksTo _listener
+    val connection = NexusServerConnection(nettyChannel, transmitter, _feeder) talksTo _listener
 
     if (_sslContext.isDefined) {
       pipeline.addLast("server-inbound-stage-0", _sslContext.get.newHandler(nettyChannel.alloc))
@@ -176,7 +172,7 @@ class NexusServerContext(
     // inbound goes in forward pipeline order
     pipeline.addLast("server-inbound-stage-1", NexusInboundFrameDecoder())
     pipeline.addLast("server-inbound-stage-2",
-      NexusReceiver(serverId, isServer = true, transmitter = transmitter, serverListener = connection)
+      NexusReceiver(serverId, isServer = true, transmitter, serverListener = connection)
     )
 
     // outbound goes in reverse pipeline order
@@ -219,7 +215,7 @@ class NexusServerContext(
       try {
         setupIoMode()
 
-        if (burstNexusSslEnableProperty.getOrThrow) {
+        if (burstNexusSslEnableProperty.get) {
           val certificate = new File(certPath)
           val privateKey = new File(keyPath)
           val caChain = new File(caPath)

@@ -10,7 +10,7 @@ import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsServiceModality, VitalsSingleton}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.file.removePathFilesAndDirsRecursively
-import org.burstsys.vitals.instrument.prettyTimeFromNanos
+import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 
 import java.net.URL
 import java.nio.file.Paths
@@ -84,7 +84,8 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
     "burst-tesla",
     "burst-ginsu",
     "burst-felt",
-    "burst-fabric",
+    "burst-fabric-net",
+    "burst-fabric-wave",
     "burst-zap",
     "burst-hydra",
     "kryo",
@@ -116,10 +117,10 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
       log info startingMessage
       val start = System.nanoTime
       removePathFilesAndDirsRecursively(generatedBindingsJarFolder)
-      for (i <- 0 until burstFeltCompileThreadsProperty.getOrThrow) {
+      for (i <- 0 until burstFeltCompileThreadsProperty.get) {
         _compilerQueue put FeltCompilerContext(_versionClock.get)
       }
-      log debug s"$serviceName start up took ${prettyTimeFromNanos(System.nanoTime - start)} with ${burstFeltCompileThreadsProperty.getOrThrow} worker(s)"
+      log debug s"$serviceName start up took ${prettyTimeFromNanos(System.nanoTime - start)} with ${burstFeltCompileThreadsProperty.get} worker(s)"
       markRunning
     }
     this
@@ -161,7 +162,7 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
 
   override
   def generatedSourceToTravelerClassNames(key: FeltArtifactKey, tag: FeltArtifactTag, source: FeltCode): Try[Array[FeltClassName]] = {
-    startIfNotRunning
+    startIfNotAlreadyStarted
     try {
       val compiler = takeCompiler
       val oldLoader = Thread.currentThread.getContextClassLoader
@@ -181,7 +182,7 @@ object FeltCompileEngine extends VitalsService with FeltCompiler {
 
   override
   def generatedSourceToSweepInstance(key: FeltArtifactKey, tag: FeltArtifactTag, source: FeltCode): Try[Array[Any]] = {
-    startIfNotRunning
+    startIfNotAlreadyStarted
     try {
       val compiler = takeCompiler
       val oldLoader = Thread.currentThread.getContextClassLoader

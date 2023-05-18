@@ -2,7 +2,7 @@
 package org.burstsys.felt.model.collectors.route
 
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorFactory
-import org.burstsys.vitals.io.{KB, MB}
+import org.burstsys.vitals.stats.{KB, MB}
 
 package object runtime {
 

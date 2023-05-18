@@ -5,7 +5,7 @@ import org.burstsys.agent.AgentService
 import org.burstsys.agent.api.BurstQueryApiResultStatus.BurstQueryApiInvalidStatus
 import org.burstsys.agent.api._
 import org.burstsys.api.BurstApiClient
-import org.burstsys.fabric.execution.model.execute.group.FabricGroupUid
+import org.burstsys.fabric.wave.execution.model.execute.group.FabricGroupUid
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.errors._

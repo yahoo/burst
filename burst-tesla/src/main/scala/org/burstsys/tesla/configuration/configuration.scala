@@ -59,7 +59,7 @@ package object configuration extends VitalsPropertyRegistry {
   /**
    * how often to tend tesla parts pools and free where appropriate
    */
-  def teslaPartsTenderInterval: Duration = Duration(teslaPartsTenderProperty.getOrThrow, TimeUnit.SECONDS)
+  def teslaPartsTenderInterval: Duration = Duration(teslaPartsTenderProperty.get, TimeUnit.SECONDS)
 
   /**
    * TTL for LRU freeing policy
@@ -73,7 +73,7 @@ package object configuration extends VitalsPropertyRegistry {
   /**
    * TTL for LRU freeing policy
    */
-  def teslaPartsTtlInterval: Duration = Duration(teslaPartsTtlProperty.getOrThrow, TimeUnit.SECONDS)
+  def teslaPartsTtlInterval: Duration = Duration(teslaPartsTtlProperty.get, TimeUnit.SECONDS)
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   // SCATTERS
@@ -91,6 +91,6 @@ package object configuration extends VitalsPropertyRegistry {
   /**
    * how often to check status of the status of all slots in an ongoing scatter operation
    */
-  def scatterTenderPeriod: Duration = Duration(scatterTenderIntervalProperty.getOrThrow, TimeUnit.MILLISECONDS)
+  def scatterTenderPeriod: Duration = Duration(scatterTenderIntervalProperty.get, TimeUnit.MILLISECONDS)
 
 }

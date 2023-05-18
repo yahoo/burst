@@ -2,7 +2,7 @@
 package org.burstsys.alloy
 
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricViewKey}
 
 /**
  * necessary and sufficient to load any miniview

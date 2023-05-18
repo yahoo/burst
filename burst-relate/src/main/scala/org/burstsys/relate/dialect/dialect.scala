@@ -39,7 +39,7 @@ package object dialect {
     /**
       * Return a sql string that can be used to limit select clauses
       */
-    def limitClause(limit: Option[Int]): SQLSyntax = sqls""
+    def limitClause(limit: Option[Int], offset: Option[Int]): SQLSyntax = sqls""
 
     /**
       * JDBC Driver for this dialect

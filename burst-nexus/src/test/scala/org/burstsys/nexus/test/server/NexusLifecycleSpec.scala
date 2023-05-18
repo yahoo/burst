@@ -8,23 +8,21 @@ import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.vitals.net.getPublicHostAddress
 import org.scalatest.BeforeAndAfterEach
 
-class NexusLifecycleSpec extends NexusSpec with BeforeAndAfterEach {
+class NexusLifecycleSpec extends NexusSpec {
 
   var server: NexusServer = _
 
-  override protected def beforeEach(): Unit = {
-    super.beforeEach()
+  override def beforeEach(): Unit = {
     server = nexus.grabServer(getPublicHostAddress)
   }
 
-  override def afterEach(): Unit = {
-    super.afterEach()
+  override def afterEach(): Unit =  {
     if (server != null) {
       server.stopIfNotAlreadyStopped
     }
   }
 
-  "NexusClient" should "server.stop should cause clients to become invalid" in {
+  "NexusClient" should "become invalid after server.stop is called" in {
     TeslaRequestCoupler {
       var client = nexus.grabClientFromPool(getPublicHostAddress, server.serverPort)
       val firstClientId = client.clientId
@@ -47,7 +45,7 @@ class NexusLifecycleSpec extends NexusSpec with BeforeAndAfterEach {
     }
   }
 
-  "NexusServer" should "client.stop should not cause the server to shutdown" in {
+  "NexusServer" should "not shutdown when client.stop is called" in {
     TeslaRequestCoupler {
       val client1 = nexus.grabClientFromPool(getPublicHostAddress, server.serverPort)
       val client2 = nexus.grabClientFromPool(getPublicHostAddress, server.serverPort)

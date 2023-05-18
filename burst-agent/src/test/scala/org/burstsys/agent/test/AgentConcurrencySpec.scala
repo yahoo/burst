@@ -4,14 +4,14 @@ package org.burstsys.agent.test
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import org.burstsys.agent.configuration
-import org.burstsys.fabric.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
-import org.burstsys.fabric.execution.model.execute.parameters.FabricCall
-import org.burstsys.fabric.execution.model.result.FabricExecuteResult
-import org.burstsys.fabric.execution.model.result.group.FabricResultGroup
-import org.burstsys.fabric.execution.model.result.set.FabricResultSet
-import org.burstsys.fabric.execution.model.result.status.FabricNotReadyResultStatus
-import org.burstsys.fabric.metadata.model.over
-import org.burstsys.fabric.metadata.model.over.FabricOver
+import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupKey, FabricGroupUid}
+import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
+import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
+import org.burstsys.fabric.wave.execution.model.result.group.FabricResultGroup
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
+import org.burstsys.fabric.wave.execution.model.result.status.FabricNotReadyResultStatus
+import org.burstsys.fabric.wave.metadata.model.over
+import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, _}
 
 import scala.concurrent.duration._

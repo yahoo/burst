@@ -4,10 +4,10 @@ package org.burstsys.alloy.store.mini
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.metadata._
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
-import org.burstsys.fabric.metadata.model.view.FabricView
-import org.burstsys.fabric.metadata.model.{FabricDomainKey, FabricViewKey}
+import org.burstsys.fabric.wave.metadata._
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.view.FabricView
+import org.burstsys.fabric.wave.metadata.model.{FabricDomainKey, FabricViewKey}
 
 trait MiniView {
 

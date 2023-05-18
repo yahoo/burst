@@ -2,12 +2,12 @@
 package org.burstsys.felt.model.collectors.result
 
 import org.burstsys.brio.types.BrioTypes._
-import org.burstsys.fabric.execution.model.result.row.FabricResultRow
-import org.burstsys.fabric.execution.model.result.set.FabricResultSet
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetIndex
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetMetrics
-import org.burstsys.fabric.execution.model.result.set.FabricResultSetName
-import org.burstsys.fabric.execution.model.result.state.FabricScanState
+import org.burstsys.fabric.wave.execution.model.result.row.FabricResultRow
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSet
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetIndex
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetMetrics
+import org.burstsys.fabric.wave.execution.model.result.set.FabricResultSetName
+import org.burstsys.fabric.wave.execution.model.result.state.FabricScanState
 import org.burstsys.felt.model.collectors.runtime.FeltCollector
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorBuilder
 import org.burstsys.felt.model.collectors.runtime.FeltCollectorPlane

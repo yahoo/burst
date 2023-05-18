@@ -5,7 +5,12 @@ import org.burstsys.vitals.trek.{VitalsTrekCell, VitalsTrekMark, VitalsTrekRemot
 
 package object trek {
 
-  final object NexusClientStreamTrekMark extends VitalsTrekMark("nexus_client_stream",
+  final object NexusClientStreamStartTrekMark extends VitalsTrekMark("nexus_client_stream_start",
+    cluster = VitalsTrekCell,
+    role = VitalsTrekWorker
+  )
+
+  final object NexusClientStreamTerminateTrekMark extends VitalsTrekMark("nexus_client_stream_terminate",
     cluster = VitalsTrekCell,
     role = VitalsTrekWorker
   )

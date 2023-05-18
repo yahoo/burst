@@ -3,7 +3,7 @@ package org.burstsys.agent.model.execution.group
 
 import org.burstsys.agent.api.{BurstQueryApiCall, BurstQueryApiParameter}
 import org.burstsys.agent.model.execution.group.parameter._
-import org.burstsys.fabric.execution.model.execute.parameters.{FabricCall, FabricParameterValue}
+import org.burstsys.fabric.wave.execution.model.execute.parameters.{FabricCall, FabricParameterValue}
 
 import scala.language.implicitConversions
 

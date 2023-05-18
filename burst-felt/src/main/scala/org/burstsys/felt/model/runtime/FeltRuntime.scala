@@ -3,9 +3,9 @@ package org.burstsys.felt.model.runtime
 
 import org.burstsys.brio.blob.BrioBlob
 import org.burstsys.brio.lattice.BrioLatticeReference
-import org.burstsys.fabric.data.model.snap.FabricSnap
-import org.burstsys.fabric.execution.model.execute.invoke.{FabricDebugLevel, FabricInvocation, FabricReportLevel}
-import org.burstsys.fabric.execution.model.runtime.{FabricRuntime, FabricRuntimeContext}
+import org.burstsys.fabric.wave.data.model.snap.FabricSnap
+import org.burstsys.fabric.wave.execution.model.execute.invoke.{FabricDebugLevel, FabricInvocation, FabricReportLevel}
+import org.burstsys.fabric.wave.execution.model.runtime.{FabricRuntime, FabricRuntimeContext}
 import org.burstsys.felt.model.collectors.FeltCollectorRuntime
 import org.burstsys.felt.model.control.FeltCtrlRuntime
 import org.burstsys.felt.model.mutables.FeltBindingRuntime

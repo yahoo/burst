@@ -12,9 +12,8 @@ import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.vitals.bitmap.VitalsBitMapAnyVal
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.text.VitalsTextCodec
 import org.burstsys.zap.cube2
-import org.burstsys.zap.cube2.algorithms.{ZapCube2Join, ZapCube2Merge, ZapCube2Normalize, ZapCube2Truncate}
+import org.burstsys.zap.cube2.algorithms.{ZapCube2Join, ZapCube2Merge, ZapCube2Truncate}
 import org.burstsys.zap.cube2.key.ZapCube2Key
 import org.burstsys.zap.cube2.row.ZapCube2Row
 import org.burstsys.zap.cube2.state._
@@ -53,7 +52,6 @@ import org.burstsys.zap.cube2.state._
  * <li>Cubes have various '''algorithms''' which can be applied to their row sets
  * e.g. ``merge`` ([[org.burstsys.zap.cube2.algorithms.ZapCube2Merge]]),
  * ``join``  ([[org.burstsys.zap.cube2.algorithms.ZapCube2Join]]),
- * ``normalize``   ([[org.burstsys.zap.cube2.algorithms.ZapCube2Normalize]]),
  * ``truncate``  ([[org.burstsys.zap.cube2.algorithms.ZapCube2Truncate]])</li>
  * <li>This structure is meant to be cached and re-used via the reset method.</li>
  * <li>We support a maximum of __64__ total dimensions and aggregations though we could eventually support more.</li>
@@ -91,7 +89,7 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
   /**
    * set the internal flex dictionary
    */
-  def dictionary_=(d: BrioFlexDictionary): Unit
+  def dictionary_=(d: BrioMutableDictionary): Unit
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Buckets
@@ -244,17 +242,6 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
   // algorithms
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  ////////////////////////////////////////// normalize //////////////////////////////////////////////////
-
-  /**
-   * normalize that cube to share the same dictionary that this cube has
-   * <br/>'''NOTE:'''  ''thatCube'' is free'ed as part of this algorithm.
-   */
-  def normalizeThatCubeToThis(thatCube: ZapCube2, builder: ZapCube2Builder, text: VitalsTextCodec): ZapCube2
-
-  private [cube2]
-  def rowNormalize(thatBuilder: ZapCube2Builder, thatDictionary: BrioFlexDictionary, text: VitalsTextCodec): Unit
-
   def validateRow(row: ZapCube2Row): Boolean
 }
 
@@ -262,7 +249,7 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
  */
 final case
 class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyVal with ZapCube2 with ZapCube2State
-  with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Normalize with ZapCube2Iterator
+  with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Iterator
   with ZapCube2Join with ZapCube2Truncate with ZapCube2Merge with ZapCube2Extract {
 
   override def size(): TeslaMemorySize = availableMemorySize
@@ -277,17 +264,6 @@ class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyV
   override
   def builder: ZapCube2Builder =
     cube2.ZapCube2Builder(dimensionCount = dimCount, aggregationCount = aggCount)
-
-  override
-  def normalize(builder: FeltCubeBuilder, thisCube: FeltCubeCollector, thisDictionary: BrioMutableDictionary,
-                thatCube: FeltCubeCollector, thatDictionary: BrioMutableDictionary)
-               (implicit text: VitalsTextCodec): FeltCubeCollector = {
-    val thatCube2 = thatCube.asInstanceOf[ZapCube2]
-    this.dictionary = thisDictionary.asInstanceOf[BrioFlexDictionary]
-    thatCube2.dictionary = thatDictionary.asInstanceOf[BrioFlexDictionary]
-
-    normalizeThatCubeToThis(thatCube = thatCube2, builder = builder.asInstanceOf[ZapCube2Builder], text = text)
-  }
 
   override
   def itemLimited: Boolean = rowsLimited

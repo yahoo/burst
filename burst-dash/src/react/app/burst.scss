@@ -66,7 +66,9 @@
 
   & > * {
     display: flex;
-    width: 100%
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .b-pane {
@@ -95,6 +97,14 @@
 
     &.flex-grow-1 {
       min-height: 150px;
+    }
+    &.b-pane-75 {
+      height: 75%;
+      max-height: 75%;
+    }
+    &.b-pane-25 {
+      height: 25%;
+      max-height: 25%;
     }
   }
 }
@@ -138,6 +148,10 @@
     }
   }
 
+}
+
+.ws-pre {
+  white-space: pre;
 }
 
 //////////////////////////////////////////////////////

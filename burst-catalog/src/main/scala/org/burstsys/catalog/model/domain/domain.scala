@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.burstsys.catalog.api.BurstCatalogApiDomain
 import org.burstsys.catalog.cannedDataLabel
 import org.burstsys.catalog.persist.UdkCatalogEntity
-import org.burstsys.fabric.metadata.model.FabricDomainKey
-import org.burstsys.fabric.metadata.model.domain.FabricDomain
+import org.burstsys.fabric.wave.metadata.model.FabricDomainKey
+import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.relate.RelateEntity
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.json.VitalsJsonSanatizers._
@@ -33,6 +33,9 @@ package object domain {
                udk: String, labels: Map[String, String]
              ): CatalogDomain =
       domainApiToProxy(BurstCatalogApiDomain(pk, moniker, domainProperties, Some(udk), Some(labels)))
+
+    def apply(d: FabricDomain, moniker: String, udk: Option[String], labels: Option[Map[String, String]]): CatalogDomain =
+      BurstCatalogApiDomain(d.domainKey, moniker, d.domainProperties, udk, labels)
 
     final val DomainBeastProjectIdProperty: VitalsPropertyKey = "beast.domain.project.id"
     final val DomainProjectIdProperty: VitalsPropertyKey = "project_id"

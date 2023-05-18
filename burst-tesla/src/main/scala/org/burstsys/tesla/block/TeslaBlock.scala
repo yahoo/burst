@@ -177,11 +177,16 @@ class TeslaBlockAnyVal(blockBasePtr: TeslaMemoryPtr = TeslaNullMemoryPtr)
 
   @inline override
   def checkPtr(testPtr: TeslaMemoryPtr): TeslaMemoryPtr = {
-    val maxMem = dataSize
-    val blkPtr = blockBasePtr
-    val limitMem = blkPtr + maxMem
-    if (testPtr > limitMem)
-      throw VitalsException(s"bad memory ptr block=$blkPtr: ptr=$testPtr,  limitMem=$limitMem, referenceCount=$referenceCount")
+    if (blockBasePtr < 0) {
+      throw VitalsException(s"bad block ptr reason=negative block=$blockBasePtr ptr=$testPtr")
+    }
+    if (testPtr < 0) {
+      throw VitalsException(s"bad offset ptr reason=negative block=$blockBasePtr ptr=$testPtr")
+    }
+    val limitMem = blockBasePtr + dataSize
+    if (testPtr > limitMem) {
+      throw VitalsException(s"bad offset ptr reason=overrun block=$blockBasePtr ptr=$testPtr limitMem=$limitMem referenceCount=$referenceCount")
+    }
     testPtr
   }
 

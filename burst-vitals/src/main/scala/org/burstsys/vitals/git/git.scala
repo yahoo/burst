@@ -9,16 +9,7 @@ import org.burstsys.vitals.properties.property
 
 package object git extends VitalsLogger {
 
-  final val vitalsValidateBuildKey = "burst.common.git.validate.build"
-
   final val gitPropertiesFile = "burst-git.properties"
-
-  def vitalsValidateBuildProperty: Boolean = property[Boolean](vitalsValidateBuildKey, true)
-
-  /** *
-    * for testing with intellij and stale maven builds.
-    */
-  def turnOffBuildValidation(): Unit = System.setProperty(vitalsValidateBuildKey, false.toString)
 
   private lazy val properties = {
     val p = new Properties()
@@ -60,11 +51,5 @@ package object git extends VitalsLogger {
   def commitMessageFull: String = stringProperty("git.commit.message.full")
 
   def commitTime: String = stringProperty("git.commit.time")
-
-  final
-  val burstBuildPropertyName = "burst.build"
-
-  final
-  def buildVersionFlag: String = s"-D$burstBuildPropertyName=$commitId"
 
 }

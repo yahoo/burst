@@ -4,7 +4,7 @@ package org.burstsys.agent.model.cache
 import org.burstsys.agent.api.BurstQueryCacheOperation.{Evict, Flush, Search}
 import org.burstsys.agent.api.BurstQueryOperator.{Eq, Gt, Lt}
 import org.burstsys.agent.api.{BurstQueryCacheOperation, BurstQueryOperator}
-import org.burstsys.fabric.data.model.ops._
+import org.burstsys.fabric.wave.data.model.ops._
 
 import scala.language.implicitConversions
 
