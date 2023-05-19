@@ -38,7 +38,7 @@ trait FabricSliceReader extends AnyRef {
       } catch safely {
         case t: Throwable =>
           val msg = s"FAB_SLICE_READ_FAIL $t $tag"
-          log error burstStdMsg(msg, t)
+          log error(burstStdMsg(msg, t), t)
           throw VitalsException(msg, t)
       }
     }
@@ -59,7 +59,7 @@ trait FabricSliceReader extends AnyRef {
       } catch safely {
         case t: Throwable =>
           val msg = s"FAB_SLICE_EVICT_FAIL $t $tag"
-          log error burstStdMsg(msg, t)
+          log error(burstStdMsg(msg, t), t)
           throw VitalsException(msg, t)
       }
     }
@@ -82,7 +82,7 @@ trait FabricSliceReader extends AnyRef {
       } catch safely {
         case t: Throwable =>
           val msg = s"FAB_SLICE_FLUSH_FAIL $t $tag"
-          log error burstStdMsg(msg, t)
+          log error(burstStdMsg(msg, t), t)
           throw VitalsException(msg, t)
       }
     }
@@ -109,7 +109,7 @@ trait FabricSliceReader extends AnyRef {
     } catch safely {
       case t: Throwable =>
         val msg = s"FAB_SLICE_ITERATE_FAIL $t $tag"
-        log error burstStdMsg(msg, t)
+        log error(burstStdMsg(msg, t), t)
         throw VitalsException(msg, t)
     }
   }

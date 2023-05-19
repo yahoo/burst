@@ -76,7 +76,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
               connection.onMessage(messageId, bytes)
             } catch safely {
               case t: Throwable =>
-                log error burstStdMsg(s"FAB_NET_RECEIVER_DISPATCH_FAIL $this", t)
+                log error(burstStdMsg(s"FAB_NET_RECEIVER_DISPATCH_FAIL $this", t), t)
             }
           }
       }

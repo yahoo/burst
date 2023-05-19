@@ -67,7 +67,7 @@ abstract class BurstApiServer[S <: ThriftService : ClassTag] extends VitalsServi
     } catch safely {
       case t: Throwable =>
         val msg = s"'$serviceName' $apiUrl: ${messageFromException(t)}"
-        log error burstStdMsg(msg, t)
+        log error(burstStdMsg(msg, t), t)
         throw VitalsException(msg, t)
     }
     markRunning

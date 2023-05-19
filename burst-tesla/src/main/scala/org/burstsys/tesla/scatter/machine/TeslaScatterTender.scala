@@ -32,7 +32,8 @@ trait TeslaScatterTender extends AnyRef {
       cleanupOverdueZombies()
     } finally unlockScatter("tender")
   } catch safely {
-    case t: Throwable => log error burstStdMsg(s"TESLA_SCATTER_TEND_FAIL $t", t)
+    case t: Throwable =>
+      log error(burstStdMsg(s"TESLA_SCATTER_TEND_FAIL $t", t), t)
   }
 
   // add our tend function to the background tender thread

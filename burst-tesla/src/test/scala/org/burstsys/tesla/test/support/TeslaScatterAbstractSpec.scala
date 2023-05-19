@@ -146,7 +146,7 @@ trait TeslaScatterAbstractSpec extends TeslaAbstractSpec with BeforeAndAfterAll 
     } catch safely {
       case t: Throwable =>
         continuePolling = false
-        log error s"$t"
+        log error(s"$t", t)
         throw t
     }
   }

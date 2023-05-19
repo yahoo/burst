@@ -74,7 +74,8 @@ trait NexusClientPool extends AnyRef {
         }
       }
     } catch safely { // catch here to prevent the background function from dying
-      case t: Throwable => log error burstStdMsg(t)
+      case t: Throwable =>
+        log error(burstStdMsg(t), t)
     }
   )
 

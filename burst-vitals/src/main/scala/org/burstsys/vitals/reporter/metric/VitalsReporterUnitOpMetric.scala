@@ -1,7 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.reporter.metric
 
+import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.metrics.{LongCounter, LongHistogram}
+import org.burstsys.vitals.reporter.metric
 
 /**
  * measures all aspects of a recurring operation that takes a certain amount of time and has a varying 'unit' size.
@@ -100,53 +102,53 @@ class VitalsReporterUnitOpMetricContext(name: String, unit: String) extends Vita
 
   override
   def recordOp(): Unit = {
-    _opCounter.add(1)
+    _opCounter.add(1, hostNameAttributes)
   }
 
   override
   def recordOps(ops: Long): Unit = {
-    _opCounter.add(ops)
+    _opCounter.add(ops, hostNameAttributes)
   }
 
   override
   def recordOpWithTime(ns: Long): Unit = {
-    _opCounter.add(1)
-    _opTimeHist.record(ns)
+    _opCounter.add(1, hostNameAttributes)
+    _opTimeHist.record(ns, hostNameAttributes)
   }
 
   override
   def recordOpsWithTime(ops: Long, ns: Long): Unit = {
-    _opCounter.add(ops)
-    _opTimeHist.record(ns)
+    _opCounter.add(ops, hostNameAttributes)
+    _opTimeHist.record(ns, hostNameAttributes)
   }
 
   override
   def recordOpWithSize(bytes: Long): Unit = {
-    _opCounter.add(1)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(1, hostNameAttributes)
+    _sizeCounter.add(bytes, hostNameAttributes)
+    _opSizeHist.record(bytes, hostNameAttributes)
   }
 
   override
   def recordOpsWithSize(ops: Long, bytes: Long): Unit = {
-    _opCounter.add(ops)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(ops, hostNameAttributes)
+    _sizeCounter.add(bytes, hostNameAttributes)
+    _opSizeHist.record(bytes, hostNameAttributes)
   }
 
   override
   def recordOpWithTimeAndSize(ns: Long, bytes: Long): Unit = {
-    _opCounter.add(1)
-    _opTimeHist.record(ns)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(1, hostNameAttributes)
+    _opTimeHist.record(ns, hostNameAttributes)
+    _sizeCounter.add(bytes, hostNameAttributes)
+    _opSizeHist.record(bytes, hostNameAttributes)
   }
 
   override
   def recordOpsWithTimeAndSize(ops: Long, ns: Long, bytes: Long): Unit = {
-    _opCounter.add(ops)
-    _opTimeHist.record(ns)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(ops, hostNameAttributes)
+    _opTimeHist.record(ns, hostNameAttributes)
+    _sizeCounter.add(bytes, hostNameAttributes)
+    _opSizeHist.record(bytes, hostNameAttributes)
   }
 }

@@ -40,7 +40,7 @@ trait HydraParallelRunCmd {
             promise.success((): Unit)
           } catch safely {
             case t: Throwable =>
-              log error
+              log error(
                 s"""
                    |FAILURE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                    |-----------------------------------------
@@ -51,7 +51,7 @@ trait HydraParallelRunCmd {
                    |${useCase.analysisSource}
                    |
                    |-----------------------------------------
-                 """.stripMargin
+                 """.stripMargin, t)
               promise.failure(t)
           }
       }

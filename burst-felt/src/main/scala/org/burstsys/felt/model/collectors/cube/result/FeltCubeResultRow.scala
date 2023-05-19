@@ -59,7 +59,7 @@ class FeltCubeResultRowContext(cube: FeltCubePlane, row: FeltCubeRowData) extend
     } catch safely {
       case t: Throwable =>
         val msg = burstStdMsg(t)
-        log error msg
+        log error(msg, t)
         throw new RuntimeException(msg, t)
     }
   }

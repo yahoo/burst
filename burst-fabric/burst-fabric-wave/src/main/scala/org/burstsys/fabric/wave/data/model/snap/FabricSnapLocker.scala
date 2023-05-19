@@ -85,7 +85,7 @@ trait FabricSnapLocker extends AnyRef {
       _snapWriteLock.unlock()
     } catch safely {
       case t: IllegalMonitorStateException =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
+        log error(burstStdMsg(s"FAIL $t $tag", t), t)
         throw t
     }
     if (debugSnapLocks)
@@ -103,7 +103,7 @@ trait FabricSnapLocker extends AnyRef {
       _snapReadLock.unlock()
     } catch safely {
       case t: IllegalMonitorStateException =>
-        log error t
+        log error(burstLocMsg(tag, t), t)
         throw t
     }
     if (debugSnapLocks)

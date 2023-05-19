@@ -1,22 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.container.http
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.ClassTagExtensions
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.burstsys.fabric.container.http
+import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectMapper}
 import org.burstsys.vitals
 import org.burstsys.vitals.background.VitalsBackgroundFunctions
 import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
+import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.logging._
-import org.glassfish.grizzly.websockets.DataFrame
-import org.glassfish.grizzly.websockets.WebSocket
-import org.glassfish.grizzly.websockets.WebSocketApplication
-import org.glassfish.grizzly.websockets.WebSocketEngine
+import org.glassfish.grizzly.websockets.{DataFrame, WebSocket, WebSocketApplication, WebSocketEngine}
 
 import java.io.StringWriter
 import java.util.concurrent.ConcurrentHashMap

@@ -148,7 +148,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
               if (webServerStartTries > 0)
                 Thread.sleep(100)
               else {
-                log error burstStdMsg(s"Unable to bind web server port ${configuration.burstHttpPortProperty.asOption}")
+                log error(burstStdMsg(s"Unable to bind web server port ${configuration.burstHttpPortProperty.asOption}"),b)
                 throw b
               }
             case e =>
@@ -164,7 +164,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
       log info s"FABRIC_CONTAINER_BOOT $serviceName containerId=$containerId"
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
     this

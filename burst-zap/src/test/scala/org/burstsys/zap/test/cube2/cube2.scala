@@ -259,7 +259,7 @@ package object cube2 {
           }
         } catch {
           case t: Throwable =>
-            log error t.getMessage
+            log error(burstLocMsg(t), t)
             throw t
         }
       }

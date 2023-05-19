@@ -50,6 +50,6 @@ class VitalsReporterFixedValueMetricContext(name: String) extends VitalsReporter
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override def record(value: Long): Unit = {
-    _valueHist.record(value)
+    _valueHist.record(value, hostNameAttributes)
   }
 }

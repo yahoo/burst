@@ -76,7 +76,7 @@ trait FabricSliceWriter extends AnyRef with FabricWriteMetrics {
       } catch safely {
         case t: Throwable =>
           val msg = s"FAIL $t $tag"
-          log error burstStdMsg(msg, t)
+          log error(burstStdMsg(msg, t), t)
           throw VitalsException(msg, t)
       }
       _isOpenForWrites = true
@@ -115,7 +115,7 @@ trait FabricSliceWriter extends AnyRef with FabricWriteMetrics {
     } catch safely {
       case t: Throwable =>
         val msg = s"FAIL $t $tag"
-        log error burstStdMsg(msg, t)
+        log error(burstStdMsg(msg, t), t)
         throw VitalsException(msg, t)
     }
   }
@@ -136,7 +136,7 @@ trait FabricSliceWriter extends AnyRef with FabricWriteMetrics {
     } catch safely {
       case t: Throwable =>
         val msg = s"FAIL $t $tag"
-        log error burstStdMsg(msg, t)
+        log error(burstStdMsg(msg, t), t)
         throw VitalsException(msg, t)
     }
   }
@@ -146,8 +146,6 @@ trait FabricSliceWriter extends AnyRef with FabricWriteMetrics {
    * note that this buffer is released somewhere down the road
    * after this routine is called - do not free it yourself!
    *
-   * @param parcel
-   * @return
    */
   final override
   def queueParcelForWrite(parcel: TeslaParcel): Unit = {
@@ -158,7 +156,7 @@ trait FabricSliceWriter extends AnyRef with FabricWriteMetrics {
     } catch safely {
       case t: Throwable =>
         val msg = s"FAIL $t $tag"
-        log error burstStdMsg(msg, t)
+        log error(burstStdMsg(msg, t), t)
         throw VitalsException(msg, t)
     }
   }

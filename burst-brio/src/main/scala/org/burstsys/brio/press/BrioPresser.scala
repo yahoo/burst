@@ -32,9 +32,6 @@ object BrioPresser {
 
 /**
   *
-  * @param schema
-  * @param sink
-  * @param source
   */
 private[press] final case
 class BrioPresserContext(schema: BrioSchema, sink: BrioPressSink, source: BrioPressSource)
@@ -68,7 +65,7 @@ class BrioPresserContext(schema: BrioSchema, sink: BrioPressSink, source: BrioPr
       sink
     } catch safely { // TODO: catch Size Overflow
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
   }

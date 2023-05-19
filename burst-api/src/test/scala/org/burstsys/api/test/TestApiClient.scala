@@ -18,7 +18,7 @@ class TestApiClient(service: TestApiService) extends BurstApiClient[BurstTestApi
       thriftClient.testEndPoint(testMessage)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
   }

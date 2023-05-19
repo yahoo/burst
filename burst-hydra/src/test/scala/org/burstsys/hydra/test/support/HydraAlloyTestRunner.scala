@@ -99,7 +99,7 @@ abstract class HydraAlloyTestRunner extends AlloyJsonUseCaseRunner with VitalsLo
             result
           } match {
             case Failure(t) =>
-              log error s"execution of hydra source \n'$source' \nFAIL[${messageFromException(t)}]"
+              log error(s"execution of hydra source \n'$source' \nFAIL[${messageFromException(t)}]", t)
               promise.failure(t)
             case Success(r) =>
               promise.success(r)

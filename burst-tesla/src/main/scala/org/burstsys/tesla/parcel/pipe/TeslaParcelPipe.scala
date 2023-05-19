@@ -119,7 +119,7 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
       _parcels.put(parcel.blockPtr)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"PARCEL_PIPE_FAIL $tag", t)
+        log error(burstStdMsg(s"PARCEL_PIPE_FAIL $tag", t), t)
         throw t
     }
   }
@@ -138,7 +138,7 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
       parcel
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"PARCEL_PIPE_FAIL $t $tag", t)
+        log error(burstStdMsg(s"PARCEL_PIPE_FAIL $t $tag", t), t)
         throw t
     }
   }

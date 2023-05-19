@@ -62,7 +62,7 @@ trait FabricSnap extends AnyRef {
 
   /**
    * @return value obtained from [[org.burstsys.fabric.wave.metadata.ViewCacheEvictTtlMsProperty]] or
-   * [[org.burstsys.fabric.wavei.configuration.burstViewCacheEvictTtlMsPropertyDefault]]
+   * [[org.burstsys.fabric.wave.configuration.burstViewCacheEvictTtlMsPropertyDefault]]
    */
   def evictTtlMs: Long
 
@@ -194,7 +194,7 @@ object FabricSnap {
       } finally input.close()
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
   }
@@ -215,9 +215,9 @@ case class FabricSnapContext(var slice: FabricSlice) extends FabricSnap with Fab
   override
   def toString: String =
     s"""FabricSnap(guid=$guid,  state=$state
-        |   slice=${slice}
-        |   metadata=${metadata}
-        |   data=${data}
+        |   slice=$slice
+        |   metadata=$metadata
+        |   data=$data
         |   readLock=$printReadLock
         |   writeLock=$printWriteLock
         |   totalAccessCount=$totalAccessCount, lastAccessTime=$lastAccessTime (${printTimeInPast(lastAccessTime)} ago)

@@ -236,7 +236,10 @@ class NexusClientContext(
         _eventLoopGroup = new KQueueEventLoopGroup()
         _transportClass = classOf[KQueueSocketChannel]
 
-      case _ => ???
+      case _ =>
+        val e = VitalsException(s"unknown io mode: $ioMode")
+        log error(burstLocMsg(e), e)
+        throw e
     }
   }
 
@@ -253,7 +256,7 @@ class NexusClientContext(
         _nettyChannel = connectToServer().channel()
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"$serviceName: could not connect", t)
+          log error(burstStdMsg(s"$serviceName: could not connect", t), t)
           throw t
       }
 

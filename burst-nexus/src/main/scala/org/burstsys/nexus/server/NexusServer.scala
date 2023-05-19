@@ -53,24 +53,16 @@ trait NexusServer extends VitalsService {
 
   /**
     * the data feed for this server
-    *
-    * @param feeder
-    * @return
     */
   def fedBy(feeder: NexusStreamFeeder): this.type
 
   /**
     * a listener for protocol events
-    *
-    * @param listener
-    * @return
     */
   def talksTo(listener: NexusServerListener): this.type
 
   /**
     * the associated NETTY channel
-    *
-    * @return
     */
   def nettyChannel: Channel
 
@@ -200,7 +192,10 @@ class NexusServerContext(
         _connectionGroup = new KQueueEventLoopGroup()
         _transportClass = classOf[KQueueServerSocketChannel]
 
-      case _ => ???
+      case _ =>
+        val e = VitalsException(s"Unsupported IO mode: $ioMode")
+        log error(burstLocMsg(e), e)
+        throw e
     }
   }
 
@@ -246,7 +241,7 @@ class NexusServerContext(
         _socketAddress = _nettyChannel.asInstanceOf[ServerSocketChannel].localAddress()
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"$serviceName: could not bind", t)
+          log error(burstStdMsg(s"$serviceName: could not bind", t), t)
           throw t
       }
 

@@ -56,7 +56,7 @@ object BurstUnityValidator {
 
     } catch safely {
       case t: Throwable =>
-        log error s"unity blob validation failed: ${messageFromException(t)}"
+        log error(s"unity blob validation failed: ${messageFromException(t)}", t)
         throw t
     }
   }

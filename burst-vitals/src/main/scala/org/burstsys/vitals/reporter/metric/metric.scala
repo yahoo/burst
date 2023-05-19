@@ -2,6 +2,7 @@
 package org.burstsys.vitals.reporter
 
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.metrics.Meter
 import org.burstsys.vitals.logging._
 
@@ -17,4 +18,8 @@ package object metric extends VitalsLogger {
   private final val scaleFactor = 1e6
 
   final def externalToInternal(d: Double): Long = (d * scaleFactor).toLong
+
+  private [metric] lazy val hostName = System.getenv("HOSTNAME")
+  private [metric] lazy val hostNameAttributes = Attributes.builder().put("host", hostName).build()
+
 }

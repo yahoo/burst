@@ -208,7 +208,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       case t: Throwable =>
         NexusClientReporter.onClientStreamFail()
         NexusClientStreamStartTrekMark.fail(span)
-        log error burstStdMsg(s"FAIL $t $tag", t)
+        log error(burstStdMsg(s"FAIL $t $tag", t), t)
         stream.completeExceptionally(t)
         throw t
     } finally _gate.unlock()
@@ -236,7 +236,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       _initiatedNanos = System.nanoTime()
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"$hdr", t)
+        log error(burstStdMsg(s"$hdr", t), t)
         _stream.completeExceptionally(t)
     }
   }
@@ -269,7 +269,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
 
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"NEXUS_PARCEL_FAIL $tag", t)
+        log error(burstStdMsg(s"NEXUS_PARCEL_FAIL $tag", t), t)
         _stream.completeExceptionally(t)
     }
   }
@@ -319,7 +319,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
         NexusClientStreamTerminateTrekMark.end(span)
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t)
+          log error(burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t), t)
           NexusClientReporter.onClientStreamFail()
           NexusClientStreamTerminateTrekMark.fail(span)
           _stream.completeExceptionally(t)
@@ -349,7 +349,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       }
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"NEXUS_HEARTBEAT_FAIL $tag", t)
+        log error(burstStdMsg(s"NEXUS_HEARTBEAT_FAIL $tag", t), t)
         _stream.completeExceptionally(t)
     }
   }

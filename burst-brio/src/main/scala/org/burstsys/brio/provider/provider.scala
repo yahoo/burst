@@ -28,7 +28,7 @@ package object provider extends VitalsLogger {
           registerBrioSchema(this.getClass, provider.schemaResourcePath, provider.names.toIndexedSeq: _*)
         } catch safely {
           case t: Throwable =>
-            log error burstStdMsg(s"BRIO_SCHEMA_PROVIDER_LOAD_FAIL: provider='$provider' $t", t)
+            log error(burstStdMsg(s"BRIO_SCHEMA_PROVIDER_LOAD_FAIL: provider='$provider' $t", t), t)
         }
       }
       _loaded = true

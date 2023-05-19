@@ -29,7 +29,7 @@ trait TeslaParcelDeflator extends Any with TeslaParcel with TeslaParcelState {
       deflatedSize
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"could not compress $this", t)
+        log error(burstStdMsg(s"could not compress $this", t), t)
         throw t
     }
   }

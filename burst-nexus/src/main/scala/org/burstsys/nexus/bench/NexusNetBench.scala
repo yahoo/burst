@@ -11,18 +11,17 @@ import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel._
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.thread.request._
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
-import org.burstsys.vitals.reporter.instrument._
+import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.{VitalsHostAddress, getPublicHostName}
 import org.burstsys.vitals.properties.VitalsPropertyMap
+import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.uid.newBurstUid
 import org.burstsys.{brio, tesla}
 
 import scala.concurrent.{Future, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
-import org.burstsys.vitals.logging._
 
 /**
  * ==purpose==
@@ -52,8 +51,10 @@ object NexusNetBench {
   private def cacheBenchmark(client: NexusClient): NexusClient = {
     TeslaRequestCoupler {
       NexusNetBenchContext(byteSize = 1 * GB).benchmark(client) onComplete {
-        case Failure(t) => log error burstStdMsg(s"cache benchmark failed $t", t)
-        case Success(result) => log info result.report
+        case Failure(t) =>
+          log error(burstStdMsg(s"cache benchmark failed $t", t), t)
+        case Success(result) =>
+          log info result.report
       }
       client
     }
@@ -66,7 +67,7 @@ class NexusNetBenchContext(byteSize: Long) extends NexusNetBench with NexusStrea
 
   private final val buffersPerParcel = 300
 
-  val referenceBlob: TeslaMutableBuffer = createReferenceBlob(density = ???)
+  val referenceBlob: TeslaMutableBuffer = createReferenceBlob()
   val memorySize: TeslaMemorySize = referenceBlob.currentUsedMemory
 
   override

@@ -14,19 +14,17 @@ class FabricHttpExceptionMapper extends ExtendedExceptionMapper[Exception] {
   /**
    * Determine if we want to handle the serialization of a particular exception
    *
-   * @param throwable
-   * @return
    */
   def isMappable(throwable: Exception): Boolean = {
     val isWebAppException = throwable.isInstanceOf[WebApplicationException]
     val cause = if (isWebAppException && throwable.getCause != null) throwable.getCause else throwable
-    log error burstStdMsg(cause)
+    log error(burstStdMsg(cause), throwable)
     // ignore these guys and let jersey handle them
     !isWebAppException
   }
 
   def toResponse(throwable: Exception): Response = {
-    log error burstStdMsg(throwable)
+    log error(burstStdMsg(throwable), throwable)
     Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(SimpleExceptionResponse(throwable.getMessage)).build()
   }
 }

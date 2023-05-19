@@ -64,14 +64,14 @@ trait BrioPressPipeline extends AnyRef {
                   log info burstStdMsg(
                     s"BrioPressPipeline($i) guid=${job.guid}, jobId=$jobId SLOW PRESS elapsedNs=$elapsedNs (${
                       prettyTimeFromNanos(elapsedNs)
-                    }) byteCount=${byteCount}  (${prettyByteSizeString(byteCount)}) ${
+                    }) byteCount=$byteCount  (${prettyByteSizeString(byteCount)}) ${
                       prettyRateString("byte", byteCount, elapsedNs)
                     }"
                   )
                 }
               } catch safely {
                 case t: Throwable =>
-                  log error burstStdMsg(s"press failed", t)
+                  log error(burstStdMsg(s"press failed", t), t)
               } finally {
                 pressBuffer.reset
                 dictionary.reset()
@@ -100,10 +100,6 @@ trait BrioPressPipeline extends AnyRef {
 
     /**
      * TODO
-     *
-     * @param pressBuffer
-     * @param dictionary
-     * @return
      */
     def press(pressBuffer: TeslaMutableBuffer, dictionary: BrioMutableDictionary): BrioPressPipelineJob
 
@@ -112,11 +108,6 @@ trait BrioPressPipeline extends AnyRef {
   /**
    * A single press job
    *
-   * @param p
-   * @param pressSource
-   * @param schema
-   * @param version
-   * @param maxItemSize
    */
   private[this] case
   class BrioPressPipelineJobContext(jobId: Long, guid: VitalsUid, p: Promise[TeslaMutableBuffer], pressSource: BrioPressSource,
@@ -145,7 +136,6 @@ trait BrioPressPipeline extends AnyRef {
   /**
    * Take a press source and press using parallel threading
    *
-   * @param maxItemSize
    */
   def pressToFuture(guid: VitalsUid, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[TeslaMutableBuffer] = {
     val p = Promise[TeslaMutableBuffer]()
