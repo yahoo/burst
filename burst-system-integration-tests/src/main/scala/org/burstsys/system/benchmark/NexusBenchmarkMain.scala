@@ -69,8 +69,7 @@ object NexusBenchmarkMain {
 
   }
 
-  final
-  def createReferenceBlob(density: Int = 6): TeslaMutableBuffer = {
+  final def createReferenceBlob(density: Int = 6): TeslaMutableBuffer = {
     val dataset = UnityGeneratedDataset(
       domainKey = 1,
       viewKey = 1,
@@ -82,9 +81,9 @@ object NexusBenchmarkMain {
     val blobBuffer = tesla.buffer.factory.grabBuffer(30e6.toInt)
     val dictionary = brio.dictionary.factory.grabMutableDictionary()
     val sink = BrioPressSink(pressBuffer, dictionary)
-    val presser = BrioPresser(dataset.schema, sink, dataset.presser(item))
+    val presser = BrioPresser(sink)
     try {
-      presser.press
+      presser.press(dataset.schema, dataset.presser(item))
       BrioBlobEncoder.encodeV2Blob(sink.buffer, dataset.rootVersion, sink.dictionary, blobBuffer)
       blobBuffer
     } finally {

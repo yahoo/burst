@@ -33,9 +33,9 @@ trait BrioMockDataModel {
           val blobBuffer = tesla.buffer.factory.grabBuffer(1e6.toInt)
           val dictionary = brio.dictionary.factory.grabMutableDictionary()
           val sink = BrioPressSink(pressBuffer, dictionary)
-          val presser = BrioPresser(schema, sink, pressSource(item))
+          val presser = BrioPresser(sink)
           try {
-            presser.press
+            presser.press(schema, pressSource(item))
             BrioBlobEncoder.encodeV2Blob(sink.buffer, item.schemaVersion, sink.dictionary, blobBuffer)
             blobBuffer
           } finally {

@@ -56,10 +56,13 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
       val storeProperties = datasource.view.storeProperties
       (storeProperties.get(sampleStoreHostName), storeProperties.get(sampleStoreHostPort).map(_.toInt)) match {
         case (Some(hostName), None) =>
+          log debug s"view overrides samplesource host $hostName"
           _clients.computeIfAbsent((hostName, defaultSampleStorePort), _ => SampleStoreApiClient(hostName).start)
         case (None, Some(hostPort)) =>
+          log debug s"view overrides samplesource port $hostPort"
           _clients.computeIfAbsent((defaultSampleStoreHost, hostPort), _ => SampleStoreApiClient(apiPort = hostPort).start)
         case (Some(hostname), Some(hostPort)) =>
+          log debug s"view overrides host and port $hostname:$hostPort"
           _clients.computeIfAbsent((hostname, hostPort), _ => SampleStoreApiClient(hostname, hostPort).start)
         case (None, None) =>
           _defaultClient

@@ -49,6 +49,8 @@ trait BrioPressPipeline extends AnyRef {
           Thread.currentThread setName f"brio-presser-$i%02d"
           val pressBuffer = TeslaWorkerCoupler(grabBuffer(pressBufferSize))
           val dictionary = TeslaWorkerCoupler(grabMutableDictionary())
+          val presser = BrioPresser(BrioPressSink(pressBuffer, dictionary))
+
           while (true) {
             // grab a job as they come in
             val job = this.take // all waiting in request thread
@@ -56,7 +58,7 @@ trait BrioPressPipeline extends AnyRef {
               try {
                 val jobId = job.jobId
                 val start = System.nanoTime
-                job.press(pressBuffer, dictionary)
+                job.press(presser)
                 val elapsedNs = System.nanoTime - start
                 if (elapsedNs > slowPressDuration.toNanos) {
                   BrioReporter.onPressSlow()
@@ -82,42 +84,53 @@ trait BrioPressPipeline extends AnyRef {
     }
   }
 
-  sealed trait BrioPressPipelineJob {
+  private sealed trait BrioPressPipelineJob {
 
     /**
      * tracking OP GUID
-     *
-     * @return
      */
     def guid: VitalsUid
 
     /**
      * logical id for job
-     *
-     * @return
      */
     def jobId: Long
 
     /**
-     * TODO
+     * Press the item to a buffer
+     *
+     * @param presser the presser to use
+     * @return
      */
-    def press(pressBuffer: TeslaMutableBuffer, dictionary: BrioMutableDictionary): BrioPressPipelineJob
+    def press(presser: BrioPresser): Unit
 
   }
 
   /**
-   * A single press job
+   * The context for a press job
    *
+   * @param jobId       the job number
+   * @param guid        the guid of the request that need this press
+   * @param p           a promise to complete when the press is done
+   * @param pressSource the source that provides the object to press
+   * @param schema      the schema to use
+   * @param version     the schema version of the blob
+   * @param maxItemSize the maximum number of bytes to press
    */
-  private[this] case
-  class BrioPressPipelineJobContext(jobId: Long, guid: VitalsUid, p: Promise[TeslaMutableBuffer], pressSource: BrioPressSource,
-                                    schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int) extends BrioPressPipelineJob {
+  private case class BrioPressPipelineJobContext(
+                                                  jobId: Long, guid: VitalsUid,
+                                                  p: Promise[TeslaMutableBuffer],
+                                                  pressSource: BrioPressSource,
+                                                  schema: BrioSchema,
+                                                  version: BrioVersionKey,
+                                                  maxItemSize: Int
+                                                ) extends BrioPressPipelineJob {
 
-    def press(pressBuffer: TeslaMutableBuffer, dictionary: BrioMutableDictionary): this.type = {
+    override def press(presser: BrioPresser): Unit = {
       val start = System.nanoTime
       val blobBuffer = grabBuffer(maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger))
       try {
-        val sink = BrioPresser(schema, BrioPressSink(pressBuffer, dictionary), pressSource).press
+        val sink = presser.press(schema, pressSource)
         BrioBlobEncoder.encodeV2Blob(sink.buffer, version, sink.dictionary, blobBuffer)
         BrioReporter.onPressComplete(System.nanoTime - start, blobBuffer.currentUsedMemory)
         p.complete(Success(blobBuffer))
@@ -128,14 +141,13 @@ trait BrioPressPipeline extends AnyRef {
           releaseBuffer(blobBuffer)
           p.failure(t)
       }
-      this
     }
-
   }
 
   /**
    * Take a press source and press using parallel threading
    *
+   * @param maxItemSize the maximum number of bytes to press
    */
   def pressToFuture(guid: VitalsUid, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[TeslaMutableBuffer] = {
     val p = Promise[TeslaMutableBuffer]()

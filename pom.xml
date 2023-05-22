@@ -165,7 +165,7 @@
         <maven.compiler.target>${java-short.version}</maven.compiler.target>
         <maven.compiler.compilerVersion>${java-short.version}</maven.compiler.compilerVersion>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <scalatest.jvm.args>-Xmx8G ${java-exports} -Xverify:none -XX:TieredStopAtLevel=1 -XX:-TieredCompilation
+        <scalatest.jvm.args>-Xmx8G ${java-exports} -Xverify:none -XX:TieredStopAtLevel=1 -XX:-TieredCompilation -XX:-OmitStackTraceInFastThrow
         </scalatest.jvm.args>
         <burst.test.loglevel>warn</burst.test.loglevel>
         <thrift-executable>thrift</thrift-executable>
@@ -1547,7 +1547,11 @@
                             <arg>-unchecked</arg>
                             <arg>-feature</arg>
                             <arg>-release:${java-short.version}</arg>
+                            <arg>-Wopt</arg>
                         </args>
+                        <javacArgs>
+                            <javacArg>-Xlint:unchecked</javacArg>
+                        </javacArgs>
                     </configuration>
                 </plugin>
 

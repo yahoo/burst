@@ -2,8 +2,7 @@
 <!--This config used in the running system, not during tests-->
 <Configuration status="info" packages="org.burstsys.vitals.logging" monitorInterval="30" >
     <Appenders>
-        <Console name="console" target="SYSTEM_OUT">
-        </Console>
+        <Console name="console" target="SYSTEM_OUT"/>
         <RollingFile name="file" fileName="${sys:log.home}/logs/burst-${sys:burst.log.location}.log"
                 filePattern="${sys:log.home}/logs/burst-${sys:burst.log.location}.%i.log" >
             <Policies>

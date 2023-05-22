@@ -26,8 +26,8 @@ case class BrioSyntheticDatasetPresser(
       TeslaWorkerCoupler {
         val blobBuffer = tesla.buffer.factory.grabBuffer(bufferSize)
         try {
-          val presser = BrioPresser(schema, BrioPressSink(pressBuffer, dictionary), datasetProvider.pressSource(item))
-          val sink = presser.press
+          val presser = BrioPresser(BrioPressSink(pressBuffer, dictionary))
+          val sink = presser.press(schema, datasetProvider.pressSource(item))
           BrioBlobEncoder.encodeV2Blob(sink.buffer, item.schemaVersion, sink.dictionary, blobBuffer)
           blobBuffer
         } finally {

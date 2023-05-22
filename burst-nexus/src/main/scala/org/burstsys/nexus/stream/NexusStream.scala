@@ -267,7 +267,7 @@ class NexusStreamContext(
 
   private var heartbeat: Option[VitalsBackgroundFunction] = None
 
-  private var _completion = Promise[NexusStream]()
+  private val _completion = Promise[NexusStream]()
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
