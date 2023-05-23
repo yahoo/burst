@@ -1,13 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog.persist
 
-import org.burstsys.relate.RelateExceptions.BurstDuplicateKeyException
-import org.burstsys.relate.RelateExceptions.BurstUnknownPrimaryKeyException
+import org.burstsys.relate.RelateExceptions.{BurstDuplicateKeyException, BurstUnknownPrimaryKeyException}
 import org.burstsys.relate.dialect.SelectLockLevel
-import org.burstsys.relate.dialect.SelectLockLevel.NoLock
-import org.burstsys.relate.dialect.SelectLockLevel.UpdateLock
-import org.burstsys.relate.handleSqlException
-import org.burstsys.relate.throwMappedException
+import org.burstsys.relate.dialect.SelectLockLevel.{NoLock, UpdateLock}
+import org.burstsys.relate.{handleSqlException, throwMappedException}
 import org.burstsys.vitals.errors.VitalsException
 import scalikejdbc._
 
@@ -15,8 +12,8 @@ abstract class UdkCatalogEntityPersister[E <: UdkCatalogEntity] extends NamedCat
 
   final def findEntityByUdk(udk: String, lockLevel: SelectLockLevel = NoLock)(implicit session: DBSession): Option[E] = {
     sql"SELECT * FROM ${this.table} WHERE ${this.column.udk} = {udk} ${service.dialect.lockClause(lockLevel)}".bindByName(
-      Symbol("udk") -> udk
-    ).map(resultToEntity).single().apply()
+      "udk" -> udk
+    ).map(resultToEntity).single()
   }
 
   /**

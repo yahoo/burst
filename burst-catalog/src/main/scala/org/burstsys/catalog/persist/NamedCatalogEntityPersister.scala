@@ -13,26 +13,26 @@ abstract class NamedCatalogEntityPersister[E <: NamedCatalogEntity] extends Rela
 
   final def findEntityByMoniker(moniker: BurstMoniker)(implicit session: DBSession): Option[E] = {
     sql"SELECT * FROM ${this.table} WHERE ${this.column.moniker} = {moniker}".bindByName(
-      Symbol("moniker") -> moniker
-    ).map(resultToEntity).single().apply()
+      "moniker" -> moniker
+    ).map(resultToEntity).single()
   }
 
   final def deleteAllEntitiesWithLabel(label: String, value: Option[String])(implicit session: DBSession): Unit = {
     sql"DELETE FROM ${this.table} WHERE ${this.column.labels} LIKE {val}".bindByName(
-      Symbol("val") -> likeLabel(label, value)
-    ).update().apply()
+      "val" -> likeLabel(label, value)
+    ).update()
   }
 
   final def searchEntitiesByMoniker(descriptor: String, limit: Option[Int])(implicit session: DBSession): List[E] = {
     sql"""SELECT * FROM ${this.table}
          WHERE LOWER(${this.column.moniker}) LIKE LOWER({descriptor}) ${service.dialect.limitClause(limit, None)}
-      """.bindByName(Symbol("descriptor") -> s"%$descriptor%").map(resultToEntity).list().apply()
+      """.bindByName("descriptor" -> s"%$descriptor%").map(resultToEntity).list()
   }
 
   final def searchEntitiesByLabel(label: String, value: Option[String], limit: Option[Int])(implicit session: DBSession): List[E] = {
     sql"""SELECT * FROM ${this.table}
          WHERE ${this.column.labels} LIKE {label} ${service.dialect.limitClause(limit, None)}
-      """.bindByName(Symbol("label") -> likeLabel(label, value)).map(resultToEntity).list().apply()
+      """.bindByName("label" -> likeLabel(label, value)).map(resultToEntity).list()
   }
 
   private def likeLabel(label: String, value: Option[String]): String = s"%$label=${value.getOrElse("%")};%"

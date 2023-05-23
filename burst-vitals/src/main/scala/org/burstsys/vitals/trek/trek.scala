@@ -2,8 +2,9 @@
 package org.burstsys.vitals
 
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace._
-import io.opentelemetry.context.Context
+import io.opentelemetry.context.{Context, ContextKey}
 import io.opentelemetry.sdk.trace.IdGenerator
 import org.apache.commons.codec.digest.DigestUtils
 import org.burstsys.vitals.logging._
@@ -40,6 +41,8 @@ package object trek extends VitalsLogger {
   private val ID_KEY = "trekid"
   private val SUB_ID_KEY = "subid"
   private val CLUSTER_KEY = "cluster"
+  private val PARENT_ID_KEY = "parenttrekid"
+  private val PARENT_SUB_ID_KEY = "parentsubid"
   private val ROLE_KEY = "role"
 
   case
@@ -58,27 +61,39 @@ package object trek extends VitalsLogger {
     final
     def begin(trekId: VitalsUid, callId: VitalsUid = null): Span = {
       // build an acceptable OT trace id from the unstructured Trek id
-      createSpanParent(trekId, callId).storeInContext(Context.current()).makeCurrent()
+      if (log.isDebugEnabled)
+        log debug burstLocMsg(s"start trek $name trekId=$trekId callId=$callId")
+      // createSpanParent(trekId, callId).storeInContext(Context.current()).makeCurrent()
       val spanBuilder = trekSpanBuilder
+      val parentKey = Context.current().get(ContextKey.named(ID_KEY)).asInstanceOf[String]
+      val parentSubKey = Context.current().get(ContextKey.named(SUB_ID_KEY)).asInstanceOf[String]
       val span = spanBuilder
         .setAttribute(CLUSTER_KEY, cluster.name)
         .setAttribute(ID_KEY, trekId)
         .setAttribute(SUB_ID_KEY, callId)
+        .setAttribute(PARENT_ID_KEY, parentKey)
+        .setAttribute(PARENT_SUB_ID_KEY, parentSubKey)
         .startSpan()
       span.makeCurrent()
       span.addEvent("BEGIN")
+      if (log.isDebugEnabled)
+        log debug burstLocMsg(s"start trek $name returns span=$span")
       span
     }
 
     final
     def end(span: Span): Unit = {
       // assert(!Span.current().isRecording || span.asInstanceOf[ReadableSpan].toSpanData.getAttributes.get(AttributeKey.stringKey(NAME_KEY)) == name)
+      if (log.isDebugEnabled)
+        log debug burstLocMsg(s"end trek $name span=$span")
       span.end()
     }
 
     final
     def fail(span: Span): Unit = {
       // assert(!Span.current().isRecording || span.asInstanceOf[ReadableSpan].toSpanData.getAttributes.get(AttributeKey.stringKey(NAME_KEY)) == name)
+      if (log.isDebugEnabled)
+        log debug burstLocMsg(s"fail trek $name span=$span")
       span.setStatus(StatusCode.ERROR).end()
     }
 
@@ -90,8 +105,13 @@ package object trek extends VitalsLogger {
     protected
     def createSpanParent(trekId: VitalsUid, callId: VitalsUid): Span = {
       val traceId = trekToSpanId(trekId)
-      if (Span.current().getSpanContext.getTraceId == traceId)
+      if (log.isTraceEnabled)
+        log trace burstLocMsg(s"trek $name traceid=$traceId")
+      if (Span.current().getSpanContext.getTraceId == traceId) {
+        if (log.isTraceEnabled)
+          log trace burstLocMsg(s"trek $name matches current context")
         return Span.current()
+      }
 
       // our current span traceid doesn't match the traceId/trekId so build the span at the root
       val spanId: String = {
@@ -111,12 +131,20 @@ package object trek extends VitalsLogger {
         spanId,
         protoSpan.getSpanContext.getTraceFlags,
         traceStateBuilder.build())
-      Span.wrap(context)
+      if (log.isTraceEnabled)
+        log trace burstLocMsg(s"trek $name calculates parent context span=$context")
+      val parentSpan = Span.wrap(context)
+      if (log.isTraceEnabled)
+        log trace burstLocMsg(s"trek $name uses parent span span=$parentSpan")
+      parentSpan
     }
 
     protected
     def trekToSpanId(trekId: VitalsUid): String = {
-      DigestUtils.sha256Hex(trekId.getBytes(StandardCharsets.UTF_8)).take(TraceId.getLength)
+      val idHash = DigestUtils.sha256Hex(trekId.getBytes(StandardCharsets.UTF_8))
+      if (log.isTraceEnabled)
+        log trace burstLocMsg(s"trek $name hashes trekId to $idHash")
+      idHash.take(TraceId.getLength)
     }
   }
 }

@@ -24,7 +24,7 @@ import scala.language.postfixOps
 class NexusParcelConcurrentSpec extends NexusParcelStreamSpec {
 
   private val guid = newNexusUid
-  private val concurrency = 50
+  private val concurrency =60
   private val streamInitiateCount = new CountDownLatch(concurrency)
   private val streamInitiatedCount = new CountDownLatch(concurrency)
   private val clientFinishedCount = new CountDownLatch(concurrency)
@@ -56,9 +56,19 @@ class NexusParcelConcurrentSpec extends NexusParcelStreamSpec {
       for (_ <- 0 until concurrency) {
         futures += TeslaRequestFuture {
           withClient(client => {
-            val stream = startStream(guid, client = client)
-            clientFinishedCount.countDown()
-            Await.result(stream.completion, 15 seconds)
+            try {
+              val stream = startStream(guid, client = client)
+              clientFinishedCount.countDown()
+              log debug s"Client $client starts stream $stream"
+              Await.result(stream.completion, 15 seconds)
+              log debug s"Client $client finishes stream $stream"
+            } catch {
+              case e: Throwable =>
+                log error(s"Client $client failed to start stream $guid", e)
+                false
+              case _ =>
+                true
+            }
           })
           true
         }

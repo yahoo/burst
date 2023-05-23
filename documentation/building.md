@@ -65,7 +65,6 @@ specify the configuation for what to shade and how to shade. Child poms should h
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-shade-plugin</artifactId>
-    <version>${shade.maven-plugin.version}</version>
     <configuration>
         <artifactSet/>
         <filters/>

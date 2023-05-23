@@ -106,7 +106,8 @@ class NexusReceiver(
     } catch safely {
       case t: Throwable =>
         log error(burstLocMsg(s"Failed to dispatch: $msg", t), t)
-    } finally Thread.currentThread().setName(oldName)
+    } finally
+      Thread.currentThread().setName(oldName)
   }
 
 }

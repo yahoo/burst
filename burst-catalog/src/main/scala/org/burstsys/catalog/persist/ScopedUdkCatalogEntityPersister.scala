@@ -1,14 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog.persist
 
-import org.burstsys.relate.RelateExceptions.BurstDuplicateKeyException
-import org.burstsys.relate.RelateExceptions.BurstUnknownPrimaryKeyException
-import org.burstsys.relate.RelatePersister
+import org.burstsys.relate.RelateExceptions.{BurstDuplicateKeyException, BurstUnknownPrimaryKeyException}
 import org.burstsys.relate.dialect.SelectLockLevel
-import org.burstsys.relate.dialect.SelectLockLevel.NoLock
-import org.burstsys.relate.dialect.SelectLockLevel.UpdateLock
-import org.burstsys.relate.handleSqlException
-import org.burstsys.relate.throwMappedException
+import org.burstsys.relate.dialect.SelectLockLevel.{NoLock, UpdateLock}
+import org.burstsys.relate.{handleSqlException, throwMappedException}
 import org.burstsys.vitals.errors.VitalsException
 import scalikejdbc._
 
@@ -26,9 +22,9 @@ abstract class ScopedUdkCatalogEntityPersister[E <: ScopedUdkCatalogEntity] exte
     FROM ${this.table} JOIN $scopeTable s ON ${this.table}.$scopeField = s.pk
     WHERE ${this.table}.${this.column.udk} = {udk} AND s.udk = {scope}
     ${service.dialect.lockClause(lockLevel)}""".bindByName(
-      Symbol("udk") -> udk,
-      Symbol("scope") -> scope
-    ).map(resultToEntity).single().apply()
+      "udk" -> udk,
+      "scope" -> scope
+    ).map(resultToEntity).single()
   }
 
   /**

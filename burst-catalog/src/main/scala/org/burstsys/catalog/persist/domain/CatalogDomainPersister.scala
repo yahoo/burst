@@ -5,12 +5,10 @@ import org.burstsys.catalog.api._
 import org.burstsys.catalog.model.domain._
 import org.burstsys.catalog.persist.UdkCatalogEntityPersister
 import org.burstsys.relate._
-import org.burstsys.relate.dialect.RelateDerbyDialect
-import org.burstsys.relate.dialect.RelateMySqlDialect
+import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect}
 import org.burstsys.vitals.properties._
 import org.joda.time.DateTime
-import scalikejdbc.WrappedResultSet
-import scalikejdbc._
+import scalikejdbc.{WrappedResultSet, _}
 
 object CatalogDomainPersister {
   val tableName: String = "burst_catalog_domain"
@@ -60,12 +58,12 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      VALUES
        ( {pk}, {labels}, {moniker}, {domainProperties}, {udk}, {createTime}  )
      """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("moniker") -> entity.moniker,
-      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
-      Symbol("udk") -> entity.udk.orNull,
-      Symbol("createTime") -> DateTime.now
+      "pk" -> entity.pk,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "moniker" -> entity.moniker,
+      "domainProperties" -> propertyMapToString(entity.domainProperties),
+      "udk" -> entity.udk.orNull,
+      "createTime" -> DateTime.now
     )
   }
 
@@ -82,11 +80,11 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      VALUES
        ( {labels}, {moniker}, {domainProperties}, {udk}, {createTime}  )
      """.bindByName(
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("moniker") -> entity.moniker,
-      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
-      Symbol("udk") -> entity.udk.orNull,
-      Symbol("createTime") -> DateTime.now
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "moniker" -> entity.moniker,
+      "domainProperties" -> propertyMapToString(entity.domainProperties),
+      "udk" -> entity.udk.orNull,
+      "createTime" -> DateTime.now
     )
   }
 
@@ -101,11 +99,11 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
-      Symbol("udk") -> entity.udk.orNull
+      "pk" -> entity.pk,
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainProperties" -> propertyMapToString(entity.domainProperties),
+      "udk" -> entity.udk.orNull
     )
   }
 
@@ -122,10 +120,10 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
      WHERE
        ${this.column.udk} = {udk}
      """.bindByName(
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
-      Symbol("udk") -> entity.udk.orNull
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainProperties" -> propertyMapToString(entity.domainProperties),
+      "udk" -> entity.udk.orNull
     )
   }
 
@@ -139,11 +137,11 @@ final case class CatalogDomainPersister(service: RelateService) extends UdkCatal
        ${this.column.udk} = {udk}
      WHERE
         ${this.column.pk} = {pk}""".bindByName(
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainProperties") -> propertyMapToString(entity.domainProperties),
-      Symbol("udk") -> entity.udk.orNull,
-      Symbol("pk") -> entity.pk
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainProperties" -> propertyMapToString(entity.domainProperties),
+      "udk" -> entity.udk.orNull,
+      "pk" -> entity.pk
     )
   }
 

@@ -67,7 +67,6 @@ trait NexusClientPool extends AnyRef {
           _clientCache.remove(hostPort) match {
             case null =>
               log error s"NexusPool REMOVE NOT FOUND!! endpoint(serverHost=${hostPort._1}, serverPort=${hostPort._2})"
-
             case endpoint =>
               endpoint.stopAll()
           }

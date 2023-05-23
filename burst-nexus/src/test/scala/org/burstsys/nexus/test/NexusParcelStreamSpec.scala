@@ -1,6 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.test
 
+import org.apache.log4j.LogManager
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.core.config.Configurator
 import org.burstsys.nexus
 import org.burstsys.nexus.{NexusUid, newNexusUid}
 import org.burstsys.nexus.client.{NexusClient, NexusClientListener}

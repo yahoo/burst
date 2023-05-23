@@ -1,24 +1,17 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.relate.provider
 
-import java.sql.SQLException
 import org.burstsys.relate._
 import org.burstsys.relate.configuration.burstRelateDebugProperty
 import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect}
-import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.errors._
-
-import scala.collection.mutable.ArrayBuffer
+import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.logging._
-import scalikejdbc.ConnectionPool
-import scalikejdbc.ConnectionPoolFactoryRepository
-import scalikejdbc.ConnectionPoolSettings
-import scalikejdbc.DBConnection
-import scalikejdbc.DBSession
-import scalikejdbc.IsolationLevel
-import scalikejdbc.NamedDB
-import scalikejdbc.interpolation.SQLSyntax
+import scalikejdbc.{ConnectionPool, ConnectionPoolFactoryRepository, ConnectionPoolSettings, DBConnection, DBSession, IsolationLevel, NamedDB}
 import scalikejdbc.interpolation.Implicits._
+import scalikejdbc.interpolation.SQLSyntax
+
+import java.sql.SQLException
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * base class provider for relate services
@@ -60,7 +53,7 @@ abstract class RelateProvider extends AnyRef with RelateService with RelateScrip
           case RelateMySqlDialect => sql"CREATE SCHEMA IF NOT EXISTS $schema"
           case RelateDerbyDialect => sql"CREATE SCHEMA $schema"
         }
-        createStatement.executeUpdate().apply()
+        createStatement.executeUpdate()
       }
     } catch safely {
       case s: SQLException =>
@@ -118,7 +111,7 @@ abstract class RelateProvider extends AnyRef with RelateService with RelateScrip
         case e: SQLException =>
           log warn burstStdMsg(s"Catalog $dbName not found, creating it  $tag")
           connection localTx { implicit session =>
-            sql"CREATE DATABASE ${SQLSyntax.createUnsafely(dbName)}".execute().apply()
+            sql"CREATE DATABASE ${SQLSyntax.createUnsafely(dbName)}".execute()
 
           }
       }

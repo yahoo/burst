@@ -3,15 +3,9 @@ package org.burstsys.relate
 
 import org.apache.logging.log4j.Logger
 import org.burstsys.relate
+import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect, SelectLockLevel}
 import org.burstsys.relate.dialect.SelectLockLevel.NoLock
-import org.burstsys.relate.dialect.RelateDerbyDialect
-import org.burstsys.relate.dialect.RelateMySqlDialect
-import org.burstsys.relate.dialect.SelectLockLevel
 import org.burstsys.vitals.errors._
-import org.burstsys.vitals.properties.VitalsPropertyMap
-import org.burstsys.vitals.properties.propertyMapToString
-import org.checkerframework.checker.units.qual.m
-import org.checkerframework.checker.units.qual.s
 import scalikejdbc._
 
 /**
@@ -133,19 +127,19 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
 
   final def findEntityByPk(pk: RelatePk, lockLevel: SelectLockLevel = NoLock)(implicit session: DBSession): Option[E] = {
     sql"SELECT * FROM ${this.table} WHERE ${this.column.pk} = $pk ${service.dialect.lockClause(lockLevel)}"
-      .map(resultToEntity).single().apply()
+      .map(resultToEntity).single()
   }
 
   final def insertEntityByPk(entity: E)(implicit session: DBSession): E = {
     try {
-      insertEntityWithPkSql(entity).update.apply()
+      insertEntityWithPkSql(entity).update()
       findEntityByPk(entity.pk).get
     } catch throwMappedException(service.dialect)
   }
 
   final def insertEntity(entity: E)(implicit session: DBSession): RelatePk = {
     try {
-      insertEntitySql(entity).updateAndReturnGeneratedKey().apply()
+      insertEntitySql(entity).updateAndReturnGeneratedKey()
     } catch throwMappedException(service.dialect)
   }
 
@@ -158,7 +152,7 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
 
   final def updateEntity(entity: E)(implicit session: DBSession): RelatePk = {
     try {
-      updateEntityByPkSql(entity).update().apply()
+      updateEntityByPkSql(entity).update()
       entity.pk
     } catch throwMappedException(service.dialect)
   }
@@ -174,21 +168,21 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
     try {
       val willUpdate = proposedEntity.shouldUpdate(fetchedEntity)
       if (willUpdate) {
-        update.update().apply()
+        update.update()
       }
       (findEntityByPk(fetchedEntity.pk).get, willUpdate)
     } catch throwMappedException(service.dialect)
   }
 
   final def deleteEntity(pk: RelatePk)(implicit session: DBSession): Unit = {
-    sql"DELETE FROM ${this.table} WHERE ${this.column.pk} = $pk".update().apply()
+    sql"DELETE FROM ${this.table} WHERE ${this.column.pk} = $pk".update()
   }
 
   final def createTable(implicit session: DBSession): Unit = {
     lazy val tag = s"RelatePersister.createTable($parameters)"
     if (!doesExist) {
       log info s"RELATE_TABLE_CREATE $tag"
-      createTableSql.bind().execute().apply()
+      createTableSql.bind().execute()
     } else {
       log debug s"RELATE_TABLE_CREATE_ALREADY_EXIST $tag"
     }
@@ -200,8 +194,8 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
       log info s"RELATE_TABLE_DROP $tag"
       try {
         service.dialect match {
-          case RelateDerbyDialect => sql"DROP TABLE ${this.table}".execute().apply()
-          case RelateMySqlDialect => sql"DROP TABLE IF EXISTS ${this.table}".execute().apply()
+          case RelateDerbyDialect => sql"DROP TABLE ${this.table}".execute()
+          case RelateMySqlDialect => sql"DROP TABLE IF EXISTS ${this.table}".execute()
         }
         log info s"RELATE_TABLE_DROP_SUCCEED $tag"
       } catch safely {
@@ -215,7 +209,7 @@ abstract class RelatePersister[E <: RelateEntity] extends SQLSyntaxSupport[E] {
   final def fetchAllEntities(limit: Option[Int] = None)(implicit session: DBSession): List[E] = {
     sql"SELECT * FROM ${this.table} ${service.dialect.limitClause(limit, None)}"
       .map(resultToEntity)
-      .list().apply()
+      .list()
   }
 
 }
