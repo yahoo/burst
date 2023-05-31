@@ -30,7 +30,7 @@ class FeltSweepGenerateSpec extends FeltAbstractSpecSupport with FeltListener {
 
     // TODO do an actual mock scan??
 
-    mockSweep.artifact.releaseReadLock
+    mockSweep.artifact.releaseReadLock()
 
     sweepGenerateLatch.await(60, TimeUnit.SECONDS) should equal(true)
     sweepCleanLatch.await(60, TimeUnit.SECONDS) should equal(true)

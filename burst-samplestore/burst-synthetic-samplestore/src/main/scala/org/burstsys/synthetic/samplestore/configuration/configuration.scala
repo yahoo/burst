@@ -10,17 +10,6 @@ import scala.language.postfixOps
 package object configuration {
 
   ///////////////////////////////////////////////////////////////////
-  // Slice Generation
-  ///////////////////////////////////////////////////////////////////
-
-  val persistentHashProperty: String = "synthetic.samplestore.static-hash"
-  val defaultPersistentHashProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
-    key = persistentHashProperty,
-    description = "if the generation hash should remain constant",
-    default = Some(true)
-  )
-
-  ///////////////////////////////////////////////////////////////////
   // Data pressing
   ///////////////////////////////////////////////////////////////////
 

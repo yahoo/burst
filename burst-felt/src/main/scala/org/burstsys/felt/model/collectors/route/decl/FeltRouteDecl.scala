@@ -92,7 +92,7 @@ trait FeltRouteDecl extends FeltCollectorDecl[FeltRouteRef, FeltRouteBuilder] {
     final override val graph: FeltRouteGraph = FeltRouteDecl.this.graph.reduceStatics.resolveTypes
     final override val parameters: Array[FeltRouteParameter] = FeltRouteDecl.this.parameters.map(_.reduceStatics.resolveTypes)
     final override val pathsDecl: FeltRoutePathsDecl = FeltRouteDecl.this.pathsDecl
-    sync(FeltRouteDecl.this)
+    this.sync(FeltRouteDecl.this)
   }
 
   final

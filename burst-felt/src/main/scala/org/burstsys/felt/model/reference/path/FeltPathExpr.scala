@@ -234,7 +234,7 @@ trait FeltPathExpr extends FeltExpression with FeltBoolExpr {
 
   final override
   def reduceStatics: FeltPathExpr = new FeltPathExpr {
-    sync(FeltPathExpr.this)
+    this.sync(FeltPathExpr.this)
     final override val components: Array[String] = FeltPathExpr.this.components
     final override val key: Option[FeltExpression] = FeltPathExpr.this.key match {
       case None => None
