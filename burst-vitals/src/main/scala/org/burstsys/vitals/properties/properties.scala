@@ -539,10 +539,8 @@ package object properties extends VitalsLogger {
         if (stringValue.isEmpty) return defaultValue
         stringValue.toDouble.asInstanceOf[C]
       } else if (e == classOf[java.lang.String]) {
-        if (stringValue.isEmpty) return defaultValue
         stringValue.asInstanceOf[C]
       } else if (e == classOf[String]) {
-        if (stringValue.isEmpty) return defaultValue
         stringValue.asInstanceOf[C]
       } else if (e == classOf[Duration]) {
         if (stringValue.isEmpty) return defaultValue
