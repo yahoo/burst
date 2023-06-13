@@ -125,7 +125,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status: AnyRef = {
+  override def status(level: Int): AnyRef = {
     SampleSourceHandlerRegistry.getSources
   }
 }

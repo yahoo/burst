@@ -19,7 +19,7 @@ package object group {
   /**
    * UIDs must be at least 16 characters and only alphanumeric, the system adds a uniquing suffix to valid UIDs
    */
-  private val validationPattern = "[a-zA-Z]([a-zA-Z0-9_]{15}[a-zA-Z0-9_]*?)(_[a-zA-Z0-9]{6})?".r
+  private val validationPattern = "[a-zA-Z]([a-zA-Z0-9_]{15}[a-zA-Z0-9_]*?)(_[a-fA-F0-9]{6})?".r
 
   /**
    * Ensure that guids are valid and unique.

@@ -22,8 +22,10 @@ package object packer extends VitalsLogger {
 
   final def grabPacker(guid: VitalsUid, pipe: TeslaParcelPipe): TeslaParcelPacker = {
     slotQueue poll match {
-      case null => TeslaParcelPackerContext().open(guid, pipe)
-      case slot: TeslaParcelPackerContext => slot.open(guid, pipe)
+      case null =>
+        TeslaParcelPackerContext().open(guid, pipe)
+      case slot: TeslaParcelPackerContext =>
+        slot.open(guid, pipe)
     }
   }
 

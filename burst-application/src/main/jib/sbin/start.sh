@@ -128,5 +128,5 @@ fi
 
 while [ "$KEEPALIVE" != "" ]; do
   echo "KEEPALIVE set '$KEEPALIVE'"
-  sleep 10
+  sleep 300
 done

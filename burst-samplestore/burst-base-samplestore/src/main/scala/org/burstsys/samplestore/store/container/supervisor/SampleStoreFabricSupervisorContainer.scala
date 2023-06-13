@@ -185,19 +185,19 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   private def convertToLocus(worker: FabricTopologyWorker): SampleStoreDataLocus = {
     val nexusPort: VitalsHostPort = {
-      if (worker.accessParameters != null)
+      if (worker.accessParameters != null && worker.accessParameters.contains(NexusConnectedPortAccessParameter))
         worker.accessParameters(NexusConnectedPortAccessParameter).asInstanceOf[VitalsHostPort]
       else
         -1
     }
     val nexusName: VitalsHostName = {
-      if (worker.accessParameters != null)
+      if (worker.accessParameters != null && worker.accessParameters.contains(NexusHostNameAccessParameter))
         worker.accessParameters(NexusHostNameAccessParameter).asInstanceOf[VitalsHostName]
       else
         worker.nodeName
     }
     val nexusAddr: VitalsHostAddress = {
-      if (worker.accessParameters != null)
+      if (worker.accessParameters != null && worker.accessParameters.contains(NexusHostAddrAccessParameter))
         worker.accessParameters(NexusHostAddrAccessParameter).asInstanceOf[VitalsHostAddress]
       else
         worker.nodeAddress
@@ -218,7 +218,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status: AnyRef = {
+  override def status(level: Int): AnyRef = {
     SampleSourceHandlerRegistry.getSources.map(StoreInfo)
   }
 }

@@ -4,7 +4,7 @@ package org.burstsys.tesla.parcel.internal
 import org.burstsys.tesla.TeslaTypes.TeslaMemoryPtr
 import org.burstsys.tesla.parcel.state.TeslaParcelState
 import org.burstsys.tesla.parcel.TeslaParcel
-import org.burstsys.tesla.parcel.log
+import org.burstsys.tesla.part
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.errors.safely
@@ -29,7 +29,7 @@ trait TeslaParcelDeflator extends Any with TeslaParcel with TeslaParcelState {
       deflatedSize
     } catch safely {
       case t: Throwable =>
-        log error(burstStdMsg(s"could not compress $this", t), t)
+        part.log error(burstStdMsg(s"could not compress $this", t), t)
         throw t
     }
   }

@@ -3,6 +3,7 @@ package org.burstsys.tesla.part.factory
 
 import org.burstsys.{tesla, vitals}
 import org.burstsys.tesla.configuration.teslaPartsTtlInterval
+import org.burstsys.tesla.part
 import org.burstsys.tesla.part.{TeslaPartPool, debugTending}
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.host
@@ -47,7 +48,7 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
         }
         if (debugTending) {
           builder ++= s"*****************************************\n"
-          log info builder.result()
+          part.log debug builder.result()
         }
       }
     }
@@ -69,7 +70,7 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
     val overSize = currPoolSize > maxPoolSize
 
     if (overSize)
-      log info s"TESLA_PART_OVER_SIZE osTotalPhysMemory=${physMem} (${
+      part.log info s"TESLA_PART_OVER_SIZE osTotalPhysMemory=${physMem} (${
         prettyByteSizeString(physMem)
       }), maxPoolSize=$maxPoolSize (${
         prettyByteSizeString(maxPoolSize)

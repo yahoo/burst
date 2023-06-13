@@ -19,14 +19,14 @@ class BrioBufferPressPipelineSpec extends BrioAbstractSpec {
   it should "start buffer press in parallel" in {
 
     val presserSchema = BrioSchema("presser")
-    val futures = for (i <- 0 until 1000) yield
+    val futures = for (_ <- 0 until 1000) yield
       pipeline.pressToFuture("fake-guid", BrioMockPressSource(), presserSchema,
         1, 10000000)
 
     val results = Await.result(Future.sequence(futures), 10 minutes)
     results.foreach {
       result =>
-        releaseBuffer(result)
+        releaseBuffer(result._2)
     }
 
   }

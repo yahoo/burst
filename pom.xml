@@ -194,7 +194,7 @@
         <jackson.version>2.14.2</jackson.version>
         <jersey.version>3.1.1</jersey.version>
         <hk2.version>3.0.4</hk2.version>
-        <jetty.version>9.4.45.v20220203</jetty.version>
+        <jetty.version>9.4.51.v20230217</jetty.version>
 <!--        <jetty.version>11.0.14</jetty.version>-->
         <netty.version>4.1.91.Final</netty.version>
         <scalatest.version>3.2.15</scalatest.version>
@@ -1033,7 +1033,7 @@
             <dependency>
                 <groupId>com.vladsch.flexmark</groupId>
                 <artifactId>flexmark-all</artifactId>
-                <version>0.64.0</version>
+                <version>0.64.8</version>
             </dependency>
 
             <dependency>

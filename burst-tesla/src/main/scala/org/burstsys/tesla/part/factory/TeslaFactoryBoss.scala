@@ -53,7 +53,8 @@ object TeslaFactoryBoss extends VitalsService {
     }).filter(_ != null).toArray
     if (msgs.nonEmpty)
       throw VitalsException(s"IN_USE_PARTS! $serviceName ${msgs.mkString("\n\t", ",\n\t", "\n")}")
-    else log info s"NO_IN_USE_PARTS $serviceName"
+    else
+      part.log info s"NO_IN_USE_PARTS $serviceName"
   }
 
   /**
@@ -65,7 +66,7 @@ object TeslaFactoryBoss extends VitalsService {
   final
   def registerFactory(factory: TeslaPartFactory[_, _]): this.type = {
     _factoryMap put(factory.partName, factory)
-    log debug s"$serviceName registerFactory(factory=${factory.partName})"
+    part.log debug s"$serviceName registerFactory(factory=${factory.partName}, binding=${Thread.currentThread.getName})"
     this
   }
 
@@ -76,7 +77,7 @@ object TeslaFactoryBoss extends VitalsService {
   override
   def start: this.type = {
     ensureNotRunning
-    log info startingMessage
+    part.log info startingMessage
     //    _watcher.startIfNotAlreadyStarted
     markRunning
     this

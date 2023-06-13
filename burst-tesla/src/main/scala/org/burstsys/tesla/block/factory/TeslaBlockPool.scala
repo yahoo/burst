@@ -2,12 +2,12 @@
 package org.burstsys.tesla.block.factory
 
 import java.lang
-
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.block.{TeslaBlock, TeslaBlockAnyVal, TeslaBlockReporter}
-import org.burstsys.tesla.offheap
+import org.burstsys.tesla.{block, offheap}
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.tesla.pool.TeslaPoolId
+import org.burstsys.vitals.logging.burstStdMsg
 
 import scala.language.postfixOps
 
@@ -27,8 +27,17 @@ final case class TeslaBlockPool(poolId: TeslaPoolId, partByteSize: TeslaMemorySi
       case null =>
         incrementPartsAllocated()
         TeslaBlockReporter.alloc(partByteSize)
-        TeslaBlockAnyVal(offheap.allocateMemory(partByteSize)).initialize(partByteSize, poolId)
-      case m => TeslaBlockAnyVal(m)
+        val blck = TeslaBlockAnyVal(offheap.allocateMemory(partByteSize)).initialize(partByteSize, poolId)
+        if (block.log.isTraceEnabled) {
+          block.log trace burstStdMsg(s"allocated new buffer=${blck.blockBasePtr} inuse=$partsInUse allocated=$partsAllocated")
+        }
+        blck
+      case m =>
+        val blck = TeslaBlockAnyVal(m)
+        if (block.log.isTraceEnabled) {
+          block.log trace burstStdMsg(s"allocated pooled buffer=${blck.blockBasePtr} inuse=$partsInUse allocated=$partsAllocated")
+        }
+        blck
     }
     incrementPartsInUse()
     TeslaBlockReporter.grab()
@@ -36,14 +45,20 @@ final case class TeslaBlockPool(poolId: TeslaPoolId, partByteSize: TeslaMemorySi
   }
 
   @inline override
-  def releaseBlock(block: TeslaBlock): Unit = {
+  def releaseBlock(blck: TeslaBlock): Unit = {
     decrementPartsInUse()
     TeslaBlockReporter.release()
-    partQueue add block.blockBasePtr
+    if (block.log.isTraceEnabled) {
+      block.log trace burstStdMsg(s"returning buffer=${blck.blockBasePtr} to pool inuse=$partsInUse allocated=$partsAllocated")
+    }
+    partQueue add blck.blockBasePtr
   }
 
   @inline override
   def freePart(part: lang.Long): TeslaMemoryPtr = {
+    if (block.log.isTraceEnabled) {
+      block.log trace burstStdMsg(s"freeing buffer=$part inuse=$partsInUse allocated=$partsAllocated")
+    }
     offheap.freeMemory(part)
     TeslaBlockReporter.free(partByteSize)
     partByteSize

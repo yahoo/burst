@@ -6,10 +6,11 @@ import org.burstsys.tesla.buffer.TeslaBufferReporter
 import org.burstsys.tesla.director.TeslaDirectorReporter
 import org.burstsys.tesla.parcel.TeslaParcelReporter
 import org.burstsys.tesla.scatter.TeslaScatterReporter
+import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.reporter.VitalsReporter
 import org.burstsys.vitals.reporter.VitalsReporterSource
 
-package object tesla extends VitalsReporterSource {
+package object tesla extends VitalsReporterSource with VitalsLogger {
 
   override def reporters: Array[VitalsReporter] = Array(
     TeslaScatterReporter,

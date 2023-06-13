@@ -241,7 +241,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
       }
       future.channel().close()
       // go around again
-      _bootstrap.connect(_socketAddress).addListener(connectionHandler)
+      scheduleConnect(5 second)
     }
   }
 

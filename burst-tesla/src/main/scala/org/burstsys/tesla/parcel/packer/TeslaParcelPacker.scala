@@ -1,9 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.parcel.packer
 
-import java.util.concurrent.ArrayBlockingQueue
 import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.{TeslaMutableBuffer, endMarkerMutableBuffer}
+import org.burstsys.tesla.parcel.packer
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
@@ -11,6 +11,7 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.reporter.instrument._
 import org.burstsys.vitals.uid._
 
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, Future, TimeoutException}
@@ -57,7 +58,7 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
   // state
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private val packerThreadName = f"tesla-parcel-packer-${packerId}%02d"
+  private val packerThreadName = f"tesla-parcel-packer-$packerId%02d"
 
   private var _guid: VitalsUid = _
 
@@ -93,6 +94,8 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
       def pushParcel(): Unit = {
         buffersInParcelTally = 0
         parcelTally += 1
+        if (packer.log.isDebugEnabled)
+          packer.log.debug(s"TeslaParcelPacker pushed parcel=$parcel guid=${_guid} parcelTally=$parcelTally")
         _pipe put parcel
         parcel = tesla.parcel.factory.grabParcel(parcelMaxSize)
       }
@@ -116,16 +119,17 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
             val elapsedNanos = System.nanoTime - startNanos
             val bytesPerBuffer = if (bufferTally == 0) 0 else byteTally / bufferTally
             val bytesPerParcel = if (parcelTally == 0) 0 else byteTally / parcelTally
-            log debug
-              s"""TeslaParcelPacker FINISHED ,
-                 |  guid=${_guid} ,
-                 |  elapsedNanos=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) ,
-                 |  buffers=$bufferTally (${prettyRateString("buffer", bufferTally, elapsedNanos)}) ,
-                 |  parcels=$parcelTally (${prettyRateString("parcel", parcelTally, elapsedNanos)}) ,
-                 |  bytes=$byteTally (${prettyByteSizeString(byteTally)}) (${prettyRateString("byte", byteTally, elapsedNanos)}) ,
-                 |  bytesPerBuffer=$bytesPerBuffer (${prettyByteSizeString(bytesPerBuffer)}) (${prettyByteSizeString(bytesPerBuffer)}) ,
-                 |  bytesPerParcel=$bytesPerParcel (${prettyByteSizeString(bytesPerParcel)}) (${prettyByteSizeString(bytesPerParcel)}) ,
-                 """.stripMargin
+            if (packer.log.isDebugEnabled)
+              packer.log debug
+                s"""TeslaParcelPacker FINISHED ,
+                   |  guid=${_guid} ,
+                   |  elapsedNanos=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) ,
+                   |  buffers=$bufferTally (${prettyRateString("buffer", bufferTally, elapsedNanos)}) ,
+                   |  parcels=$parcelTally (${prettyRateString("parcel", parcelTally, elapsedNanos)}) ,
+                   |  bytes=$byteTally (${prettyByteSizeString(byteTally)}) (${prettyRateString("byte", byteTally, elapsedNanos)}) ,
+                   |  bytesPerBuffer=$bytesPerBuffer (${prettyByteSizeString(bytesPerBuffer)}) (${prettyByteSizeString(bytesPerBuffer)}) ,
+                   |  bytesPerParcel=$bytesPerParcel (${prettyByteSizeString(bytesPerParcel)}) (${prettyByteSizeString(bytesPerParcel)}) ,
+     """.stripMargin
             _moreToPack.set(false)
 
           } else {
@@ -162,7 +166,7 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
 
   override def put(buffer: TeslaMutableBuffer): Unit = {
     if (!running) {
-      log warn s"PACKER_NOT_RUNNING TeslaParcelPacker.put called on instance that is not running id=$packerId guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}"
+      packer.log warn s"PACKER_NOT_RUNNING TeslaParcelPacker.put called on instance that is not running id=$packerId guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}"
     }
     _queue add buffer
   }
@@ -180,11 +184,16 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
     _pipe = pipe
     _guid = guid
     startProcessing()
+    if (packer.log.isDebugEnabled)
+      packer.log.debug(s"TeslaParcelPacker OPEN guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}")
     this
   }
 
   def close: this.type = {
     _queue add endMarkerMutableBuffer
+    if (packer.log.isDebugEnabled)
+      packer.log.debug(s"TeslaParcelPacker CLOSING guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}")
+
     // wait for this run to finish
     while (_moreToPack.get) {
       try {
@@ -193,6 +202,8 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
         case _: TimeoutException => // ignore this and wait for the press to complete
       }
     }
+    if (packer.log.isDebugEnabled)
+      packer.log.debug(s"TeslaParcelPacker CLOSED guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}")
     this
   }
 

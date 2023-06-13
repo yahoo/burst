@@ -2,21 +2,15 @@
 <!--This is the config used by the tests-->
 <Configuration status="error" packages="org.burstsys.vitals.logging">
     <Appenders>
-        <Console name="console" target="SYSTEM_OUT"/>
-        <Fanout name="fanlocal">
+        <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss:SSS} [%-5p][%-37t] %m%n"/>
-            <AppenderRef ref="console"/>
-        </Fanout>
+        </Console>
     </Appenders>
     <Loggers>
-<!--        <Logger name="org.burstsys.nexus" level="debug"/>-->
-<!--        <Logger name="org.burstsys.nexus.client.connection" level="info"/>-->
-<!--        <Logger name="org.burstsys.fabric.wave.data.model" level="info"/>-->
-<!--        <Logger name="org.burstsys.fabric.wave.data.worker.pump" level="warn"/>-->
-        <Root level="${sys:burst.loglevel:-info}">
-            <AppenderRef ref="fanlocal"/>
-        </Root>
-        <Logger name="org.reflections" level="error"/>
+        <AsyncRoot level="${sys:burst.loglevel:-info}" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncRoot>
+        <AsyncLogger name="org.reflections" level="error"/>
     </Loggers>
 </Configuration>
 

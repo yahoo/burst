@@ -9,6 +9,7 @@ import org.burstsys.fabric.topology.model.node.FabricNode
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.stats._
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
+import org.burstsys.vitals.trek.context.{extractContext, injectContext}
 
 import scala.collection.mutable
 
@@ -176,12 +177,15 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
    * @return this message
    */
   final def decode(buffer: Array[Byte]): this.type = {
+    // the message type is already read
+    val subBuf = extractContext(buffer)
     val k = acquireKryo
     try {
       try {
-        val input = new Input(buffer)
+        val input = new Input(subBuf)
         this.read(k, input)
-      } finally releaseKryo(k)
+      } finally
+        releaseKryo(k)
     } catch safely {
       case t: Throwable =>
         throw VitalsException(t)
@@ -197,7 +201,8 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
    */
   final def encode(buffer: ByteBuf): this.type = {
     try {
-      buffer.writeInt(messageType.code)
+      buffer.writeInt(messageType.code) // write the message type
+      injectContext(buffer)
       val k = acquireKryo
       try {
         val output = {
@@ -205,7 +210,8 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
         }
         this.write(k, output)
         buffer.writeBytes(output.toBytes)
-      } finally releaseKryo(k)
+      } finally
+        releaseKryo(k)
     } catch safely {
       case t: Throwable =>
         throw VitalsException(t)

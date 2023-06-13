@@ -1,9 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import io.netty.buffer.ByteBuf
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace._
+import io.opentelemetry.context.propagation.{TextMapGetter, TextMapSetter}
 import io.opentelemetry.context.{Context, ContextKey}
 import io.opentelemetry.sdk.trace.IdGenerator
 import org.apache.commons.codec.digest.DigestUtils

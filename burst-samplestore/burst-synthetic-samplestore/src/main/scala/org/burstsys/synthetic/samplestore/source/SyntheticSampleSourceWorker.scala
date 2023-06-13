@@ -10,7 +10,7 @@ import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorker
 import org.burstsys.synthetic.samplestore.configuration.{defaultItemCountProperty, defaultMaxItemSizeProperty, defaultPressTimeoutProperty, syntheticDatasetProperty}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors.{VitalsException, safely}
-import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -62,7 +62,11 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
           val pressSource = dataProvider.pressSource(item)
           val pressedItem = brio.press.pipeline.pressToFuture(stream.guid, pressSource, schema, item.schemaVersion, maxItemSize)
           pressedItem
-            .map({ buffer => stream.put(buffer) })
+            .map({ result =>
+              if (log.isDebugEnabled)
+                log debug burstLocMsg(s"putting job=${result._1} buffer ${result._2.basePtr} on stream")
+              stream.put(result._2)
+            })
             .recover({ case _ => rejectedItemCounter.incrementAndGet() })
             .andThen({ case _ => finished.countDown() })
         })

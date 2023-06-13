@@ -86,7 +86,7 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder with System
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status: AnyRef = {
+  override def status(level: Int): AnyRef = {
     case class StatusResponse(feedStreamRequests: Array[FeedStreamRequest] = _requests.asScala.toArray )
     StatusResponse()
   }

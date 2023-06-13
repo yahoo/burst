@@ -1,10 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.message
 
+import io.netty.buffer.ByteBuf
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.nexus.{NexusGlobalUid, NexusStreamUid}
+import org.burstsys.vitals.trek.context.{extractContext, injectContext}
 import org.burstsys.vitals.uid._
-import io.netty.buffer.ByteBuf
 
 /**
   * An abstract message within the Nexus Protocol
@@ -101,6 +102,7 @@ abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
     _ruid = buffer.readInt
     _guid = decodeAsciiStringFromByteBuf(buffer)
     _suid = decodeAsciiStringFromByteBuf(buffer)
+    extractContext(buffer)
     this
   }
 
@@ -109,6 +111,7 @@ abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
     buffer.writeInt(_ruid)
     encodeAsciiStringToByteBuf(_guid, buffer)
     encodeAsciiStringToByteBuf(_suid, buffer)
+    injectContext(buffer)
     this
   }
 

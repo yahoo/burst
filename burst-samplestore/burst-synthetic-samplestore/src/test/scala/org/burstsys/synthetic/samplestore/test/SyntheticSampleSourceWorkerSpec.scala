@@ -17,8 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
-class SynteticSampleSourceWorkerSpec extends BaseSampleStoreTest {
-
+class SyntheticSampleSourceWorkerSpec extends BaseSampleStoreTest {
   it should "generate the requested number of items" in {
     for (count <- Seq(1, 20, 100, 1000, 10000)) {
       val props = Map(

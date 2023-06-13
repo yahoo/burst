@@ -3,12 +3,11 @@ package org.burstsys.tesla.thread
 
 import io.opentelemetry.context.Context
 
-import java.util.concurrent.{ExecutorService, Executors}
+import java.util.concurrent.{Executor, ExecutorService, Executors, SynchronousQueue, TimeUnit}
 import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.threading.burstThreadGroupGlobal
 
-import java.util.concurrent.Executor
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, CanAwait, ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -121,7 +120,12 @@ package object request {
       new Thread(burstThreadGroupGlobal, r, name) with TeslaRequestThread
     }
 
-    override lazy val pool: ExecutorService = Context.taskWrapping(Executors.newCachedThreadPool(factory))
+    override lazy val pool: ExecutorService = {
+      val pool = Executors.newCachedThreadPool(factory).asInstanceOf[java.util.concurrent.ThreadPoolExecutor]
+      pool.setMaximumPoolSize(1000)
+      Context.taskWrapping(pool)
+      // pool
+    }
   }
 
 

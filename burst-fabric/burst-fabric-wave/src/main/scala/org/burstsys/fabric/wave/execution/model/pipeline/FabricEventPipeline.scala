@@ -89,7 +89,7 @@ class FabricEventPipeline[EventType <: PipelineEvent](name: String, queueSize: I
                       listener.onEvent(op)
                   } catch safely {
                     case t: Throwable =>
-                      log error(burstStdMsg(s"$name error listener=${listener.getClass.getSimpleName} op=${op}"), t)
+                      log error(burstStdMsg(s"$name error listener=${listener.getClass.getSimpleName} op=$op", t), t)
                   }
                 }
             }

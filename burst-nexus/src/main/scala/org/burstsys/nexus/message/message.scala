@@ -1,11 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus
 
-import org.burstsys.vitals.reporter.instrument._
-import org.burstsys.vitals.logging._
-import org.burstsys.vitals.properties.VitalsPropertyMap
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.{LengthFieldBasedFrameDecoder, LengthFieldPrepender}
+import org.burstsys.vitals.logging._
+import org.burstsys.vitals.properties.VitalsPropertyMap
+import org.burstsys.vitals.reporter.instrument._
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -150,4 +150,5 @@ package object message extends VitalsLogger {
     buffer.writeInt(bytes.length)
     buffer.writeBytes(bytes)
   }
+
 }
