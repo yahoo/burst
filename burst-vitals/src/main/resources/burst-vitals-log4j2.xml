@@ -5,14 +5,14 @@
         <PatternLayout pattern="%d{HH:mm:ss:SSS} [%-5p][%-37t] %m%n"/>
     </Console>
     <Loggers>
-        <AsyncRoot level="${sys:burst.loglevel:-info}" includeLocation="true">
+        <Root level="${sys:burst.loglevel:-info}" includeLocation="true">
             <AppenderRef ref="console"/>
-        </AsyncRoot>
-        <AsyncLogger name="org.reflections" level="error"/>
-        <AsyncLogger name="com.twitter" level="warn"/>
-        <AsyncLogger name="com.twitter.finagle" level="warn"/>
-        <AsyncLogger name="org.eclipse.jetty" level="error"/>
-        <AsyncLogger name="org.glassfish.grizzly" level="warn"/>
+        </Root>
+        <Logger name="org.reflections" level="error"/>
+        <Logger name="com.twitter" level="warn"/>
+        <Logger name="com.twitter.finagle" level="warn"/>
+        <Logger name="org.eclipse.jetty" level="error"/>
+        <Logger name="org.glassfish.grizzly" level="warn"/>
     </Loggers>
 </Configuration>
 
