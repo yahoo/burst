@@ -7,10 +7,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <AsyncRoot level="${sys:burst.loglevel:-info}" includeLocation="true">
+        <Root level="${sys:burst.loglevel:-info}" includeLocation="true">
             <AppenderRef ref="console"/>
-        </AsyncRoot>
-        <AsyncLogger name="org.reflections" level="error"/>
+        </Root>
+        <Logger name="org.reflections" level="error"/>
     </Loggers>
 </Configuration>
 
