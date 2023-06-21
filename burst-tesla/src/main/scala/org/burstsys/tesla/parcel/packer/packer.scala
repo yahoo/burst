@@ -2,6 +2,8 @@
 package org.burstsys.tesla.parcel
 
 import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
+import org.burstsys.tesla.block
+import org.burstsys.tesla.block.factory.TeslaBlockSizes
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.instrument._
@@ -16,7 +18,14 @@ package object packer extends VitalsLogger {
 
   final val packerIdSource = new AtomicInteger()
 
-  final val parcelMaxSize: TeslaMemorySize = (200 * MB).toInt
+  final val parcelMaxSize: TeslaMemorySize = {
+    val sSz = TeslaBlockSizes.findBlockSize(200 * MB.toInt)
+    this.log info s"Parcel start max size: $sSz (${prettyByteSizeString(sSz)})"
+    val sz = sSz - TeslaParcelAnyVal(0).headerSize - 2*block.SizeofBlockHeader
+    this.log info s"Parcel adjusted max size: $sz (${prettyByteSizeString(sz)})"
+    this.log info s"Parcel adjusted max size after block check: ${TeslaBlockSizes.findBlockSize(sz)} (${prettyByteSizeString(TeslaBlockSizes.findBlockSize(sz))})"
+    sz
+  }
 
   final lazy val slotQueue: util.Queue[TeslaParcelPacker] = new MpmcArrayQueue[TeslaParcelPacker](1000)
 

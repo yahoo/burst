@@ -177,7 +177,8 @@ trait TeslaPartPool[PoolPart] extends AnyRef {
       var continue = true
       while (i < maxPartsFreedInOneRun && continue) {
         partQueue.poll match {
-          case null => continue = false
+          case null =>
+            continue = false
           case part =>
             decrementPartsAllocated()
             partsFreed += 1

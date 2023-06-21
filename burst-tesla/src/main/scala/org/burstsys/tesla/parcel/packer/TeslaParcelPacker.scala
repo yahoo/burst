@@ -116,6 +116,9 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
               pushParcel()
             }
 
+            // finish up by releasing the final parcel queued up after the push
+            tesla.parcel.factory.releaseParcel(parcel)
+
             val elapsedNanos = System.nanoTime - startNanos
             val bytesPerBuffer = if (bufferTally == 0) 0 else byteTally / bufferTally
             val bytesPerParcel = if (parcelTally == 0) 0 else byteTally / parcelTally

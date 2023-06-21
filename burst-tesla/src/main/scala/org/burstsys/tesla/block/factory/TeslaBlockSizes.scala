@@ -22,13 +22,17 @@ object TeslaBlockSizes {
    * TODO make this just an array of page quanta and build the other structures at init time.
    */
   val blockSizes: Array[TeslaMemorySize] = {
+    block.log info s"calculating block size options:"
     (for (i <- 0 to 16) yield {
       Math.exp(i).toLong*pageSize
-    }).filter(_ < Int.MaxValue).map(_.toInt).toArray
+    }).filter(_ < Int.MaxValue).map{s =>
+      block.log info s"block size: $s (${ vitals.reporter.instrument.prettyByteSizeString(s)})"
+      s.toInt
+    }.toArray
   }
 
   @inline final
-  def findBlockSize(byteSize: TeslaMemorySize): TeslaMemorySize = blockSize(byteSize + SizeofBlockHeader)
+  def findBlockSize(byteSize: TeslaMemorySize): TeslaMemorySize = blockSize(byteSize)
 
   // TODO SizeofBlockHeader accounted for twice
 

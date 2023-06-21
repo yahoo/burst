@@ -53,11 +53,13 @@ class TeslaParcelPackerSpec extends TeslaAbstractSpec {
         pipe.put(parcel.TeslaEndMarkerParcel)
       }
 
-      (0 until parcelCount).foreach { _ =>
+      var isEnd = false
+      while(!isEnd) {
         log debug s"take parcel"
         pipe.take match {
           case parcel.TeslaEndMarkerParcel =>
             log info s"got finish parcel"
+            isEnd = true
           case parcel.TeslaTimeoutMarkerParcel =>
             log error s"got timeout parcel"
             throw VitalsException("timeout")
@@ -68,6 +70,7 @@ class TeslaParcelPackerSpec extends TeslaAbstractSpec {
         }
       }
     }
+    tesla.parcel.factory.inUseParts should be(0)
   }
 
 }
