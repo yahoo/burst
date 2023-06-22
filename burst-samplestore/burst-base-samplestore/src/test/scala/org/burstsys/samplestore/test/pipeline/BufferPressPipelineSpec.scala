@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.test.pipeline
 
+import org.apache.logging.log4j.core.config.Configurator
 import org.burstsys.brio.configuration.brioPressThreadsProperty
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.samplestore.pipeline
@@ -15,8 +16,8 @@ class BufferPressPipelineSpec extends PressAbstractSpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  it should "start buffer press in parallel" in {
 
+  it should "start buffer press in parallel" in {
     val presserSchema = BrioSchema("presser")
     val count = 1000000
     val stream = MockNexusStream("unity", expectedItemCount = count)

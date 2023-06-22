@@ -19,7 +19,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
 import org.burstsys.vitals.uid._
 
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.{ArrayBlockingQueue, LinkedBlockingQueue}
 import scala.concurrent.{Future, Promise}
 import scala.language.postfixOps
 import scala.util.Success
@@ -53,11 +53,13 @@ trait PressPipeline extends AnyRef {
             // grab a job as they come in
             val job = this.take // all waiting in request thread
             pipeline.log debug burstStdMsg(s"taking ${job.jobId} on queue (size=${this.size()})")
+            var blobBuffer = TeslaWorkerCoupler(grabBuffer(job.maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger)))
             TeslaWorkerCoupler { // worker thread for CPU bound pressing
               try {
                 val jobId = job.jobId
                 val start = System.nanoTime
-                job.press(presser)
+                pipeline.log debug burstStdMsg(s"taking ${job.jobId} on queue (size=${this.size()})")
+                blobBuffer = job.press(presser, blobBuffer)
                 val elapsedNs = System.nanoTime - start
                 if (elapsedNs > slowPressDuration.toNanos) {
                   SampleStoreReporter.onPressSlow()
@@ -78,31 +80,14 @@ trait PressPipeline extends AnyRef {
                 dictionary.reset()
               }
             }
+            // put the buffer on the stream outside of the worker thread in case we block on the stream
+            if (blobBuffer != null) {
+              job.stream.put(blobBuffer)
+              job.p.complete(Success(job.jobId))
+            }
           }
         }
     }
-  }
-
-  private sealed trait BrioPressPipelineJob {
-
-    /**
-     * tracking OP GUID
-     */
-    def guid: VitalsUid
-
-    /**
-     * logical id for job
-     */
-    def jobId: Long
-
-    /**
-     * Press the item to a buffer
-     *
-     * @param presser the presser to use
-     * @return
-     */
-    def press(presser: BrioPresser): Unit
-
   }
 
   /**
@@ -116,36 +101,36 @@ trait PressPipeline extends AnyRef {
    * @param version     the schema version of the blob
    * @param maxItemSize the maximum number of bytes to press
    */
-  private case class BrioPressPipelineJobContext(
-                                                  jobId: Long,
-                                                  stream: NexusStream,
-                                                  p: Promise[Long],
-                                                  pressSource: BrioPressSource,
-                                                  schema: BrioSchema,
-                                                  version: BrioVersionKey,
-                                                  maxItemSize: Int
-                                                ) extends BrioPressPipelineJob {
-
-    override def press(presser: BrioPresser): Unit = {
+  private case class
+  BrioPressPipelineJob(
+                        jobId: Long,
+                        stream: NexusStream,
+                        p: Promise[Long],
+                        pressSource: BrioPressSource,
+                        schema: BrioSchema,
+                        version: BrioVersionKey,
+                        maxItemSize: Int
+                      )
+  {
+    def press(presser: BrioPresser, blobBuffer: TeslaMutableBuffer): TeslaMutableBuffer = {
       val start = System.nanoTime
-      val blobBuffer = grabBuffer(maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger))
       try {
         pipeline.log trace burstLocMsg(s"pressing job $jobId into buffer ${blobBuffer.basePtr}")
         val sink = presser.press(schema, pressSource)
         BrioBlobEncoder.encodeV2Blob(sink.buffer, version, sink.dictionary, blobBuffer)
         SampleStoreReporter.onPressComplete(System.nanoTime - start, blobBuffer.currentUsedMemory)
-        stream.put(blobBuffer)
-        p.complete(Success(jobId))
+        blobBuffer
       } catch safely {
         case t: Throwable =>
           log warn burstLocMsg(s"jobId=$jobId, guid=$guid -- discarding press job... $t", t)
           SampleStoreReporter.onPressReject()
           releaseBuffer(blobBuffer)
           p.failure(t)
+          null
       }
     }
 
-    override def guid: VitalsUid = stream.guid
+    def guid: VitalsUid = stream.guid
   }
 
 
@@ -156,7 +141,7 @@ trait PressPipeline extends AnyRef {
    */
   def pressToFuture(stream: NexusStream, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[Long] = {
     val p = Promise[Long]()
-    val thing = BrioPressPipelineJobContext(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize)
+    val thing = BrioPressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize)
     pipeline.log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
     pressJobQueue put thing
     pipeline.log trace burstLocMsg(s"returning ${thing.jobId} future")

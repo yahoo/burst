@@ -171,11 +171,11 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
     if (!running) {
       packer.log warn s"PACKER_NOT_RUNNING TeslaParcelPacker.put called on instance that is not running id=$packerId guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}"
     }
-    _queue add buffer
+    _queue put buffer
   }
 
   override def finishWrites(): Future[Unit] = {
-    _queue add endMarkerMutableBuffer
+    _queue put endMarkerMutableBuffer
     Await.ready(_backgroundProcess, Duration.Inf)
   }
 
@@ -193,7 +193,7 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
   }
 
   def close: this.type = {
-    _queue add endMarkerMutableBuffer
+    _queue put endMarkerMutableBuffer
     if (packer.log.isDebugEnabled)
       packer.log.debug(s"TeslaParcelPacker CLOSING guid=${_guid} pipe=${_pipe} worker=${_backgroundProcess}")
 
