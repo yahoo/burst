@@ -1,13 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.brio.press.pipeline
+package org.burstsys.samplestore.pipeline
 
-import org.burstsys.brio.BrioReporter
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.configuration.brioPressThreadsProperty
 import org.burstsys.brio.dictionary.factory._
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.brio.press.{BrioPressSink, BrioPressSource, BrioPresser, pipeline}
+import org.burstsys.brio.press.{BrioPressSink, BrioPressSource, BrioPresser}
 import org.burstsys.brio.types.BrioTypes.BrioVersionKey
+import org.burstsys.nexus.stream.NexusStream
+import org.burstsys.samplestore.{SampleStoreReporter, pipeline}
 import org.burstsys.tesla.TeslaTypes._
 import org.burstsys.tesla.buffer.factory._
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
@@ -27,7 +28,7 @@ import scala.util.Success
  * A Fixed set of worker threads pressing items to blobs...
  * Metrics are tracked
  */
-trait BrioPressPipeline extends AnyRef {
+trait PressPipeline extends AnyRef {
 
   /**
    * establish a queue to allow fixed size pool to grab chunks of work
@@ -59,7 +60,7 @@ trait BrioPressPipeline extends AnyRef {
                 job.press(presser)
                 val elapsedNs = System.nanoTime - start
                 if (elapsedNs > slowPressDuration.toNanos) {
-                  BrioReporter.onPressSlow()
+                  SampleStoreReporter.onPressSlow()
                   val byteCount = pressBuffer.currentUsedMemory
                   pipeline.log info burstStdMsg(
                     s"BrioPressPipeline($i) guid=${job.guid}, jobId=$jobId SLOW PRESS elapsedNs=$elapsedNs (${
@@ -116,8 +117,9 @@ trait BrioPressPipeline extends AnyRef {
    * @param maxItemSize the maximum number of bytes to press
    */
   private case class BrioPressPipelineJobContext(
-                                                  jobId: Long, guid: VitalsUid,
-                                                  p: Promise[(Long, TeslaMutableBuffer)],
+                                                  jobId: Long,
+                                                  stream: NexusStream,
+                                                  p: Promise[Long],
                                                   pressSource: BrioPressSource,
                                                   schema: BrioSchema,
                                                   version: BrioVersionKey,
@@ -131,26 +133,30 @@ trait BrioPressPipeline extends AnyRef {
         pipeline.log trace burstLocMsg(s"pressing job $jobId into buffer ${blobBuffer.basePtr}")
         val sink = presser.press(schema, pressSource)
         BrioBlobEncoder.encodeV2Blob(sink.buffer, version, sink.dictionary, blobBuffer)
-        BrioReporter.onPressComplete(System.nanoTime - start, blobBuffer.currentUsedMemory)
-        p.complete(Success((jobId, blobBuffer)))
+        SampleStoreReporter.onPressComplete(System.nanoTime - start, blobBuffer.currentUsedMemory)
+        stream.put(blobBuffer)
+        p.complete(Success(jobId))
       } catch safely {
         case t: Throwable =>
           log warn burstLocMsg(s"jobId=$jobId, guid=$guid -- discarding press job... $t", t)
-          BrioReporter.onPressReject()
+          SampleStoreReporter.onPressReject()
           releaseBuffer(blobBuffer)
           p.failure(t)
       }
     }
+
+    override def guid: VitalsUid = stream.guid
   }
+
 
   /**
    * Take a press source and press using parallel threading
    *
    * @param maxItemSize the maximum number of bytes to press
    */
-  def pressToFuture(guid: VitalsUid, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[(Long, TeslaMutableBuffer)] = {
-    val p = Promise[(Long, TeslaMutableBuffer)]()
-    val thing = BrioPressPipelineJobContext(jobId.getAndIncrement, guid, p, pressSource, schema, version, maxItemSize)
+  def pressToFuture(stream: NexusStream, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[Long] = {
+    val p = Promise[Long]()
+    val thing = BrioPressPipelineJobContext(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize)
     pipeline.log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
     pressJobQueue put thing
     pipeline.log trace burstLocMsg(s"returning ${thing.jobId} future")

@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.brio.press
+package org.burstsys.samplestore
 
 import org.burstsys.tesla.block
 import org.burstsys.tesla.block.factory.TeslaBlockSizes
@@ -13,7 +13,7 @@ import org.burstsys.vitals.reporter.instrument.{MB, prettyByteSizeString}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-package object pipeline extends VitalsLogger with BrioPressPipeline {
+package object pipeline extends VitalsLogger with PressPipeline {
 
   private[pipeline]
   final val jobId = new AtomicLong

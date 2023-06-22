@@ -66,7 +66,7 @@ class TeslaParcelPackerContext() extends AnyRef with TeslaParcelPacker {
 
   private var _pipe: TeslaParcelPipe = _
 
-  private val _queue = new ArrayBlockingQueue[TeslaMutableBuffer](1e6.toInt)
+  private val _queue = new ArrayBlockingQueue[TeslaMutableBuffer](100)
 
   private var _backgroundProcess: Future[Unit] = _
 

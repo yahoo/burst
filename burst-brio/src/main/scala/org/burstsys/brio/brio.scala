@@ -10,7 +10,6 @@ import org.burstsys.vitals.reporter.VitalsReporterSource
 package object brio extends VitalsReporterSource with VitalsLogger {
 
   override def reporters: Array[VitalsReporter] = Array(
-    BrioReporter,
     BrioDictionaryReporter
   )
 
