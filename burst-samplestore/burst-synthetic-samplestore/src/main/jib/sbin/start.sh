@@ -5,8 +5,12 @@ else
   appName="${APP_NAME}"
 fi
 
+# make sure important dirs exist
 ERROR_DIR=${BURST_HOME}/logs/dump
-mkdir -p ${BURST_HOME}/logs/dump
+mkdir -p ${ERROR_DIR}
+containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/crash-%p.log"
+containerOpts="${containerOpts} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ERROR_DIR}"
+
 mkdir -p ${BURST_HOME}/classpath-files
 
 # allow for late variable substitution in these environment variables
@@ -41,12 +45,6 @@ elif [ "${WORKLOAD}" = "worker" ]; then
     mainClass="org.burstsys.samplestore.store.SampleStoreWorkerMain"
     envConfig="${envConfig} -Dburst.fabric.net.host=${BURST_STORE_SUPERVISOR_HOST}"
 fi
-
-containerOpts="${containerOpts} --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
-containerOpts="${containerOpts} -XX:+UnlockDiagnosticVMOptions"
-containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/burst-crash-%p.log"
-containerOpts="${containerOpts} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ERROR_DIR}"
-containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/synthetic-crash-%p.log"
 
 JAVA_OPTS="${JAVA_OPTS} -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"
 BURST_CLASS_PATH="$(cat $BURST_HOME/jib-classpath-file)"
