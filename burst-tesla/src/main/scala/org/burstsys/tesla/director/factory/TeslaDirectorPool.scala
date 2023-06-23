@@ -42,7 +42,7 @@ case class TeslaDirectorPool(poolId: TeslaPoolId, partByteSize: TeslaMemorySize)
   }
 
   @inline override
-  def freePart(part: TeslaDirector): TeslaMemoryPtr = {
+  def freePart(part: TeslaDirector): Long = {
     val block = TeslaBlockAnyVal(part.blockBasePtr)
     tesla.block.factory.releaseBlock(block)
     TeslaDirectorReporter.free(partByteSize)

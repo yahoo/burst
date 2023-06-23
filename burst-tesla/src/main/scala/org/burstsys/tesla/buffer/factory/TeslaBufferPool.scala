@@ -56,7 +56,7 @@ case class TeslaBufferPool(poolId: TeslaPoolId, partByteSize: TeslaMemorySize)
   }
 
   @inline override
-  def freePart(part: TeslaMutableBuffer): TeslaMemoryPtr = {
+  def freePart(part: TeslaMutableBuffer): Long = {
     TeslaBufferReporter.free(partQueueSize)
     val block = TeslaBlockAnyVal(part.blockBasePtr)
     if (buffer.log.isTraceEnabled) {

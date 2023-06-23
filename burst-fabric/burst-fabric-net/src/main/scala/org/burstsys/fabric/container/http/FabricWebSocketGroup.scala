@@ -114,7 +114,9 @@ class WebSocketContext(socket: WebSocket) extends FabricWebSocket {
       if (socket.isConnected)
         socket.send(text)
     } catch safely {
-      case t: Throwable => throw VitalsException(t)
+      case t: Throwable =>
+        log error burstLocMsg(s"WEBSOCKET_SEND_ERROR length=${text.length} text=${text.substring(0, 100)} ${if (text.length > 100) "..." else ""}", t)
+        throw VitalsException(t)
     }
   }
 

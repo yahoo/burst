@@ -11,6 +11,8 @@ import org.burstsys.vitals.errors._
 
 package object factory extends TeslaPartFactory[TeslaMutableBuffer, TeslaBufferPool] with TeslaBufferShop {
 
+  override def poolSizeAsPercentOfDirectMemory: Double = 0.2
+
   startPartTender
 
   @inline final override

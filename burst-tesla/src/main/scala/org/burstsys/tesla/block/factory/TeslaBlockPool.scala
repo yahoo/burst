@@ -55,7 +55,7 @@ final case class TeslaBlockPool(poolId: TeslaPoolId, partByteSize: TeslaMemorySi
   }
 
   @inline override
-  def freePart(part: lang.Long): TeslaMemoryPtr = {
+  def freePart(part: lang.Long): Long  = {
     if (block.log.isTraceEnabled) {
       block.log trace burstStdMsg(s"freeing buffer=$part inuse=$partsInUse allocated=$partsAllocated")
     }

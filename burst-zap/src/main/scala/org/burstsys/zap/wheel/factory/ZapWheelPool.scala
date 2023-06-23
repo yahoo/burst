@@ -42,7 +42,7 @@ class ZapWheelPool(poolId: TeslaPoolId, partByteSize: TeslaMemoryOffset)
    * @return
    */
   @inline override
-  def freePart(part: ZapWheel): TeslaMemoryPtr = {
+  def freePart(part: ZapWheel): Long = {
     val block = TeslaBlockAnyVal(part.blockBasePtr)
     tesla.block.factory.releaseBlock(block)
     partByteSize

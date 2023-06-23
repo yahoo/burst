@@ -67,7 +67,7 @@ abstract class TeslaPartFactory[FactoryPart, PartPool <: TeslaPartPool[FactoryPa
    *
    * @return
    */
-  final def poolSizeAsPercentOfDirectMemory: Double = 0.05
+  def poolSizeAsPercentOfDirectMemory: Double = 0.05
 
   /**
    * instantiate the specialized part pool for this part type

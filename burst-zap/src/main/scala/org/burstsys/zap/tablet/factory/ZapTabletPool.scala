@@ -45,7 +45,7 @@ case class ZapTabletPool(poolId: TeslaPoolId, partByteSize: TeslaMemoryOffset)
    * @return
    */
   @inline override
-  def freePart(part: ZapTablet): TeslaMemoryPtr = {
+  def freePart(part: ZapTablet): Long = {
     val block = TeslaBlockAnyVal(part.blockBasePtr)
     tesla.block.factory.releaseBlock(block)
     ZapTabletReporter.free(partByteSize)
