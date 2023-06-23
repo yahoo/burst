@@ -2,6 +2,7 @@
 package org.burstsys.tesla.part.factory
 
 import org.burstsys.tesla.part.TeslaPartPool
+import org.burstsys.vitals.host
 import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettySizeString}
 
 import scala.collection.mutable
@@ -39,24 +40,16 @@ trait TeslaFactoryPrinter[Part, PartPool <: TeslaPartPool[Part]] {
 
     if (builder.isDefined) {
       builder.get ++= s"\n*****************************************\n"
-      builder.get ++= s"'$partName' part factory stats:\n"
+      builder.get ++= s"'$partName' part factory stats:  (directSize=${host.directMemoryUsed} (${prettyByteSizeString(host.directMemoryUsed)}))\n"
     }
 
     stats.filter(_._2._1 > 0) foreach {
       case (size, (allocated, inUse)) =>
 
         if (builder.isDefined) {
-          builder.get ++= s"\tpartSize=${
-            prettyByteSizeString(size)
-          }, partsAllocated=${
-            prettySizeString(allocated)
-          }, partsInUse=${
-            prettySizeString(inUse)
-          }, totalAllocatedBytes=${
-            prettyByteSizeString(size * allocated)
-          }, totalInUseBytes=${
-            prettyByteSizeString(size * inUse)
-          }\n"
+          builder.get ++= s"\tpartSize=$size (${prettyByteSizeString(size)}), partsAllocated=$allocated (${prettySizeString(allocated)})"
+          builder.get ++= s", partsInUse=$inUse (${prettySizeString(inUse)}), totalAllocatedBytes=${size*allocated} (${prettyByteSizeString(size * allocated)})"
+          builder.get ++= s", totalInUseBytes=${size*inUse} (${prettyByteSizeString(size * inUse)})\n"
         }
 
         totalAllocatedBytes += size * allocated

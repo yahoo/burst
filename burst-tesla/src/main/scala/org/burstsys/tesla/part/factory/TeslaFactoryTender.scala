@@ -75,7 +75,7 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
         prettyByteSizeString(physMem)
       }), maxPoolSize=$maxPoolSize (${
         prettyByteSizeString(maxPoolSize)
-      }) $tag "
+      }), directSize=${host.directMemoryUsed} (${prettyByteSizeString(host.directMemoryUsed)}) $tag "
     overSize
   }
 
