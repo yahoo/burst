@@ -323,7 +323,7 @@ class EqlSingleCubeQuerySpec extends EqlAlloyTestRunner {
       s"""
          | select count(user) as users, count(user.sessions) as sessions, count(user.sessions.events) as events
          | from schema Unity
-         | where user.sessions.startTime > now - days(2000)
+         | where user.sessions.startTime > now - days(5000)
        """.stripMargin
 
     runTest(source, 200, 200, { result =>
@@ -353,7 +353,7 @@ class EqlSingleCubeQuerySpec extends EqlAlloyTestRunner {
       s"""
          | select count(user) as 'users', count(user.sessions) as 'sessions', count(user.sessions.events) as 'events'
          | from schema Unity
-         | where user.sessions.startTime > now - days(2000) and user.sessions.duration > 0
+         | where user.sessions.startTime > now - days(5000) and user.sessions.duration > 0
        """.stripMargin
 
     runTest(source, 200, 200, { result =>

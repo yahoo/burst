@@ -34,7 +34,7 @@ trait PressPipeline extends AnyRef {
    * establish a queue to allow fixed size pool to grab chunks of work
    */
   private[this]
-  lazy val pressJobQueue = new LinkedBlockingQueue[BrioPressPipelineJob](brioPressThreadsProperty.get*10) {
+  lazy val pressJobQueue = new LinkedBlockingQueue[PressPipelineJob](brioPressThreadsProperty.get*10) {
 
     pipeline.log info burstStdMsg(s"start ${brioPressThreadsProperty.get} press worker thread(s)")
 
@@ -102,7 +102,7 @@ trait PressPipeline extends AnyRef {
    * @param maxItemSize the maximum number of bytes to press
    */
   private case class
-  BrioPressPipelineJob(
+  PressPipelineJob(
                         jobId: Long,
                         stream: NexusStream,
                         p: Promise[Long],
@@ -141,7 +141,7 @@ trait PressPipeline extends AnyRef {
    */
   def pressToFuture(stream: NexusStream, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[Long] = {
     val p = Promise[Long]()
-    val thing = BrioPressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize)
+    val thing = PressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize)
     pipeline.log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
     pressJobQueue put thing
     pipeline.log trace burstLocMsg(s"returning ${thing.jobId} future")

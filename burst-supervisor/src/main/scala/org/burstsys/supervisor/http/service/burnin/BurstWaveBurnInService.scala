@@ -127,7 +127,6 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
     while (!_events.offer(event)) {
       _events.poll()
     }
-    _events.add(event)
     eachListener(l => l.burnInEvent(event))
   }
 

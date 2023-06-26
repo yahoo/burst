@@ -8,6 +8,6 @@ import org.scalatest.matchers.should.Matchers
 
 abstract class PressAbstractSpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
 
-  VitalsLog.configureLogging("brio", consoleOnly = true)
+  VitalsLog.configureLogging("samplesource", consoleOnly = true)
 
 }
