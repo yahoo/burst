@@ -50,7 +50,7 @@ const burnInSlice = createSlice({
         receivedEvents: (state, action) => {
             const {events} = action.payload
             for (const event of events) {
-                state.events.unshift(event)
+                state.events.unshift(event).splice(1500, Infinity)
             }
         },
         updateStatus: (state, action) => {

@@ -8,8 +8,8 @@ import org.burstsys.supervisor.http.service.provider._
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals
 import org.burstsys.vitals.errors.{VitalsException, safely}
+import org.jctools.queues.MpmcArrayQueue
 
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.logging.Level
 
 object BurstWaveBurnInService {
@@ -23,7 +23,8 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
 
   private var _config: BurnInConfig = _
 
-  private val _events: ConcurrentLinkedQueue[BurnInEvent] = new ConcurrentLinkedQueue[BurnInEvent]()
+  //private val _events: ConcurrentLinkedQueue[BurnInEvent] = new ConcurrentLinkedQueue[BurnInEvent]()
+  private val _events = new MpmcArrayQueue[BurnInEvent](1500)
 
   private var _run: BurnInRun = _
 
@@ -112,7 +113,9 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
     registerEvent(BurnInLogEvent(message, level))
   }
 
-  override def getEvents: Array[BurnInEvent] = _events.toArray(Array.empty[BurnInEvent])
+  override def getEvents: Array[BurnInEvent] = {
+    _events.toArray(Array.empty[BurnInEvent])
+  }
 
   override def getConfig: BurnInConfig = _config
 
@@ -121,6 +124,9 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
   }
 
   private def registerEvent(event: BurnInEvent): Unit = {
+    while (!_events.offer(event)) {
+      _events.poll()
+    }
     _events.add(event)
     eachListener(l => l.burnInEvent(event))
   }

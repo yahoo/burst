@@ -74,6 +74,7 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder with System
       // while we are unable to put this request on the queue, pull the first one out
       _requests.poll()
     }
+    _requests.add(req)
   }
 
   /**
