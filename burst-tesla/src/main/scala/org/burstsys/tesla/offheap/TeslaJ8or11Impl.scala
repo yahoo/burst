@@ -7,11 +7,9 @@ import org.burstsys.vitals.errors._
 import sun.misc.Unsafe
 
 import java.lang.management.{BufferPoolMXBean, ManagementFactory}
-import scala.jdk.CollectionConverters._
-import sun.nio.ch.DirectBuffer
-
 import java.lang.reflect.Field
 import java.nio.ByteBuffer
+import scala.jdk.CollectionConverters._
 
 object TeslaJ8or11Impl extends TeslaUnsafeCalls {
   final lazy val nativeMemoryMax: Long = {
@@ -26,7 +24,6 @@ object TeslaJ8or11Impl extends TeslaUnsafeCalls {
   final val arrayOffset:Int  = accessor.arrayBaseOffset(classOf[Array[Byte]])
 
   def directBuffer(address: TeslaMemoryPtr, size: TeslaMemorySize): ByteBuffer = {
-    //TeslaDirectBufferFactory.directBuffer(address, size)
     SharedSecrets.getJavaNioAccess.newDirectByteBuffer(address, size, null).order(TeslaByteOrder)
   }
 
@@ -52,12 +49,6 @@ object TeslaJ8or11Impl extends TeslaUnsafeCalls {
        * the reference-handler thread and delaying further cleanup and finalization.
        */
       accessor.invokeCleaner(niobuffer)
-      /*
-      val cleaner = niobuffer.asInstanceOf[DirectBuffer].cleaner
-      if (cleaner != null) {
-        cleaner.clean()
-      }
-      */
     }
   }
 
