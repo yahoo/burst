@@ -14,16 +14,16 @@ object SampleStoreReporter extends VitalsReporter {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _pressItemsMetric = VitalsReporterUnitOpMetric("brio_press", "items")
+  val _pressItemsMetric = VitalsReporterUnitOpMetric("press", "items")
 
   private[this]
-  val _pressSlowMetric = VitalsReporterUnitOpMetric("brio_press_slow")
+  val _pressSlowMetric = VitalsReporterUnitOpMetric("press_slow")
 
   private[this]
-  val _pressBytesMetric = VitalsReporterUnitOpMetric("brio_press_item")
+  val _pressBytesMetric = VitalsReporterUnitOpMetric("press_item")
 
   private[this]
-  val _pressRejectMetric = VitalsReporterUnitOpMetric("brio_press", "rejects")
+  val _pressRejectMetric = VitalsReporterUnitOpMetric("press", "rejects")
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // LIFECYCLE

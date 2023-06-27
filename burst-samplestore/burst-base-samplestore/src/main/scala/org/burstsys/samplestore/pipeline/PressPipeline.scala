@@ -19,7 +19,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
 import org.burstsys.vitals.uid._
 
-import java.util.concurrent.{ArrayBlockingQueue, LinkedBlockingQueue}
+import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.{Future, Promise}
 import scala.language.postfixOps
 import scala.util.Success
@@ -64,7 +64,7 @@ trait PressPipeline extends AnyRef {
                 if (elapsedNs > slowPressDuration.toNanos) {
                   SampleStoreReporter.onPressSlow()
                   val byteCount = pressBuffer.currentUsedMemory
-                  pipeline.log info burstStdMsg(
+                  pipeline.log warn burstStdMsg(
                     s"BrioPressPipeline($i) guid=${job.guid}, jobId=$jobId SLOW PRESS elapsedNs=$elapsedNs (${
                       prettyTimeFromNanos(elapsedNs)
                     }) byteCount=$byteCount  (${prettyByteSizeString(byteCount)}) ${
@@ -83,7 +83,7 @@ trait PressPipeline extends AnyRef {
             // put the buffer on the stream outside of the worker thread in case we block on the stream
             if (blobBuffer != null) {
               job.stream.put(blobBuffer)
-              job.p.complete(Success(job.jobId))
+              job.p.complete(Success(job.jobId, blobBuffer.currentUsedMemory))
             }
           }
         }
@@ -105,7 +105,7 @@ trait PressPipeline extends AnyRef {
   PressPipelineJob(
                         jobId: Long,
                         stream: NexusStream,
-                        p: Promise[Long],
+                        p: Promise[(Long, Long)],
                         pressSource: BrioPressSource,
                         schema: BrioSchema,
                         version: BrioVersionKey,
@@ -139,8 +139,8 @@ trait PressPipeline extends AnyRef {
    *
    * @param maxItemSize the maximum number of bytes to press
    */
-  def pressToFuture(stream: NexusStream, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[Long] = {
-    val p = Promise[Long]()
+  def pressToFuture(stream: NexusStream, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey, maxItemSize: Int): Future[(Long, Long)] = {
+    val p = Promise[(Long, Long)]()
     val thing = PressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize)
     pipeline.log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
     pressJobQueue put thing

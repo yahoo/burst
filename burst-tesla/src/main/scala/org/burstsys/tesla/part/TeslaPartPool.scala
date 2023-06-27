@@ -92,7 +92,7 @@ trait TeslaPartPool[PoolPart] extends AnyRef {
       if (newSize > oldSize) {
         _maxPartsAllocated.set(newSize)
         if (newSize % 500 == 0) {
-          part.log info burstStdMsg(
+          part.log trace  burstStdMsg(
             s"TeslaPartPool.incrementPartsInUse(partName='$partName', partByteSize=$partByteSize) maxPartsAllocated=${
               _maxPartsAllocated.get()
             }"

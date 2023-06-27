@@ -64,7 +64,7 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
           pressedItem
             .map({ result =>
               if (log.isDebugEnabled)
-                log debug burstLocMsg(s"job=$result on stream")
+                log debug burstLocMsg(s"job=${result._1} size=${result._2} on stream")
             })
             .recover({ case _ => rejectedItemCounter.incrementAndGet() })
             .andThen({ case _ => finished.countDown() })
