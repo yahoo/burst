@@ -2,6 +2,7 @@
 package org.burstsys.tesla.thread
 
 import io.opentelemetry.context.Context
+import org.burstsys.tesla.configuration.burstTeslaMaxRequestThreadCountProperty
 
 import java.util.concurrent.{Executor, ExecutorService, Executors, SynchronousQueue, TimeUnit}
 import org.burstsys.tesla.part.TeslaPartPool
@@ -111,7 +112,6 @@ package object request {
    * Thread Pool/Factory with a ''unlimited'' number of ''cached'' threads. Generally these are meant to be used where you have
    * a large number of ''requests'' that are best to allocate memory from the global [[TeslaPartPool]]
    *
-   * @param poolName
    */
   private final case
   class TeslaRequestThreadPool(poolName: String) extends TeslaThreadPool {
@@ -122,9 +122,9 @@ package object request {
 
     override lazy val pool: ExecutorService = {
       val pool = Executors.newCachedThreadPool(factory).asInstanceOf[java.util.concurrent.ThreadPoolExecutor]
-      pool.setMaximumPoolSize(1000)
+      if (burstTeslaMaxRequestThreadCountProperty.asOption.isDefined)
+        pool.setMaximumPoolSize(burstTeslaMaxRequestThreadCountProperty.get)
       Context.taskWrapping(pool)
-      // pool
     }
   }
 
