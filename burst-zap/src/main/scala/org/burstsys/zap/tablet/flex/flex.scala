@@ -14,7 +14,7 @@ package object flex extends VitalsLogger {
   lazy val coupler: TeslaFlexCoupler[ZapTabletBuilder, ZapTablet, ZapFlexTablet] =
     new TeslaFlexCoupler[ZapTabletBuilder, ZapTablet, ZapFlexTablet] {
 
-      val collectorName: String = "flex-tablet"
+      val collectorName: String = "flex_tablet"
 
       final override val powersOf2SlotCount: TeslaMemorySize = 16 // 64K max tablets
 
@@ -28,12 +28,14 @@ package object flex extends VitalsLogger {
         val newTablet = tablet.factory.grabZapTablet(builder, size)
         val newSize = newTablet.currentMemorySize
         val blkSize = newTablet.availableMemorySize
-        log debug s"ALLOC(basePtr=${newTablet.basePtr} Tablet newSize=$newSize blkSize=$blkSize"
+        if (log.isDebugEnabled)
+          log debug s"ALLOC(basePtr=${newTablet.basePtr} Tablet newSize=$newSize blkSize=$blkSize"
         newTablet
       }
 
       final override def releaseInternalCollector(collector: ZapTablet): Unit = {
-        log debug s"FREE(basePtr=${collector.basePtr}) Tablet"
+        if (log.isDebugEnabled)
+          log debug s"FREE(basePtr=${collector.basePtr}) Tablet"
         tablet.factory.releaseZapTablet(collector)
       }
 

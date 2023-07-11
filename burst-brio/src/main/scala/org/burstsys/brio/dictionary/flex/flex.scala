@@ -18,9 +18,9 @@ package object flex extends VitalsLogger {
   lazy val coupler: TeslaFlexCoupler[BrioDictionaryBuilder, BrioMutableDictionary, BrioFlexDictionary] =
     new TeslaFlexCoupler[BrioDictionaryBuilder, BrioMutableDictionary, BrioFlexDictionary] {
 
-      val collectorName: String = "flex-dictionary"
+      val collectorName: String = "flex_dictionary"
 
-      final override val powersOf2SlotCount: TeslaMemorySize = 17 // 128K max dictionaries
+      final override val powersOf2SlotCount: TeslaMemorySize = 18 // 256K max dictionaries
 
       final override def instantiateCollector(ptr: TeslaMemoryPtr): BrioMutableDictionary = BrioMutableDictionaryAnyVal(ptr)
 

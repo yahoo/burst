@@ -100,7 +100,7 @@ trait AlloyJsonStoreInitializer extends FabricWorkerLoader {
           byteCount += buffer.currentUsedMemory
         } finally tesla.buffer.factory.releaseBuffer(buffer)
       })
-      log info s"AlloyJsonInit pressed json buffers=${buffers.length}"
+      log info s"AlloyJsonInit pressed json buffers=${buffers.size}"
 
       if (inflatedParcel.bufferCount > 0) {
         log info "AlloyJsonInit all bufferes queued, pushing last parcel"

@@ -27,7 +27,7 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
 
   def collectorName: String
 
-  private val reporter =  new VitalsByteQuantReporter(collectorName, "proxies") {}
+  private lazy val reporter =  new VitalsByteQuantReporter(collectorName, "proxies") {}
 
   /**
    * max slots for a give collector. This is forced to be a power of two.
@@ -120,7 +120,8 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
       val newInternal = allocateInternalCollector(builder, newSize)
       val oldPtr = oldInternal.basePtr
       val newPtr = newInternal.basePtr
-      log debug s"RESIZE '$collectorName' items=$items  oldPtr=$oldPtr oldSize=$oldSize newPtr=$newPtr newSize=$newSize"
+      if (log.isDebugEnabled)
+        log debug s"UPSIZING '$collectorName' items=$items  oldPtr=$oldPtr oldSize=$oldSize newPtr=$newPtr newSize=$newSize"
       newInternal.importCollector(oldInternal, items, builder)
       indexSlots(index) = newInternal.blockPtr
     } finally {

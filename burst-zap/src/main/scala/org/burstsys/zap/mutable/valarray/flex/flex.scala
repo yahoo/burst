@@ -16,7 +16,7 @@ package object flex extends VitalsLogger {
   lazy val coupler: TeslaFlexCoupler[ZapValArrayBuilder, ZapValArr, ZapFlexValArr] =
     new TeslaFlexCoupler[ZapValArrayBuilder, ZapValArr, ZapFlexValArr] {
 
-      val collectorName: String = "flex-val-array"
+      val collectorName: String = "flex_val_array"
 
       final override val powersOf2SlotCount: TeslaMemorySize = 16 // 64K max val arrays
 

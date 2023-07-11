@@ -7,6 +7,7 @@ import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt
 import org.burstsys.felt.binding.FeltBinding
 import org.burstsys.felt.model.frame.FeltFrameElement
+import org.burstsys.tesla.part.teslaBuilderUseDefaultSize
 import org.burstsys.vitals.errors.{VitalsException, _}
 
 /**
@@ -131,7 +132,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
     _planeName = builder.frameName
     _planeBinding = builder.binding
     _planeBuilder = builder.asInstanceOf[B]
-    _planeCollector = grabCollector(_planeBuilder, 0)
+    _planeCollector = grabCollector(_planeBuilder, teslaBuilderUseDefaultSize)
     resetConstraintFlags()
     this
   }
@@ -207,7 +208,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
       _planeBuilder.read(kryo, input)
 
       val desiredSize = input.readInt()
-       _planeCollector = grabCollector(_planeBuilder, desiredSize)
+      _planeCollector = grabCollector(_planeBuilder, desiredSize)
       _planeCollector.read(kryo, input)
     } catch safely {
       case t: Throwable =>
