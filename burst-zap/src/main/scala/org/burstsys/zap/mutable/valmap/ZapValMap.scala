@@ -2,7 +2,7 @@
 package org.burstsys.zap.mutable.valmap
 
 import org.burstsys.felt.model.mutables.valmap.FeltMutableValMap
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.vitals.errors.VitalsException
@@ -23,4 +23,9 @@ class ZapValMapAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
 
   override def builder: ZapValMapBuilder = ???
 
+  override def itemCount: Int = ???
+
+  override def size(): TeslaMemorySize = ???
+
+  override def itemLimited: Boolean = ???
 }

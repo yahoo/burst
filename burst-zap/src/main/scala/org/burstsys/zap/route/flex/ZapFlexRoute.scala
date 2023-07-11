@@ -53,6 +53,9 @@ class ZapFlexRouteAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexR
   override def reset(builder: ZapRouteBuilder): Unit =
     internalCollector.reset(builder)
 
+  @inline override
+  def size(): TeslaMemorySize = internalCollector.size()
+
   /**
    * return the number of rows in the cube
    */

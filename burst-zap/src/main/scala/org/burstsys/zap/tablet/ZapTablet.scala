@@ -4,7 +4,7 @@ package org.burstsys.zap.tablet
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.felt.model.collectors.tablet.FeltTabletCollector
-import org.burstsys.tesla.TeslaTypes.{SizeOfDouble, TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{SizeOfDouble, TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.tesla.pool.TeslaPoolId
@@ -115,6 +115,8 @@ case class ZapTabletAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extend
 
   override def read(kryo: Kryo, input: Input): Unit = {
   }
+
+  override def size(): TeslaMemorySize = currentMemorySize
 
   override def itemCount: TeslaPoolId = {
     tabletSize

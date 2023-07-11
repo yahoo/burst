@@ -132,7 +132,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
     _planeName = builder.frameName
     _planeBinding = builder.binding
     _planeBuilder = builder.asInstanceOf[B]
-    _planeCollector = grabCollector(_planeBuilder, teslaBuilderUseDefaultSize)
+    _planeCollector = grabCollector(_planeBuilder, 0)
     resetConstraintFlags()
     this
   }

@@ -4,7 +4,7 @@ package org.burstsys.zap.route
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.felt.model.collectors.route.FeltRouteCollector
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.tesla.pool.TeslaPoolId
@@ -80,6 +80,8 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
   override def itemLimited_=(s: Boolean): Unit = {
     routeLimited = s
   }
+
+  override def size(): TeslaMemorySize = currentMemorySize
 
   ////////////////////////////////////////////////////////////////////////////////////
   // KRYO SERIALIZATION

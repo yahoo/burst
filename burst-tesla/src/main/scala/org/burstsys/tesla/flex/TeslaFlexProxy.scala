@@ -1,7 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.flex
 
+import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.part.TeslaPartBuilder
+import org.burstsys.tesla.pool.TeslaPoolId
 
 
 /**
@@ -35,7 +37,7 @@ trait TeslaFlexProxy[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollecto
   *
   */
 trait TeslaFlexProxyContext[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollector[Builder, Collector], Proxy <: TeslaFlexProxy[Builder, Collector]]
-  extends Any with TeslaFlexProxy[Builder, Collector] {
+  extends Any with TeslaFlexProxy[Builder, Collector] with TeslaFlexCollector[Builder, Collector] {
 
   @inline
   def _internalCollector: Collector = coupler.lookupInternalCollector(this.index)
@@ -53,4 +55,26 @@ trait TeslaFlexProxyContext[Builder <: TeslaPartBuilder, Collector <: TeslaFlexC
   override
   def index: TeslaFlexSlotIndex
 
+  //
+  @inline
+  def runWithRetry[R](body: => R): R = {
+    assert(!internalCollector.itemLimited)
+    var r: R = body
+    var runCount = 1
+    while (internalCollector.itemLimited && runCount < 11) {
+      coupler.upsize(this.index, internalCollector.itemCount, internalCollector.builder)
+      r = body
+      runCount += 1
+    }
+    if (runCount > 10) {
+      log warn s"Too many upsize attempts"
+    }
+    r
+  }
+
+  override def itemCount: TeslaPoolId = internalCollector.itemCount
+
+  override def size(): TeslaMemorySize = internalCollector.size()
+
+  override def itemLimited: Boolean = internalCollector.itemLimited
 }

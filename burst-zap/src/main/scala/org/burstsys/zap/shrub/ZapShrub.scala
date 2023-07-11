@@ -34,6 +34,8 @@ class ZapShrubAnyVal(blockPtr: TeslaMemoryPtr) extends AnyVal with ZapShrub with
 
   override def currentMemorySize: TeslaMemorySize = ???
 
+  override def size(): TeslaMemorySize = ???
+
   override def initialize(pId: TeslaPoolId, builder: ZapShrubBuilder): Unit = ???
 
   override def reset(builder: ZapShrubBuilder): Unit = ???

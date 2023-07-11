@@ -376,7 +376,9 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
     throw VitalsException(s"importCollector should not be called in flex cube!")
 
   @inline override
-  def itemCount_=(count: TeslaPoolId): Unit = ???
+  def itemCount_=(count: TeslaPoolId): Unit = {
+    throw VitalsException(s"itemCount_= should not be called in flex cube!")
+  }
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // show some state
@@ -399,21 +401,4 @@ class ZapFlexCube2AnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexC
   @inline override
   def validateRow(row: ZapCube2Row): Boolean = internalCollector.validateRow(row)
 
-  //
-  @inline
-  private
-  def runWithRetry[R](body:  => R): R = {
-    assert(!internalCollector.rowsLimited)
-    var r: R = body
-    var runCount = 1
-    while (internalCollector.rowsLimited && runCount < 11) {
-      coupler.upsize(this.index, rowsCount, internalCollector.builder)
-      r = body
-      runCount += 1
-    }
-    if (runCount > 10) {
-      log warn s"Too many upsize attempts"
-    }
-    r
-  }
 }

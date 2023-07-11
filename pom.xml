@@ -186,7 +186,7 @@
         <!--********************************************************************************************-->
 
         <scala-major.version>2.13</scala-major.version>
-        <scala-minor.version>11-M1</scala-minor.version>
+        <scala-minor.version>11-M2</scala-minor.version>
         <scala.version>${scala-major.version}.${scala-minor.version}</scala.version>
 
         <!-- libraries with many components and no BOM -->
@@ -614,7 +614,7 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.12.2</version>
+                <version>2.12.5</version>
             </dependency>
             <dependency>
                 <groupId>org.joda</groupId>
@@ -728,7 +728,7 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.32</version>
+                <version>8.0.33</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.derby</groupId>

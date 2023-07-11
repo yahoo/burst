@@ -2,7 +2,7 @@
 package org.burstsys.zap.mutable.valarray
 
 import org.burstsys.felt.model.mutables.valarr.FeltMutableValArr
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.vitals.errors.VitalsException
@@ -28,4 +28,9 @@ class ZapValArrayAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends A
 
   override def builder: ZapValArrayBuilder = ???
 
+  override def itemCount: Int = ???
+
+  override def size(): TeslaMemorySize = ???
+
+  override def itemLimited: Boolean = ???
 }

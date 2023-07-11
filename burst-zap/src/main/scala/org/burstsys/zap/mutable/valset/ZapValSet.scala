@@ -2,7 +2,7 @@
 package org.burstsys.zap.mutable.valset
 
 import org.burstsys.felt.model.mutables.valset.FeltMutableValSet
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.vitals.errors.VitalsException
@@ -36,4 +36,9 @@ class ZapValSetContext(blockPtr: TeslaMemoryPtr) extends AnyVal
 
   override def builder: ZapValSetBuilder = ???
 
+  override def itemCount: Int = ???
+
+  override def size(): TeslaMemorySize = ???
+
+  override def itemLimited: Boolean = ???
 }

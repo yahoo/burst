@@ -78,4 +78,10 @@ class BrioMutableDictionaryAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr)
       this.dump(VitalsTextCodec())
   }
 
+
+  override def itemCount: TeslaPoolId = this.words
+
+  override def size(): TeslaMemorySize = this.serializationSize
+
+  override def itemLimited: Boolean = this.overflowed
 }

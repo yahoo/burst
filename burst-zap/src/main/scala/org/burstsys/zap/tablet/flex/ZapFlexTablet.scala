@@ -38,6 +38,9 @@ class ZapFlexTabletAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlex
   override def reset(builder: ZapTabletBuilder): Unit =
     internalCollector.reset(builder)
 
+  @inline override
+  def size(): TeslaMemorySize = internalCollector.size()
+
   override def itemCount: Int =
     internalCollector.itemCount
 

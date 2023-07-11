@@ -4,5 +4,5 @@ package org.burstsys.zap.cube2
 import org.burstsys.vitals.text.VitalsTextCodec
 
 package object algorithms {
-  implicit val codec = VitalsTextCodec()
+  implicit val codec: VitalsTextCodec = VitalsTextCodec()
 }

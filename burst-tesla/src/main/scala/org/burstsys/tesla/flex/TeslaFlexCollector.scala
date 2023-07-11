@@ -41,4 +41,9 @@ trait TeslaFlexCollector[Builder <: TeslaPartBuilder, Collector <: TeslaFlexColl
 
   def builder: Builder
 
+  def itemCount: Int
+
+  def size(): TeslaMemorySize
+
+  def itemLimited: Boolean
 }
