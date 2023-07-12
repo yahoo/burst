@@ -104,8 +104,7 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
 
   /**
    * the offset of the first row in the indexed bucket list or EmptyBucket is this indexed bucket is empty.
-   * This value is the offset of the first row in the bucket list from the cube's '''basePtr'''. This value
-   * is [[ZapCube2EmptyBucket]] if the bucket is empty.
+   * This value is the offset of the first row in the bucket list from the cube's '''basePtr'''
    */
   def bucketRead(index: Int): TeslaMemoryOffset
 

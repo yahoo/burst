@@ -134,8 +134,8 @@ class ZapCube2BuilderContext(
   lazy val rowSize: TeslaMemoryOffset = ZapCube2Row.byteSize(dimensionCount, aggregationCount)
 
 
-  override def totalMemorySize: TeslaMemoryOffset =
-    ???
+  override def totalMemorySize: TeslaMemoryOffset = throw new UnsupportedOperationException("not implemented")
+
 
   def neededSize(itemCount: Int): TeslaMemorySize = {
     val c = if (itemCount <= 0) 100 else itemCount

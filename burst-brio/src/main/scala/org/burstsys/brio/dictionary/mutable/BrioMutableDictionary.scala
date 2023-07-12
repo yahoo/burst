@@ -45,17 +45,11 @@ trait BrioMutableDictionary extends Any with BrioDictionary with TeslaBlockPart
 
   /**
    * kryo write
-   *
-   * @param k
-   * @param out
    */
   def write(k: Kryo, out: Output): Unit
 
   /**
    * kryo read
-   *
-   * @param k
-   * @param in
    */
   def read(k: Kryo, in: Input): Unit
 

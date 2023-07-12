@@ -1,10 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.flex
 
+import io.opentelemetry.api.metrics.LongCounter
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.reporter.VitalsByteQuantReporter
+import org.burstsys.vitals.reporter.metric.meter
 import org.jctools.queues.MpmcArrayQueue
 
 import java.util
@@ -28,6 +30,11 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
   def collectorName: String
 
   private lazy val reporter =  new VitalsByteQuantReporter(collectorName, "proxies") {}
+
+  private[flex] lazy val retryCounter: LongCounter = meter.counterBuilder(s"${collectorName}_retries")
+    .setUnit("retries")
+    .setDescription(s"$collectorName retry count")
+    .build()
 
   /**
    * max slots for a give collector. This is forced to be a power of two.

@@ -44,12 +44,12 @@ class ZapFlexTabletAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlex
   override def itemCount: Int =
     internalCollector.itemCount
 
-  override def itemCount_=(count: Int): Unit = ???
+  override def itemCount_=(count: Int): Unit = throw new UnsupportedOperationException(s"itemCount_ not allowed")
 
   override def itemLimited: Boolean =
     internalCollector.itemLimited
 
-  override def itemLimited_=(s: Boolean): Unit = ???
+  override def itemLimited_=(s: Boolean): Unit = throw new UnsupportedOperationException(s"itemLimited_ not allowed")
 
   override def isEmpty: Boolean =
     internalCollector.isEmpty

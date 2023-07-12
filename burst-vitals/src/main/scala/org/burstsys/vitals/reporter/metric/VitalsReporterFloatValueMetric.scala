@@ -41,7 +41,7 @@ class VitalsReporterFloatValueMetricContext(name: String) extends VitalsReporter
 
   private[this]
   val _valueHist: DoubleHistogram = meter.histogramBuilder(s"${name}_histo")
-    .setDescription(s"${name} histogram")
+    .setDescription(s"$name histogram")
     .setUnit("units")
     .build()
 

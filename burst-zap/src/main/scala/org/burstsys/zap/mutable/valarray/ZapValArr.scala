@@ -22,15 +22,15 @@ final case
 class ZapValArrayAnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyVal
   with ZapValArr with ZapValArrState {
 
-  override def importCollector(sourceCollector: ZapValArr, sourceItems: Int, builder: ZapValArrayBuilder): Unit = ???
+  override def importCollector(sourceCollector: ZapValArr, sourceItems: Int, builder: ZapValArrayBuilder): Unit = throw new UnsupportedOperationException(s"import collector not implemented")
 
-  override def defaultBuilder: ZapValArrayBuilder = throw VitalsException(s"default builder not allowed")
+  override def defaultBuilder: ZapValArrayBuilder = throw VitalsException(s"default builder not implemented")
 
-  override def builder: ZapValArrayBuilder = ???
+  override def builder: ZapValArrayBuilder = throw new UnsupportedOperationException(s"builder not implemented")
 
-  override def itemCount: Int = ???
+  override def itemCount: Int = throw new UnsupportedOperationException(s"itemCount not implemented")
 
-  override def size(): TeslaMemorySize = ???
+  override def size(): TeslaMemorySize = throw new UnsupportedOperationException(s"size not implemented")
 
-  override def itemLimited: Boolean = ???
+  override def itemLimited: Boolean = throw new UnsupportedOperationException(s"itemLimited not implemented")
 }

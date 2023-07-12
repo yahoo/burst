@@ -23,7 +23,7 @@ package object metric extends VitalsLogger {
   private [metric] lazy val hostName = System.getenv("HOSTNAME")
   private [metric] lazy val podName = System.getenv("POD_NAME") // Set by in env by k8s - see start.sh
   private [metric] lazy val deployName = System.getenv("DEPLOY_ENV") // Set by in env by k8s - see start.sh
-  private [metric] lazy val metricAttributes = {
+  lazy val metricAttributes: Attributes = {
     implicit val b: AttributesBuilder = Attributes.builder()
     putValidMetricValue("environmentHostname", hostName)
     putValidMetricValue("podName", podName)

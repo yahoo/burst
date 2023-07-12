@@ -1,9 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.reporter.metric
 
-import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.metrics.{LongCounter, LongHistogram}
-import org.burstsys.vitals.reporter.metric
 
 /**
  * measures all aspects of a recurring operation that takes a certain amount of time and has a varying 'unit' size.

@@ -23,30 +23,14 @@ class FeltCollectorPlane[B <: FeltCollectorBuilder, C <: FeltCollector]
    */
   def planeCollector: FeltCollector
 
-  /**
-   *
-   * @param c
-   */
   def planeCollector_=(c: FeltCollector): Unit
 
   def planeBinding: FeltBinding
 
-  /**
-   *
-   * @return
-   */
   def planeBuilder: B
 
   def newBuilder(): B
 
-  /**
-   *
-   * @param uid
-   * @param planeName
-   * @param builder
-   * @param binding
-   * @return
-   */
   def init(builder: FeltCollectorBuilder): this.type
 }
 
@@ -165,7 +149,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
 
   override
   def write(kryo: Kryo, output: Output): Unit = {
-    lazy val tag = s"FeltCollectorPlane.write(planeId=${planeId}, planeName=${planeName})"
+    lazy val tag = s"FeltCollectorPlane.write(planeId=$planeId, planeName=$planeName)"
     try {
 
       transferTallies()
@@ -190,13 +174,10 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
 
   /**
    * reads are collecting results from worker slices for supervisor aggregation.
-   *
-   * @param kryo
-   * @param input
    */
   override
   def read(kryo: Kryo, input: Input): Unit = {
-    lazy val tag = s"FeltCollectorPlane.read(planeId=${planeId}, planeName=${planeName})"
+    lazy val tag = s"FeltCollectorPlane.read(planeId=$planeId, planeName=$planeName)"
     try {
 
       _planeId = input.readInt()
@@ -234,7 +215,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
   override
   def toString: String = {
     s"""FeltCollectorPlane(
-       | planeId=${planeId}, planeName=${planeName} rowCount=${rowCount} rowLimitExceeded=${rowLimitExceeded}
+       | planeId=$planeId, planeName=$planeName rowCount=$rowCount rowLimitExceeded=$rowLimitExceeded
        |  $outcomeAsString
        |)
      """.stripMargin

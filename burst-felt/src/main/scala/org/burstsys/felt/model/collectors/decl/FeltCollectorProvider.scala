@@ -9,12 +9,6 @@ import org.burstsys.tesla.part.teslaBuilderUseDefaultSize
 
 /**
  * each collector has to implement this in order to provide collector functions
- *
- * @tparam D
- * @tparam B
- * @tparam C
- * @tparam R
- * @tparam P
  */
 trait FeltCollectorProvider[C <: FeltCollector, B <: FeltCollectorBuilder, R <: FeltCollectorRef,
   D <: FeltCollectorDecl[R, B], P <: FeltCollectorPlan[R, B]] {
@@ -29,18 +23,8 @@ trait FeltCollectorProvider[C <: FeltCollector, B <: FeltCollectorBuilder, R <: 
 
   def collectorPlan(decl: D): P
 
-  /**
-   *
-   * @param builder
-   * @return
-   */
-
   def grabCollector(builder: B, desiredSize: TeslaMemorySize = teslaBuilderUseDefaultSize ): C
 
-  /**
-   *
-   * @param collector
-   */
   def releaseCollector(collector: C): Unit
 
 }

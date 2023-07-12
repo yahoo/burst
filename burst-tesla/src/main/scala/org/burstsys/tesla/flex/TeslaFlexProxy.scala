@@ -4,6 +4,8 @@ package org.burstsys.tesla.flex
 import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.tesla.pool.TeslaPoolId
+import org.burstsys.vitals.reporter.VitalsByteQuantReporter
+import org.burstsys.vitals.reporter.metric.{meter, metricAttributes}
 
 
 /**
@@ -63,6 +65,7 @@ trait TeslaFlexProxyContext[Builder <: TeslaPartBuilder, Collector <: TeslaFlexC
     var runCount = 1
     while (internalCollector.itemLimited && runCount < 11) {
       coupler.upsize(this.index, internalCollector.itemCount, internalCollector.builder)
+      coupler.retryCounter.add(1, metricAttributes.toBuilder.put("attempts", runCount).build())
       r = body
       runCount += 1
     }

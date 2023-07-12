@@ -44,7 +44,6 @@ trait ZapRoute extends Any with FeltRouteCollector with TeslaBlockPart with Tesl
   /**
    * initialize the route for first use
    *
-   * @param id
    * @return
    */
   def initialize(id: TeslaPoolId): ZapRoute
@@ -71,7 +70,9 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
     commitCursor/ZapRouteJournalEntrySize + 1
   }
 
-  override def itemCount_=(count: TeslaPoolId): Unit = ???
+  override def itemCount_=(count: TeslaPoolId): Unit = {
+    throw new UnsupportedOperationException("itemCount_= not supported")
+  }
 
   override def itemLimited: Boolean = {
     routeLimited
