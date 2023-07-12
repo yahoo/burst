@@ -252,7 +252,7 @@ class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyV
   with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Iterator
   with ZapCube2Join with ZapCube2Truncate with ZapCube2Merge with ZapCube2Extract {
 
-  override def size(): TeslaMemorySize = availableMemorySize
+  override def size(): TeslaMemorySize = currentMemorySize
 
   override
   def importCollector(sourceCollector: ZapCube2, sourceItems: Int, builder: ZapCube2Builder): Unit =

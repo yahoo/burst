@@ -40,8 +40,6 @@ trait FeltCollectorBuilder extends AnyRef
    */
   def collectorPlaneClass[C <: FeltCollectorPlane[_, _]]: Class[C]
 
-  def requiredMemorySize: TeslaMemorySize
-
   /**
    * basic initialization of a builder
    *

@@ -137,14 +137,9 @@ class ZapCube2BuilderContext(
   override def totalMemorySize: TeslaMemoryOffset =
     ???
 
-  override def requiredMemorySize: TeslaMemorySize =
-    ???
-
   def neededSize(itemCount: Int): TeslaMemorySize = {
-    if (itemCount <= 0)
-      defaultStartSize
-    else
-      state.SizeofFixedSizeHeader + bucketCount(itemCount)*SizeOfLong + itemCount*rowSize
+    val c = if (itemCount <= 0) 100 else itemCount
+    state.SizeofFixedSizeHeader + bucketCount(c)*SizeOfLong + c*rowSize
   }
   /**
    * convert a field name to a column key

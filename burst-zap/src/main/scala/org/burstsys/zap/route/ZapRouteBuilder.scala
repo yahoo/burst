@@ -84,8 +84,7 @@ class ZapRouteBuilderContext(
   @inline
   def noTransitions: Boolean = transitions.isEmpty
 
-  @inline
-  def requiredMemorySize: TeslaMemoryOffset = FeltRouteDefaultSize //ZapRouteHeaderSize +
+  //ZapRouteHeaderSize +
   // ((maxStepsPerPath * ZapRouteJournalEntrySize) * maxPathsPerRoute) + ZapRouteJournalEntrySize
 
   override def defaultStartSize: TeslaMemorySize = ZapRouteDefaultStartSize

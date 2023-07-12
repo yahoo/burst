@@ -112,13 +112,6 @@ trait FeltRouteBuilder extends FeltCollectorBuilder {
    *
    * @return
    */
-  def requiredMemorySize: TeslaMemoryOffset
-
-  /**
-   * TODO
-   *
-   * @return
-   */
   def isEntranceStep(step: FeltRouteStepKey): Boolean
 
   /**

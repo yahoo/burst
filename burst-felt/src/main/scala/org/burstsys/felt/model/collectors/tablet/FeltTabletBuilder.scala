@@ -15,7 +15,7 @@ class FeltTabletBuilderContext extends FeltCollectorBuilderContext with FeltTabl
   final override def collectorPlaneClass[C <: FeltCollectorPlane[_, _]]: Class[C] =
     classOf[FeltTabletPlaneContext].asInstanceOf[Class[C]]
 
-  override def defaultStartSize: TeslaMemorySize = ???
+  override def defaultStartSize: TeslaMemorySize = FeltDefaultTabletSize
 
 }
 

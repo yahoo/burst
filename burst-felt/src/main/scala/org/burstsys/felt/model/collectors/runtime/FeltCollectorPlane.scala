@@ -132,7 +132,8 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
     _planeName = builder.frameName
     _planeBinding = builder.binding
     _planeBuilder = builder.asInstanceOf[B]
-    _planeCollector = grabCollector(_planeBuilder, 0)
+    val desiredSize = builder.defaultStartSize
+    _planeCollector = grabCollector(_planeBuilder, desiredSize)
     resetConstraintFlags()
     this
   }
@@ -177,7 +178,8 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
       writeOutcome(kryo, output)
 
       _planeBuilder.write(kryo, output)
-      output writeInt _planeCollector.size()
+      val s = _planeCollector.size()
+      output writeInt s
       _planeCollector.write(kryo, output)
     } catch safely {
       case t: Throwable =>
