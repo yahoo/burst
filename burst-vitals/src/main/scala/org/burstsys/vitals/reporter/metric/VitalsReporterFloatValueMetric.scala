@@ -50,6 +50,6 @@ class VitalsReporterFloatValueMetricContext(name: String) extends VitalsReporter
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override def record(value: Double): Unit = {
-    _valueHist.record(value, hostNameAttributes)
+    _valueHist.record(value, metricAttributes)
   }
 }

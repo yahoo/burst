@@ -2,9 +2,10 @@
 package org.burstsys.vitals.reporter
 
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.common.{Attributes, AttributesBuilder}
 import io.opentelemetry.api.metrics.Meter
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.net
 
 package object metric extends VitalsLogger {
   lazy val meter: Meter = GlobalOpenTelemetry.meterBuilder("org.burstsys").build()
@@ -20,6 +21,28 @@ package object metric extends VitalsLogger {
   final def externalToInternal(d: Double): Long = (d * scaleFactor).toLong
 
   private [metric] lazy val hostName = System.getenv("HOSTNAME")
-  private [metric] lazy val hostNameAttributes = Attributes.builder().put("host", hostName).build()
+  private [metric] lazy val podName = System.getenv("POD_NAME") // Set by in env by k8s - see start.sh
+  private [metric] lazy val deployName = System.getenv("DEPLOY_ENV") // Set by in env by k8s - see start.sh
+  private [metric] lazy val metricAttributes = {
+    implicit val b: AttributesBuilder = Attributes.builder()
+    putValidMetricValue("environmentHostname", hostName)
+    putValidMetricValue("podName", podName)
+    putValidMetricValue("deployName", deployName)
+    putValidMetricValue("localHostname", net.getLocalHostName)
+    putValidMetricValue("localAddress", net.getLocalHostAddress)
+    putValidMetricValue("publicHostname", net.getPublicHostName)
+    putValidMetricValue("publicAddress", net.getPublicHostAddress)
+    b.build()
+  }
 
+  private def putValidMetricValue(k: String, v: String)(implicit attributes: AttributesBuilder): Boolean = {
+    if (v == null) false
+    else if (v.isEmpty) false
+    else if (v == "NaN") false
+    else {
+      log info s"Adding metric attribute $k=$v"
+      attributes.put(k, v)
+      true
+    }
+  }
 }
