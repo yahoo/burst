@@ -79,7 +79,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
   var _transportClass: Class[_ <: Channel] = _
 
   private[this]
-  val _socketAddress: SocketAddress = netConfig.netSupervisorSocketAddress
+  var _socketAddress: SocketAddress = netConfig.netSupervisorSocketAddress
 
   private[this]
   var _eventLoopGroup: EventLoopGroup = _
@@ -214,7 +214,7 @@ class FabricNetClientContext(container: FabricWorkerContainer[_], netConfig: Fab
     if (isClosed) {
       return
     }
-
+    _socketAddress = netConfig.netSupervisorSocketAddress
     _bootstrap.connect(_socketAddress).addListener(connectionHandler)
   }
 
