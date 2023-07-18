@@ -98,10 +98,15 @@
                             <logForkedProcessCommand>true</logForkedProcessCommand>
                             <systemProperties>
                                 <burst.loglevel>${burst.test.loglevel}</burst.loglevel>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.nexus.server.port>${burst.nexus.server.port}</burst.nexus.server.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.fabric.http.port>${burst.fabric.http.port}</burst.fabric.http.port>
                             </systemProperties>
                         </configuration>
