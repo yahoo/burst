@@ -6,6 +6,7 @@ import org.burstsys.brio.dictionary.key.BrioDictionaryKeyAnyVal
 import org.burstsys.brio.dictionary.mutable.{BrioMutableDictionary, BrioMutableDictionaryAnyVal}
 import org.burstsys.brio.types.BrioTypes.BrioDictionaryKey
 import org.burstsys.tesla
+import org.burstsys.tesla.block.factory.TeslaBlockSizes.findBlockSize
 import org.burstsys.tesla.block.{TeslaBlock, TeslaBlockAnyVal}
 import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.reporter.instrument._
@@ -19,8 +20,9 @@ class BrioDictionarySpec extends BrioAbstractSpec {
 
   "Zap Dictionaries" should "initialize and lookup a single stored word" in {
     TeslaWorkerCoupler {
-      val blockPtr = tesla.block.factory.grabBlock(100000).blockBasePtr
-      TeslaBlockAnyVal(blockPtr).dataSize should equal(131060)
+      val size =100000
+      val blockPtr = tesla.block.factory.grabBlock(size).blockBasePtr
+      TeslaBlockAnyVal(blockPtr).dataSize should be <=findBlockSize(size)
       val d = BrioMutableDictionaryAnyVal(blockPtr)
       d.initialize(1, BrioDictionaryBuilder())
       d.words should equal(0)

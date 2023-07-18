@@ -51,7 +51,7 @@ trait FeltMutableValArr extends Any with FeltMutable {
 object FeltMutableValArr {
 
   case class FeltValArrayMutableBuilder() extends TeslaPartBuilder {
-    override def defaultStartSize: TeslaMemorySize = ???
+    override def defaultStartSize: TeslaMemorySize = 0
   }
 
 }

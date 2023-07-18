@@ -20,7 +20,7 @@ class HydraParserErrorHandler(source: String) extends BaseErrorListener with Fel
       _errors += ErrorLocation(lineIndex, charIndex, contextualize(lineIndex, charIndex, msg))
     } catch {
       case t: Throwable =>
-        log error s"Error handler threw $t"
+        log error(s"Error handler threw $t", t)
         throw t
     }
   }

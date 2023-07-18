@@ -10,6 +10,9 @@ import org.burstsys.vitals.logging._
 package object factory extends TeslaPartFactory[java.lang.Long, TeslaBlockPool]
   with TeslaBlockShop with VitalsLogger {
 
+  // the block pool covers every other part pool so it should allow a larger amount before it starts to clean
+  override def poolSizeAsPercentOfDirectMemory: Double = .5
+
   final
   val TeslaNullMemoryBlock:TeslaBlock = TeslaBlockAnyVal()
 

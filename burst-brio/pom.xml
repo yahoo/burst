@@ -18,6 +18,7 @@
             <groupId>org.burstsys</groupId>
             <artifactId>burst-vitals</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.burstsys</groupId>
             <artifactId>burst-tesla</artifactId>
@@ -112,7 +113,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>${shade.maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>

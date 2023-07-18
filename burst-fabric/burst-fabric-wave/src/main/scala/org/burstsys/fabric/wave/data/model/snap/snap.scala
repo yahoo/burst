@@ -35,7 +35,6 @@ package object snap extends VitalsLogger {
   /**
    * the current state of the SNAP
    *
-   * @param code
    */
   sealed case class FabricSnapState(code: Int) {
     override def toString: String = getClass.getSimpleName.stripSuffix("$")
@@ -121,7 +120,7 @@ package object snap extends VitalsLogger {
           snapFolder.toString
         } catch safely {
           case t: Throwable =>
-            log error burstStdMsg(t)
+            log error(burstStdMsg(t), t)
             throw t
         }
     }
@@ -160,8 +159,6 @@ package object snap extends VitalsLogger {
    * provide  performance, but mostly to give us the ability to eventually handle the
    * loss of a single spindle in some cases.
    *
-   * @param slice
-   * @return
    */
   final
   def getSnapFile(slice: FabricSlice): Path = {

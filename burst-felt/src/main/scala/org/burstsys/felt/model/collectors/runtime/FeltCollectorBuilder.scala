@@ -18,36 +18,21 @@ trait FeltCollectorBuilder extends AnyRef
 
   /**
    * local bindings
-   *
-   * @return
    */
   def binding: FeltBinding
 
   /**
    * construct a new collector plane of a specific type
-   *
-   * @param frameId
-   * @param frameName
-   * @return
    */
   def newCollectorPlaneOnWorker(): FeltCollectorPlane[_, _]
 
   /**
    * the collector plane class appropriate for this builder
-   *
-   * @tparam C
-   * @return
    */
   def collectorPlaneClass[C <: FeltCollectorPlane[_, _]]: Class[C]
 
-  def requiredMemorySize: TeslaMemorySize
-
   /**
    * basic initialization of a builder
-   *
-   * @param frameId
-   * @param frameName
-   * @return
    */
   def init(frameId: Int, frameName: String, binding: FeltBinding): this.type
 

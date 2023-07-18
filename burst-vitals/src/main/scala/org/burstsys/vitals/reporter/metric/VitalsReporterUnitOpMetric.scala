@@ -100,53 +100,53 @@ class VitalsReporterUnitOpMetricContext(name: String, unit: String) extends Vita
 
   override
   def recordOp(): Unit = {
-    _opCounter.add(1)
+    _opCounter.add(1, metricAttributes)
   }
 
   override
   def recordOps(ops: Long): Unit = {
-    _opCounter.add(ops)
+    _opCounter.add(ops, metricAttributes)
   }
 
   override
   def recordOpWithTime(ns: Long): Unit = {
-    _opCounter.add(1)
-    _opTimeHist.record(ns)
+    _opCounter.add(1, metricAttributes)
+    _opTimeHist.record(ns, metricAttributes)
   }
 
   override
   def recordOpsWithTime(ops: Long, ns: Long): Unit = {
-    _opCounter.add(ops)
-    _opTimeHist.record(ns)
+    _opCounter.add(ops, metricAttributes)
+    _opTimeHist.record(ns, metricAttributes)
   }
 
   override
   def recordOpWithSize(bytes: Long): Unit = {
-    _opCounter.add(1)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(1, metricAttributes)
+    _sizeCounter.add(bytes, metricAttributes)
+    _opSizeHist.record(bytes, metricAttributes)
   }
 
   override
   def recordOpsWithSize(ops: Long, bytes: Long): Unit = {
-    _opCounter.add(ops)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(ops, metricAttributes)
+    _sizeCounter.add(bytes, metricAttributes)
+    _opSizeHist.record(bytes, metricAttributes)
   }
 
   override
   def recordOpWithTimeAndSize(ns: Long, bytes: Long): Unit = {
-    _opCounter.add(1)
-    _opTimeHist.record(ns)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(1, metricAttributes)
+    _opTimeHist.record(ns, metricAttributes)
+    _sizeCounter.add(bytes, metricAttributes)
+    _opSizeHist.record(bytes, metricAttributes)
   }
 
   override
   def recordOpsWithTimeAndSize(ops: Long, ns: Long, bytes: Long): Unit = {
-    _opCounter.add(ops)
-    _opTimeHist.record(ns)
-    _sizeCounter.add(bytes)
-    _opSizeHist.record(bytes)
+    _opCounter.add(ops, metricAttributes)
+    _opTimeHist.record(ns, metricAttributes)
+    _sizeCounter.add(bytes, metricAttributes)
+    _opSizeHist.record(bytes, metricAttributes)
   }
 }

@@ -44,7 +44,7 @@ trait RelateScriptExecutor extends AnyRef with RelateService {
         var scriptlet = builder.result()
         scriptlet = scriptlet.replaceAll("\\\\n", "\n")
         log info s"SQL: execute scriptlet: \n\t$scriptlet"
-        SQL(scriptlet).execute().apply()
+        SQL(scriptlet).execute()
         builder.clear()
       } catch safely {
         case e: Exception =>

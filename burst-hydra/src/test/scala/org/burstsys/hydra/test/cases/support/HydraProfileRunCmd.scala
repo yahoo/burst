@@ -39,14 +39,14 @@ trait HydraProfileRunCmd {
             promise.success((): Unit)
           } catch safely {
             case t: Throwable =>
-              log error
+              log error(
                 s"""
                    |--------------------------------------------------------------------------------------
                    |******* FAIL ********
                    |'${useCase.frameName}'
                    |${messageFromException(t)}
                    |${useCase.analysisSource}
-                   |--------------------------------------""".stripMargin
+                   |--------------------------------------""".stripMargin, t)
               promise.failure(t)
           }
       }

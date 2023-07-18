@@ -8,16 +8,13 @@ import org.burstsys.catalog.persist.domain.CatalogDomainPersister
 import org.burstsys.fabric
 import org.burstsys.relate.RelateExceptions.BurstUnknownPrimaryKeyException
 import org.burstsys.relate._
-import org.burstsys.relate.dialect.RelateDerbyDialect
-import org.burstsys.relate.dialect.RelateMySqlDialect
+import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect}
 import org.burstsys.relate.dialect.SelectLockLevel.UpdateLock
 import org.burstsys.vitals.properties._
 import org.joda.time.DateTime
-import scalikejdbc.WrappedResultSet
-import scalikejdbc._
+import scalikejdbc.{WrappedResultSet, _}
 
 import scala.language.implicitConversions
-import scala.util.Try
 
 //noinspection SqlNoDataSourceInspection
 final case
@@ -96,16 +93,16 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
           {udk}
         )
      """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainFk") -> entity.domainFk,
-      Symbol("generationClock") -> System.currentTimeMillis(),
-      Symbol("moniker") -> entity.moniker,
-      Symbol("storeProperties") -> propertyMapToString(entity.storeProperties),
-      Symbol("schemaName") -> entity.schemaName,
-      Symbol("viewMotif") -> entity.viewMotif,
-      Symbol("viewProperties") -> propertyMapToString(entity.viewProperties),
-      Symbol("udk") -> entity.udk
+      "pk" -> entity.pk,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainFk" -> entity.domainFk,
+      "generationClock" -> System.currentTimeMillis(),
+      "moniker" -> entity.moniker,
+      "storeProperties" -> propertyMapToString(entity.storeProperties),
+      "schemaName" -> entity.schemaName,
+      "viewMotif" -> entity.viewMotif,
+      "viewProperties" -> propertyMapToString(entity.viewProperties),
+      "udk" -> entity.udk
     )
   }
 
@@ -136,15 +133,15 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
           {udk}
         )
      """.bindByName(
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainFk") -> entity.domainFk,
-      Symbol("generationClock") -> System.currentTimeMillis(),
-      Symbol("moniker") -> entity.moniker,
-      Symbol("storeProperties") -> propertyMapToString(entity.storeProperties),
-      Symbol("schemaName") -> entity.schemaName,
-      Symbol("viewMotif") -> entity.viewMotif,
-      Symbol("viewProperties") -> propertyMapToString(entity.viewProperties),
-      Symbol("udk") -> entity.udk
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainFk" -> entity.domainFk,
+      "generationClock" -> System.currentTimeMillis(),
+      "moniker" -> entity.moniker,
+      "storeProperties" -> propertyMapToString(entity.storeProperties),
+      "schemaName" -> entity.schemaName,
+      "viewMotif" -> entity.viewMotif,
+      "viewProperties" -> propertyMapToString(entity.viewProperties),
+      "udk" -> entity.udk
     )
   }
 
@@ -171,16 +168,16 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainFk") -> entity.domainFk,
-      Symbol("generationClock") -> newClock,
-      Symbol("storeProperties") -> propertyMapToString(entity.storeProperties),
-      Symbol("schemaName") -> entity.schemaName,
-      Symbol("viewMotif") -> entity.viewMotif,
-      Symbol("viewProperties") -> propertyMapToString(newProperties),
-      Symbol("udk") -> entity.udk
+      "pk" -> entity.pk,
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainFk" -> entity.domainFk,
+      "generationClock" -> newClock,
+      "storeProperties" -> propertyMapToString(entity.storeProperties),
+      "schemaName" -> entity.schemaName,
+      "viewMotif" -> entity.viewMotif,
+      "viewProperties" -> propertyMapToString(newProperties),
+      "udk" -> entity.udk
     )
   }
 
@@ -201,15 +198,15 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
      WHERE
        ${this.column.udk} = {udk}
      """.bindByName(
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainFk") -> entity.domainFk,
-      Symbol("generationClock") -> generationClock,
-      Symbol("storeProperties") -> propertyMapToString(entity.storeProperties),
-      Symbol("schemaName") -> entity.schemaName,
-      Symbol("viewMotif") -> entity.viewMotif,
-      Symbol("viewProperties") -> propertyMapToString(viewProperties),
-      Symbol("udk") -> entity.udk
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainFk" -> entity.domainFk,
+      "generationClock" -> generationClock,
+      "storeProperties" -> propertyMapToString(entity.storeProperties),
+      "schemaName" -> entity.schemaName,
+      "viewMotif" -> entity.viewMotif,
+      "viewProperties" -> propertyMapToString(viewProperties),
+      "udk" -> entity.udk
     )
   }
 
@@ -231,16 +228,16 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
      WHERE
         ${this.column.pk} = {pk}
      """.bindByName(
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("domainFk") -> entity.domainFk,
-      Symbol("generationClock") -> generationClock,
-      Symbol("storeProperties") -> propertyMapToString(entity.storeProperties),
-      Symbol("schemaName") -> entity.schemaName,
-      Symbol("viewMotif") -> entity.viewMotif,
-      Symbol("viewProperties") -> propertyMapToString(viewProperties),
-      Symbol("udk") -> entity.udk,
-      Symbol("pk") -> entity.pk
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "domainFk" -> entity.domainFk,
+      "generationClock" -> generationClock,
+      "storeProperties" -> propertyMapToString(entity.storeProperties),
+      "schemaName" -> entity.schemaName,
+      "viewMotif" -> entity.viewMotif,
+      "viewProperties" -> propertyMapToString(viewProperties),
+      "udk" -> entity.udk,
+      "pk" -> entity.pk
     )
   }
 
@@ -290,24 +287,24 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      Symbol("pk") -> pk,
-      Symbol("ts") -> DateTime.now,
-      Symbol("viewProperties") -> propertyMapToString(viewProperties)
-    ).update().apply()
+      "pk" -> pk,
+      "ts" -> DateTime.now,
+      "viewProperties" -> propertyMapToString(viewProperties)
+    ).update()
   }
 
   def deleteViewsForDomain(domainFk: RelatePk)(implicit session: DBSession): Unit = {
     sql"""
     DELETE FROM ${this.table}
         WHERE ${this.column.domainFk} = {domainFk}
-    """.bindByName(Symbol("domainFk") -> domainFk).update().apply()
+    """.bindByName("domainFk" -> domainFk).update()
   }
 
   def updateGenClockForViewsInDomain(domainFk: RelatePk)(implicit session: DBSession): Unit = {
     sql"UPDATE ${this.table} SET ${this.column.generationClock} = {clock} WHERE ${this.column.domainFk} = {domainFk}".bindByName(
-      Symbol("domainFk") -> domainFk,
-      Symbol("clock") -> System.currentTimeMillis()
-    ).map(resultToEntity).update().apply()
+      "domainFk" -> domainFk,
+      "clock" -> System.currentTimeMillis()
+    ).map(resultToEntity).update()
 
   }
 
@@ -319,17 +316,17 @@ class CatalogViewPersister(service: RelateService) extends ScopedUdkCatalogEntit
           ${this.column.viewProperties} = {viewProperties}
        WHERE ${this.column.pk} = {viewPk}
     """.bindByName(
-      Symbol("viewPk") -> entity.pk,
-      Symbol("clock") -> newClock,
-      Symbol("viewProperties") -> propertyMapToString(newProperties)
-    ).map(resultToEntity).update().apply()
+      "viewPk" -> entity.pk,
+      "clock" -> newClock,
+      "viewProperties" -> propertyMapToString(newProperties)
+    ).map(resultToEntity).update()
     entity.copy(generationClock = newClock, viewProperties = newProperties)
   }
 
   def allViewsForDomain(domainFk: RelatePk, limit: Option[Int])(implicit session: DBSession): List[CatalogView] = {
     sql"""SELECT * FROM ${this.table}
          WHERE ${this.column.domainFk} = {domainFk} ${service.dialect.limitClause(limit, None)}
-      """.bindByName(Symbol("domainFk") -> domainFk).map(resultToEntity).list().apply()
+      """.bindByName("domainFk" -> domainFk).map(resultToEntity).list()
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

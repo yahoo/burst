@@ -79,7 +79,7 @@ class FeltArtifactory[INPUT <: Any, OUTPUT <: FeltArtifact[INPUT]] extends Vital
         }
       } catch safely {
         case t: Throwable =>
-          log error s"FELT_ARTIFACTORY_CLEANER ERROR $t"
+          log error(s"FELT_ARTIFACTORY_CLEANER ERROR $t", t)
       }
     }
   }

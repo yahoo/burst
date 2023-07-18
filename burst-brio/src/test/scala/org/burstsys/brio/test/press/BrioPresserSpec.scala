@@ -24,9 +24,9 @@ class BrioPresserSpec extends BrioAbstractSpec {
       val buffer = tesla.buffer.factory.grabBuffer(1e6.toInt)
       val dictionary = brio.dictionary.factory.grabMutableDictionary()
       val sink = BrioPressSink(buffer, dictionary)
-      val presser = BrioPresser(presserSchema, sink, BrioMockPressSource())
+      val presser = BrioPresser(sink)
       try {
-        presser.press
+        presser.press(presserSchema, BrioMockPressSource())
         val bytes = sink.buffer.toBytes
         sink.dictionary.words should equal(51)
         bytes.length should equal(818)

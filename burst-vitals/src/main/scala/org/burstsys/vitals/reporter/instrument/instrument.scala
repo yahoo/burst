@@ -80,7 +80,7 @@ package object instrument extends VitalsLogger {
    */
   def prettyByteSizeString(bytes: Double): String = {
     if (bytes < 0) {
-      "not supported/unknown"
+      s"not supported/unknown bytes=$bytes"
     } else if (bytes < KB) {
       f"$bytes%,.1fB"
     } else if (bytes < MB) {

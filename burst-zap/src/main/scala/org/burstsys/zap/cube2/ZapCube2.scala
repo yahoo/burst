@@ -104,8 +104,7 @@ trait ZapCube2 extends Any with FeltCubeCollector with ZapCube2DimensionAxis
 
   /**
    * the offset of the first row in the indexed bucket list or EmptyBucket is this indexed bucket is empty.
-   * This value is the offset of the first row in the bucket list from the cube's '''basePtr'''. This value
-   * is [[ZapCube2EmptyBucket]] if the bucket is empty.
+   * This value is the offset of the first row in the bucket list from the cube's '''basePtr'''
    */
   def bucketRead(index: Int): TeslaMemoryOffset
 
@@ -252,7 +251,7 @@ class ZapCube2AnyVal(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends AnyV
   with ZapCube2Codec with ZapCube2Nav with ZapCube2Print with ZapCube2Iterator
   with ZapCube2Join with ZapCube2Truncate with ZapCube2Merge with ZapCube2Extract {
 
-  override def size(): TeslaMemorySize = availableMemorySize
+  override def size(): TeslaMemorySize = currentMemorySize
 
   override
   def importCollector(sourceCollector: ZapCube2, sourceItems: Int, builder: ZapCube2Builder): Unit =

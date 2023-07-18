@@ -63,7 +63,7 @@
             <groupId>com.splunk.logging</groupId>
             <artifactId>splunk-library-javalogging</artifactId>
         </dependency>
-        <!-- ***************************************************** -->
+        <!-- *******************mm********************************** -->
 
 
         <!-- ***************************************************** -->
@@ -168,9 +168,8 @@
         <plugins>
 
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>${git-commit.maven-plugin.version}</version>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
@@ -198,7 +197,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>${shade.maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>

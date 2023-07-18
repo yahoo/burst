@@ -1,14 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.part.factory
 
-import org.burstsys.{tesla, vitals}
+import org.burstsys.tesla
 import org.burstsys.tesla.configuration.teslaPartsTtlInterval
-import org.burstsys.tesla.part.{TeslaPartPool, debugTending}
+import org.burstsys.tesla.part
+import org.burstsys.tesla.part.TeslaPartPool
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.host
 import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 
-import scala.collection.mutable
 import scala.concurrent.Future
 
 /**
@@ -24,30 +24,32 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
 
   final
   def startPartTender: Future[Unit] = {
+    val builder: Option[StringBuilder] = if (part.log.isInfoEnabled) Some(new StringBuilder) else None
     TeslaRequestFuture {
-      Thread.currentThread setName s"tesla-${partName}-tender"
+      Thread.currentThread setName s"tesla-$partName-tender"
       while (true) {
         Thread sleep tesla.configuration.teslaPartsTenderInterval.toMillis
-        implicit val builder: StringBuilder = new StringBuilder
+        if (builder.isDefined)
+          builder.get.clear()
 
         /**
          * collect stats on all the pools, and then print them out
          * if there is anything in any of the pools then perhaps
          * we need to free stuff
          */
-        val totalPoolMemorySize = summarizePoolStats(collectPoolStats)
+        val totalPoolMemorySize = summarizePoolStats(collectPoolStats, builder)
 
         if (totalPoolMemorySize != 0) {
 
           if (testForRoom(totalPoolMemorySize))
-            freePartsToMakeRoom
+            freePartsToMakeRoom(builder)
           else
-            freePartsNotBeingUsed
+            freePartsNotBeingUsed(builder)
 
         }
-        if (debugTending) {
-          builder ++= s"*****************************************\n"
-          log info builder.result()
+        if (builder.isDefined) {
+          builder.get ++= s"*****************************************\n"
+          part.log info builder.get.result()
         }
       }
     }
@@ -69,21 +71,21 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
     val overSize = currPoolSize > maxPoolSize
 
     if (overSize)
-      log info s"TESLA_PART_OVER_SIZE osTotalPhysMemory=${physMem} (${
+      part.log info s"TESLA_PART_OVER_SIZE osTotalPhysMemory=$physMem (${
         prettyByteSizeString(physMem)
       }), maxPoolSize=$maxPoolSize (${
         prettyByteSizeString(maxPoolSize)
-      }) $tag "
+      }), directSize=${host.directMemoryUsed} (${prettyByteSizeString(host.directMemoryUsed)}) $tag "
     overSize
   }
 
   /**
    * get rid of parts aggressively because we need room
    *
-   * @param builder
+   * @param builder if defined then we will print out the stats
    */
   private
-  def freePartsToMakeRoom(implicit builder: StringBuilder): Unit = {
+  def freePartsToMakeRoom(builder: Option[StringBuilder]): Unit = {
     var freedBytes: Long = 0L
     var freedParts: Long = 0L
     pools.filter(_ != null) foreach {
@@ -94,22 +96,22 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
           freedBytes += freed._2
         }
     }
-    if (debugTending)
+    if (builder.isDefined)
       if (freedParts > 0)
-        builder ++= f"\tfreed ${
+        builder.get ++= f"\tfreed ${
           prettyByteSizeString(freedBytes)
         } byte(s) in $freedParts%,d part(s) to make room\n"
       else
-        builder ++= f"\tno part(s) could be freed to make room\n"
+        builder.get ++= f"\tno part(s) could be freed to make room\n"
   }
 
   /**
    * get rid of parts that are just lying around
    *
-   * @param builder
+   * @param builder if defined then we will print out the stats
    */
   private[part]
-  def freePartsNotBeingUsed(implicit builder: mutable.StringBuilder): Unit = {
+  def freePartsNotBeingUsed(implicit builder: Option[StringBuilder]): Unit = {
     var freedBytes: Long = 0L
     var freedParts: Long = 0L
     pools.filter(_ != null) foreach {
@@ -122,13 +124,13 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
           }
         }
     }
-    if (debugTending)
+    if (builder.isDefined)
       if (freedParts > 0)
-        builder ++= f"\tfreed ${
+        builder.get ++= f"\tfreed ${
           prettyByteSizeString(freedBytes)
         } byte(s) in $freedParts%,d unused part(s)\n"
       else
-        builder ++= f"\tno unused part(s) to be freed\n"
+        builder.get ++= f"\tno unused part(s) to be freed\n"
   }
 
 

@@ -9,7 +9,7 @@ import org.burstsys.synthetic.samplestore.configuration
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.properties._
-import org.burstsys.vitals.uid.newBurstUid
+import org.burstsys.vitals.uid.{md5, newBurstUid}
 
 import scala.concurrent.Future
 
@@ -34,9 +34,7 @@ case class SyntheticSampleSourceSupervisor() extends SampleSourceSupervisorServi
     TeslaRequestFuture {
       val properties = mergeProperties(dataSource, listenerProperties)
 
-      val extended = properties.extend
-      val hashIsInvariant = extended.getValueOrProperty(configuration.defaultPersistentHashProperty)
-      val hash = if (hashIsInvariant) InvariantHash else newBurstUid
+      val hash = md5(topology.loci.map(_.hostAddress).toArray.sorted.mkString("#"))
       val loci = for (l <- topology.loci) yield {
         val augmentedProps = properties ++
           Map(org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.userIdPrefixKey -> s"${l.hostName}#")

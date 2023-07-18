@@ -48,7 +48,8 @@ package object thread extends VitalsLogger {
     final lazy val executor: ExecutionContext = {
       assert(pool != null)
       ExecutionContext.fromExecutorService(pool,
-        t => log warn burstStdMsg(s"currentThread=${Thread.currentThread.getName} $poolName threw ${t: String} \n${printStack(t)}")
+        t =>
+          log warn burstStdMsg(s"currentThread=${Thread.currentThread.getName} $poolName threw ${t: String} \n${printStack(t)}")
       )
     }
     log info s"TESLA_THREAD_POOL_START ${getClass.getSimpleName}($poolName)"

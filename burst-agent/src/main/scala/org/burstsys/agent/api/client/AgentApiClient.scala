@@ -33,7 +33,7 @@ class AgentApiClient(service: AgentService, modality: VitalsServiceModality) ext
       thriftClient.groupExecute(groupUid, source, over, call)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
   }
@@ -50,7 +50,7 @@ class AgentApiClient(service: AgentService, modality: VitalsServiceModality) ext
       thriftClient.cacheOperation(groupUid, operation, generationKey, parameters)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t),t)
         throw t
     }
   }
@@ -62,7 +62,7 @@ class AgentApiClient(service: AgentService, modality: VitalsServiceModality) ext
       thriftClient.sliceFetch(groupUid, generation)
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
   }

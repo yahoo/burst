@@ -1,24 +1,19 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog.persist.account
 
-import org.burstsys.catalog.model.account.CatalogAccount
-import org.burstsys.catalog.model.account.CatalogSqlAccount
+import org.bouncycastle.crypto.generators.BCrypt
+import org.burstsys.catalog.model.account.{CatalogAccount, CatalogSqlAccount}
 import org.burstsys.catalog.persist.NamedCatalogEntityPersister
 import org.burstsys.relate.RelateExceptions.BurstUnknownMonikerException
 import org.burstsys.relate._
-import org.burstsys.relate.dialect.RelateDerbyDialect
-import org.burstsys.relate.dialect.RelateMySqlDialect
+import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect}
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.properties._
-import org.bouncycastle.crypto.generators.BCrypt
-import scalikejdbc.WrappedResultSet
-import scalikejdbc._
+import scalikejdbc.{WrappedResultSet, _}
 
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 final case
 class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntityPersister[CatalogAccount] {
@@ -54,11 +49,11 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
      VALUES
        ({labels}, {moniker}, {password}, {salt})
      """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("labels") -> entity.labels,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("password") -> entity.hashedPassword,
-      Symbol("salt") -> entity.salt
+      "pk" -> entity.pk,
+      "labels" -> entity.labels,
+      "moniker" -> entity.moniker,
+      "password" -> entity.hashedPassword,
+      "salt" -> entity.salt
     )
   }
 
@@ -70,10 +65,10 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
      VALUES
        ({labels}, {moniker}, {password}, {salt})
      """.bindByName(
-      Symbol("labels") -> entity.labels,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("password") -> entity.hashedPassword,
-      Symbol("salt") -> entity.salt
+      "labels" -> entity.labels,
+      "moniker" -> entity.moniker,
+      "password" -> entity.hashedPassword,
+      "salt" -> entity.salt
     )
   }
 
@@ -88,11 +83,11 @@ class CatalogAccountPersister(service: RelateService) extends NamedCatalogEntity
      WHERE
        ${this.column.pk} = {pk}
      """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels),
-      Symbol("password") -> entity.hashedPassword,
-      Symbol("salt") -> entity.salt
+      "pk" -> entity.pk,
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels),
+      "password" -> entity.hashedPassword,
+      "salt" -> entity.salt
     )
   }
 

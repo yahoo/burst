@@ -56,7 +56,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
       }
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
     this
@@ -125,7 +125,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status: AnyRef = {
+  override def status(level: Int): AnyRef = {
     SampleSourceHandlerRegistry.getSources
   }
 }

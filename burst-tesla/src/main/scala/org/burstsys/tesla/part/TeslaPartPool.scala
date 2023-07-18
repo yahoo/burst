@@ -1,13 +1,14 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.part
 
+import org.burstsys.tesla.part
+import org.burstsys.tesla.pool.TeslaPoolId
+import org.burstsys.vitals.logging._
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
+import org.jctools.queues.MpmcArrayQueue
+
 import java.util
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
-
-import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
-import org.burstsys.vitals.logging._
-import org.jctools.queues.MpmcArrayQueue
 
 /**
  * [[org.burstsys.tesla.part.TeslaPartPool]] instances are created by and hosted in
@@ -87,16 +88,18 @@ trait TeslaPartPool[PoolPart] extends AnyRef {
   def incrementPartsInUse(): Unit = {
     val newSize = _partsInUse.incrementAndGet()
     val oldSize = _maxPartsAllocated.get
-    if (newSize > oldSize) {
-      _maxPartsAllocated.set(newSize)
-      if (newSize % 500 == 0) {
-        if (false)
-          log info burstStdMsg(
+    if (part.log.isTraceEnabled()) {
+      if (newSize > oldSize) {
+        _maxPartsAllocated.set(newSize)
+        if (newSize % 500 == 0) {
+          part.log trace  burstStdMsg(
             s"TeslaPartPool.incrementPartsInUse(partName='$partName', partByteSize=$partByteSize) maxPartsAllocated=${
               _maxPartsAllocated.get()
             }"
           )
+        }
       }
+
     }
   }
 
@@ -151,8 +154,8 @@ trait TeslaPartPool[PoolPart] extends AnyRef {
   /////////////////////////////////////////
 
   // log the creation of this part pool
-  if (false)
-    log info
+  if (part.log.isTraceEnabled)
+    part.log trace
       s"TeslaPartPool.init partName='$partName', pool=p$poolId, binding='${
         Thread.currentThread.getName
       }', size=${
@@ -174,7 +177,8 @@ trait TeslaPartPool[PoolPart] extends AnyRef {
       var continue = true
       while (i < maxPartsFreedInOneRun && continue) {
         partQueue.poll match {
-          case null => continue = false
+          case null =>
+            continue = false
           case part =>
             decrementPartsAllocated()
             partsFreed += 1

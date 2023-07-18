@@ -18,9 +18,9 @@ class BrioPresserPerformanceSpec extends BrioAbstractSpec {
       val buffer = tesla.buffer.factory.grabBuffer(1e6.toInt)
       val dictionary = brio.dictionary.factory.grabMutableDictionary()
       val sink = BrioPressSink(buffer, dictionary)
-      val presser = BrioPresser(presserSchema, sink, BrioMockPressSource())
+      val presser = BrioPresser(sink)
       try {
-        presser.press
+        presser.press(presserSchema, BrioMockPressSource())
       } finally {
         tesla.buffer.factory.releaseBuffer(buffer)
         brio.dictionary.factory.releaseMutableDictionary(dictionary)

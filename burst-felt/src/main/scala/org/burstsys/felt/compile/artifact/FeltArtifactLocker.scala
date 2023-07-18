@@ -50,7 +50,7 @@ trait FeltArtifactLocker extends AnyRef {
         log info s"$tag END"
     } catch {
       case t: Throwable =>
-        log error s"$t $tag"
+        log error(s"$t $tag", t)
         throw t
     }
     this
@@ -68,7 +68,7 @@ trait FeltArtifactLocker extends AnyRef {
         log info s"$tag END"
     } catch {
       case t: Throwable =>
-        log error s"$t $tag"
+        log error(s"$t $tag", t)
         throw t
     }
     this
@@ -85,13 +85,13 @@ trait FeltArtifactLocker extends AnyRef {
         log info s"$tag END"
     } catch {
       case t: Throwable =>
-        log error s"$t $tag"
+        log error(s"$t $tag", t)
     }
     this
   }
 
   final
-  def releaseReadLock: this.type = {
+  def releaseReadLock(): this.type = {
     lazy val tag = s"FeltArtifact('${self.name}').releaseReadLock"
     try {
       if (debugLocking)
@@ -101,7 +101,7 @@ trait FeltArtifactLocker extends AnyRef {
         log info s"$tag END"
     } catch {
       case t: Throwable =>
-        log error s"$t $tag"
+        log error(s"$t $tag", t)
         throw t
     }
     this

@@ -166,7 +166,6 @@ trait NexusStream extends VitalsService {
   /**
    * Called by the server to mark the stream as failed and to send the appropriate signoff to the client
    *
-   * @param exception
    */
   def completeExceptionally(exception: Throwable): Unit
 
@@ -268,7 +267,7 @@ class NexusStreamContext(
 
   private var heartbeat: Option[VitalsBackgroundFunction] = None
 
-  private var _completion = Promise[NexusStream]()
+  private val _completion = Promise[NexusStream]()
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +294,7 @@ class NexusStreamContext(
     log debug stoppingMessage
 
     if (outbound) {
-      log debug burstStdMsg(s"Releasing ${_parcelPackerConcurrency} parcel packers for ${this}")
+      log debug burstStdMsg(s"Releasing ${_parcelPackerConcurrency} parcel packers for $this")
       drainParcelPackers()
       stopHeartbeat()
     }
@@ -357,7 +356,7 @@ class NexusStreamContext(
         pipe.put(TeslaHeartbeatMarkerParcel)
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(t)
+          log error(burstStdMsg(t), t)
       }
     }).start)
   }

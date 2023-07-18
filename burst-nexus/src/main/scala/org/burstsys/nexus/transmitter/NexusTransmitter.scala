@@ -41,7 +41,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
   }
 
   def transmitDataStream(stream: NexusStream): Unit = {
-    lazy val tag = s"NexusParcelTransmitter.transmitDataStream(id=$id, $link, stream=$stream  ${remoteAddress}:${remotePort})"
+    lazy val tag = s"NexusParcelTransmitter.transmitDataStream(id=$id, $link, stream=$stream  $remoteAddress:$remotePort)"
     val streamSpan = NexusServerStreamTrekMark.begin(stream.guid)
     TeslaRequestFuture {
       try {
@@ -61,7 +61,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
             Await.ready(lastMessageTransmit, Duration.Inf)
             transmitControlMessage(NexusStreamCompleteMsg(stream, parcel.status)) onComplete {
               case Failure(t) =>
-                log error burstStdMsg(s"$tag:$t", t)
+                log error(burstStdMsg(s"$tag:$t", t), t)
                 NexusServerCompleteSendTrekMark.fail(sendStreamCompleteSpan)
                 NexusServerStreamTrekMark.fail(streamSpan)
                 NexusServerReporter.onServerStreamFail()
@@ -104,7 +104,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
         case t: Throwable =>
           NexusServerStreamTrekMark.fail(streamSpan)
           NexusServerReporter.onServerStreamFail()
-          log error burstStdMsg(s"$tag:$t", t)
+          log error(burstStdMsg(s"$tag:$t", t), t)
       }
     }
   }
@@ -115,7 +115,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
    * @param msg the message to send
    */
   def transmitControlMessage(msg: NexusMsg): Future[Unit] = {
-    val tag = s"NexusTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} ${remoteAddress}:${remotePort}"
+    val tag = s"NexusTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort"
     val promise = Promise[Unit]()
     if (!channel.isOpen || !channel.isActive) return {
       promise.failure(VitalsException(s"$tag channel not open or active").fillInStackTrace())
@@ -146,7 +146,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
    * transmit a data plane message. These are immediately flushed through the pipeline
    */
   def transmitDataMessage(buffer: ByteBuf): Future[Unit] = {
-    val tag = s"NexusTransmitter.transmitDataMessage(${remoteAddress}:${remotePort}"
+    val tag = s"NexusTransmitter.transmitDataMessage($remoteAddress:$remotePort"
     val promise = Promise[Unit]()
     if (!channel.isOpen || !channel.isActive) return {
       promise.failure(VitalsException(s"$tag channel not open or active").fillInStackTrace())

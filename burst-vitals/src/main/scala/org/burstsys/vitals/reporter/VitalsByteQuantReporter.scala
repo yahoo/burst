@@ -36,7 +36,7 @@ abstract class VitalsByteQuantReporter(prefix: String, quantum: String) extends 
    */
   final
   def alloc(bytes: Long): Unit = {
-    _currentAllocCounter.add(-1)
+    _currentAllocCounter.add(1)
     _currentByteCounter.add(bytes)
   }
 

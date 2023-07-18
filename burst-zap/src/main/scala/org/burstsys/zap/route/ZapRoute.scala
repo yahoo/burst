@@ -4,7 +4,7 @@ package org.burstsys.zap.route
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.burstsys.felt.model.collectors.route.FeltRouteCollector
-import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaNullMemoryPtr}
+import org.burstsys.tesla.TeslaTypes.{TeslaMemoryOffset, TeslaMemoryPtr, TeslaMemorySize, TeslaNullMemoryPtr}
 import org.burstsys.tesla.block.TeslaBlockPart
 import org.burstsys.tesla.flex.TeslaFlexCollector
 import org.burstsys.tesla.pool.TeslaPoolId
@@ -44,7 +44,6 @@ trait ZapRoute extends Any with FeltRouteCollector with TeslaBlockPart with Tesl
   /**
    * initialize the route for first use
    *
-   * @param id
    * @return
    */
   def initialize(id: TeslaPoolId): ZapRoute
@@ -71,7 +70,9 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
     commitCursor/ZapRouteJournalEntrySize + 1
   }
 
-  override def itemCount_=(count: TeslaPoolId): Unit = ???
+  override def itemCount_=(count: TeslaPoolId): Unit = {
+    throw new UnsupportedOperationException("itemCount_= not supported")
+  }
 
   override def itemLimited: Boolean = {
     routeLimited
@@ -80,6 +81,8 @@ class ZapRouteContext(blockPtr: TeslaMemoryPtr = TeslaNullMemoryPtr) extends Any
   override def itemLimited_=(s: Boolean): Unit = {
     routeLimited = s
   }
+
+  override def size(): TeslaMemorySize = currentMemorySize
 
   ////////////////////////////////////////////////////////////////////////////////////
   // KRYO SERIALIZATION

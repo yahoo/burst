@@ -28,8 +28,6 @@ trait TeslaFlexCollector[Builder <: TeslaPartBuilder, Collector <: TeslaFlexColl
 
   /**
     * copy over data from a presumably too small collector to this bigger upsized collector
-    *
-    * @param sourceCollector
     */
   def importCollector(sourceCollector: Collector, sourceItems: Int, builder: Builder): Unit
 
@@ -41,4 +39,9 @@ trait TeslaFlexCollector[Builder <: TeslaPartBuilder, Collector <: TeslaFlexColl
 
   def builder: Builder
 
+  def itemCount: Int
+
+  def size(): TeslaMemorySize
+
+  def itemLimited: Boolean
 }

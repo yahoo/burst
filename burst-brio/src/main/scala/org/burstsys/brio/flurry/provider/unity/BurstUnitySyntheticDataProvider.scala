@@ -1,17 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.brio.flurry.provider.unity
 
-import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider.{appVersionIdsDefault, appVersionIdsKey, applicationIdDefault, applicationIdKey, channelIdsDefault, channelIdsKey, crashPercentDefault, crashPercentKey, deviceModelIdsDefault, deviceModelIdsKey, eventCountDefault, eventCountKey, eventDurationDefault, eventDurationKey, eventIdsDefault, eventIdsKey, eventIntervalDefault, eventIntervalKey, eventParametersCountDefault, eventParametersCountKey, eventParametersPerEventDefault, eventParametersPerEventKey, installDateIntervalDefault, installDateIntervalKey, installDateStartDefault, installDateStartKey, languageIdsDefault, languageIdsKey, localeCountryIdsDefault, localeCountryIdsKey, mappedOriginsDefault, mappedOriginsKey, originMethodIdsKey, originSourceIdsDefault, originSourceIdsKey, osVersionIdsDefault, osVersionIdsKey, providedOriginsDefault, providedOriginsKey, sessionCountDefault, sessionCountKey, sessionDurationDefault, sessionDurationKey, sessionIntervalDefault, sessionIntervalKey, sessionParameterCountDefault, sessionParameterCountKey, sessionParametersPerSessionDefault, sessionParametersPerSessionKey, userIdPrefixDefault, userIdPrefixKey}
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticAppVersionData
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticApplicationData
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticApplicationUseData
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticChannelData
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticEventData
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticSessionData
-import org.burstsys.brio.flurry.provider.unity.press.SyntheticUserData
-import org.burstsys.brio.press.BrioPressInstance
-import org.burstsys.brio.press.BrioPressSource
-import org.burstsys.brio.provider.{BrioSyntheticDataProvider, SyntheticDataProvider}
+import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider._
+import org.burstsys.brio.flurry.provider.unity.press._
+import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
+import org.burstsys.brio.provider.BrioSyntheticDataProvider
 import org.burstsys.brio.provider.SyntheticDataProvider.SyntheticRepeatedValue
 import org.burstsys.vitals.properties._
 
@@ -20,8 +13,7 @@ import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import scala.annotation.unused
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{Duration, DurationInt}
 
 object BurstUnitySyntheticDataProvider {
   /** `string` - The prefix for the user id */
@@ -124,7 +116,7 @@ object BurstUnitySyntheticDataProvider {
   val originMethodIdsKey = "synthetic.unity.originMethodIds"
 
   /** Default value for `originMethodIdsKey`: [12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L] */
-  val originMethodIdsDefault: Array[Long] = Array(12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L)
+  // val originMethodIdsDefault: Array[Long] = Array(12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L)
 
   /** `Int` - The percentage of sessions that should be marked as crashed [0, 100] */
   val crashPercentKey = "synthetic.unity.crashPercent"
@@ -188,131 +180,138 @@ object BurstUnitySyntheticDataProvider {
 @unused  // found by reflection
 case class BurstUnitySyntheticDataProvider() extends BrioSyntheticDataProvider {
 
-  override def data(itemCount: Int, properties: VitalsPropertyMap): Iterator[BrioPressInstance] = {
+  class Parameters(properties: VitalsPropertyMap) {
     val extended: VitalsRichExtendedPropertyMap = properties.extend
-    val userIdPrefix = extended.getValueOrDefault(userIdPrefixKey, userIdPrefixDefault)
-    val applicationId = extended.getValueOrDefault(applicationIdKey, applicationIdDefault)
-    val installDateStart = Instant.from(ISO_DATE_TIME.parse(extended.getValueOrDefault(installDateStartKey, installDateStartDefault))).toEpochMilli
-    val installDateInterval = extended.getValueOrDefault(installDateIntervalKey, installDateIntervalDefault).toMillis
-    val deviceModelIds = propertyAsRepeatedValue(extended, deviceModelIdsKey, deviceModelIdsDefault)
-    val appVersionIds = propertyAsRepeatedValue(extended, appVersionIdsKey, appVersionIdsDefault)
-    val osVersionIds = propertyAsRepeatedValue(extended, osVersionIdsKey, osVersionIdsDefault)
-    val localeCountryIds = propertyAsRepeatedValue(extended, localeCountryIdsKey, localeCountryIdsDefault)
-    val languageIds = propertyAsRepeatedValue(extended, languageIdsKey, languageIdsDefault)
-    val channelIds = propertyAsRepeatedValue(extended, channelIdsKey, channelIdsDefault)
-    val interests = SyntheticRepeatedValue((1L to 10L).map(i => Array(i to 10L: _*)): _*)
+    val userIdPrefix: VitalsPropertyKey = extended.getValueOrDefault(userIdPrefixKey, userIdPrefixDefault)
+    val applicationId: Long = extended.getValueOrDefault(applicationIdKey, applicationIdDefault)
+    val installDateStart: Long = Instant.from(ISO_DATE_TIME.parse(extended.getValueOrDefault(installDateStartKey, installDateStartDefault))).toEpochMilli
+    val installDateInterval: Long = extended.getValueOrDefault(installDateIntervalKey, installDateIntervalDefault).toMillis
+    val deviceModelIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, deviceModelIdsKey, deviceModelIdsDefault)
+    val appVersionIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, appVersionIdsKey, appVersionIdsDefault)
+    val osVersionIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, osVersionIdsKey, osVersionIdsDefault)
+    val localeCountryIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, localeCountryIdsKey, localeCountryIdsDefault)
+    val languageIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, languageIdsKey, languageIdsDefault)
+    val channelIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, channelIdsKey, channelIdsDefault)
+    val interests: SyntheticRepeatedValue[Array[Long]] = SyntheticRepeatedValue((1L to 10L).map(i => Array(i to 10L: _*)): _*)
 
     val sessionCount: Int = extended.getValueOrDefault(sessionCountKey, sessionCountDefault)
-    val sessionInterval = extended.getValueOrDefault(sessionIntervalKey, sessionIntervalDefault).toMillis
-    val sessionDuration = extended.getValueOrDefault(sessionDurationKey, sessionDurationDefault).toMillis
-    val providedOrigins = propertyAsRepeatedValue(extended, providedOriginsKey, providedOriginsDefault)
-    val mappedOrigins = propertyAsRepeatedValue(extended, mappedOriginsKey, mappedOriginsDefault)
-    val originSourceIds = propertyAsRepeatedValue(extended, originSourceIdsKey, originSourceIdsDefault)
-    val originMethodIds = propertyAsRepeatedValue(extended, originMethodIdsKey, Array(12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L))
+    val sessionInterval: Long = extended.getValueOrDefault(sessionIntervalKey, sessionIntervalDefault).toMillis
+    val sessionDuration: Long = extended.getValueOrDefault(sessionDurationKey, sessionDurationDefault).toMillis
+    val providedOrigins: SyntheticRepeatedValue[VitalsPropertyKey] = propertyAsRepeatedValue(extended, providedOriginsKey, providedOriginsDefault)
+    val mappedOrigins: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, mappedOriginsKey, mappedOriginsDefault)
+    val originSourceIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, originSourceIdsKey, originSourceIdsDefault)
+    val originMethodIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, originMethodIdsKey, Array(12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L))
     val crashPercent: Int = extended.getValueOrDefault(crashPercentKey, crashPercentDefault)
-    val didCrash = SyntheticRepeatedValue((1 to (100 - crashPercent)).map(_ => false) ++ (1 to crashPercent).map(_ => true): _*)
+    val didCrash: SyntheticRepeatedValue[Boolean] = SyntheticRepeatedValue((1 to (100 - crashPercent)).map(_ => false) ++ (1 to crashPercent).map(_ => true): _*)
     val sessionParameterCount: Int = extended.getValueOrDefault(sessionParameterCountKey, sessionParameterCountDefault)
-    val sessionParameters = SyntheticRepeatedValue((1 to sessionParameterCount).map(i => Map(s"SK$i" -> s"SV$i")): _*)
-    val sessionParametersPerSession = propertyAsRepeatedValue(extended, sessionParametersPerSessionKey, sessionParametersPerSessionDefault)
+    val sessionParameters: SyntheticRepeatedValue[Map[String, String]] = SyntheticRepeatedValue((1 to sessionParameterCount).map(i => Map(s"SK$i" -> s"SV$i")): _*)
+    val sessionParametersPerSession: SyntheticRepeatedValue[Int] = propertyAsRepeatedValue(extended, sessionParametersPerSessionKey, sessionParametersPerSessionDefault)
 
     val eventCount: Int = extended.getValueOrDefault(eventCountKey, eventCountDefault)
-    val eventIds = propertyAsRepeatedValue(extended, eventIdsKey, eventIdsDefault)
-    val eventInterval = extended.getValueOrDefault(eventIntervalKey, eventIntervalDefault).toMillis
-    val eventDuration = extended.getValueOrDefault(eventDurationKey, eventDurationDefault).toMillis
+    val eventIds: SyntheticRepeatedValue[Long] = propertyAsRepeatedValue(extended, eventIdsKey, eventIdsDefault)
+    val eventInterval: Long = extended.getValueOrDefault(eventIntervalKey, eventIntervalDefault).toMillis
+    val eventDuration: Long = extended.getValueOrDefault(eventDurationKey, eventDurationDefault).toMillis
     val eventParametersCount: Int = extended.getValueOrDefault(eventParametersCountKey, eventParametersCountDefault)
-    val eventParameters = SyntheticRepeatedValue((1 to eventParametersCount).map(i => Map(s"EK$i" -> s"EV$i")): _*)
-    val eventParametersPerEvent = propertyAsRepeatedValue(extended, eventParametersPerEventKey, eventParametersPerEventDefault)
+    val eventParameters: SyntheticRepeatedValue[Map[String, String]] = SyntheticRepeatedValue((1 to eventParametersCount).map(i => Map(s"EK$i" -> s"EV$i")): _*)
+    val eventParametersPerEvent: SyntheticRepeatedValue[Int] = propertyAsRepeatedValue(extended, eventParametersPerEventKey, eventParametersPerEventDefault)
 
-    val unspecified = -1
+    val unspecified: Int = -1
+  }
+
+  override def data(itemCount: Int, properties: VitalsPropertyMap): Iterator[BrioPressInstance] = {
+    val params = new Parameters(properties)
 
     LazyList.from(0).take(itemCount)
-      .map(userIdx => {
-        val installTime: Long = installDateStart + userIdx * installDateInterval
-        val appVersion = SyntheticAppVersionData(appVersionIds.value(userIdx))
-        val sessionIds = new AtomicLong()
-        val idVal = s"${userIdPrefix}${userIdx + 1}"
-        log debug s"id=$idVal"
+      .map(userIdx => makeItem(userIdx, params)).iterator
+  }
 
-        SyntheticUserData(
-          id = idVal,
-          deviceModelId = deviceModelIds.value(userIdx),
-          deviceSubmodelId = Option.empty,
-          deviceFormat = unspecified.toByte,
-          estimatedAgeBucket = Option.empty,
-          estimatedGender = unspecified.toByte,
-          application = SyntheticApplicationData(
-            id = applicationId,
-            firstUse = SyntheticApplicationUseData(
-              appVersion, Option(installTime), Option(osVersionIds.value(userIdx)),
-              timeZone = null,
-              localeCountryId = Option(localeCountryIds.value(userIdx)),
-              languageId = Option(languageIds.value(userIdx)),
-            ),
-            lastUse = SyntheticApplicationUseData(
-              appVersion, Option(installTime + TimeUnit.DAYS.toMillis(30)), Option(osVersionIds.value(userIdx)),
-              timeZone = null,
-              localeCountryId = Option(localeCountryIds.value(userIdx)),
-              languageId = Option(languageIds.value(userIdx)),
-            ),
-            mostUse = SyntheticApplicationUseData(
-              appVersion,
-              osVersionId = Option(osVersionIds.value(userIdx)),
-              timeZone = null,
-              localeCountryId = Option(localeCountryIds.value(userIdx)),
-              languageId = Option(languageIds.value(userIdx)),
-            ),
-            channels = Array(SyntheticChannelData(
-              sourceId = unspecified,
-              campaignId = unspecified,
-              channelId = Option(channelIds.value(userIdx)),
-              parameters = Map.empty)).iterator,
-            parameters = Map.empty
-          ),
-          sessions = LazyList.from(0).take(sessionCount).map(sessionIdx =>
-            SyntheticSessionData(
-              id = sessionIds.incrementAndGet(),
-              appVersion = SyntheticAppVersionData(appVersionIds.next),
-              events = LazyList.from(0).take(eventCount).map(eventIdx =>
-                SyntheticEventData(
-                  id = eventIds.value(eventIdx),
-                  eventType = unspecified.toByte,
-                  startTime = installTime + sessionIdx * sessionInterval + eventIdx * eventInterval,
-                  duration = eventDuration,
-                  standardEventId = unspecified,
-                  parameters = (0 to eventParametersPerEvent.value(eventIdx)).flatMap(eventParameters.value).toMap
-                )).iterator,
-              variants = Array.empty.iterator,
-              sessionType = unspecified.toByte,
-              applicationUserId = null,
-              pushTokenStatus = unspecified.toByte,
-              limitAdTracking = false,
-              osVersionId = osVersionIds.value(sessionIdx),
-              startTime = installTime + sessionIdx * sessionInterval,
-              timeZone = null,
-              cityId = unspecified,
-              geoAreaId = unspecified,
-              countryId = unspecified,
-              regionId = unspecified,
-              localeId = unspecified,
-              carrierId = unspecified,
-              agentVersionId = unspecified,
-              duration = sessionDuration,
-              providedOrigin = providedOrigins.value(sessionIdx),
-              mappedOriginId = mappedOrigins.value(sessionIdx),
-              originSourceTypeId = originSourceIds.value(sessionIdx),
-              originMethodTypeId = originMethodIds.value(sessionIdx),
-              reportedBirthDate = Option.empty,
-              reportedAgeBucket = Option.empty,
-              reportedGender = unspecified.byteValue,
-              reportingDelay = unspecified,
-              crashed = didCrash.next,
-              parameters = (1 to sessionParametersPerSession.value(sessionIdx)).flatMap(sessionParameters.value).toMap
+  def makeItem(userIdx: Int, params: Parameters): SyntheticUserData = {
+    val installTime: Long = params.installDateStart + userIdx * params.installDateInterval
+    val appVersion = SyntheticAppVersionData(params.appVersionIds.value(userIdx))
+    val sessionIds = new AtomicLong()
+    val idVal = s"${params.userIdPrefix}${userIdx + 1}"
+    if (log.isTraceEnabled)
+      log trace s"id=$idVal"
+
+    SyntheticUserData(
+      id = idVal,
+      deviceModelId = params.deviceModelIds.value(userIdx),
+      deviceSubmodelId = Option.empty,
+      deviceFormat = params.unspecified.toByte,
+      estimatedAgeBucket = Option.empty,
+      estimatedGender = params.unspecified.toByte,
+      application = SyntheticApplicationData(
+        id = params.applicationId,
+        firstUse = SyntheticApplicationUseData(
+          appVersion, Option(installTime), Option(params.osVersionIds.value(userIdx)),
+          timeZone = null,
+          localeCountryId = Option(params.localeCountryIds.value(userIdx)),
+          languageId = Option(params.languageIds.value(userIdx)),
+        ),
+        lastUse = SyntheticApplicationUseData(
+          appVersion, Option(installTime + TimeUnit.DAYS.toMillis(30)), Option(params.osVersionIds.value(userIdx)),
+          timeZone = null,
+          localeCountryId = Option(params.localeCountryIds.value(userIdx)),
+          languageId = Option(params.languageIds.value(userIdx)),
+        ),
+        mostUse = SyntheticApplicationUseData(
+          appVersion,
+          osVersionId = Option(params.osVersionIds.value(userIdx)),
+          timeZone = null,
+          localeCountryId = Option(params.localeCountryIds.value(userIdx)),
+          languageId = Option(params.languageIds.value(userIdx)),
+        ),
+        channels = Array(SyntheticChannelData(
+          sourceId = params.unspecified,
+          campaignId = params.unspecified,
+          channelId = Option(params.channelIds.value(userIdx)),
+          parameters = Map.empty)).iterator,
+        parameters = Map.empty
+      ),
+      sessions = LazyList.from(0).take(params.sessionCount).map(sessionIdx =>
+        SyntheticSessionData(
+          id = sessionIds.incrementAndGet(),
+          appVersion = SyntheticAppVersionData(params.appVersionIds.next),
+          events = LazyList.from(0).take(params.eventCount).map(eventIdx =>
+            SyntheticEventData(
+              id = params.eventIds.value(eventIdx),
+              eventType = params.unspecified.toByte,
+              startTime = installTime + sessionIdx * params.sessionInterval + eventIdx * params.eventInterval,
+              duration = params.eventDuration,
+              standardEventId = params.unspecified,
+              parameters = (0 to params.eventParametersPerEvent.value(eventIdx)).flatMap(params.eventParameters.value).toMap
             )).iterator,
-          traits = Array.empty.iterator,
-          parameters = Map.empty,
-          interests = interests.value(userIdx)
-        )
-      }).iterator
+          variants = Array.empty.iterator,
+          sessionType = params.unspecified.toByte,
+          applicationUserId = null,
+          pushTokenStatus = params.unspecified.toByte,
+          limitAdTracking = false,
+          osVersionId = params.osVersionIds.value(sessionIdx),
+          startTime = installTime + sessionIdx * params.sessionInterval,
+          timeZone = null,
+          cityId = params.unspecified,
+          geoAreaId = params.unspecified,
+          countryId = params.unspecified,
+          regionId = params.unspecified,
+          localeId = params.unspecified,
+          carrierId = params.unspecified,
+          agentVersionId = params.unspecified,
+          duration = params.sessionDuration,
+          providedOrigin = params.providedOrigins.value(sessionIdx),
+          mappedOriginId = params.mappedOrigins.value(sessionIdx),
+          originSourceTypeId = params.originSourceIds.value(sessionIdx),
+          originMethodTypeId = params.originMethodIds.value(sessionIdx),
+          reportedBirthDate = Option.empty,
+          reportedAgeBucket = Option.empty,
+          reportedGender = params.unspecified.byteValue,
+          reportingDelay = params.unspecified,
+          crashed = params.didCrash.next,
+          parameters = (1 to params.sessionParametersPerSession.value(sessionIdx)).flatMap(params.sessionParameters.value).toMap
+        )).iterator,
+      traits = Array.empty.iterator,
+      parameters = Map.empty,
+      interests = params.interests.value(userIdx)
+    )
   }
 
   override def datasetName: String = "simple-unity"

@@ -10,7 +10,7 @@ class VitalsInstrumentSpec extends VitalsAbstractSpec {
   behavior of "prettyByteSizeString"
 
   Array(
-    ByteSizeCase(-1, "not supported/unknown"),
+    ByteSizeCase(-1, "not supported/unknown bytes=-1.0"),
     ByteSizeCase(0, "0.0B"),
     ByteSizeCase(2.4 * KB, "2.4KB"),
     ByteSizeCase(56.2 * MB, "56.2MB"),

@@ -4,9 +4,8 @@ package org.burstsys.synthetic.samplestore.test
 import org.burstsys.samplesource.SampleStoreTopology
 import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, BurstSampleStoreDomain, BurstSampleStoreView, SampleStoreDataLocus, SampleStoreGeneration}
 import org.burstsys.samplestore.test.BaseSampleStoreTest
+import org.burstsys.synthetic
 import org.burstsys.synthetic.samplestore.source.SyntheticSampleSourceSupervisor
-import org.burstsys.synthetic.samplestore.{source, configuration => syntheticConfig}
-import org.burstsys.{synthetic, vitals}
 import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.scalatest.Inspectors.forAll
 import org.scalatest.TryValues
@@ -32,23 +31,14 @@ class SyntheticSampleSourceSupervisorSpec extends BaseSampleStoreTest with TryVa
     generator.guid shouldBe "guid"
     generator.loci should have length 1
     forAll(generator.loci.toSeq)(locusValidator)
-    if (syntheticConfig.defaultPersistentHashProperty.get)
-      generator.generationHash shouldBe source.InvariantHash
-    else
-      vitals.uid.isBurstUid(generator.generationHash) shouldBe true
+    generator.generationHash should not be null
   }
 
   it should "generate loci using properties in the datasource" in {
-    val staticHash = Map(syntheticConfig.persistentHashProperty -> "true")
-    val dynamichash = Map(syntheticConfig.persistentHashProperty -> "false")
-
     generationForView(view, 0).loci should have length 0
     generationForView(view, 10).loci should have length 10
 
     locusValidator(generationForView(view, 1).loci.head)
-
-    generationForView(view.copy(viewProperties = staticHash), 1).generationHash shouldBe source.InvariantHash
-    generationForView(view.copy(viewProperties = dynamichash), 1).generationHash should not be source.InvariantHash
   }
 
   private def generationForView(view: BurstSampleStoreView, lociCount: Int): SampleStoreGeneration =

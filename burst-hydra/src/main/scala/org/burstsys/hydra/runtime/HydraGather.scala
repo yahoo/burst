@@ -63,7 +63,7 @@ class HydraGather() extends FeltCollectorGather with KryoSerializable with Tesla
     } catch safely {
       case t: Throwable =>
         val msg = s"HYDRA_KRYO_WRITE_FAIL ${t.getMessage} $tag"
-        log error msg
+        log error(msg, t)
         throw VitalsException(msg, t)
     }
   }
@@ -78,7 +78,7 @@ class HydraGather() extends FeltCollectorGather with KryoSerializable with Tesla
     } catch safely {
       case t: Throwable =>
         val msg = s"HYDRA_KRYO_READ_FAIL ${t.getMessage} $tag"
-        log error msg
+        log error(msg, t)
         throw VitalsException(msg, t)
     }
   }

@@ -5,6 +5,6 @@ import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.part.TeslaPartBuilder
 
 final case class TeslaDirectorBuilder() extends TeslaPartBuilder {
-  override def defaultStartSize: TeslaMemorySize = ???
+  override def defaultStartSize: TeslaMemorySize = 0
 }
 

@@ -60,7 +60,7 @@ trait FeltRoutePathsDecl extends FeltRefDecl with FeltNamedNode {
   def reduceStatics: FeltRoutePathsDecl = new FeltRoutePathsDecl {
     final override val location: FeltLocation = FeltRoutePathsDecl.this.location
     final override val stepsDecl: FeltRouteStepsDecl = FeltRoutePathsDecl.this.stepsDecl.reduceStatics.resolveTypes
-    sync(FeltRoutePathsDecl.this)
+    this.sync(FeltRoutePathsDecl.this)
   }
 
   final

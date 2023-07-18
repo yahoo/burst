@@ -150,7 +150,10 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
         _connectionGroup = new KQueueEventLoopGroup(netConfig.maxConnections)
         _transportClass = classOf[KQueueServerSocketChannel]
 
-      case _ => ???
+      case _ =>
+        val e =  VitalsException(s"unknown io mode $ioMode")
+        log error(burstLocMsg(e), e)
+        throw e
     }
     log debug burstStdMsg(s"fabric network server started in $ioMode with  $netConfig")
   }
@@ -182,7 +185,7 @@ class FabricNetServerContext(container: FabricSupervisorContainer[_], netConfig:
         _serverChannel = channelFuture.channel()
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"$serviceName: could not bind", t)
+          log error(burstStdMsg(s"$serviceName: could not bind", t), t)
           throw t
       }
 

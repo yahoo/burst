@@ -9,7 +9,7 @@ import scala.language.postfixOps
 
 package object part extends VitalsLogger {
 
-  final val debugTending = false
+  final def debugTending: Boolean = factory.log.isDebugEnabled()
 
   /**
    * the size of the array of pools for a given part

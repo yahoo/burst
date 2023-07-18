@@ -74,7 +74,7 @@ abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog
                 validate(result)
               } match {
                 case Failure(t) =>
-                  log error s"parsing of '$eqlSource' FAIL[${messageFromException(t)}]"
+                  log error(s"parsing of '$eqlSource' FAIL[${messageFromException(t)}]", t)
                   log error s"hydra generated:\n$source"
                   promise.failure(t)
                 case Success(r) =>
@@ -127,7 +127,7 @@ abstract class EqlAlloyTestRunner extends AlloyJsonUseCaseRunner with EqlTestLog
                     validate(result)
                   } match {
                     case Failure(t) =>
-                      log error s"parsing of '$eqlSource' FAIL[${messageFromException(t)}]"
+                      log error(s"parsing of '$eqlSource' FAIL[${messageFromException(t)}]", t)
                       log error s"hydra generated:\n$source"
                       promise.failure(t)
                     case Success(r) =>

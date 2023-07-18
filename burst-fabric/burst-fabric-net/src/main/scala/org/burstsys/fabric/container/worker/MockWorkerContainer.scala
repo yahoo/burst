@@ -63,7 +63,7 @@ class MockWorkerContainerContext[T <: FabricWorkerListener](logFile: String) ext
       markRunning
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
     this

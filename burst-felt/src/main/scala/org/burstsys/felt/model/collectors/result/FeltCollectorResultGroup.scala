@@ -123,7 +123,9 @@ class FeltCollectorResultGroupContext(
           case p: FeltTabletPlane =>
             _resultSets += p.planeId -> FeltTabletResultSet(p.planeName, p).extractRows
           case _ =>
-            ???
+            val e = VitalsException(s"unknown plane type gather=$gather")
+            log error(burstLocMsg(e), e)
+            throw e
         }
         i += 1
       }
@@ -137,7 +139,7 @@ class FeltCollectorResultGroupContext(
     } catch safely {
       case t: Throwable =>
         val msg = burstLocMsg(s"extraction of result(s) gather=$gather", t)
-        log error msg
+        log error(msg, t)
         throw new RuntimeException(msg, t)
     }
   }

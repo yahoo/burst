@@ -16,8 +16,6 @@ trait FabricRegionInflator extends Any {
   /**
    * inflate a parcel into a direct buffer [[TeslaDirector]]
    *
-   * @param parcel
-   * @return
    */
   def inflate(parcel: TeslaParcel): Future[TeslaDirector] = {
     lazy val tag = s"FabricRegionInflator.inflate(blockPtr=${parcel.blockPtr})"
@@ -35,7 +33,7 @@ trait FabricRegionInflator extends Any {
         promise.success(director)
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"FAIL $t $tag")
+          log error(burstStdMsg(s"FAIL $t $tag"), t)
           promise.failure(t)
           tesla.director.factory.releaseDirector(director)
       }

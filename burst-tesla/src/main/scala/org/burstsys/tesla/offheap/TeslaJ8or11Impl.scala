@@ -1,16 +1,15 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.offheap
 
+import jdk.internal.misc.SharedSecrets
 import org.burstsys.tesla.TeslaTypes._
 import org.burstsys.vitals.errors._
 import sun.misc.Unsafe
 
 import java.lang.management.{BufferPoolMXBean, ManagementFactory}
-import scala.jdk.CollectionConverters._
-import sun.nio.ch.DirectBuffer
-
 import java.lang.reflect.Field
 import java.nio.ByteBuffer
+import scala.jdk.CollectionConverters._
 
 object TeslaJ8or11Impl extends TeslaUnsafeCalls {
   final lazy val nativeMemoryMax: Long = {
@@ -25,8 +24,7 @@ object TeslaJ8or11Impl extends TeslaUnsafeCalls {
   final val arrayOffset:Int  = accessor.arrayBaseOffset(classOf[Array[Byte]])
 
   def directBuffer(address: TeslaMemoryPtr, size: TeslaMemorySize): ByteBuffer = {
-    TeslaDirectBufferFactory.directBuffer(address, size)
-    // SharedSecrets.getJavaNioAccess.newDirectByteBuffer(address, size, null).order(TeslaByteOrder)
+    SharedSecrets.getJavaNioAccess.newDirectByteBuffer(address, size, null).order(TeslaByteOrder)
   }
 
   def releaseBuffer(niobuffer: ByteBuffer): Unit = {
@@ -50,10 +48,7 @@ object TeslaJ8or11Impl extends TeslaUnsafeCalls {
        * extremely simple and straightforward. Nontrivial cleaners are inadvisable since they risk blocking
        * the reference-handler thread and delaying further cleanup and finalization.
        */
-      val cleaner = niobuffer.asInstanceOf[DirectBuffer].cleaner
-      if (cleaner != null) {
-        cleaner.clean()
-      }
+      accessor.invokeCleaner(niobuffer)
     }
   }
 

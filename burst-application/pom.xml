@@ -39,7 +39,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>${shade.maven-plugin.version}</version>
                         <configuration>
                             <filters>
                                 <filter>
@@ -73,13 +72,11 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
-                        <version>${deploy.maven-plugin.version}</version>
                     </plugin>
 
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>flatten-maven-plugin</artifactId>
-                        <version>${flatten.maven-plugin.version}</version>
                     </plugin>
 
                 </plugins>
@@ -93,7 +90,6 @@
                     <plugin>
                         <groupId>com.google.cloud.tools</groupId>
                         <artifactId>jib-maven-plugin</artifactId>
-                        <version>${jib.maven-plugin.version}</version>
 
                         <configuration>
                             <to>
@@ -135,7 +131,6 @@
                     <plugin>
                         <groupId>com.google.cloud.tools</groupId>
                         <artifactId>jib-maven-plugin</artifactId>
-                        <version>${jib.maven-plugin.version}</version>
 
                         <configuration>
                             <to>

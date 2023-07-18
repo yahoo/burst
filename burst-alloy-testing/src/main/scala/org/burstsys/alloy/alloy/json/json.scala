@@ -47,9 +47,9 @@ package object json {
         val dictionary = brio.dictionary.factory.grabMutableDictionary()
         val sink = BrioPressSink(pressBuffer, dictionary)
 
-        val presser = BrioPresser(schema, sink, JsonPressSource(schema, item))
+        val presser = BrioPresser(sink)
         try {
-          presser.press
+          presser.press(schema, JsonPressSource(schema, item))
           BrioBlobEncoder.encodeV2Blob(sink.buffer, rootVersion, sink.dictionary, blobBuffer)
           blobBuffer
         } catch safely {

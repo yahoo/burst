@@ -53,6 +53,9 @@ class ZapFlexRouteAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexR
   override def reset(builder: ZapRouteBuilder): Unit =
     internalCollector.reset(builder)
 
+  @inline override
+  def size(): TeslaMemorySize = internalCollector.size()
+
   /**
    * return the number of rows in the cube
    */
@@ -62,7 +65,7 @@ class ZapFlexRouteAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexR
   /**
    * set the number of rows in the cube
    */
-  override def itemCount_=(count: Int): Unit = ???
+  override def itemCount_=(count: Int): Unit = throw new UnsupportedOperationException(s"itemCount_ not allowed")
 
   /**
    * true is a fixed row limit was exceeded
@@ -70,7 +73,7 @@ class ZapFlexRouteAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexR
   override def itemLimited: Boolean =
     internalCollector.itemLimited
 
-  override def itemLimited_=(s: Boolean): Unit = ???
+  override def itemLimited_=(s: Boolean): Unit = throw new UnsupportedOperationException(s"itemLimited_ not allowed")
 
   /**
    */
@@ -107,7 +110,6 @@ class ZapFlexRouteAnyVal(index: TeslaFlexSlotIndex) extends AnyVal with ZapFlexR
   /**
    * Return true if the FSM is in a specific step.
    *
-   * @param step
    * @return
    */
   override def routeFsmInStep(step: FeltRouteStepKey): Boolean =

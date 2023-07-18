@@ -8,23 +8,11 @@ else
   appName="${APP_NAME}"
 fi
 
-if [ "$CPU_REQUEST" == "" ]; then
-  CPU_REQUEST="1"
-fi
-if [ "$JAVA_NMT_OPTS" == "" ]; then
-  JAVA_NMT_OPTS="-XX:NativeMemoryTracking=summary -XX:+PrintNMTStatistics"
-fi
 if [ "$EXTRA_JAVA_OPTS" == "" ]; then
   EXTRA_JAVA_OPTS=""
 fi
 if [ "$FAB_MONIKER" == "" ]; then
   FAB_MONIKER="$POD_NAME"
-fi
-if [ "$JVM_DIRECT" == "" ]; then
-  JVM_DIRECT="4"
-fi
-if [ "$JVM_HEAP" == "" ]; then
-  JVM_HEAP="2"
 fi
 if [ "$SAMPLESTORE_HOST" == "" ]; then
   SAMPLESTORE_HOST="unknown"
@@ -44,8 +32,13 @@ eval "SSL_CERT_BUNDLE_PATH=${SSL_CERT_BUNDLE_PATH}"
 eval "BURST_SUPERVISOR_HOST=${BURST_SUPERVISOR_HOST}"
 
 # make sure important dirs exist
-mkdir -p ${BURST_HOME}/logs/dump
+ERROR_DIR=${BURST_HOME}/logs/dump
+mkdir -p ${ERROR_DIR}
+containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/crash-%p.log"
+containerOpts="${containerOpts} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ERROR_DIR}"
+
 mkdir -p ${BURST_HOME}/classpath-files
+
 if [ "${SPINDLE_DIR}" == "" ]; then
     SPINDLE_DIR=${BURST_HOME}/data1/burst
 fi
@@ -59,26 +52,6 @@ if [ -f "${PRESTART_HOME}/pre-start.sh" ]; then
   didPrestart=$?
 else
   didPrestart=0
-fi
-
-######################################################
-# additional java options if desired such as heap size
-######################################################
-containerOpts="${containerOpts} -XX:+UseG1GC -XX:MaxGCPauseMillis=100"
-containerOpts="${containerOpts} --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
-containerOpts="${containerOpts} -XX:+UnlockDiagnosticVMOptions"
-containerOpts="${containerOpts} -XX:ErrorFile=${ERROR_DIR}/burst-crash-%p.log"
-containerOpts="${containerOpts} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ERROR_DIR}"
-containerOpts="${containerOpts} -Xss2M -Xmx${JVM_HEAP} -XX:MaxDirectMemorySize=${JVM_DIRECT}"
-
-if [ "$JAVA_NMT_OPTS" != "" ]; then
-  containerOpts="${containerOpts} $JAVA_NMT_OPTS"
-fi
-
-if [ "${WORKLOAD}" = "worker" ]; then
-    containerOpts="${containerOpts} -XX:ReservedCodeCacheSize=2G -XX:+PrintCodeCache"
-    containerOpts="${containerOpts} -XX:-ResizePLAB -XX:+ParallelRefProcEnabled -XX:MetaspaceSize=${JVM_METADATA:-256M}"
-    containerOpts="${containerOpts} -XX:+UseStringDeduplication"
 fi
 
 cellName="$DEPLOY_ENV"
@@ -98,7 +71,6 @@ if [ "${WORKLOAD}" = "supervisor" ]; then
 
 elif [ "${WORKLOAD}" = "worker" ]; then
     mainClass="org.burstsys.worker.BurstWorkerMain"
-    envConfig="${envConfig} -Dburst.fabric.worker.core.count=${CPU_REQUEST}"
     envConfig="${envConfig} -Dburst.cell.supervisor.host=${BURST_SUPERVISOR_HOST}"
     envConfig="${envConfig} -Dburst.catalog.api.host=${BURST_SUPERVISOR_HOST}"
     envConfig="${envConfig} -Dburst.agent.api.host=${BURST_SUPERVISOR_HOST}"
@@ -128,5 +100,5 @@ fi
 
 while [ "$KEEPALIVE" != "" ]; do
   echo "KEEPALIVE set '$KEEPALIVE'"
-  sleep 10
+  sleep 300
 done

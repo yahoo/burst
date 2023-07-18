@@ -15,7 +15,7 @@ trait TeslaParcelInflator extends Any with TeslaParcel with TeslaParcelState {
 
   @inline final override
   def inflateTo(destination: TeslaMemoryPtr): Long = {
-    lazy val tag = s"TeslaParcelInflator.inflateTo(blockPtr=${blockPtr}, destination=$destination)"
+    lazy val tag = s"TeslaParcelInflator.inflateTo(blockPtr=$blockPtr, destination=$destination)"
     if (isInflated)
       throw VitalsException(s"ALREADY_INFLATED $this $tag")
     try {
@@ -28,7 +28,7 @@ trait TeslaParcelInflator extends Any with TeslaParcel with TeslaParcelState {
       inflatedSize
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"COULD_NOT_INFLATE $this  $tag", t)
+        log error(burstStdMsg(s"COULD_NOT_INFLATE $this  $tag", t), t)
         throw t
     }
   }

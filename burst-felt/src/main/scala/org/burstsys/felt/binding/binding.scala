@@ -29,7 +29,7 @@ package object binding extends VitalsLogger {
           map put (binding.name, binding)
         } catch {
           case t: Throwable =>
-            log error s"FELT_BINDING_MAP_FAIL ${bindClass.getName} $t"
+            log error(s"FELT_BINDING_MAP_FAIL ${bindClass.getName} $t", t)
         }
     }
     map.asScala.toMap

@@ -46,9 +46,9 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder with System
           stream.stopHeartbeat()
       } onComplete {
         case Failure(t) =>
-          log warn burstStdMsg(s"$handler failed to process parcel stream", t)
+          log warn burstStdMsg(s"$handler failed to process parcel stream $stream", t)
         case Success(_) =>
-          log info burstStdMsg(s"$handler finished processing parcel stream in ${System.nanoTime() - start} nanos")
+          log info burstStdMsg(s"$handler finished processing parcel stream $stream in ${System.nanoTime() - start} nanos")
       }
     }
   }
@@ -86,7 +86,7 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder with System
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status: AnyRef = {
+  override def status(level: Int): AnyRef = {
     case class StatusResponse(feedStreamRequests: Array[FeedStreamRequest] = _requests.asScala.toArray )
     StatusResponse()
   }

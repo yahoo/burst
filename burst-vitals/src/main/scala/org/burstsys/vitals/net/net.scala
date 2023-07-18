@@ -81,7 +81,7 @@ package object net extends VitalsLogger {
     } catch safely {
       case t: Throwable =>
         val msg = burstStdMsg(s"hostname: '$hostname'", t)
-        log error msg
+        log error(msg, t)
         throw new RuntimeException(msg, t)
     }
 
@@ -99,7 +99,7 @@ package object net extends VitalsLogger {
     } catch safely {
       case t: Throwable =>
         val msg = burstStdMsg(s"hostname: '$ipAddress'", t)
-        log error msg
+        log error(msg, t)
         throw new RuntimeException(msg, t)
     }
 

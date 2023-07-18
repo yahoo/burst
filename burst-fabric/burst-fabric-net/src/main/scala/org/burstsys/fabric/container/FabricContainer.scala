@@ -148,7 +148,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
               if (webServerStartTries > 0)
                 Thread.sleep(100)
               else {
-                log error burstStdMsg(s"Unable to bind web server port ${configuration.burstHttpPortProperty.asOption}")
+                log error(burstStdMsg(s"Unable to bind web server port ${configuration.burstHttpPortProperty.asOption}"),b)
                 throw b
               }
             case e =>
@@ -164,7 +164,7 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
       log info s"FABRIC_CONTAINER_BOOT $serviceName containerId=$containerId"
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     }
     this
@@ -182,9 +182,17 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
     log info s"Configured TLS protocols:     ${Option(sslConfig.getEnabledProtocols).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
     log info s"Configured TLS cipher suites: ${Option(sslConfig.getEnabledCipherSuites).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
     _server = GrizzlyHttpServerFactory.createHttpServer(uri, application, useHttps, sslConfig, false)
+    for (nl: NetworkListener <- _server.getListeners.asScala) {
+      val threadPoolSize = configuration.burstHttpThreadPoolSizeProperty.get
+      nl.getTransport.getWorkerThreadPoolConfig.setCorePoolSize(threadPoolSize)
+      nl.getTransport.getWorkerThreadPoolConfig.setMaxPoolSize(2 * threadPoolSize)
+    }
+
     val websockets: WebSocketAddOn = new WebSocketAddOn()
     for (nl: NetworkListener <- _server.getListeners.asScala) {
       nl.registerAddOn(websockets)
+      nl.getTransport.getWorkerThreadPoolConfig.setCorePoolSize(5)
+      nl.getTransport.getWorkerThreadPoolConfig.setMaxPoolSize(10)
     }
     _server.start()
     _webSocketService = FabricWebSocketService().start

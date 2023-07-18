@@ -2,16 +2,10 @@
 package org.burstsys.fabric.container.http.endpoints
 
 import jakarta.inject.Inject
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.Produces
-import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
-import org.burstsys.vitals
-import org.burstsys.vitals.reporter.instrument.prettyTimeFromMillis
-import org.burstsys.vitals.sysinfo.{SystemInfo, SystemInfoComponent, SystemInfoService}
-
-import scala.annotation.unused
+import jakarta.ws.rs.core.{MediaType, Response}
+import jakarta.ws.rs.{DefaultValue, GET, Path, Produces, QueryParam}
+import org.burstsys.fabric.container.http.endpoints.params.IntParam
+import org.burstsys.vitals.sysinfo.SystemInfo
 
 @Path("/system")
 @Produces(Array(MediaType.APPLICATION_JSON))
@@ -21,14 +15,17 @@ class FabricHttpSystemInfoEndpoint {
   private var systemInfo: SystemInfo = _
 
   @GET
-  def systemStatus(): Response = {
+  def systemStatus(
+                  @DefaultValue("0") @QueryParam("level") level: IntParam
+                  ): Response = {
     Response.ok(
       SystemInfoStatus(
+        level.value.getOrElse(0),
         systemInfo.systemStatus(),
-        systemInfo.components.map(f => f.name -> f.status).toMap
+        systemInfo.components.map(f => f.name -> f.status(level.value.getOrElse(0))).toMap
       )
     ).build()
   }
-  case class SystemInfoStatus(systemStatus: Object, components: Map[String, Object])
+  case class SystemInfoStatus(level: Int, systemStatus: Object, components: Map[String, Object])
 
 }

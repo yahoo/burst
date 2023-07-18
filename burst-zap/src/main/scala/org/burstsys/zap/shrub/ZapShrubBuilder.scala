@@ -21,8 +21,6 @@ final case
 class ZapShrubBuilderContext() extends FeltShrubBuilderContext with ZapShrubBuilder {
   var defaultStartSize: TeslaMemorySize = flex.defaultStartSize
 
-  override def requiredMemorySize: TeslaMemoryOffset = ???
-
   ///////////////////////////////////////////////////////////////////////////////////
   // KRYO SERIALIZATION
   ///////////////////////////////////////////////////////////////////////////////////

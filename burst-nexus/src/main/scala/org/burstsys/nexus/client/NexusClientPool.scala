@@ -67,14 +67,14 @@ trait NexusClientPool extends AnyRef {
           _clientCache.remove(hostPort) match {
             case null =>
               log error s"NexusPool REMOVE NOT FOUND!! endpoint(serverHost=${hostPort._1}, serverPort=${hostPort._2})"
-
             case endpoint =>
               endpoint.stopAll()
           }
         }
       }
     } catch safely { // catch here to prevent the background function from dying
-      case t: Throwable => log error burstStdMsg(t)
+      case t: Throwable =>
+        log error(burstStdMsg(t), t)
     }
   )
 

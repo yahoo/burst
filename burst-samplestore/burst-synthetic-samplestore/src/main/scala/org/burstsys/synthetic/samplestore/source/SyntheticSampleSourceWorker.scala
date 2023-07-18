@@ -1,16 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.synthetic.samplestore.source
 
-import org.burstsys.brio
 import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.provider.SyntheticDataProvider
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
+import org.burstsys.samplestore.pipeline
 import org.burstsys.synthetic.samplestore.configuration.{defaultItemCountProperty, defaultMaxItemSizeProperty, defaultPressTimeoutProperty, syntheticDatasetProperty}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors.{VitalsException, safely}
-import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -60,9 +60,12 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
         val finished = new CountDownLatch(itemCount)
         dataProvider.data(itemCount, stream.properties).foreach(item => {
           val pressSource = dataProvider.pressSource(item)
-          val pressedItem = brio.press.pipeline.pressToFuture(stream.guid, pressSource, schema, item.schemaVersion, maxItemSize)
+          val pressedItem = pipeline.pressToFuture(stream, pressSource, schema, item.schemaVersion, maxItemSize)
           pressedItem
-            .map({ buffer => stream.put(buffer) })
+            .map({ result =>
+              if (log.isDebugEnabled)
+                log debug burstLocMsg(s"job=${result._1} size=${result._2} on stream")
+            })
             .recover({ case _ => rejectedItemCounter.incrementAndGet() })
             .andThen({ case _ => finished.countDown() })
         })

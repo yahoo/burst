@@ -85,7 +85,9 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
 
   private val _initiateReceived: Condition = _gate.newCondition()
 
-  private val _isStreamingData = new AtomicBoolean(false)
+  private val _isInitiated = new AtomicBoolean(false)
+
+  private val _isTerminated = new AtomicBoolean(false)
 
   private var _startTime: Long = _
 
@@ -142,7 +144,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
   // API
   ////////////////////////////////////////////////////////////////////////////////////
 
-  override def isActive: Boolean = _isStreamingData.get
+  override def isActive: Boolean = _isInitiated.get && !_isTerminated.get
 
   override def startStream(
                             guid: VitalsUid, suid: NexusStreamUid, properties: VitalsPropertyMap, schema: BrioSchemaName, filter: BurstMotifFilter,
@@ -153,6 +155,10 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       log warn s"$hdr already in a stream"
       throw VitalsException(s"$hdr already in a stream")
     }
+
+    _isInitiated.set(false)
+    _isTerminated.set(false)
+
     startMetrics()
     log info s"$hdr"
     transmitter.transmitControlMessage(
@@ -164,7 +170,8 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       _stream = NexusStream(connection = this, guid, suid, properties, schema, filter, pipe, sliceKey, clientHostname, serverHostname)
       waitForStreamStart(_stream)
       _stream
-    } finally _gate.unlock()
+    } finally
+      _gate.unlock()
   }
 
   private def waitForStreamStart(stream: NexusStream): Unit = {
@@ -177,7 +184,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       var waits = 0
       var waitElapsed = 0L
       val waitStart = System.nanoTime()
-      while (!(isActive || waitTimeout)) {
+      while (!(_isInitiated.get || waitTimeout)) {
 
         // wait for server connection
         _initiateReceived.await(initiateWaitPeriodMs, TimeUnit.MILLISECONDS)
@@ -208,10 +215,11 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       case t: Throwable =>
         NexusClientReporter.onClientStreamFail()
         NexusClientStreamStartTrekMark.fail(span)
-        log error burstStdMsg(s"FAIL $t $tag", t)
+        log error(burstStdMsg(s"FAIL $t $tag", t), t)
         stream.completeExceptionally(t)
         throw t
-    } finally _gate.unlock()
+    } finally
+      _gate.unlock()
   }
 
   override def onStreamInitiatedMsg(msg: NexusStreamInitiatedMsg): Unit = {
@@ -228,7 +236,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
           log warn s"$hdr already in stream"
           throw VitalsException(s"NEXUS_ALREADY_IN_STREAM $hdr")
         }
-        _isStreamingData.set(true)
+        _isInitiated.set(true)
         _initiateReceived.signalAll()
       } finally _gate.unlock()
 
@@ -236,7 +244,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       _initiatedNanos = System.nanoTime()
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"$hdr", t)
+        log error(burstStdMsg(s"$hdr", t), t)
         _stream.completeExceptionally(t)
     }
   }
@@ -269,7 +277,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
 
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"NEXUS_PARCEL_FAIL $tag", t)
+        log error(burstStdMsg(s"NEXUS_PARCEL_FAIL $tag", t), t)
         _stream.completeExceptionally(t)
     }
   }
@@ -311,7 +319,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
              |  ${prettyRateString("byte", _byteCount.longValue, elapsedNanos)} ,
    """.stripMargin
 
-        _isStreamingData.set(false)
+        _isTerminated.set(true)
         _stream.complete(msg.itemCount, msg.expectedItemCount, msg.potentialItemCount, msg.rejectedItemCount, msg.marker)
         forward(_.onStreamComplete(msg))
 
@@ -319,17 +327,17 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
         NexusClientStreamTerminateTrekMark.end(span)
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t)
+          log error(burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t), t)
           NexusClientReporter.onClientStreamFail()
           NexusClientStreamTerminateTrekMark.fail(span)
           _stream.completeExceptionally(t)
-          _isStreamingData.set(false)
+          _isTerminated.set(true)
       }
-    } finally _stream = null
+    }
   }
 
   override def abortStream(status: TeslaParcelStatus): Unit = {
-    _isStreamingData.set(false)
+    _isTerminated.set(true)
     transmitter.transmitControlMessage(
       NexusStreamAbortMsg(_stream, status)
     )
@@ -349,7 +357,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
       }
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"NEXUS_HEARTBEAT_FAIL $tag", t)
+        log error(burstStdMsg(s"NEXUS_HEARTBEAT_FAIL $tag", t), t)
         _stream.completeExceptionally(t)
     }
   }

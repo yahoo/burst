@@ -4,6 +4,7 @@ package org.burstsys.felt.compile
 import org.burstsys.felt.compile.artifact.{FeltArtifactKey, FeltArtifactTag}
 import org.burstsys.felt.model.tree.code.FeltCode
 import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.logging.burstStdMsg
 
 import java.io.{File, FileOutputStream}
 import java.net.URL
@@ -29,17 +30,12 @@ trait FeltCompiler extends Any {
    * restarting is done via tracking of logical compiler versions. Tmp jar files URLs are added to the new
    * compiler version's classpaths.
    *
-   * @param source
-   * @return an array of classnames added classpath
    */
   def generatedSourceToTravelerClassNames(key: FeltArtifactKey, tag: FeltArtifactTag, source: FeltCode): Try[Array[String]]
 
   /**
    * This is used when code generating classes classes that are not used by other code generations but just
    * require instantiation and immediate application as an object instance.
-   *
-   * @param source
-   * @return
    */
   def generatedSourceToSweepInstance(key: FeltArtifactKey, tag: FeltArtifactTag, source: FeltCode): Try[Array[Any]]
 
@@ -116,10 +112,8 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
   }
 
   /**
-   *
-   * @param tag common tag across all classes in speclist
-   * @param specList
-   * @return a set of instantiated classes from spec list
+   * given a tag that covers all classes, and a source compilation unit, return
+   * all compiled classes as an array of {className, bytecode} tuples
    */
   private
   def instantiateSpecListToClassLoader(key: FeltArtifactKey, tag: FeltArtifactTag, specList: FeltClassSpecList, source: FeltCode): Array[FeltArtifactInstance] = {
@@ -162,10 +156,6 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
   /**
    * given a tag that covers all classes, and a source compilation unit, return
    * all compiled classes as an array of {className, bytecode} tuples
-   *
-   * @param tag
-   * @param compilationUnit
-   * @return
    */
   private
   def compileClassSourceToClassSpecs(tag: FeltArtifactTag, compilationUnit: FeltCode): Try[FeltClassSpecList] = {
@@ -179,7 +169,7 @@ class FeltCompilerContext(version: Int) extends FeltCompiler {
       Success(bytecode)
     } catch safely {
       case t: Throwable =>
-        log error s"Compile error (classpath=${_global.classPath.asClassPathString})"
+        log error(burstStdMsg(s"Compile error (classpath=${_global.classPath.asClassPathString})", t), t)
         Failure(t)
     }
   }

@@ -46,11 +46,10 @@ trait FeltCollector extends Any with TeslaPooledResource with FeltKryoSerializab
   /**
    * set the number of rows in the cube
    *
-   * @param count
    */
   def itemCount_=(count: Int): Unit
 
-  def size(): TeslaMemorySize = 0
+  def size(): TeslaMemorySize
 
   /**
    * true is a fixed row limit was exceeded

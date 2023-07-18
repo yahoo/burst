@@ -29,8 +29,6 @@ trait NexusServerConnection extends NexusConnection with NexusServerMsgListener 
   /**
     * optional listener for the protocol
     *
-    * @param listener
-    * @return
     */
   def talksTo(listener: NexusServerListener): this.type
 
@@ -87,7 +85,7 @@ class NexusServerConnectionContext(channel: Channel, transmitter: NexusTransmitt
 
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(t)
+        log error(burstStdMsg(t), t)
         throw t
     } finally _gate.unlock()
   }

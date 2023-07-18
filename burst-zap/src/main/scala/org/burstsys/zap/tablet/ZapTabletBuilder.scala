@@ -20,8 +20,6 @@ object ZapTabletBuilder {
 private final case
 class ZapTabletBuilderContext(itemSize:  Int) extends FeltTabletBuilderContext with ZapTabletBuilder {
 
-  override def requiredMemorySize: TeslaMemorySize = FeltDefaultTabletSize
-
   ///////////////////////////////////////////////////////////////////////////////////
   // KRYO SERIALIZATION
   ///////////////////////////////////////////////////////////////////////////////////

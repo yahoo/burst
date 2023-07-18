@@ -1,31 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--This config used in the running system, not during tests-->
 <Configuration status="info" packages="org.burstsys.vitals.logging" monitorInterval="30" >
-    <Appenders>
-        <Console name="console" target="SYSTEM_OUT">
-        </Console>
-        <RollingFile name="file" fileName="${sys:log.home}/logs/burst-${sys:burst.log.location}.log"
-                filePattern="${sys:log.home}/logs/burst-${sys:burst.log.location}.%i.log" >
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="250 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-        <Async name="asyncFile">
-            <AppenderRef ref="file"/>
-            <blocking>false</blocking>
-            <bufferSize>524288</bufferSize>
-        </Async>
-        <Fanout name="fan">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss:SSS zzz} [deployment=${sys:deploymentName:-local}][%-5p][%-8t] %m%n"/>
-            <AppenderRef ref="console"/>
-            <AppenderRef ref="asyncFile"/>
-        </Fanout>
-    </Appenders>
+    <Console name="console" target="SYSTEM_OUT">
+        <PatternLayout pattern="%d{HH:mm:ss:SSS} [%-5p][%-37t] %m%n"/>
+    </Console>
     <Loggers>
-        <Root level="${sys:burst.loglevel:-info}">
-            <AppenderRef ref="fan"/>
+        <Root level="${sys:burst.loglevel:-info}" includeLocation="true">
+            <AppenderRef ref="console"/>
         </Root>
         <Logger name="org.reflections" level="error"/>
         <Logger name="com.twitter" level="warn"/>

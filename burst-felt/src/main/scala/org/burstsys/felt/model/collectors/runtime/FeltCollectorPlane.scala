@@ -7,6 +7,7 @@ import org.burstsys.fabric.wave.execution.model.gather.plane.FabricPlane
 import org.burstsys.felt
 import org.burstsys.felt.binding.FeltBinding
 import org.burstsys.felt.model.frame.FeltFrameElement
+import org.burstsys.tesla.part.teslaBuilderUseDefaultSize
 import org.burstsys.vitals.errors.{VitalsException, _}
 
 /**
@@ -22,30 +23,14 @@ class FeltCollectorPlane[B <: FeltCollectorBuilder, C <: FeltCollector]
    */
   def planeCollector: FeltCollector
 
-  /**
-   *
-   * @param c
-   */
   def planeCollector_=(c: FeltCollector): Unit
 
   def planeBinding: FeltBinding
 
-  /**
-   *
-   * @return
-   */
   def planeBuilder: B
 
   def newBuilder(): B
 
-  /**
-   *
-   * @param uid
-   * @param planeName
-   * @param builder
-   * @param binding
-   * @return
-   */
   def init(builder: FeltCollectorBuilder): this.type
 }
 
@@ -131,7 +116,8 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
     _planeName = builder.frameName
     _planeBinding = builder.binding
     _planeBuilder = builder.asInstanceOf[B]
-    _planeCollector = grabCollector(_planeBuilder, 0)
+    val desiredSize = builder.defaultStartSize
+    _planeCollector = grabCollector(_planeBuilder, desiredSize)
     resetConstraintFlags()
     this
   }
@@ -163,7 +149,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
 
   override
   def write(kryo: Kryo, output: Output): Unit = {
-    lazy val tag = s"FeltCollectorPlane.write(planeId=${planeId}, planeName=${planeName})"
+    lazy val tag = s"FeltCollectorPlane.write(planeId=$planeId, planeName=$planeName)"
     try {
 
       transferTallies()
@@ -176,7 +162,8 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
       writeOutcome(kryo, output)
 
       _planeBuilder.write(kryo, output)
-      output writeInt _planeCollector.size()
+      val s = _planeCollector.size()
+      output writeInt s
       _planeCollector.write(kryo, output)
     } catch safely {
       case t: Throwable =>
@@ -187,13 +174,10 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
 
   /**
    * reads are collecting results from worker slices for supervisor aggregation.
-   *
-   * @param kryo
-   * @param input
    */
   override
   def read(kryo: Kryo, input: Input): Unit = {
-    lazy val tag = s"FeltCollectorPlane.read(planeId=${planeId}, planeName=${planeName})"
+    lazy val tag = s"FeltCollectorPlane.read(planeId=$planeId, planeName=$planeName)"
     try {
 
       _planeId = input.readInt()
@@ -207,7 +191,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
       _planeBuilder.read(kryo, input)
 
       val desiredSize = input.readInt()
-       _planeCollector = grabCollector(_planeBuilder, desiredSize)
+      _planeCollector = grabCollector(_planeBuilder, desiredSize)
       _planeCollector.read(kryo, input)
     } catch safely {
       case t: Throwable =>
@@ -231,7 +215,7 @@ class FeltCollectorPlaneContext[B <: FeltCollectorBuilder, C <: FeltCollector]
   override
   def toString: String = {
     s"""FeltCollectorPlane(
-       | planeId=${planeId}, planeName=${planeName} rowCount=${rowCount} rowLimitExceeded=${rowLimitExceeded}
+       | planeId=$planeId, planeName=$planeName rowCount=$rowCount rowLimitExceeded=$rowLimitExceeded
        |  $outcomeAsString
        |)
      """.stripMargin

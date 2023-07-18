@@ -283,7 +283,7 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
    *
    * @return Case class that will be serialized to Json
    */
-  override def status: AnyRef = {
+  override def status(level: Int): AnyRef = {
     case class TopologyStatus(healthyWorkers: Array[FabricWorkerNode] = healthyWorkers.map(_.forExport))
     TopologyStatus()
   }

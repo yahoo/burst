@@ -55,9 +55,9 @@ package object mini extends VitalsLogger {
           val blobBuffer = tesla.buffer.factory.grabBuffer(1e6.toInt)
           val dictionary = brio.dictionary.factory.grabMutableDictionary()
           val sink = BrioPressSink(pressBuffer, dictionary)
-          val presser = BrioPresser(d.schema, sink, d.presser(item))
+          val presser = BrioPresser(sink)
           try {
-            presser.press
+            presser.press(d.schema, d.presser(item))
             BrioBlobEncoder.encodeV2Blob(sink.buffer, d.rootVersion, sink.dictionary, blobBuffer)
             blobBuffer
           } finally {

@@ -89,8 +89,9 @@ class NexusReceiver(
           dispatchMessage(NexusStreamAbortMsg(buffer), serverListener.onStreamAbortMsg)
 
         case mt =>
-          log warn burstStdMsg(s"Unknown message type: $mt")
-          ???
+          val e = VitalsException(s"Unknown message type: $mt")
+          log error(burstStdMsg(e), e)
+          throw e
       }
     }
   }
@@ -104,8 +105,9 @@ class NexusReceiver(
       cb(msg)
     } catch safely {
       case t: Throwable =>
-        log error burstLocMsg(s"Failed to dispatch: $msg", t)
-    } finally Thread.currentThread().setName(oldName)
+        log error(burstLocMsg(s"Failed to dispatch: $msg", t), t)
+    } finally
+      Thread.currentThread().setName(oldName)
   }
 
 }

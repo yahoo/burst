@@ -30,6 +30,12 @@ package object configuration extends VitalsPropertyRegistry {
   // HTTP
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  val burstHttpThreadPoolSizeProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+    key = "burst.fabric.http.threadpool.size",
+    description = "size of the thread pool for the HTTP server",
+    default = Some(5)
+  )
+
   final val defaultHttpPort: Int = 443
 
   val burstHttpHostProperty: VitalsPropertySpecification[String] = VitalsPropertySpecification[String](

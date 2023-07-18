@@ -157,7 +157,7 @@ trait FabricSnapImage extends KryoSerializable {
       this
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"SNAP_DELETE_FAIL $t $tag", t)
+        log error(burstStdMsg(s"SNAP_DELETE_FAIL $t $tag", t), t)
         throw t
     }
   }
@@ -188,7 +188,7 @@ trait FabricSnapImage extends KryoSerializable {
 
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
+        log error(burstStdMsg(s"FAIL $t $tag", t), t)
         throw t
     }
   }

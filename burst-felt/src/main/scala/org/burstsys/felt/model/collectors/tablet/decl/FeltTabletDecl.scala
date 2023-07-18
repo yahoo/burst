@@ -96,7 +96,7 @@ trait FeltTabletDecl extends FeltCollectorDecl[FeltTabletRef, FeltTabletBuilder]
     final override val typeDeclaration: FeltPrimTypeDecl = FeltTabletDecl.this.typeDeclaration
     final override val location: FeltLocation = FeltTabletDecl.this.location
     final override val membersDecl: FeltTabletMembersDecl = FeltTabletDecl.this.membersDecl
-    sync(FeltTabletDecl.this)
+    this.sync(FeltTabletDecl.this)
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////

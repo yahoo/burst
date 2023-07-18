@@ -1,18 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.catalog.test.support
 
-import org.burstsys.catalog.persist.UdkCatalogEntity
-import org.burstsys.catalog.persist.UdkCatalogEntityPersister
-import org.burstsys.relate.dialect.RelateDerbyDialect
-import org.burstsys.relate.dialect.RelateMySqlDialect
-import org.burstsys.relate.RelateEntity
-import org.burstsys.relate.RelatePk
-import org.burstsys.relate.RelateService
-import org.burstsys.relate.TableCreateSql
+import org.burstsys.catalog.persist.{UdkCatalogEntity, UdkCatalogEntityPersister}
+import org.burstsys.relate.{RelateEntity, RelatePk, RelateService, TableCreateSql}
+import org.burstsys.relate.dialect.{RelateDerbyDialect, RelateMySqlDialect}
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.properties.VitalsPropertyMap
-import org.burstsys.vitals.properties.optionalPropertyMapToString
-import org.burstsys.vitals.properties.stringToOptionalPropertyMap
+import org.burstsys.vitals.properties.{VitalsPropertyMap, optionalPropertyMapToString, stringToOptionalPropertyMap}
 import scalikejdbc._
 
 case class TestUdkEntity(
@@ -83,10 +76,10 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
         WHERE
          ${this.column.pk} = {pk}
         """.bindByName(
-      Symbol("pk") -> entity.pk,
-      Symbol("udk") -> entity.udk.orNull,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels)
+      "pk" -> entity.pk,
+      "udk" -> entity.udk.orNull,
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels)
     )
   }
 
@@ -99,9 +92,9 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
         WHERE
          ${this.column.udk} = {udk}
         """.bindByName(
-      Symbol("udk") -> entity.udk.orNull,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels)
+      "udk" -> entity.udk.orNull,
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels)
     )
   }
 
@@ -119,9 +112,9 @@ case class TestUdkEntityPersister(service: RelateService) extends UdkCatalogEnti
         VALUES
          ({udk}, {moniker}, {labels})
         """.bindByName(
-      Symbol("udk") -> entity.udk.orNull,
-      Symbol("moniker") -> entity.moniker,
-      Symbol("labels") -> optionalPropertyMapToString(entity.labels)
+      "udk" -> entity.udk.orNull,
+      "moniker" -> entity.moniker,
+      "labels" -> optionalPropertyMapToString(entity.labels)
     )
   }
 

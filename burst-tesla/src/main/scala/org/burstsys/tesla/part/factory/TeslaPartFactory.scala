@@ -2,14 +2,14 @@
 package org.burstsys.tesla.part.factory
 
 import java.util.concurrent.atomic.AtomicInteger
-
 import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.block.factory.TeslaBlockSizes
 import org.burstsys.tesla.part.{TeslaPartPool, maxPoolsPerPart}
 import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.tesla.thread
+import org.burstsys.tesla.{part, thread}
 import org.burstsys.vitals.errors.VitalsException
 import gnu.trove.map.hash.TIntObjectHashMap
+import org.burstsys.vitals.logging.burstStdMsg
 
 import scala.reflect.ClassTag
 
@@ -67,7 +67,7 @@ abstract class TeslaPartFactory[FactoryPart, PartPool <: TeslaPartPool[FactoryPa
    *
    * @return
    */
-  final def poolSizeAsPercentOfDirectMemory: Double = 0.05
+  def poolSizeAsPercentOfDirectMemory: Double = 0.05
 
   /**
    * instantiate the specialized part pool for this part type
@@ -135,6 +135,7 @@ abstract class TeslaPartFactory[FactoryPart, PartPool <: TeslaPartPool[FactoryPa
     var map = _threadMaps.get
     if (map == null) {
       // we hit a fixed thread pool - it makes sense to give it the full thread bound pool array
+      part.log trace burstStdMsg(s"create pool map binding=${Thread.currentThread.getName}")
       _threadMaps.set(instantiatePoolMap())
       map = _threadMaps.get
     }

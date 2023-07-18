@@ -50,6 +50,6 @@ class VitalsReporterPercentValueMetricContext(name: String) extends VitalsReport
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   override def record(value: Double): Unit = {
-    _valueHist.record(externalToInternal(value).toDouble)
+    _valueHist.record(externalToInternal(value).toDouble, metricAttributes)
   }
 }

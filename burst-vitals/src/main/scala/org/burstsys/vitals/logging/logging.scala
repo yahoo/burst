@@ -11,13 +11,14 @@ import sourcecode.Pkg
 import java.io.{PrintWriter, StringWriter}
 import java.lang.management.ManagementFactory
 import java.lang.management.ThreadInfo
+import java.util.regex.Pattern
 import scala.annotation.unused
 import scala.collection.mutable
 import scala.language.implicitConversions
 
 package object logging extends VitalsLogger {
-
-  def packageToModuleName(pkg: Pkg): String = s"BURST${pkg.value.stripPrefix(burstPackage).toUpperCase.replaceAll("\\.", "_")}"
+  private def packagePattern = Pattern.compile("\\.")
+  def packageToModuleName(pkg: Pkg): String = s"BURST${packagePattern.matcher(pkg.value.stripPrefix(burstPackage).toUpperCase).replaceAll("_")}"
 
   private[logging] def bridgeJul: this.type = {
     System.setProperty("java.util.logging.manager", classOf[org.apache.logging.log4j.jul.LogManager].getName)

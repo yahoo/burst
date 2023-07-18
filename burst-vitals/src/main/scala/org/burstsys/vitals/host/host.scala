@@ -59,6 +59,11 @@ package object host extends VitalsLogger {
   def mappedMemoryUsed: Long = mappedMemoryPoolBean.map(_.getMemoryUsed).getOrElse(-1)
 
 
+  private def directMemoryPoolBean = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.find(_.getName == "direct")
+
+  def directMemoryUsed: Long = directMemoryPoolBean.map(_.getMemoryUsed).getOrElse(-1)
+
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // OS (all processes) Memory
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

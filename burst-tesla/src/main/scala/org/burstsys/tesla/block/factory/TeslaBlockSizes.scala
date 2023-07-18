@@ -2,9 +2,10 @@
 package org.burstsys.tesla.block.factory
 
 import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
-import org.burstsys.tesla.offheap
+import org.burstsys.tesla.{block, offheap}
 import org.burstsys.tesla.block._
 import org.burstsys.vitals
+import org.burstsys.vitals.logging.burstStdMsg
 
 /**
   * helper functions for block sizes
@@ -16,17 +17,22 @@ object TeslaBlockSizes {
   final val pageSize: TeslaMemorySize = offheap.pageSize
 
   /**
-    * we preallocate all these sizes for each thread
-    * TODO make this just an array of page quanta and build the other structures at init time.
-    */
-  val blockSizes: Array[TeslaMemorySize] = Array[TeslaMemorySize](
-    pageSize, 2 * pageSize, 4 * pageSize, 8 * pageSize, 16 * pageSize, 32 * pageSize,
-    64 * pageSize, 128 * pageSize, 256 * pageSize, 1024 * pageSize, 2048 * pageSize,
-    4096 * pageSize, 8192 * pageSize, 16384 * pageSize, 32768 * pageSize, 65536 * pageSize, 131072 * pageSize
-  )
+   * we preallocate all these sizes for each thread
+   * make sure we don't overflow
+   * TODO make this just an array of page quanta and build the other structures at init time.
+   */
+  val blockSizes: Array[TeslaMemorySize] = {
+    block.log info s"calculating block size options:"
+    (for (i <- 0 to 16) yield {
+      Math.exp(i).toLong*pageSize
+    }).filter(_ < Int.MaxValue).map{s =>
+      block.log info s"block size: $s (${ vitals.reporter.instrument.prettyByteSizeString(s)})"
+      s.toInt
+    }.toArray
+  }
 
   @inline final
-  def findBlockSize(byteSize: TeslaMemorySize): TeslaMemorySize = blockSize(byteSize + SizeofBlockHeader)
+  def findBlockSize(byteSize: TeslaMemorySize): TeslaMemorySize = blockSize(byteSize)
 
   // TODO SizeofBlockHeader accounted for twice
 
@@ -39,35 +45,23 @@ object TeslaBlockSizes {
   @inline private[block]
   def blockSize(byteSize: TeslaMemorySize): TeslaMemorySize = {
 
-    // TODO optimize this - use bit shifting to align to next highest page size somehow
-    @inline
-    def between(value: TeslaMemorySize, low: TeslaMemorySize, high: TeslaMemorySize): Boolean =
-      value >= low && value < high
-
     // here we allow for the size of the memory block header
-    val size = byteSize + SizeofBlockHeader match {
-      // TODO SizeofBlockHeader accounted for twice
-      case s if between(s, 0, pageSize) => pageSize
-      case s if between(s, pageSize, 2 * pageSize) => 2 * pageSize
-      case s if between(s, 2 * pageSize, 4 * pageSize) => 4 * pageSize
-      case s if between(s, 4 * pageSize, 8 * pageSize) => 8 * pageSize
-      case s if between(s, 8 * pageSize, 16 * pageSize) => 16 * pageSize
-      case s if between(s, 16 * pageSize, 32 * pageSize) => 32 * pageSize
-      case s if between(s, 32 * pageSize, 64 * pageSize) => 64 * pageSize
-      case s if between(s, 64 * pageSize, 128 * pageSize) => 128 * pageSize
-      case s if between(s, 128 * pageSize, 256 * pageSize) => 256 * pageSize
-      case s if between(s, 256 * pageSize, 1024 * pageSize) => 1024 * pageSize
-      case s if between(s, 1024 * pageSize, 2048 * pageSize) => 2048 * pageSize
-      case s if between(s, 2048 * pageSize, 4096 * pageSize) => 4096 * pageSize
-      case s if between(s, 4096 * pageSize, 8192 * pageSize) => 8192 * pageSize
-      case s if between(s, 8192 * pageSize, 16384 * pageSize) => 16384 * pageSize
-      case s if between(s, 16384 * pageSize, 32768 * pageSize) => 32768 * pageSize
-      case s if between(s, 32768 * pageSize, 65536 * pageSize) => 65536 * pageSize
-      case s if between(s, 65536 * pageSize, 131072 * pageSize) => 131072 * pageSize
-      case _ =>
+    val size = {
+      val desired = byteSize + SizeofBlockHeader
+      var chosen = 0
+      var i = 0
+      while (chosen == 0 && i < blockSizes.length) {
+        if (desired < blockSizes(i))
+          chosen = blockSizes(i)
+        i += 1
+      }
+      if (chosen == 0) {
         throw new RuntimeException(s"TESLA_BAD_BLOCK_SIZE_REQUEST: request for unsupported block size: $byteSize (${ vitals.reporter.instrument.prettyByteSizeString(byteSize)})")
+      }
+      chosen
     }
-    //log debug burstStdMsg(s"for request size $byteSize, allocated blocksize $size")
+    if (block.log.isTraceEnabled)
+      block.log trace burstStdMsg(s"for request size $byteSize, allocated blocksize $size")
     size
   }
 }
