@@ -2,6 +2,7 @@
 package org.burstsys.fabric.net.server.connection
 
 import io.netty.channel.Channel
+import io.opentelemetry.api.trace.Span
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetHeartbeatMsgType, FabricNetMsg}
@@ -13,6 +14,7 @@ import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
+import org.burstsys.fabric.trek.FabricNetAssessReq
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
 import org.burstsys.vitals.logging.burstStdMsg
@@ -130,14 +132,20 @@ class FabricNetServerConnectionContext(
   ////////////////////////////////////////////////////////////////////////////////////
   // Assessment
   ////////////////////////////////////////////////////////////////////////////////////
+  var span: Option[Span] = None
 
   private val assessorFunction: BackgroundFunction = () => {
+    span = Option(FabricNetAssessReq.begin())
     transmitter transmitControlMessage FabricNetAssessReqMsg(newRequestId, serverKey, clientKey)
   }
 
   private def assessResponse(msg: FabricNetAssessRespMsg): Unit = {
     FabricNetReporter.recordPing(msg.elapsedNanos)
     log trace burstStdMsg(s"$this $msg")
+    if (span.isDefined) {
+      span.get.end()
+      span = None
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////

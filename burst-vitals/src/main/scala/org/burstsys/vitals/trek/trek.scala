@@ -1,10 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
-import io.netty.buffer.ByteBuf
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace._
-import io.opentelemetry.context.propagation.{TextMapGetter, TextMapSetter}
 import io.opentelemetry.context.{Context, ContextKey}
 import io.opentelemetry.sdk.trace.IdGenerator
 import org.apache.commons.codec.digest.DigestUtils
@@ -12,6 +10,7 @@ import org.burstsys.vitals.logging._
 import org.burstsys.vitals.uid.VitalsUid
 
 import java.nio.charset.StandardCharsets
+import scala.annotation.unused
 
 package object trek extends VitalsLogger {
   lazy private[vitals]
@@ -36,6 +35,9 @@ package object trek extends VitalsLogger {
   }
   object VitalsTrekSupervisor extends VitalsTrekRole("supervisor")
   object VitalsTrekWorker extends VitalsTrekRole("worker")
+  object VitalsTrekServer extends VitalsTrekRole("supervisor")
+
+  object VitalsTrekClient extends VitalsTrekRole("client")
 
   // these names must conform to open telemetry attribute naming standards.
   private val NAME_KEY = "trekname"
@@ -55,12 +57,12 @@ package object trek extends VitalsLogger {
     lazy private[vitals]
     val _tracer = GlobalOpenTelemetry.getTracer("org.burstsys")
 
-    private val trekSpanBuilder: SpanBuilder = _tracer.spanBuilder(name)
+    private def trekSpanBuilder: SpanBuilder = _tracer.spanBuilder(name)
       .setAttribute(NAME_KEY, name)
       .setAttribute(ROLE_KEY, role.name)
 
     final
-    def begin(trekId: VitalsUid, callId: VitalsUid = null): Span = {
+    def begin(trekId: VitalsUid=null, callId: VitalsUid = null): Span = {
       // build an acceptable OT trace id from the unstructured Trek id
       if (log.isDebugEnabled)
         log debug burstLocMsg(s"start trek $name trekId=$trekId callId=$callId")
@@ -91,10 +93,13 @@ package object trek extends VitalsLogger {
     }
 
     final
-    def fail(span: Span): Unit = {
+    def fail(span: Span, exception: Throwable=null): Unit = {
       // assert(!Span.current().isRecording || span.asInstanceOf[ReadableSpan].toSpanData.getAttributes.get(AttributeKey.stringKey(NAME_KEY)) == name)
-      if (log.isDebugEnabled)
-        log debug burstLocMsg(s"fail trek $name span=$span")
+      if (log.isDebugEnabled) {
+        log debug burstLocMsg(s"fail trek $name span=$span exception=$exception")
+      }
+      if (exception !=null)
+        span.recordException(exception)
       span.setStatus(StatusCode.ERROR).end()
     }
 
@@ -103,6 +108,7 @@ package object trek extends VitalsLogger {
      * us to take a trek id and associate it with the same trace no matter where we are.
      * This might not be needed if we implemented context propogation in the fabric and nexus layers.
      */
+    @unused
     protected
     def createSpanParent(trekId: VitalsUid, callId: VitalsUid): Span = {
       val traceId = trekToSpanId(trekId)
@@ -140,7 +146,7 @@ package object trek extends VitalsLogger {
       parentSpan
     }
 
-    protected
+    private
     def trekToSpanId(trekId: VitalsUid): String = {
       val idHash = DigestUtils.sha256Hex(trekId.getBytes(StandardCharsets.UTF_8))
       if (log.isTraceEnabled)

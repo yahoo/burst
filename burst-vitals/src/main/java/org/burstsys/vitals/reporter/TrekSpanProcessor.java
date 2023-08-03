@@ -6,14 +6,13 @@ import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
-import io.opentelemetry.sdk.trace.data.EventData;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,7 +62,7 @@ public final class TrekSpanProcessor implements SpanProcessor {
   }
 
   @Override
-  public void onStart(Context parentContext, ReadWriteSpan span) {
+  public void onStart(@NotNull Context parentContext, ReadWriteSpan span) {
       StringBuilder sb = new StringBuilder();
       sb.setLength(0);
       SpanData spanData = span.toSpanData();
@@ -83,7 +82,7 @@ public final class TrekSpanProcessor implements SpanProcessor {
   }
 
   @Override
-  public void onEnd(ReadableSpan span) {
+  public void onEnd(@NotNull ReadableSpan span) {
     if (sampled && !span.getSpanContext().isSampled()) {
       return;
     }

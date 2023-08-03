@@ -214,7 +214,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
     } catch safely {
       case t: Throwable =>
         NexusClientReporter.onClientStreamFail()
-        NexusClientStreamStartTrekMark.fail(span)
+        NexusClientStreamStartTrekMark.fail(span, t)
         log error(burstStdMsg(s"FAIL $t $tag", t), t)
         stream.completeExceptionally(t)
         throw t
@@ -329,7 +329,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
         case t: Throwable =>
           log error(burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t), t)
           NexusClientReporter.onClientStreamFail()
-          NexusClientStreamTerminateTrekMark.fail(span)
+          NexusClientStreamTerminateTrekMark.fail(span, t)
           _stream.completeExceptionally(t)
           _isTerminated.set(true)
       }

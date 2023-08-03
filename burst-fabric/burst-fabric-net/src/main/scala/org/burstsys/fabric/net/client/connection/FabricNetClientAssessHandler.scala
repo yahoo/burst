@@ -4,16 +4,15 @@ package org.burstsys.fabric.net.client.connection
 import org.burstsys.fabric
 import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.fabric.container.model.metrics.FabricLastHourMetricCollector
-import org.burstsys.fabric.net.message.AccessParameters
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg}
+import org.burstsys.fabric.trek.FabricNetAssessResp
 import org.burstsys.tesla.offheap
 import org.burstsys.vitals.background.VitalsBackgroundFunction
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.{git, host}
 
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 /**
@@ -53,6 +52,7 @@ trait FabricNetClientAssessHandler {
    */
   def sendAssessResponse(msg: FabricNetAssessReqMsg): Unit = {
     lazy val hdr = s"FabricNetClientAssessHandler.assessRequest"
+    val span = FabricNetAssessResp.begin()
     log debug s"$hdr $msg"
     if (msg.receiverKey != clientKey)
       throw VitalsException(s"msg.receiverKey=${msg.receiverKey} != localKey=$clientKey")
@@ -62,6 +62,7 @@ trait FabricNetClientAssessHandler {
     ))
 
     transmitter transmitControlMessage response
+    span.end()
   }
 
   def memoryPercentUsed: Double = percentUsed("memory", offheap.nativeMemoryMax, used = host.mappedMemoryUsed)
@@ -80,7 +81,7 @@ trait FabricNetClientAssessHandler {
     val percentUsed = ((total - free).toDouble / total.toDouble) * 100.0
     val freeStr = prettyByteSizeString(free)
     val totalStr = prettyByteSizeString(total)
-    log debug burstStdMsg(f"resource '$name' percentUsed=$percentUsed%.2f (free=${freeStr}, total=${totalStr})")
+    log debug burstStdMsg(f"resource '$name' percentUsed=$percentUsed%.2f (free=$freeStr, total=$totalStr)")
     percentUsed
   }
 

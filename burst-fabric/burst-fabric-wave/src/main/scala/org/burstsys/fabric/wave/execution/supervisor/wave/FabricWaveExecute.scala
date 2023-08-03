@@ -15,6 +15,7 @@ import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.instrument._
 
+import scala.annotation.unused
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
@@ -28,27 +29,18 @@ trait FabricWaveExecute extends Any {
 
   /**
    * suck internal results into final form
-   *
-   * @param gather
-   * @return
    */
   protected
   def extractResults(gather: FabricDataGather): FabricResultGroup
 
   /**
    * execute/cleanup -
-   *
-   * @param group
-   * @param scanner
-   * @param duration
-   * @param over
-   * @return
    */
   final private[execution]
   def waveExecute(
                    group: FabricGroupKey,
                    scanner: FabricScanner,
-                   duration: Duration,
+                   @unused duration: Duration,
                    over: FabricOver
                  ): Future[FabricResultGroup] = {
     lazy val tag = s"FabricWaveExecute.waveExecute($group, $over)"
@@ -65,7 +57,7 @@ trait FabricWaveExecute extends Any {
         log info s"WAVE_EXECUTE_SUCCESS elapsedNs=elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) $tag"
         FabricSupervisorWaveTrekMark.end(swSpan)
       case Failure(t) =>
-        FabricSupervisorWaveTrekMark.fail(swSpan)
+        FabricSupervisorWaveTrekMark.fail(swSpan, t)
         log error burstStdMsg(s"WAVE_EXECUTE_FAIL $t $tag", t)
     } map {
       case gather: FabricFaultGather =>

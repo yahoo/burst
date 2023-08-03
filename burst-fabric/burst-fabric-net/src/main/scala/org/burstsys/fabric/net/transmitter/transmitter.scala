@@ -3,9 +3,11 @@ package org.burstsys.fabric.net
 
 import io.netty.channel.Channel
 import io.netty.util.concurrent.{Future => NettyFuture}
+import io.opentelemetry.context.Context
 import org.burstsys.fabric.net.message.FabricNetMsg
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.trek.context.injectContext
 
 import scala.concurrent.{Future, Promise}
 
@@ -21,6 +23,7 @@ package object transmitter extends VitalsLogger {
       try {
         val encodeStart = System.nanoTime
         val buffer = channel.alloc().buffer()
+        injectContext(this, buffer)
         msg.encode(buffer)
         val buffSize = buffer.capacity
         val encodeDuration = System.nanoTime - encodeStart

@@ -1,6 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender
 import org.burstsys.vitals.configuration.burstIncludeStackTracesProperty
 import org.burstsys.vitals.errors.messageFromException
 import sourcecode.Enclosing
@@ -24,6 +26,8 @@ package object logging extends VitalsLogger {
     System.setProperty("java.util.logging.manager", classOf[org.apache.logging.log4j.jul.LogManager].getName)
     this
   }
+
+  OpenTelemetryAppender.install(GlobalOpenTelemetry.get())
 
   final val MAX_FRAMES: Int = 100
 

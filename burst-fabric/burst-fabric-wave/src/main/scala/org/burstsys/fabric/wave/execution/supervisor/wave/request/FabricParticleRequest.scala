@@ -71,7 +71,7 @@ class FabricParticleRequest(container: FabricWaveSupervisorContainer, worker: Fa
 
       case Failure(t) =>
         log error burstStdMsg(s"FAB_PARTICLE_REQUEST_FAIL $t $tag", t)
-        FabricSupervisorParticleTrekMark.fail(spSpan)
+        FabricSupervisorParticleTrekMark.fail(spSpan, t)
         if (slot != null) {
           slot.slotFailed(t)
         }

@@ -58,7 +58,7 @@ trait SampleStoreInitializer extends FabricWorkerLoader {
     } catch safely {
       case t: Throwable =>
         log error burstStdMsg(s"$hdr exception", t)
-        SampleStoreLoadTrekMark.fail(sslSpan)
+        SampleStoreLoadTrekMark.fail(sslSpan, t)
         throw t
     }
     SampleStoreLoadTrekMark.end(sslSpan)

@@ -25,8 +25,6 @@ trait FabricWorkerEngine extends FabricWorkerService {
 
   /**
    * execute one worker's part of a wave operation
-   *
-   * @param particle
    */
   def executionParticleOp(ruid: VitalsUid, particle: FabricParticle): FabricGather
 
@@ -57,9 +55,6 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
 
   /**
    * the data fetch part of the particle op
-   *
-   * @param particle
-   * @return
    */
   private def sliceFetch(particle: FabricParticle): FabricSnap = {
     val tag = s"FabricWorkerEngine.sliceFetch(guid=${particle.guid})"
@@ -86,7 +81,7 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
       snap
     } catch safely {
       case t: Throwable =>
-        FabricWorkerFetchTrekMark.fail(wfSpan)
+        FabricWorkerFetchTrekMark.fail(wfSpan, t)
         log error burstStdMsg(s"FAB_SLICE_FETCH_FAIL $t $tag", t)
         throw t
     }
@@ -94,10 +89,6 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
 
   /**
    * the data scan part of the particle op
-   *
-   * @param particle
-   * @param snap
-   * @return
    */
   private
   def sliceScan(particle: FabricParticle, snap: FabricSnap): FabricGather = {
@@ -120,9 +111,9 @@ class FabricWorkerContextEngine(container: FabricWaveWorkerContainer, modality: 
       result
     } catch safely {
       case t: Throwable =>
-        log error burstStdMsg(s"FAB_SLICE_SCAN_FAIL ${t} $tag", t)
+        log error burstStdMsg(s"FAB_SLICE_SCAN_FAIL $t $tag", t)
         publishPipelineEvent(ParticleExecutionFinished(particle.slice.guid))
-        FabricWorkerScanTrekMark.fail(wsSpan)
+        FabricWorkerScanTrekMark.fail(wsSpan, t)
         FabricEngineReporter.failedScan()
         FabricFaultGather(particle.scanner, t)
     } finally {

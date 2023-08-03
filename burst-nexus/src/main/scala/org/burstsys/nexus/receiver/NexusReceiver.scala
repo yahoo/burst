@@ -11,6 +11,7 @@ import org.burstsys.vitals.errors._
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.trek.context.{extractContext, injectContext}
 
 import scala.annotation.unused
 
@@ -65,34 +66,39 @@ class NexusReceiver(
   override def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
     // gather basics
     @unused val messageLength = buffer.readInt()
-    val messageTypeKey = buffer.readInt()
+    val scp = extractContext(this, buffer)
+    try {
+      val messageTypeKey = buffer.readInt()
 
-    TeslaRequestCoupler {
-      // pass thread control from netty pool to tesla pool for parts pool access
-      NexusMsgType(messageTypeKey) match {
-        case NexusStreamInitiatedMsgType =>
-          dispatchMessage(NexusStreamInitiatedMsg(buffer), clientListener.onStreamInitiatedMsg)
+      TeslaRequestCoupler {
+        // pass thread control from netty pool to tesla pool for parts pool access
+        NexusMsgType(messageTypeKey) match {
+          case NexusStreamInitiatedMsgType =>
+            dispatchMessage(NexusStreamInitiatedMsg(buffer), clientListener.onStreamInitiatedMsg)
 
-        case NexusStreamParcelMsgType =>
-          dispatchMessage(NexusStreamParcelMsg(buffer), clientListener.onStreamParcelMsg)
+          case NexusStreamParcelMsgType =>
+            dispatchMessage(NexusStreamParcelMsg(buffer), clientListener.onStreamParcelMsg)
 
-        case NexusStreamCompleteMsgType =>
-          dispatchMessage(NexusStreamCompleteMsg(buffer), clientListener.onStreamCompleteMsg)
+          case NexusStreamCompleteMsgType =>
+            dispatchMessage(NexusStreamCompleteMsg(buffer), clientListener.onStreamCompleteMsg)
 
-        case NexusStreamHeartbeatMsgType =>
-          dispatchMessage(NexusStreamHeartbeatMsg(buffer), clientListener.onStreamHeartbeatMsg)
+          case NexusStreamHeartbeatMsgType =>
+            dispatchMessage(NexusStreamHeartbeatMsg(buffer), clientListener.onStreamHeartbeatMsg)
 
-        case NexusStreamInitiateMsgType =>
-          dispatchMessage(NexusStreamInitiateMsg(buffer), serverListener.onStreamInitiateMsg)
+          case NexusStreamInitiateMsgType =>
+            dispatchMessage(NexusStreamInitiateMsg(buffer), serverListener.onStreamInitiateMsg)
 
-        case NexusStreamAbortMsgType =>
-          dispatchMessage(NexusStreamAbortMsg(buffer), serverListener.onStreamAbortMsg)
+          case NexusStreamAbortMsgType =>
+            dispatchMessage(NexusStreamAbortMsg(buffer), serverListener.onStreamAbortMsg)
 
-        case mt =>
-          val e = VitalsException(s"Unknown message type: $mt")
-          log error(burstStdMsg(e), e)
-          throw e
+          case mt =>
+            val e = VitalsException(s"Unknown message type: $mt")
+            log error(burstStdMsg(e), e)
+            throw e
+        }
       }
+    } finally {
+      scp.close()
     }
   }
 

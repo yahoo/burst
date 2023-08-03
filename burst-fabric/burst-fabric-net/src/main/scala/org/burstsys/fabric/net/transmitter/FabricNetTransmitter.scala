@@ -2,6 +2,7 @@
 package org.burstsys.fabric.net.transmitter
 
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
+import io.opentelemetry.context.Context
 import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.FabricNetLink
 import org.burstsys.fabric.net.message.FabricNetMsg
@@ -65,7 +66,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
     }
 
     val nettySend = new NettyMessageSendRunnable(channel, msg, tag)
-    channel.eventLoop.submit(nettySend)
+    channel.eventLoop.submit(Context.current().wrap(nettySend))
     nettySend.completion
   }
 
@@ -73,11 +74,9 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
    * transmit a data plane message. These are immediately
    * flushed through the pipeline. The expensive part of this
    * network write is done on a channel thread asynchronously
-   *
-   * @param msg
    */
   def transmitDataMessage(msg: FabricNetMsg): Future[Unit] = {
-    val tag = s"FabricNetTransmitter.transmitDataMessage(${msg.getClass.getName} ${remotePort}:${remotePort}"
+    val tag = s"FabricNetTransmitter.transmitDataMessage(${msg.getClass.getName} $remotePort:$remotePort"
 
     if (!channel.isOpen || !channel.isActive) {
       val msg = s"$tag cannot transmit channelOpen=${channel.isOpen} channelActive=${channel.isActive}"
@@ -86,7 +85,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
     }
 
     val nettySend = new NettyMessageSendRunnable(channel, msg, tag)
-    channel.eventLoop.submit(nettySend)
+    channel.eventLoop.submit(Context.current().wrap(nettySend))
     nettySend.completion
   }
 

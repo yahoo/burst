@@ -15,6 +15,7 @@ import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, new
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
+import org.burstsys.fabric.trek.FabricNetHeartbeat
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
@@ -115,18 +116,22 @@ class FabricNetClientConnectionContext(
       "fab-client-heartbeat", 100 milliseconds, fabric.configuration.burstFabricTopologyHeartbeatPeriodMs.get, {
         try {
           if (channel != null && channel.isActive) {
+            val span = FabricNetHeartbeat.begin()
             val heartbeat = FabricNetHeartbeatMsg(newRequestId, clientKey, serverKey, git.commitId, accessParameters)
             transmitter.transmitControlMessage(heartbeat) onComplete {
               case Success(_) =>
                 log debug "heartbeat transmitted successfully"
+                FabricNetHeartbeat.end(span)
               case Failure(exception) =>
                 log debug s"heartbeat failed to transmit $exception"
+                FabricNetHeartbeat.fail(span, exception)
             }
           } else {
             log warn s"Did not attempt to send client heartbeat $this isConnected=${if (channel != null) channel.isActive else "null"}"
           }
         } catch safely {
-          case t: Throwable => log debug s"rescued heartbeat thread from $t"
+          case t: Throwable =>
+            log debug s"rescued heartbeat thread from $t"
         }
       }).start
     assessorBackgroundFunction.start

@@ -7,6 +7,7 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
 import io.netty.util.concurrent.{GenericFutureListener, Future => NettyFuture}
+import io.opentelemetry.context.Context
 import org.burstsys.nexus.server.NexusServerReporter
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.nexus.trek.{NexusServerCompleteSendTrekMark, NexusServerParcelSendTrekMark, NexusServerStreamTrekMark}
@@ -15,6 +16,7 @@ import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecut
 
 import scala.concurrent.{Await, Future, Promise}
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.trek.context.injectContext
 
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
@@ -62,8 +64,8 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
             transmitControlMessage(NexusStreamCompleteMsg(stream, parcel.status)) onComplete {
               case Failure(t) =>
                 log error(burstStdMsg(s"$tag:$t", t), t)
-                NexusServerCompleteSendTrekMark.fail(sendStreamCompleteSpan)
-                NexusServerStreamTrekMark.fail(streamSpan)
+                NexusServerCompleteSendTrekMark.fail(sendStreamCompleteSpan, t)
+                NexusServerStreamTrekMark.fail(streamSpan, t)
                 NexusServerReporter.onServerStreamFail()
               case Success(r) =>
                 NexusServerCompleteSendTrekMark.end(sendStreamCompleteSpan)
@@ -84,6 +86,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
             val parcelSize = parcel.currentUsedMemory
             val update = NexusStreamParcelMsg(stream, parcel)
             val buffer = channel.alloc().buffer(parcel.currentUsedMemory)
+            injectContext(update, buffer)
             update.encode(buffer)
             tesla.parcel.factory releaseParcel parcel
 
@@ -91,7 +94,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
             lastMessageTransmit = transmitDataMessage(buffer)
             lastMessageTransmit onComplete {
               case Failure(t) =>
-                NexusServerParcelSendTrekMark.fail(sendParcelSpan)
+                NexusServerParcelSendTrekMark.fail(sendParcelSpan, t)
                 log error burstStdMsg(s"$tag could not transmit parcel $t", t)
               case Success(_) =>
                 NexusServerParcelSendTrekMark.end(sendParcelSpan)
@@ -102,7 +105,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
         }
       } catch safely {
         case t: Throwable =>
-          NexusServerStreamTrekMark.fail(streamSpan)
+          NexusServerStreamTrekMark.fail(streamSpan, t)
           NexusServerReporter.onServerStreamFail()
           log error(burstStdMsg(s"$tag:$t", t), t)
       }
@@ -123,9 +126,10 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
     }
     val transmitStart = System.nanoTime
     // do the alloc/write/flush on the channel thread so its done right away
-    channel.eventLoop.submit(new Runnable {
+    channel.eventLoop.submit(Context.current().wrap(new Runnable {
       override def run(): Unit = {
         val buffer = channel.alloc().buffer()
+        injectContext(msg, buffer)
         msg.encode(buffer)
         val buffSize = buffer.capacity
         channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
@@ -138,7 +142,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
           }
         })
       }
-    })
+    }))
     promise.future
   }
 
@@ -155,7 +159,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
     val transmitStart = System.nanoTime
     val buffSize = buffer.capacity
     // do the alloc/write/flush on the channel thread so its done right away
-    channel.eventLoop.submit(new Runnable {
+    channel.eventLoop.submit(Context.current().wrap(new Runnable {
       override def run(): Unit = {
         channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
           if (!future.isSuccess) {
@@ -167,7 +171,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
           }
         })
       }
-    })
+    }))
     promise.future
   }
 }

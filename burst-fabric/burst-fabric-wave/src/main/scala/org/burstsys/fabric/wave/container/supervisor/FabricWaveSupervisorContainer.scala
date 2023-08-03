@@ -207,7 +207,7 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
         slot.span.addEvent("transmitControlMessage.success")
       case Failure(t) =>
         log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
-        FabricSupervisorRequestTrekMark.fail(slot.span)
+        FabricSupervisorRequestTrekMark.fail(slot.span, t)
     }
     call.receipt.future
   }

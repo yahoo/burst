@@ -293,8 +293,8 @@ FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
       connection.transmitDataMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, gather)) onComplete {
         case Success(_) =>
           FabricWorkerRequestTrekMark.end(span)
-        case Failure(_) =>
-          FabricWorkerRequestTrekMark.fail(span)
+        case Failure(t) =>
+          FabricWorkerRequestTrekMark.fail(span, t)
       }
 
     } catch safely {
@@ -302,13 +302,13 @@ FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
       // transmit back fabric related exception for supervisor to sort out
       case t: FabricException =>
         log error burstStdMsg(s"FAIL $t $tag", t)
-        FabricWorkerRequestTrekMark.fail(span)
+        FabricWorkerRequestTrekMark.fail(span, t)
         connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, t))
 
       // something unpredictable happened...
       case t: Throwable =>
         log error burstStdMsg(s"FAIL $t $tag", t)
-        FabricWorkerRequestTrekMark.fail(span)
+        FabricWorkerRequestTrekMark.fail(span, t)
         connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, FabricGenericException(t)))
 
     } finally {
