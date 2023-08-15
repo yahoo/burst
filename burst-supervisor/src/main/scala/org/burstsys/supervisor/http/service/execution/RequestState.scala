@@ -14,6 +14,7 @@ import scala.collection.mutable
 final case
 class RequestState(
                     guid: VitalsUid,
+                    traceId: String,
                     over: FabricOver,
                     call: Option[FabricCall],
                     startTime: Long = System.currentTimeMillis(),

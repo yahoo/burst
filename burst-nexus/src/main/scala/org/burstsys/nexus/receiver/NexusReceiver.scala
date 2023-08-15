@@ -1,17 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.receiver
 
+import io.netty.buffer.ByteBuf
+import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.nexus.client.NexusClientReporter
 import org.burstsys.nexus.message._
 import org.burstsys.nexus.server.NexusServerReporter
 import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
-import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors._
-import io.netty.buffer.ByteBuf
-import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.trek.context.{extractContext, injectContext}
+import org.burstsys.vitals.trek.context.extractContext
 
 import scala.annotation.unused
 

@@ -76,6 +76,14 @@ class BurnInConfig(
     (errors.isEmpty, errors.toArray)
   }
 
+  override def toString: BrioSchemaName = {
+    val sb = new StringBuilder()
+    sb.append("BurnInConfig(")
+    sb.append("maxDuration=").append(maxDuration)
+    sb.append(", batches=").append(batches.map(_.toString).mkString("{\n  ","\n  ", "\n}") )
+    sb.append(")")
+    sb.toString()
+  }
 }
 
 object BurnInBatch {
@@ -192,6 +200,7 @@ class BurnInBatch(
 
     (errors.isEmpty, errors.toArray)
   }
+
 }
 
 object BurnInDatasetDescriptor {
@@ -216,7 +225,7 @@ object BurnInDatasetDescriptor {
 }
 
 class OptionalLongDeserializer(vc: Class[_]) extends StdDeserializer[Option[Long]](vc) {
-  def this() {
+  def this() = {
     this(null)
   }
 
@@ -349,6 +358,10 @@ abstract class BurnInEvent(val time: Long = System.currentTimeMillis()) {
 }
 
 final case class BurnInLogEvent(message: String, level: Level = Level.INFO) extends BurnInEvent() {
+  override val eventType: String = "event"
+}
+
+final case class BurnInDatasetEvent(message: String, level: Level = Level.INFO) extends BurnInEvent() {
   override val eventType: String = "event"
 }
 

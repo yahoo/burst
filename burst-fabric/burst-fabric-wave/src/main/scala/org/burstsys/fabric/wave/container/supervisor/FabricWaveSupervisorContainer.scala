@@ -1,29 +1,30 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.container.supervisor
 
+import io.opentelemetry.api.trace.Span
 import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorContainerContext, FabricSupervisorListener}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
+import org.burstsys.fabric.net.server.connection.{FabricNetCall, FabricNetServerConnection}
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.wave.data.model.generation.FabricGeneration
 import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
 import org.burstsys.fabric.wave.data.model.ops.FabricCacheManageOp
 import org.burstsys.fabric.wave.data.model.slice.metadata.FabricSliceMetadata
 import org.burstsys.fabric.wave.data.supervisor.FabricSupervisorData
-import org.burstsys.fabric.wave.data.supervisor.store._
+import org.burstsys.fabric.wave.data.supervisor.store.{startSupervisorStores, stopSupervisorStores}
 import org.burstsys.fabric.wave.execution.model.gather.FabricGather
 import org.burstsys.fabric.wave.execution.model.wave.FabricParticle
 import org.burstsys.fabric.wave.execution.supervisor.FabricSupervisorExecution
-import org.burstsys.fabric.wave.metadata.supervisor.FabricSupervisorMetadata
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
+import org.burstsys.fabric.wave.message._
 import org.burstsys.fabric.wave.message.cache.{FabricNetCacheOperationReqMsg, FabricNetCacheOperationRespMsg, FabricNetSliceFetchReqMsg, FabricNetSliceFetchRespMsg}
 import org.burstsys.fabric.wave.message.scatter.{FabricNetProgressMsg, FabricNetScatterMsg}
 import org.burstsys.fabric.wave.message.wave.{FabricNetParticleReqMsg, FabricNetParticleRespMsg}
-import org.burstsys.fabric.wave.message.{FabricNetCacheOperationRespMsgType, FabricNetParticleRespMsgType, FabricNetProgressMsgType, FabricNetSliceFetchRespMsgType, cache}
-import org.burstsys.fabric.net.server.connection.{FabricNetCall, FabricNetServerConnection}
-import org.burstsys.fabric.net.{FabricNetworkConfig, message}
-import org.burstsys.fabric.wave.trek.FabricSupervisorRequestTrekMark
+import org.burstsys.fabric.wave.metadata.supervisor.FabricSupervisorMetadata
+import org.burstsys.fabric.wave.trek.FabricSupervisorParticleTrekMark
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlot
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.uid.VitalsUid
 
 import java.util.concurrent.ConcurrentHashMap
@@ -199,17 +200,20 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
     val tag = s"FabricWaveSupervisorContainer.executeParticle(guid=$guid, ruid=$ruid)"
     val msg = FabricNetParticleReqMsg(guid, ruid, connection.serverKey, connection.clientKey, particle)
     val call = ExecutionParticleOpCall(msg)
-    slot.setSpan(FabricSupervisorRequestTrekMark.begin(guid, msg.ruid)) // are you there yet?
-    _particleCallMap.put(msg, call)
-    _particleSlotMap.put(msg, slot)
-    connection.transmitControlMessage(call.request) onComplete {
-      case Success(_) =>
-        slot.span.addEvent("transmitControlMessage.success")
-      case Failure(t) =>
-        log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
-        FabricSupervisorRequestTrekMark.fail(slot.span, t)
+    FabricSupervisorParticleTrekMark.begin(guid, msg.ruid) { stage =>
+      slot.setTrekStage(stage)
+      _particleCallMap.put(msg, call)
+      _particleSlotMap.put(msg, slot)
+      log debug burstLocMsg(s"Sending particle with span=${slot.stage} current=${Span.current}")
+      connection.transmitControlMessage(call.request) onComplete {
+        case Success(_) =>
+          slot.stage.span.addEvent("transmitControlMessage.success")
+        case Failure(t) =>
+          log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
+          FabricSupervisorParticleTrekMark.fail(slot.stage, t)
+      }
+      call.receipt.future
     }
-    call.receipt.future
   }
 
   override def onNetMessage(connection: FabricNetServerConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
@@ -224,23 +228,26 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
         val slot = _particleSlotMap.get(msg)
         if (slot == null)
           log warn s"$tag SLOTLESS"
-        else
-          slot.slotProgress(msg.scatterMsg)
+        else {
+          val message = msg.scatterMsg
+          slot.slotProgress(message)
+          slot.stage.addEvent(message)
+        }
 
       case FabricNetParticleRespMsgType =>
         val msg = FabricNetParticleRespMsg(buffer)
 
-        log debug s"FabricWaveSupervisorContainer.onNetServerParticleRespMsg $connection $msg"
+        log debug burstLocMsg(s"FabricWaveSupervisorContainer.onNetServerParticleRespMsg $connection $msg")
         filteredForeach[FabricWaveSupervisorListener](_.onNetServerParticleRespMsg(connection, msg))
 
         val tag = s"FabricWaveSupervisorContainer.particleExecutionResp($msg)"
         val call = _particleCallMap.get(msg)
         val slot = _particleSlotMap.get(msg)
-        if (call == null)
+        if (call == null) {
           log warn s"$tag SLOTLESS"
-        else {
-          FabricSupervisorRequestTrekMark.end(slot.span) // are you there yet?
-          log debug s"$tag received result"
+        } else {
+          FabricSupervisorParticleTrekMark.end(slot.stage)
+          log debug burstLocMsg(s"$tag received result")
           _particleCallMap.remove(msg)
           _particleSlotMap.remove(msg)
           call.receipt.complete(msg.result)
@@ -252,8 +259,9 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
 
         filteredForeach[FabricWaveSupervisorListener](_.onNetServerCacheOperationRespMsg(connection, msg))
         val slot = _cacheOperations.get(msg)
-        if (slot == null) log warn s"$msg SLOTLESS"
-        else {
+        if (slot == null) {
+          log warn s"$msg SLOTLESS"
+        } else {
           _cacheOperations.remove(msg)
           slot.receipt.complete(Success(msg.generations))
         }

@@ -35,35 +35,35 @@ import org.burstsys.vitals.logging._
 import java.net.InetAddress
 
 /**
-  * The server (stream data provider) side of the next protocol
-  * The ''server'' binds to a port given to it by the network stack. This port is then sent to clients. This is
-  * ''not'' a ''well known'' port
-  */
+ * The server (stream data provider) side of the next protocol
+ * The ''server'' binds to a port given to it by the network stack. This port is then sent to clients. This is
+ * ''not'' a ''well known'' port
+ */
 trait NexusServer extends VitalsService {
 
   /**
-    * @return the config defined ''or'' dynamically bound port for this server (available once the server has started)
-    */
+   * @return the config defined ''or'' dynamically bound port for this server (available once the server has started)
+   */
   def serverPort: VitalsHostPort
 
   /**
-    * @return the hostname/address for this how
-    */
+   * @return the hostname/address for this how
+   */
   def serverHost: VitalsHostName
 
   /**
-    * the data feed for this server
-    */
+   * the data feed for this server
+   */
   def fedBy(feeder: NexusStreamFeeder): this.type
 
   /**
-    * a listener for protocol events
-    */
+   * a listener for protocol events
+   */
   def talksTo(listener: NexusServerListener): this.type
 
   /**
-    * the associated NETTY channel
-    */
+   * the associated NETTY channel
+   */
   def nettyChannel: Channel
 
 }
@@ -77,10 +77,10 @@ object NexusServer {
 }
 
 /**
-  * The server (data provider) side of the next protocol
-  * The ''server'' binds to a port given to it by the network stack. This port is then sent to clients. This is
-  * ''not'' a ''well known'' port
-  */
+ * The server (data provider) side of the next protocol
+ * The ''server'' binds to a port given to it by the network stack. This port is then sent to clients. This is
+ * ''not'' a ''well known'' port
+ */
 private[server] final case
 class NexusServerContext(
                           serverId: Int,
@@ -129,20 +129,17 @@ class NexusServerContext(
 
   override def nettyChannel: Channel = _nettyChannel
 
-  override
-  def fedBy(feeder: NexusStreamFeeder): this.type = {
+  override def fedBy(feeder: NexusStreamFeeder): this.type = {
     _feeder = feeder
     this
   }
 
-  override
-  def talksTo(listener: NexusServerListener): this.type = {
+  override def talksTo(listener: NexusServerListener): this.type = {
     _listener = listener
     this
   }
 
-  override
-  def serverPort: VitalsHostPort = {
+  override def serverPort: VitalsHostPort = {
     if (_socketAddress == null) -1 else _socketAddress.getPort
   }
 

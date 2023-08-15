@@ -67,8 +67,7 @@ class FabricWaveSupervisorDataContext(container: FabricWaveSupervisorContainer) 
   // API
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override
-  def slices(guid: VitalsUid, datasource: FabricDatasource): Future[Array[FabricSlice]] = {
+  override def slices(guid: VitalsUid, datasource: FabricDatasource): Future[Array[FabricSlice]] = {
     val tag = s"FabricSupervisorData.slices(guid=$guid, datasource=$datasource)"
     ensureRunning
     try {

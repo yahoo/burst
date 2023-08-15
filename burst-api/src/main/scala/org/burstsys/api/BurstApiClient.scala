@@ -8,6 +8,7 @@ import com.twitter.finagle.netty4.ssl.client.Netty4ClientEngineFactory
 import com.twitter.finagle.ssl._
 import com.twitter.finagle.ssl.client.SslClientConfiguration
 import com.twitter.finagle.thrift.ThriftService
+import org.burstsys.tesla
 
 import scala.reflect.ClassTag
 
@@ -43,6 +44,7 @@ abstract class BurstApiClient[S <: ThriftService : ClassTag] extends VitalsServi
     )
 
     var clientBuilder = Thrift.client
+      .withExecutionOffloaded(tesla.thread.request.teslaRequestExecutorService)
       .withSessionQualifier
       .noFailFast
       .withRequestTimeout(apiRequestTimeout)

@@ -2,26 +2,26 @@
 package org.burstsys.fabric.net.server.connection
 
 import io.netty.channel.Channel
-import io.opentelemetry.api.trace.Span
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetHeartbeatMsgType, FabricNetMsg}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetHeartbeatMsg, FabricNetShutdownMsg}
 import org.burstsys.fabric.net._
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetHeartbeatMsg, FabricNetShutdownMsg}
+import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetHeartbeatMsgType, FabricNetMsg}
 import org.burstsys.fabric.net.receiver.FabricNetReceiver
 import org.burstsys.fabric.net.server.FabricNetServerListener
 import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
-import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
-import org.burstsys.fabric.trek.FabricNetAssessReq
+import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
+import org.burstsys.fabric.trek.{FabricNetAssess, FabricNetHeartbeatRcv}
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
 import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.trek.TrekStage
 
-import scala.jdk.CollectionConverters._
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 /**
  * This is the server side representative of a connection to a single client [[FabricNetConnection]].
@@ -110,12 +110,14 @@ class FabricNetServerConnectionContext(
     messageId match {
       /////////////////// TETHERING /////////////////
       case FabricNetHeartbeatMsgType =>
+        val stage = FabricNetHeartbeatRcv.beginSync()
         val msg = FabricNetHeartbeatMsg(buffer)
         log trace burstStdMsg(s"FabricNetServerConnection.onNetServerTetherMsg $this $msg")
         clientKey.nodeId = msg.senderKey.nodeId
 
         _listenerSet.stream.forEach (_.onNetServerTetherMsg(this, msg))
         backgroundAssessor += assessorFunction
+        FabricNetHeartbeatRcv.end(stage)
 
       /////////////////// ASSESSMENT /////////////////
       case FabricNetAssessRespMsgType =>
@@ -132,20 +134,18 @@ class FabricNetServerConnectionContext(
   ////////////////////////////////////////////////////////////////////////////////////
   // Assessment
   ////////////////////////////////////////////////////////////////////////////////////
-  var span: Option[Span] = None
+  var stage: Option[TrekStage] = None
 
   private val assessorFunction: BackgroundFunction = () => {
-    span = Option(FabricNetAssessReq.begin())
+    stage = Option(FabricNetAssess.begin() { stage => stage })
     transmitter transmitControlMessage FabricNetAssessReqMsg(newRequestId, serverKey, clientKey)
   }
 
   private def assessResponse(msg: FabricNetAssessRespMsg): Unit = {
     FabricNetReporter.recordPing(msg.elapsedNanos)
     log trace burstStdMsg(s"$this $msg")
-    if (span.isDefined) {
-      span.get.end()
-      span = None
-    }
+    stage.foreach(FabricNetAssess.end)
+    stage = None
   }
 
   ////////////////////////////////////////////////////////////////////////////////////

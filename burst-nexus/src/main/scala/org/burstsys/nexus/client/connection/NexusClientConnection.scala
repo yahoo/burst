@@ -8,7 +8,7 @@ import org.burstsys.nexus.message.{NexusMsg, NexusStreamAbortMsg, NexusStreamCom
 import org.burstsys.nexus.receiver.NexusClientMsgListener
 import org.burstsys.nexus.stream.{NexusStream, newRuid, streamIds}
 import org.burstsys.nexus.transmitter.NexusTransmitter
-import org.burstsys.nexus.trek.{NexusClientStreamStartTrekMark, NexusClientStreamTerminateTrekMark}
+import org.burstsys.nexus.trek.{NexusClientStreamStartTrekMark, NexusClientStreamFinalizeTrekMark}
 import org.burstsys.nexus.{NexusConnection, NexusSliceKey, NexusStreamUid}
 import org.burstsys.tesla.parcel.TeslaParcelStatus
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
@@ -175,7 +175,7 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
   }
 
   private def waitForStreamStart(stream: NexusStream): Unit = {
-    val span = NexusClientStreamStartTrekMark.begin(stream.guid, stream.suid)
+    val span = NexusClientStreamStartTrekMark.beginSync(stream.guid, stream.suid)
     lazy val tag = s"NexusClientConnection.streamStart($transmitter, stream=$stream)"
     var waitTimeout = false
 
@@ -287,53 +287,51 @@ class NexusClientConnectionContext(channel: Channel, transmitter: NexusTransmitt
     if (!msgOnThisStream(msg, "NexusClientConnection.onStreamCompleteMsg")) {
       return
     }
+    log info s"$tag ${msg.status} items=${msg.itemCount} expected=${msg.expectedItemCount} potential=${msg.potentialItemCount} rejected=${msg.rejectedItemCount}"
+    val stage = NexusClientStreamFinalizeTrekMark.beginSync(_stream.guid, _stream.suid)
     try {
-      log info s"$tag ${msg.status} items=${msg.itemCount} expected=${msg.expectedItemCount} potential=${msg.potentialItemCount} rejected=${msg.rejectedItemCount}"
-      val span = NexusClientStreamTerminateTrekMark.begin(_stream.guid, _stream.suid)
-      try {
-        if (_itemCount.longValue != msg.itemCount) {
-          log warn s"SEND_RECEIVE_MISMATCH ${_stream} did not receive expected number of items! sentItems=${msg.itemCount} receivedItems=${_itemCount.longValue} $tag"
-        }
-
-        val elapsedNanos = System.nanoTime() - _startNanos
-        val endTime = System.currentTimeMillis()
-        val itemSize = if (_itemCount.longValue == 0) 0 else _byteCount.longValue / _itemCount.longValue
-        val batchSize = if (_batchCount.longValue == 0) 0 else _byteCount.longValue / _batchCount.longValue
-        // TODO: map this to metrics
-        log debug
-          s"""$tag STREAM RECV END ,
-             |  startTime=${_startTime} (${prettyDateTimeFromMillis(_startTime)}) ,
-             |  endTime=$endTime (${prettyDateTimeFromMillis(endTime)}) ,
-             |  initiatedNanos=${_initiatedNanos - _startNanos} (${prettyTimeFromNanos(_initiatedNanos - _startNanos)}) ,
-             |  firstBatchNanos=${_firstBatchNanos - _startNanos} (${prettyTimeFromNanos(_firstBatchNanos - _startNanos)}) ,
-             |  finishedNanos=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) ,
-             |  itemCount=${_itemCount} (${prettyFixedNumber(_itemCount.longValue)}) ,
-             |  potentialItemCount=${_stream.potentialItemCount} (${prettyFixedNumber(_stream.potentialItemCount)})
-             |  reportedItemCount=${msg.itemCount} (${prettyFixedNumber(msg.itemCount)}) ,
-             |  reportedPotentialItemCount=${msg.potentialItemCount} (${prettyFixedNumber(msg.potentialItemCount)}) ,
-             |  reportedRejectedItemCount=${msg.rejectedItemCount} (${prettyFixedNumber(msg.rejectedItemCount)}) ,
-             |  byteCount=${_byteCount} (${prettyByteSizeString(_byteCount.longValue)}) ,
-             |  batchCount=${_batchCount} ,
-             |  itemSize=$itemSize (${prettyByteSizeString(itemSize)}) ,
-             |  batchSize=$batchSize (${prettyByteSizeString(batchSize)}) ,
-             |  ${prettyRateString("byte", _byteCount.longValue, elapsedNanos)} ,
-   """.stripMargin
-
-        _isTerminated.set(true)
-        _stream.complete(msg.itemCount, msg.expectedItemCount, msg.potentialItemCount, msg.rejectedItemCount, msg.marker)
-        forward(_.onStreamComplete(msg))
-
-        NexusClientReporter.onClientStreamSucceed()
-        NexusClientStreamTerminateTrekMark.end(span)
-      } catch safely {
-        case t: Throwable =>
-          log error(burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t), t)
-          NexusClientReporter.onClientStreamFail()
-          NexusClientStreamTerminateTrekMark.fail(span, t)
-          _stream.completeExceptionally(t)
-          _isTerminated.set(true)
+      if (_itemCount.longValue != msg.itemCount) {
+        log warn s"SEND_RECEIVE_MISMATCH ${_stream} did not receive expected number of items! sentItems=${msg.itemCount} receivedItems=${_itemCount.longValue} $tag"
       }
-    }
+
+      val elapsedNanos = System.nanoTime() - _startNanos
+      val endTime = System.currentTimeMillis()
+      val itemSize = if (_itemCount.longValue == 0) 0 else _byteCount.longValue / _itemCount.longValue
+      val batchSize = if (_batchCount.longValue == 0) 0 else _byteCount.longValue / _batchCount.longValue
+      // TODO: map this to metrics
+      log debug
+        s"""$tag STREAM RECV END ,
+           |  startTime=${_startTime} (${prettyDateTimeFromMillis(_startTime)}) ,
+           |  endTime=$endTime (${prettyDateTimeFromMillis(endTime)}) ,
+           |  initiatedNanos=${_initiatedNanos - _startNanos} (${prettyTimeFromNanos(_initiatedNanos - _startNanos)}) ,
+           |  firstBatchNanos=${_firstBatchNanos - _startNanos} (${prettyTimeFromNanos(_firstBatchNanos - _startNanos)}) ,
+           |  finishedNanos=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) ,
+           |  itemCount=${_itemCount} (${prettyFixedNumber(_itemCount.longValue)}) ,
+           |  potentialItemCount=${_stream.potentialItemCount} (${prettyFixedNumber(_stream.potentialItemCount)})
+           |  reportedItemCount=${msg.itemCount} (${prettyFixedNumber(msg.itemCount)}) ,
+           |  reportedPotentialItemCount=${msg.potentialItemCount} (${prettyFixedNumber(msg.potentialItemCount)}) ,
+           |  reportedRejectedItemCount=${msg.rejectedItemCount} (${prettyFixedNumber(msg.rejectedItemCount)}) ,
+           |  byteCount=${_byteCount} (${prettyByteSizeString(_byteCount.longValue)}) ,
+           |  batchCount=${_batchCount} ,
+           |  itemSize=$itemSize (${prettyByteSizeString(itemSize)}) ,
+           |  batchSize=$batchSize (${prettyByteSizeString(batchSize)}) ,
+           |  ${prettyRateString("byte", _byteCount.longValue, elapsedNanos)} ,
+""".stripMargin
+
+      _isTerminated.set(true)
+      _stream.complete(msg.itemCount, msg.expectedItemCount, msg.potentialItemCount, msg.rejectedItemCount, msg.marker)
+      forward(_.onStreamComplete(msg))
+
+      NexusClientReporter.onClientStreamSucceed()
+      NexusClientStreamFinalizeTrekMark.end(stage)
+    } catch safely {
+      case t: Throwable =>
+        log error(burstStdMsg(s"NEXUS_STREAM_COMPLETE_FAIL $tag", t), t)
+        NexusClientReporter.onClientStreamFail()
+        NexusClientStreamFinalizeTrekMark.fail(stage, t)
+        _stream.completeExceptionally(t)
+        _isTerminated.set(true)
+    } finally stage.closeScope()
   }
 
   override def abortStream(status: TeslaParcelStatus): Unit = {

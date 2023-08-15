@@ -1,25 +1,21 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.transmitter
 
-import org.burstsys.nexus.message.{NexusMsg, NexusStreamCompleteMsg, NexusStreamHeartbeatMsg, NexusStreamParcelMsg, maxFrameLength}
-import org.burstsys.nexus.{NexusChannel, NexusReporter}
-import org.burstsys.vitals.errors.{VitalsException, safely}
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
-import io.netty.util.concurrent.{GenericFutureListener, Future => NettyFuture}
+import io.netty.util.concurrent.{Future => NettyFuture}
 import io.opentelemetry.context.Context
-import org.burstsys.nexus.server.NexusServerReporter
+import org.burstsys.nexus.message.{NexusMsg, NexusStreamParcelMsg}
+import org.burstsys.nexus.server.NexusStreamFeeder
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.nexus.trek.{NexusServerCompleteSendTrekMark, NexusServerParcelSendTrekMark, NexusServerStreamTrekMark}
+import org.burstsys.nexus.trek.NexusServerParcelSendTrekMark
+import org.burstsys.nexus.{NexusChannel, NexusReporter}
 import org.burstsys.tesla
-import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
-
-import scala.concurrent.{Await, Future, Promise}
+import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.trek.context.injectContext
 
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
+import scala.concurrent.{Future, Promise}
 
 /**
  * outbound writes of control and data plane communication. Both the client and server share
@@ -42,76 +38,6 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
     log warn s"$this CHANNEL DISCONNECT"
   }
 
-  def transmitDataStream(stream: NexusStream): Unit = {
-    lazy val tag = s"NexusParcelTransmitter.transmitDataStream(id=$id, $link, stream=$stream  $remoteAddress:$remotePort)"
-    val streamSpan = NexusServerStreamTrekMark.begin(stream.guid)
-    TeslaRequestFuture {
-      try {
-        var lastMessageTransmit: Future[Unit] = Promise.successful((): Unit).future
-
-        var moreToGo = true
-        while (moreToGo) {
-          val parcel = stream.take
-          if (parcel.status.isHeartbeat) {
-            NexusServerReporter.onServerHeartbeat()
-            transmitControlMessage(NexusStreamHeartbeatMsg(stream))
-
-          } else if (parcel.status.isMarker) {
-            NexusServerReporter.onServerStreamSucceed()
-            val sendStreamCompleteSpan = NexusServerCompleteSendTrekMark.begin(stream.guid)
-
-            Await.ready(lastMessageTransmit, Duration.Inf)
-            transmitControlMessage(NexusStreamCompleteMsg(stream, parcel.status)) onComplete {
-              case Failure(t) =>
-                log error(burstStdMsg(s"$tag:$t", t), t)
-                NexusServerCompleteSendTrekMark.fail(sendStreamCompleteSpan, t)
-                NexusServerStreamTrekMark.fail(streamSpan, t)
-                NexusServerReporter.onServerStreamFail()
-              case Success(r) =>
-                NexusServerCompleteSendTrekMark.end(sendStreamCompleteSpan)
-                NexusServerStreamTrekMark.end(streamSpan)
-            }
-            moreToGo = false
-
-          } else if (parcel.currentUsedMemory > maxFrameLength) {
-            log error s"$tag parcel=$parcel size=${parcel.currentUsedMemory} exceeds maxFrameLength=$maxFrameLength, discarding parcel"
-            NexusServerReporter.onServerDrop()
-            tesla.parcel.factory releaseParcel parcel
-
-          } else {
-            Await.ready(lastMessageTransmit, Duration.Inf)
-
-            log info s"NexusStreamParcelMsg guid=${stream.guid} suid=${stream.suid} count=${parcel.bufferCount} action=transmit"
-            val writeStart = System.nanoTime
-            val parcelSize = parcel.currentUsedMemory
-            val update = NexusStreamParcelMsg(stream, parcel)
-            val buffer = channel.alloc().buffer(parcel.currentUsedMemory)
-            injectContext(update, buffer)
-            update.encode(buffer)
-            tesla.parcel.factory releaseParcel parcel
-
-            val sendParcelSpan = NexusServerParcelSendTrekMark.begin(stream.guid)
-            lastMessageTransmit = transmitDataMessage(buffer)
-            lastMessageTransmit onComplete {
-              case Failure(t) =>
-                NexusServerParcelSendTrekMark.fail(sendParcelSpan, t)
-                log error burstStdMsg(s"$tag could not transmit parcel $t", t)
-              case Success(_) =>
-                NexusServerParcelSendTrekMark.end(sendParcelSpan)
-            }
-            // this measurement is going to take almost no time since the write is async
-            NexusServerReporter.onServerWrite(parcelSize, System.nanoTime() - writeStart)
-          }
-        }
-      } catch safely {
-        case t: Throwable =>
-          NexusServerStreamTrekMark.fail(streamSpan, t)
-          NexusServerReporter.onServerStreamFail()
-          log error(burstStdMsg(s"$tag:$t", t), t)
-      }
-    }
-  }
-
   /**
    * transmit a control plane message. These are immediately flushed through the pipeline
    *
@@ -119,29 +45,27 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
    */
   def transmitControlMessage(msg: NexusMsg): Future[Unit] = {
     val tag = s"NexusTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort"
+    if (!canSendMsg) return Promise.failed(
+      VitalsException(s"$tag channel not open or active").fillInStackTrace()
+    ).future
+
     val promise = Promise[Unit]()
-    if (!channel.isOpen || !channel.isActive) return {
-      promise.failure(VitalsException(s"$tag channel not open or active").fillInStackTrace())
-      promise.future
-    }
     val transmitStart = System.nanoTime
-    // do the alloc/write/flush on the channel thread so its done right away
-    channel.eventLoop.submit(Context.current().wrap(new Runnable {
-      override def run(): Unit = {
-        val buffer = channel.alloc().buffer()
-        injectContext(msg, buffer)
-        msg.encode(buffer)
-        val buffSize = buffer.capacity
-        channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
-          if (!future.isSuccess) {
-            log warn burstStdMsg(s"$tag control message transmit failed  ${future.cause}", future.cause)
-            promise.failure(future.cause())
-          } else {
-            NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
-            promise.success((): Unit)
-          }
-        })
-      }
+    // do the alloc/write/flush on the channel thread so the fabric thead is done right away
+    channel.eventLoop.submit(Context.current().wrap(() => {
+      val buffer = channel.alloc().buffer()
+      injectContext(msg, buffer)
+      msg.encode(buffer)
+      val buffSize = buffer.capacity
+      channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
+        if (!future.isSuccess) {
+          log warn burstStdMsg(s"$tag control message transmit failed  ${future.cause}", future.cause)
+          promise.failure(future.cause())
+        } else {
+          NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
+          promise.success((): Unit)
+        }
+      })
     }))
     promise.future
   }
@@ -149,29 +73,33 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
   /**
    * transmit a data plane message. These are immediately flushed through the pipeline
    */
-  def transmitDataMessage(buffer: ByteBuf): Future[Unit] = {
+  def transmitDataMessage(message: NexusStreamParcelMsg): Future[Unit] = {
     val tag = s"NexusTransmitter.transmitDataMessage($remoteAddress:$remotePort"
+    if (!canSendMsg) return Promise.failed(
+      VitalsException(s"$tag channel not open or active").fillInStackTrace()
+    ).future
+
     val promise = Promise[Unit]()
-    if (!channel.isOpen || !channel.isActive) return {
-      promise.failure(VitalsException(s"$tag channel not open or active").fillInStackTrace())
-      promise.future
-    }
     val transmitStart = System.nanoTime
-    val buffSize = buffer.capacity
-    // do the alloc/write/flush on the channel thread so its done right away
-    channel.eventLoop.submit(Context.current().wrap(new Runnable {
-      override def run(): Unit = {
-        channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
-          if (!future.isSuccess) {
-            log warn burstStdMsg(s"$tag data message transmit failed  ${future.cause}", future.cause)
-            promise.failure(future.cause())
-          } else {
-            NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
-            promise.success(())
-          }
-        })
-      }
+    channel.eventLoop.submit(Context.current.wrap(() => {
+      val buffer = channel.alloc().buffer(message.parcel.currentUsedMemory)
+      injectContext(message, buffer)
+      message.encode(buffer)
+      tesla.parcel.factory releaseParcel message.parcel
+      val buffSize = buffer.capacity
+
+      channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
+        if (!future.isSuccess) {
+          log warn burstStdMsg(s"$tag data message transmit failed  ${future.cause}", future.cause)
+          promise.failure(future.cause())
+        } else {
+          NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
+          promise.success(())
+        }
+      })
     }))
     promise.future
   }
+
+  private def canSendMsg: Boolean = channel.isOpen && channel.isActive
 }

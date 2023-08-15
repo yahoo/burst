@@ -3,7 +3,7 @@ package org.burstsys.supervisor.http.service.burnin
 
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
-import org.burstsys.supervisor.http.service.burnin.BurstWaveBurnInService.BurnInLabel
+import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch.BurnInLabel
 import org.burstsys.supervisor.http.service.provider._
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals
@@ -11,10 +11,6 @@ import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.jctools.queues.MpmcArrayQueue
 
 import java.util.logging.Level
-
-object BurstWaveBurnInService {
-  val BurnInLabel = "Burn-In"
-}
 
 case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
   extends BurstWaveSupervisorBurnInService {

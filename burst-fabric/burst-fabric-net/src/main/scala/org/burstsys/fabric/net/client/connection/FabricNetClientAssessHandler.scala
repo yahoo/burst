@@ -5,10 +5,8 @@ import org.burstsys.fabric
 import org.burstsys.fabric.container.metrics.FabricAssessment
 import org.burstsys.fabric.container.model.metrics.FabricLastHourMetricCollector
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg}
-import org.burstsys.fabric.trek.FabricNetAssessResp
 import org.burstsys.tesla.offheap
 import org.burstsys.vitals.background.VitalsBackgroundFunction
-import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.reporter.instrument.prettyByteSizeString
 import org.burstsys.vitals.{git, host}
@@ -46,23 +44,10 @@ trait FabricNetClientAssessHandler {
   private[this]
   val _diskCollector: FabricLastHourMetricCollector = FabricLastHourMetricCollector().initialize
 
-  /**
-   *
-   * incoming assessment request from remote supervisor
-   */
-  def sendAssessResponse(msg: FabricNetAssessReqMsg): Unit = {
-    lazy val hdr = s"FabricNetClientAssessHandler.assessRequest"
-    val span = FabricNetAssessResp.begin()
-    log debug s"$hdr $msg"
-    if (msg.receiverKey != clientKey)
-      throw VitalsException(s"msg.receiverKey=${msg.receiverKey} != localKey=$clientKey")
-
-    val response = FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, FabricAssessment(
+  def getAssessMessage(msg: FabricNetAssessReqMsg): FabricNetAssessRespMsg = {
+    FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, FabricAssessment(
       _pingCollector.exportMetric, _lavCollector.exportMetric, _memCollector.exportMetric, _diskCollector.exportMetric
     ))
-
-    transmitter transmitControlMessage response
-    span.end()
   }
 
   def memoryPercentUsed: Double = percentUsed("memory", offheap.nativeMemoryMax, used = host.mappedMemoryUsed)
@@ -73,7 +58,6 @@ trait FabricNetClientAssessHandler {
     {
       _lavCollector sample host.loadAverage
       _memCollector sample memoryPercentUsed
-
     })
 
   private def percentUsed(name: String, total: Long, usable: Long = -1, used: Long = -1): Double = {

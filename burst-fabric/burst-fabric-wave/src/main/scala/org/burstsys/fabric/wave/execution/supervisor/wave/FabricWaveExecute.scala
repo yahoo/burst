@@ -46,30 +46,32 @@ trait FabricWaveExecute extends Any {
     lazy val tag = s"FabricWaveExecute.waveExecute($group, $over)"
 
     val start = System.nanoTime
-    val swSpan = FabricSupervisorWaveTrekMark.begin(group.groupUid)
-    container.data.slices(group.groupUid, scanner.datasource) map { slices =>
-      FabricWave(group.groupUid, slices.map(FabricParticle(group.groupUid, _, scanner)))
-    } chainWithFuture { wave =>
-      container.execution.executionWaveOp(wave)
-    } andThen {
-      case Success(_) =>
-        val elapsedNanos = System.nanoTime - start
-        log info s"WAVE_EXECUTE_SUCCESS elapsedNs=elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) $tag"
-        FabricSupervisorWaveTrekMark.end(swSpan)
-      case Failure(t) =>
-        FabricSupervisorWaveTrekMark.fail(swSpan, t)
-        log error burstStdMsg(s"WAVE_EXECUTE_FAIL $t $tag", t)
-    } map {
-      case gather: FabricFaultGather =>
-        FabricResultGroup(group, FabricFaultResultStatus, gather.resultMessage, FabricResultGroupMetrics(gather))
+    FabricSupervisorWaveTrekMark.begin(group.groupUid) { stage =>
+      container.data.slices(group.groupUid, scanner.datasource) map { slices =>
+        FabricWave(group.groupUid, slices.map(FabricParticle(group.groupUid, _, scanner)))
+      } chainWithFuture { wave =>
+        container.execution.executionWaveOp(wave)
+      } andThen {
+        case Success(_) =>
+          val elapsedNanos = System.nanoTime - start
+          log info s"WAVE_EXECUTE_SUCCESS elapsedNs=elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) $tag"
+          FabricSupervisorWaveTrekMark.end(stage)
+        case Failure(t) =>
+          FabricSupervisorWaveTrekMark.fail(stage, t)
+          log error burstStdMsg(s"WAVE_EXECUTE_FAIL $t $tag", t)
+      } map {
+        case gather: FabricFaultGather =>
+          FabricResultGroup(group, FabricFaultResultStatus, gather.resultMessage, FabricResultGroupMetrics(gather))
 
-      case gather: FabricEmptyGather =>
-        FabricResultGroup(group, FabricNoDataResultStatus, "NO_DATA", FabricResultGroupMetrics(gather))
+        case gather: FabricEmptyGather =>
+          FabricResultGroup(group, FabricNoDataResultStatus, "NO_DATA", FabricResultGroupMetrics(gather))
 
-      case gather: FabricDataGather =>
-        extractResults(gather)
-    } andThen { case Success(results) =>
-      results.releaseResourcesOnSupervisor() // this is a no-op for a generic FabricResultGroup
+        case gather: FabricDataGather =>
+          extractResults(gather)
+      } andThen { case Success(results) =>
+        results.releaseResourcesOnSupervisor() // this is a no-op for a generic FabricResultGroup
+      }
+
     }
   }
 

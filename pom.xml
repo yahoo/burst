@@ -191,7 +191,7 @@
         <!--********************************************************************************************-->
 
         <scala-major.version>2.13</scala-major.version>
-        <scala-minor.version>11-M2</scala-minor.version>
+        <scala-minor.version>11</scala-minor.version>
         <scala.version>${scala-major.version}.${scala-minor.version}</scala.version>
 
         <!-- libraries with many components and no BOM -->

@@ -45,7 +45,7 @@ final case class BurstExecutionRelay(webSocketService: FabricWebSocketService)
   override def onEvent: PartialFunction[FabricPipelineEvent, Boolean] = {
     val pf: PartialFunction[FabricPipelineEvent, VitalsUid] = {
       case e: AgentRequestStarted =>
-        requests.requestStarted(e.guid, e.source, e.over, e.call)
+        requests.requestStarted(e.guid, e.traceId, e.source, e.over, e.call)
       case e: AgentRequestSucceeded =>
         requests.requestSucceeded(e.guid)
       case e: AgentRequestFailed =>

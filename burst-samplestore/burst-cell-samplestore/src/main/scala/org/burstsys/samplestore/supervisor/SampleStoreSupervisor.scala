@@ -21,7 +21,6 @@ import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.net.{VitalsHostName, VitalsHostPort}
 import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.uid.VitalsUid
-import org.burstsys.vitals.properties._
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger

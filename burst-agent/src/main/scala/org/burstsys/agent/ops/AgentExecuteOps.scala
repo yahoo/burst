@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.agent.ops
 
-import java.util.concurrent.{TimeUnit, TimeoutException}
-
+import io.opentelemetry.api.common.Attributes
 import org.burstsys.agent.api.server
 import org.burstsys.agent.api.server.maxConcurrencyGate
 import org.burstsys.agent.configuration.burstAgentApiTimeoutDuration
@@ -10,7 +9,7 @@ import org.burstsys.agent.model.execution.group.call._
 import org.burstsys.agent.model.execution.group.over._
 import org.burstsys.agent.model.execution.result._
 import org.burstsys.agent.transform.AgentTransform
-import org.burstsys.agent.{AgentLanguage, AgentService, AgentServiceContext, transform}
+import org.burstsys.agent._
 import org.burstsys.api._
 import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
 import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupUid, sanitizeGuid}
@@ -21,6 +20,7 @@ import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.{VitalsException, messageFromException}
 
+import java.util.concurrent.{TimeUnit, TimeoutException}
 import scala.collection.mutable
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
@@ -61,18 +61,20 @@ trait AgentExecuteOps extends AgentService {
 
   final override
   def execute(source: String, over: FabricOver, guid: FabricGroupUid, call: Option[FabricCall]): Future[FabricExecuteResult] = {
-    if (modality.isClient)
-      apiClient.groupExecute(Some(guid), source, over, call.map(fabricToAgentCall)) map thriftToFabricExecuteResult
-    else {
-      val start = System.nanoTime
-      lazy val durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime - start)
-      val cleanGuid = sanitizeGuid(guid)
-      if (!cleanGuid.startsWith(guid)) {
-        log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$cleanGuid' instead"
-      }
-      val tag = s"guid='$guid' cleanGuid='$cleanGuid' $over startConcurrency=${maxConcurrencyGate.get}"
-      log info s"AGENT_PIPELINE_BEGIN $tag"
+    if (modality.isClient) {
+      return apiClient.groupExecute(Some(guid), source, over, call.map(fabricToAgentCall)) map thriftToFabricExecuteResult
+    }
 
+    val start = System.nanoTime
+    lazy val durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime - start)
+    val cleanGuid = sanitizeGuid(guid)
+    if (!cleanGuid.startsWith(guid)) {
+      log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$cleanGuid' instead"
+    }
+    val tag = s"guid='$guid' cleanGuid='$cleanGuid' $over startConcurrency=${maxConcurrencyGate.get}"
+    log info s"AGENT_PIPELINE_BEGIN $tag"
+
+    AgentRequestTrekMark.begin(cleanGuid) { trek =>
       TeslaRequestFuture { // execute the request if we have a free wave
         onAgentRequestBegin(cleanGuid, source, over, call)
 
@@ -105,14 +107,19 @@ trait AgentExecuteOps extends AgentService {
         case Success(result) if result.succeeded =>
           log info s"AGENT_EXECUTE_DONE status=${result.resultStatus} $tag endConcurrency=${maxConcurrencyGate.get} duration=${durationMs}ms success=true"
           onAgentRequestSucceed(cleanGuid)
+          AgentRequestTrekMark.end(trek)
 
         case Success(result) =>
           log warn s"AGENT_EXECUTE_DONE status=${result.resultStatus} $tag endConcurrency=${maxConcurrencyGate.get} duration=${durationMs}ms message='${result.resultMessage.split("\n")(0)}' failure=true"
           onAgentRequestFail(cleanGuid, result.resultStatus, result.resultMessage)
+          trek.span.addEvent(result.resultStatus.name, Attributes.empty)
+          AgentRequestTrekMark.fail(trek)
 
         case Failure(ex) =>
           log warn(s"AGENT_EXECUTE_DONE status=UNHANDLED $tag endConcurrency=${maxConcurrencyGate.get} duration=${durationMs}ms failure=true", ex)
           onAgentRequestFail(cleanGuid, FabricFaultResultStatus, ex.getLocalizedMessage)
+          trek.span.recordException(ex)
+          AgentRequestTrekMark.fail(trek)
       }
     }
   }

@@ -29,8 +29,7 @@ object NexusStreamParcelMsg {
 /**
  * sent from server to client to provide a single data item (for non batch mode transfers)
  */
-final
-class NexusStreamParcelMsg() extends NexusMsg(NexusStreamParcelMsgType) {
+final class NexusStreamParcelMsg() extends NexusMsg(NexusStreamParcelMsgType) {
 
   var parcel: TeslaParcel = TeslaEndMarkerParcel
 
@@ -45,8 +44,7 @@ class NexusStreamParcelMsg() extends NexusMsg(NexusStreamParcelMsgType) {
    * @param buffer source netty buffer
    * @return uninflated parcel
    */
-  override
-  def decode(buffer: ByteBuf): this.type = {
+  override def decode(buffer: ByteBuf): this.type = {
     TeslaWorkerCoupler {
       super.decode(buffer)
       // read total length
@@ -69,8 +67,7 @@ class NexusStreamParcelMsg() extends NexusMsg(NexusStreamParcelMsgType) {
    *
    * @return
    */
-  override
-  def encode(buffer: ByteBuf): this.type = {
+  override def encode(buffer: ByteBuf): this.type = {
     lazy val hdr = s"NexusStreamParcelMsg.encode"
     TeslaWorkerCoupler {
       super.encode(buffer)

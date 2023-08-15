@@ -10,8 +10,8 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 
 object context {
 
-  private final val LAST_TAG:Byte = -1
-  private final val PROPERTY_TAG:Byte = -2
+  private final val LAST_TAG: Byte = -1
+  private final val PROPERTY_TAG: Byte = -2
 
   def injectContext(msg: AnyRef, buffer: ByteBuf): Unit = {
     val prop = GlobalOpenTelemetry.getPropagators.getTextMapPropagator
@@ -21,13 +21,13 @@ object context {
     buffer.writeByte(LAST_TAG)
   }
 
-  def extractContext(msg: AnyRef, buffer: ByteBuf): Scope  = {
+  def extractContext(msg: AnyRef, buffer: ByteBuf): Scope = {
     val prop = GlobalOpenTelemetry.getPropagators.getTextMapPropagator
     if (log.isTraceEnabled())
       log trace s"extract context msg=$msg msg=$buffer context=${Context.current()} prop=$prop"
-    val ctxt: Context = prop.extract(Context.current(), buffer, msgGetter)
+    val context: Context = prop.extract(Context.current(), buffer, msgGetter)
     skipContext(buffer)
-    ctxt.makeCurrent()
+    context.makeCurrent()
   }
 
   def extractContext(msg: AnyRef, arry: Array[Byte]): Array[Byte] = {
@@ -68,6 +68,7 @@ object context {
   }
 
   private val msgGetter = new MsgGetter()
+
   private class MsgGetter extends TextMapGetter[ByteBuf] {
     override def keys(msg: ByteBuf): java.lang.Iterable[String] = {
       // assume we are at the beginning of the context
@@ -89,7 +90,7 @@ object context {
 
     override def get(msg: ByteBuf, key: String): String = {
       val ri = msg.readerIndex()
-      var getValue:String = null
+      var getValue: String = null
       var tag = msg.readByte()
 
       while (tag != LAST_TAG) {
@@ -104,7 +105,7 @@ object context {
         tag = msg.readByte()
       }
       msg.readerIndex(ri) // return to where we started
-      if (log.isTraceEnabled()){
+      if (log.isTraceEnabled()) {
         log trace s"context get key=$key value=$getValue msg=$msg"
       }
       getValue
@@ -112,9 +113,10 @@ object context {
   }
 
   private val msgSetter = new MsgSetter()
+
   private class MsgSetter extends TextMapSetter[ByteBuf] {
     override def set(carrier: ByteBuf, key: String, value: String): Unit = {
-      if (log.isTraceEnabled()){
+      if (log.isTraceEnabled()) {
         log trace s"context set key=$key value=$value msg=$carrier"
       }
       carrier.writeByte(PROPERTY_TAG)

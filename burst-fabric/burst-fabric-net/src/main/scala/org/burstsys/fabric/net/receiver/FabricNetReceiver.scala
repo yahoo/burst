@@ -3,8 +3,6 @@ package org.burstsys.fabric.net.receiver
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, SimpleChannelInboundHandler}
-import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.context.{Context, Scope}
 import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.message._
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter}
