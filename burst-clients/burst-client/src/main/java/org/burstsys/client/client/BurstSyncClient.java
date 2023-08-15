@@ -158,6 +158,9 @@ public class BurstSyncClient {
     }
 
     public static <A, B> List<B> mappedList(List<A> source, Function<A, B> mapper) {
+        if (source == null) {
+            return null;
+        }
         return Collections.unmodifiableList(
                source.stream().map(mapper).collect(Collectors.toList())
         );

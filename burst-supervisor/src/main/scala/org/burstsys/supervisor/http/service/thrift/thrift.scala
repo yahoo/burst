@@ -34,7 +34,12 @@ package object thrift extends VitalsLogger {
 
   def emptyPropMap: util.Map[String, String] = Map.empty[String, String].asJava
 
-  def asMap[K, V](fromJava: util.Map[K, V]): Map[K, V] = fromJava.asScala.toMap
+  def asMap[K, V](fromJava: util.Map[K, V]): Map[K, V] =
+    if (fromJava == null) {
+      Map.empty
+    } else {
+      fromJava.asScala.toMap
+    }
 
   def bailWith(message: String)(implicit site: sourcecode.Enclosing, pkg: sourcecode.Pkg, file: sourcecode.FileName, line: sourcecode.Line): Nothing = {
     log.warn(message)

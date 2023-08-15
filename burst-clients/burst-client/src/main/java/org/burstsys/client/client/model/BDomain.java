@@ -85,7 +85,11 @@ public class BDomain {
         labels = new HashMap<>(builder.labels);
         createTimestamp = null;
         modifyTimestamp = null;
-        views = builder.views.stream().map(BView::copy).collect(Collectors.toList());
+        if (builder.views == null) {
+            views = null;
+        } else {
+            views = builder.views.stream().map(BView::copy).collect(Collectors.toList());
+        }
     }
 
     private BDomain(BTDomain fromThrift) {
