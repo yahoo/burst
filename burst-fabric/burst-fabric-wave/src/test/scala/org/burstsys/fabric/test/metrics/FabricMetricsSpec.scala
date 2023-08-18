@@ -72,7 +72,7 @@ class FabricMetricsSpec extends FabricWaveSupervisorWorkerBaseSpec {
       val particles = slices.map(FabricParticle(guid, _, scanner))
       // create a wave from the particles
       val wave = FabricWave(guid, particles)
-      supervisorContainer.execution.executionWaveOp(wave)
+      supervisorContainer.execution.dispatchExecutionWave(wave)
     }
     val gather = Await.result(result, 2 minutes)
 

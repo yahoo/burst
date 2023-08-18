@@ -15,7 +15,7 @@ package object trek {
   )
 
   final object NexusServerStreamTrekMark extends VitalsTrekMark("NexusServerStream",
-    VitalsTrekRemote, VitalsTrekWorker
+    VitalsTrekRemote, VitalsTrekWorker, SpanKind.SERVER
   )
 
   final object NexusServerCompleteSendTrekMark extends VitalsTrekMark("NexusServerCompleteSend",

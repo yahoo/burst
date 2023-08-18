@@ -7,6 +7,6 @@ import org.burstsys.vitals.trek.{VitalsTrekMark, VitalsTrekRemote, VitalsTrekWor
 package object trek {
 
   final object SampleSourceFeedStreamTrek extends VitalsTrekMark("FeedStream",
-    VitalsTrekRemote, VitalsTrekWorker, SpanKind.SERVER
+    VitalsTrekRemote, VitalsTrekWorker, SpanKind.PRODUCER
   )
 }

@@ -82,7 +82,7 @@ class FabricWaveNetWaveSpec extends FabricWaveSupervisorWorkerBaseSpec
       val particles = slices map (FabricParticle(guid, _, scanner))
       // create a wave from the particles
       val wave = FabricWave(guid, particles)
-      supervisorContainer.execution.executionWaveOp(wave)
+      supervisorContainer.execution.dispatchExecutionWave(wave)
     }
 
     // execute the wave - wait for future - get back a gather

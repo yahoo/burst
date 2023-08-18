@@ -1,9 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus.transmitter
 
+import io.opentelemetry.api.common.AttributeKey
 import org.burstsys.nexus.message.{NexusStreamCompleteMsg, NexusStreamHeartbeatMsg, NexusStreamParcelMsg, maxFrameLength}
 import org.burstsys.nexus.server.{NexusServerReporter, NexusStreamFeeder}
 import org.burstsys.nexus.stream.NexusStream
+import org.burstsys.nexus.transmitter.NexusStreamHandler._
 import org.burstsys.nexus.trek.{NexusServerCompleteSendTrekMark, NexusServerParcelSendTrekMark, NexusServerStreamTrekMark}
 import org.burstsys.tesla
 import org.burstsys.tesla.parcel
@@ -17,49 +19,54 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future, Promise}
 import scala.util.{Failure, Success}
 
-case class NexusStreamHandler(stream: NexusStream, transmitter: NexusTransmitter, feeder: NexusStreamFeeder) {
+object NexusStreamHandler {
+  private val statusKey = AttributeKey.stringKey("stream.status")
+  private val itemCountKey = AttributeKey.longKey("stream.itemCount")
+  private val expectedItemCountKey = AttributeKey.longKey("stream.expectedItemCount")
+  private val potentialItemCountKey = AttributeKey.longKey("stream.potentialItemCount")
+  private val rejectedItemCountKey = AttributeKey.longKey("stream.rejectedItemCount")
+
+  private val parcelSizeKey = AttributeKey.longKey("parcel.size")
+  private val parcelItemCountKey = AttributeKey.longKey("parcel.itemCount")
+}
+
+case class NexusStreamHandler(stream: NexusStream, transmitter: NexusTransmitter, feeder: NexusStreamFeeder, stage: TrekStage) {
 
   override def toString: String = s"NexusStreamHandler(stream=$stream  remote=${transmitter.remoteAddress})"
-
-  private var streamStage: TrekStage = _
 
   def start(): Future[Unit] = {
     feeder.feedStream(stream)
     TeslaRequestFuture {
-      streamStage = NexusServerStreamTrekMark.beginSync(stream.guid, stream.suid)
+      var lastMessageTransmit: Future[Unit] = Promise.successful((): Unit).future
       try {
-        var lastMessageTransmit: Future[Unit] = Promise.successful((): Unit).future
-        try {
-          var moreToGo = true
-          while (moreToGo) {
-            val parcel = stream.take
-            if (parcel.status.isHeartbeat) {
-              transmitHeartbeat()
+        var moreToGo = true
+        while (moreToGo) {
+          val parcel = stream.take
+          if (parcel.status.isHeartbeat) {
+            transmitHeartbeat()
 
-            } else if (parcel.status.isMarker) {
-              Await.ready(lastMessageTransmit, Duration.Inf)
-              lastMessageTransmit = transmitStatusMessage(parcel)
-              moreToGo = false
+          } else if (parcel.status.isMarker) {
+            Await.ready(lastMessageTransmit, Duration.Inf)
+            lastMessageTransmit = transmitStatusMessage(parcel)
+            moreToGo = false
 
-            } else if (parcel.currentUsedMemory > maxFrameLength) {
-              dropParcel(parcel)
+          } else if (parcel.currentUsedMemory > maxFrameLength) {
+            dropParcel(parcel)
 
-            } else {
-              Await.ready(lastMessageTransmit, Duration.Inf)
-              lastMessageTransmit = transmitDataParcel(parcel)
-            }
+          } else {
+            Await.ready(lastMessageTransmit, Duration.Inf)
+            lastMessageTransmit = transmitDataParcel(parcel)
           }
-        } catch safely {
-          case t: Throwable =>
-            NexusServerStreamTrekMark.fail(streamStage, t)
-            NexusServerReporter.onServerStreamFail()
-            log error(burstStdMsg(s"$this:$t", t), t)
         }
+      } catch safely {
+        case t: Throwable =>
+          NexusServerReporter.onServerStreamFail()
+          log error burstStdMsg(s"$this:$t", t)
+          throw t
+      }
 
-        Await.result(lastMessageTransmit, Duration.Inf)
-      } finally streamStage.closeScope()
+      Await.result(lastMessageTransmit, Duration.Inf)
     }
-
   }
 
   def abort(status: parcel.TeslaParcelStatus): Unit = {
@@ -68,19 +75,25 @@ case class NexusStreamHandler(stream: NexusStream, transmitter: NexusTransmitter
 
   private def transmitHeartbeat(): Unit = {
     NexusServerReporter.onServerHeartbeat()
-    streamStage.addEvent("Heartbeat")
+    stage.addEvent("Heartbeat")
     transmitter.transmitControlMessage(NexusStreamHeartbeatMsg(stream))
   }
 
   private def dropParcel(parcel: TeslaParcel): Unit = {
     log error s"$this parcel=$parcel size=${parcel.currentUsedMemory} exceeds maxFrameLength=$maxFrameLength, discarding parcel"
-    streamStage.addEvent("Parcel dropped")
+    stage.addEvent("Parcel dropped")
     NexusServerReporter.onServerDrop()
     tesla.parcel.factory releaseParcel parcel
   }
 
   private def transmitStatusMessage(parcel: TeslaParcel): Future[Unit] = {
-    streamStage.addEvent("Stream complete " + parcel.status.statusName)
+    stage.addEvent("Stream complete: " + parcel.status.statusName)
+    stage.span
+      .setAttribute(statusKey, parcel.status.statusName)
+      .setAttribute(itemCountKey, stream.itemCount.asInstanceOf[java.lang.Long])
+      .setAttribute(expectedItemCountKey, stream.expectedItemCount.asInstanceOf[java.lang.Long])
+      .setAttribute(potentialItemCountKey, stream.potentialItemCount.asInstanceOf[java.lang.Long])
+      .setAttribute(rejectedItemCountKey, stream.rejectedItemCount.asInstanceOf[java.lang.Long])
     NexusServerCompleteSendTrekMark.begin(stream.guid) { stage =>
       transmitter.transmitControlMessage(NexusStreamCompleteMsg(stream, parcel.status)) andThen {
         case Failure(t) =>
@@ -103,6 +116,9 @@ case class NexusStreamHandler(stream: NexusStream, transmitter: NexusTransmitter
     val future = NexusServerParcelSendTrekMark.begin(stream.guid) { stage =>
       log info s"NexusStreamParcelMsg guid=${stream.guid} suid=${stream.suid} count=${parcel.bufferCount} action=transmit"
       val update = NexusStreamParcelMsg(stream, parcel)
+      stage.span
+        .setAttribute(parcelItemCountKey, parcel.bufferCount)
+        .setAttribute(parcelSizeKey, parcelSize)
       transmitter.transmitDataMessage(update) andThen {
         case Failure(t) =>
           NexusServerParcelSendTrekMark.fail(stage, t)

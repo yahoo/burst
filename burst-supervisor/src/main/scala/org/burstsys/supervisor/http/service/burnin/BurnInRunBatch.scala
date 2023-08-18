@@ -16,6 +16,7 @@ import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch.BurnInLabel
 import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType
 import org.burstsys.supervisor.http.service.provider.BurnInDatasetDescriptor.LookupType
 import org.burstsys.supervisor.http.service.provider.{BurnInBatch, BurnInDatasetDescriptor, BurnInEvent, BurnInLogEvent}
+import org.burstsys.supervisor.trek.{BurnInDatasetTrek, BurnInQueryTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals
 import org.burstsys.vitals.errors.{VitalsException, safely}
@@ -268,39 +269,47 @@ case class BurnInWorker(
     TeslaRequestFuture {
       var result = BurnInRunBatchStats(BatchCompletedNormally)
       while (shouldContinue()) breakable {
-        val dataset = nextDataset()
-        if (!dataset.ready) {
-          break()
-        }
+        BurnInDatasetTrek.begin() { stage =>
+          val dataset = nextDataset()
+          if (!dataset.ready) {
+            break()
+          }
 
-        val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
-        flushDataset(dataset)
-        registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
-        if (!shouldContinue()) {
-          break()
-        }
-        runQuery(dataset, dataset.loadQuery, s"${guidBase}_Load") match {
+          val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
+          flushDataset(dataset)
+          registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
+          if (!shouldContinue()) {
+            BurnInDatasetTrek.end(stage)
+            break()
+          }
 
-          case Failure(exception) =>
-            registerLogEvent(s"Failed to load view=${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
+          runQuery(dataset, dataset.loadQuery, s"${guidBase}_Load") match {
 
-          case Success(loadStats) =>
-            registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}", Level.FINE)
-            result = result.merge(loadStats)
-            //            reportStats(loadStats)
-            for (queryIdx <- dataset.queries.indices) {
-              val query = dataset.queries(queryIdx)
-              if (!shouldContinue()) {
-                break()
+            case Failure(exception) =>
+              stage.addEvent("Load failed")
+              BurnInDatasetTrek.fail(stage, exception)
+              registerLogEvent(s"Failed to load view=${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
+
+            case Success(loadStats) =>
+              registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}", Level.FINE)
+              result = result.merge(loadStats)
+              //            reportStats(loadStats)
+              for (queryIdx <- dataset.queries.indices) {
+                val query = dataset.queries(queryIdx)
+                if (!shouldContinue()) {
+                  BurnInDatasetTrek.end(stage)
+                  break()
+                }
+                runQuery(dataset, query, s"${guidBase}_Query$queryIdx") match {
+                  case Failure(exception) =>
+                    registerLogEvent(s"Failed to execute query  $queryIdx on view ${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
+                  case Success(queryStats) =>
+                    result = result.merge(queryStats)
+                  //                  reportStats(queryStats)
+                }
               }
-              runQuery(dataset, query, s"${guidBase}_Query$queryIdx") match {
-                case Failure(exception) =>
-                  registerLogEvent(s"Failed to execute query  $queryIdx on view ${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
-                case Success(queryStats) =>
-                  result = result.merge(queryStats)
-                //                  reportStats(queryStats)
-              }
-            }
+              BurnInDatasetTrek.end(stage)
+          }
         }
       }
       result
@@ -317,15 +326,7 @@ case class BurnInWorker(
     }
     dataset.willRunQuery()
 
-    val span = vitals.tracing.tracer.spanBuilder("BurnInQuery")
-      .setNoParent()
-      .setAttribute("worker", workerId)
-      .setAttribute("query", query)
-      .setAttribute("domain", dataset.domain.domainKey)
-      .setAttribute("view", dataset.view.viewKey)
-      .startSpan()
-    val scope = span.makeCurrent()
-    try {
+    BurnInQueryTrek.begin(guid) { stage =>
       val over = FabricOver(dataset.domain.domainKey, dataset.view.viewKey)
       val future = agent.execute(query, over, guid)
 
@@ -342,6 +343,7 @@ case class BurnInWorker(
           value.flatMap(result => result.resultStatus match {
             case status.FabricSuccessResultStatus
                  | status.FabricNoDataResultStatus =>
+              BurnInQueryTrek.end(stage)
               Success(BurnInRunBatchStats(result))
 
             case status.FabricInProgressResultStatus
@@ -351,16 +353,20 @@ case class BurnInWorker(
                  | status.FabricTimeoutResultStatus
                  | status.FabricNotReadyResultStatus
                  | status.FabricStoreErrorResultStatus =>
-              Failure(VitalsException(s"Query execution failed: ${result.resultMessage}"))
+              val exception = VitalsException(s"Query execution failed: ${result.resultMessage}")
+              BurnInQueryTrek.fail(stage, exception)
+              Failure(exception)
 
-            case _ => ???
+            case _ =>
+              val exception = VitalsException(s"Query execution unknown status: ${result.resultMessage}")
+              BurnInQueryTrek.fail(stage, exception)
+              Failure(exception)
           })
         case None =>
-          Failure(VitalsException("Query execution incomplete"))
+          val exception = VitalsException("Query execution incomplete")
+          BurnInQueryTrek.fail(stage, exception)
+          Failure(exception)
       }
-    } finally {
-      scope.close()
-      span.end()
     }
   }
 

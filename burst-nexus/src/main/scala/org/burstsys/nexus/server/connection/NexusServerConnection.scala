@@ -74,7 +74,7 @@ class NexusServerConnectionContext(channel: Channel, transmitter: NexusTransmitt
         log info s"NEXUS_STREAM_INITIATE NexusServerParcelHandler.initiateStream($link, ${msgIds(request)}) "
         transmitter.transmitControlMessage(NexusStreamInitiatedMsg(request, request.suid))
 
-        val handler = NexusStreamHandler(stream, transmitter, feeder)
+        val handler = NexusStreamHandler(stream, transmitter, feeder, stage)
         _streamHandlers.put(request.streamKey, handler)
         handler.start() andThen { case _ =>
           _streamHandlers.remove(request.streamKey)
