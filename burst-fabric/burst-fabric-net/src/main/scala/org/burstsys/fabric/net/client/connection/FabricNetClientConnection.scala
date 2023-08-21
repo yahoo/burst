@@ -8,8 +8,7 @@ import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.message.{AccessParameters, FabricNetAssessReqMsgType, FabricNetMsg, FabricNetShutdownMsgType}
-import org.burstsys.fabric.net.receiver.FabricNetReceiver
-import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
+import org.burstsys.fabric.net.transceiver.{FabricNetReceiver, FabricNetTransmitter}
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, newRequestId}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode

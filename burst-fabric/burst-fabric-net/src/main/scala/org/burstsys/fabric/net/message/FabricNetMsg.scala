@@ -17,6 +17,11 @@ import scala.collection.mutable
 trait FabricNetMsg extends AnyRef {
 
   /**
+   * @return the type of this message
+   */
+  def messageType: FabricNetMsgType
+
+  /**
    * @return the id of this message
    */
   def messageId: FabricNetMessageId

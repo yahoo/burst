@@ -3,7 +3,7 @@ package org.burstsys.fabric.net
 
 import io.netty.channel.Channel
 import io.netty.util.concurrent.{Future => NettyFuture}
-import io.opentelemetry.context.Context
+import io.opentelemetry.api.common.AttributeKey
 import org.burstsys.fabric.net.message.FabricNetMsg
 import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
@@ -11,7 +11,23 @@ import org.burstsys.vitals.trek.context.injectContext
 
 import scala.concurrent.{Future, Promise}
 
-package object transmitter extends VitalsLogger {
+package object transceiver extends VitalsLogger {
+
+  val fabricMessageTypeKey: AttributeKey[java.lang.Long] = AttributeKey.longKey("burst.fabric.message.type")
+
+  /**
+    * handle message events associated with a fabric network client
+    */
+  trait FabricNetClientMsgListener extends Any {
+
+  }
+
+  /**
+    * handle message events associated with a fabric network server
+    */
+  trait FabricNetServerMsgListener extends Any {
+
+  }
 
   class NettyMessageSendRunnable(channel: Channel, msg: FabricNetMsg) extends Runnable {
 
@@ -47,4 +63,5 @@ package object transmitter extends VitalsLogger {
       }
     }
   }
+
 }

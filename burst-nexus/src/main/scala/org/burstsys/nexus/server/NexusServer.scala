@@ -7,9 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.burstsys.nexus.NexusIoMode._
 import org.burstsys.nexus.configuration._
 import org.burstsys.nexus.message.{NexusInboundFrameDecoder, NexusOutboundFrameEncoder}
-import org.burstsys.nexus.receiver._
+import org.burstsys.nexus.transceiver._
 import org.burstsys.nexus.server.connection.NexusServerConnection
-import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.nexus.{NexusConfig, NexusIoMode => _}
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}

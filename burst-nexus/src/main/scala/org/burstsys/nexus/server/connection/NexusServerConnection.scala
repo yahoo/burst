@@ -5,10 +5,9 @@ import io.netty.channel.Channel
 import org.burstsys.nexus.NexusConnection
 import org.burstsys.nexus.configuration.burstNexusPipeSizeProperty
 import org.burstsys.nexus.message.{NexusStreamAbortMsg, NexusStreamInitiateMsg, NexusStreamInitiatedMsg, msgIds}
-import org.burstsys.nexus.receiver.NexusServerMsgListener
-import org.burstsys.nexus.server.{NexusServerListener, NexusStreamFeeder}
+import org.burstsys.nexus.transceiver.{NexusServerMsgListener, NexusTransmitter}
+import org.burstsys.nexus.server.{NexusServerListener, NexusStreamFeeder, connection}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.nexus.transmitter.{NexusStreamHandler, NexusTransmitter}
 import org.burstsys.nexus.trek.NexusServerStreamTrekMark
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
@@ -74,7 +73,7 @@ class NexusServerConnectionContext(channel: Channel, transmitter: NexusTransmitt
         log info s"NEXUS_STREAM_INITIATE NexusServerParcelHandler.initiateStream($link, ${msgIds(request)}) "
         transmitter.transmitControlMessage(NexusStreamInitiatedMsg(request, request.suid))
 
-        val handler = NexusStreamHandler(stream, transmitter, feeder, stage)
+        val handler = connection.NexusStreamHandler(stream, transmitter, feeder, stage)
         _streamHandlers.put(request.streamKey, handler)
         handler.start() andThen { case _ =>
           _streamHandlers.remove(request.streamKey)

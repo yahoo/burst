@@ -9,10 +9,9 @@ import org.burstsys.nexus.NexusIoMode._
 import org.burstsys.nexus.client.connection.NexusClientConnection
 import org.burstsys.nexus.configuration._
 import org.burstsys.nexus.message.{NexusInboundFrameDecoder, NexusOutboundFrameEncoder}
-import org.burstsys.nexus.receiver._
+import org.burstsys.nexus.transceiver._
 import org.burstsys.nexus.server.NexusServerReporter
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.nexus.{NexusConfig, NexusSliceKey, NexusStreamUid, NexusIoMode => _}
 import org.burstsys.tesla.parcel.TeslaParcelStatus
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
@@ -268,7 +267,7 @@ class NexusClientContext(
 
   /**
    * connect to the server - we need to detect and recover from connection loss.
-   * Detecting connection loss appears to happen in [[org.burstsys.nexus.receiver.NexusReceiver.channelInactive]]
+   * Detecting connection loss appears to happen in [[org.burstsys.nexus.transceiver.NexusReceiver.channelInactive]]
    */
   private def connectToServer(): ChannelFuture = {
     if (burstNexusSslEnableProperty.get) {

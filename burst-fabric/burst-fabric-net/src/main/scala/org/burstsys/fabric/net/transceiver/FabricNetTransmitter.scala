@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.fabric.net.transmitter
+package org.burstsys.fabric.net.transceiver
 
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
 import io.opentelemetry.context.Context
@@ -12,8 +12,8 @@ import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 
 import java.net.SocketAddress
-import scala.concurrent.{Future, Promise}
-import scala.util.{Success, Failure}
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 /**
  * outbound writes of control and data plane communication. Both the client and server share
@@ -74,10 +74,11 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
 
   private def doTransmit(msg: FabricNetMsg): Future[Unit] = {
     FabricNetTransmit.begin() { stage =>
+      stage.span.setAttribute(fabricMessageTypeKey, msg.messageType.code)
       try {
         if (!channel.isOpen || !channel.isActive) {
           val message = s"cannot transmit msg=${msg.getClass.getName} channelOpen=${channel.isOpen} channelActive=${channel.isActive} "
-          log trace burstStdMsg(message)
+          log trace burstLocMsg(message)
           val t = VitalsException(message).fillInStackTrace()
           FabricNetTransmit.fail(stage, t)
           return Future.failed(t)

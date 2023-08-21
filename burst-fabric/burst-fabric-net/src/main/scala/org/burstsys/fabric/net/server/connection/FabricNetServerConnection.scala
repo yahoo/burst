@@ -7,9 +7,8 @@ import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
 import org.burstsys.fabric.net._
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetHeartbeatMsg, FabricNetShutdownMsg}
 import org.burstsys.fabric.net.message.{FabricNetAssessRespMsgType, FabricNetHeartbeatMsgType, FabricNetMsg}
-import org.burstsys.fabric.net.receiver.FabricNetReceiver
+import org.burstsys.fabric.net.transceiver.{FabricNetReceiver, FabricNetTransmitter}
 import org.burstsys.fabric.net.server.FabricNetServerListener
-import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}

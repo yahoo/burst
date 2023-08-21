@@ -1,14 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.nexus.transmitter
+package org.burstsys.nexus.transceiver
 
-import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, ChannelOutboundHandlerAdapter, ChannelPromise}
 import io.netty.util.concurrent.{Future => NettyFuture}
 import io.opentelemetry.context.Context
 import org.burstsys.nexus.message.{NexusMsg, NexusStreamParcelMsg}
-import org.burstsys.nexus.server.NexusStreamFeeder
-import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.nexus.trek.{NexusServerParcelSendTrekMark, NexusTransmitTrekMark}
+import org.burstsys.nexus.trek.NexusTransmitTrekMark
 import org.burstsys.nexus.{NexusChannel, NexusReporter}
 import org.burstsys.tesla
 import org.burstsys.vitals.errors.{VitalsException, safely}
@@ -46,6 +43,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
   def transmitControlMessage(msg: NexusMsg): Future[Unit] = {
     val tag = s"NexusTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort"
     NexusTransmitTrekMark.begin() { stage =>
+      stage.span.setAttribute(nexusMessageTypeKey, msg.messageType.code)
       try {
         if (!canSendMsg) {
           val ex = VitalsException(s"$tag channel not open or active").fillInStackTrace()
@@ -65,7 +63,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
             if (!future.isSuccess) {
               log warn burstStdMsg(s"$tag control message transmit failed  ${future.cause}", future.cause)
               promise.failure(future.cause())
-              NexusTransmitTrekMark.fail(stage, future.cause()
+              NexusTransmitTrekMark.fail(stage, future.cause())
             } else {
               NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
               promise.success((): Unit)

@@ -1,10 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.nexus
 
-import org.burstsys.nexus.message.{NexusStreamAbortMsg, NexusStreamCompleteMsg, NexusStreamHeartbeatMsg, NexusStreamInitiateMsg, NexusStreamInitiatedMsg, NexusStreamParcelMsg}
+import io.opentelemetry.api.common.AttributeKey
+import org.burstsys.nexus.message._
 import org.burstsys.vitals.logging._
 
-package object receiver extends VitalsLogger {
+package object transceiver extends VitalsLogger {
+  val nexusMessageTypeKey: AttributeKey[java.lang.Long] = AttributeKey.longKey("burst.nexus.message.type")
+
   /**
    * nexus client msg event handler
    */

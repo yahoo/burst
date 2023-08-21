@@ -1,12 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.nexus.receiver
+package org.burstsys.nexus.transceiver
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.nexus.client.NexusClientReporter
 import org.burstsys.nexus.message._
 import org.burstsys.nexus.server.NexusServerReporter
-import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.nexus.trek.NexusReceiveTrekMark
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.vitals.errors._
@@ -71,6 +70,7 @@ class NexusReceiver(
       NexusReceiveTrekMark.begin() { stage =>
         try {
           val messageTypeKey = buffer.readInt()
+          stage.span.setAttribute(nexusMessageTypeKey, messageTypeKey)
 
           TeslaRequestCoupler {
             // pass thread control from netty pool to tesla pool for parts pool access

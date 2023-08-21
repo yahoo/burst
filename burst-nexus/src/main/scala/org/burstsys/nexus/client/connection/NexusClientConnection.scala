@@ -5,15 +5,14 @@ import io.netty.channel.Channel
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
 import org.burstsys.nexus.client.{NexusClientListener, NexusClientReporter}
 import org.burstsys.nexus.message.{NexusMsg, NexusStreamAbortMsg, NexusStreamCompleteMsg, NexusStreamHeartbeatMsg, NexusStreamInitiateMsg, NexusStreamInitiatedMsg, NexusStreamParcelMsg, msgIds}
-import org.burstsys.nexus.receiver.NexusClientMsgListener
+import org.burstsys.nexus.transceiver.{NexusClientMsgListener, NexusTransmitter}
 import org.burstsys.nexus.stream.{NexusStream, newRuid, streamIds}
-import org.burstsys.nexus.transmitter.NexusTransmitter
 import org.burstsys.nexus.trek.{NexusClientStreamStartTrekMark, NexusClientStreamFinalizeTrekMark}
 import org.burstsys.nexus.{NexusConnection, NexusSliceKey, NexusStreamUid}
 import org.burstsys.tesla.parcel.TeslaParcelStatus
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
-import org.burstsys.vitals.errors.{VitalsException, _}
+import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}

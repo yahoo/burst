@@ -1,11 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.nexus.transmitter
+package org.burstsys.nexus.server.connection
 
 import io.opentelemetry.api.common.AttributeKey
 import org.burstsys.nexus.message.{NexusStreamCompleteMsg, NexusStreamHeartbeatMsg, NexusStreamParcelMsg, maxFrameLength}
+import org.burstsys.nexus.server.connection.NexusStreamHandler._
 import org.burstsys.nexus.server.{NexusServerReporter, NexusStreamFeeder}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.nexus.transmitter.NexusStreamHandler._
+import org.burstsys.nexus.transceiver.NexusTransmitter
 import org.burstsys.nexus.trek.{NexusServerCompleteSendTrekMark, NexusServerParcelSendTrekMark, NexusServerStreamTrekMark}
 import org.burstsys.tesla
 import org.burstsys.tesla.parcel

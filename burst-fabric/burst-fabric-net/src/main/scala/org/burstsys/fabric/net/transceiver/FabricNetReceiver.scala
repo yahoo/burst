@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.fabric.net.receiver
+package org.burstsys.fabric.net.transceiver
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, SimpleChannelInboundHandler}
@@ -62,6 +62,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
       FabricNetReceive.begin() { stage =>
         try {
           val messageTypeKey = buffer.readInt()
+          stage.span.setAttribute(fabricMessageTypeKey, messageTypeKey)
           FabricNetReporter.onMessageRecv(buffer.capacity)
 
           TeslaRequestCoupler {
