@@ -45,7 +45,7 @@ object TeslaScatterReporter extends VitalsReporter {
   val _scatterSkew = VitalsReporterFloatValueMetric(s"${dName}_skew")
 
   private[this]
-  val _openScattersCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_open_scatters_counter")
+  val _openScattersCounter: LongUpDownCounter = metric.upDownCounter(s"${dName}_open_scatters_counter")
     .setDescription(s"open scatters in use")
     .setUnit("scatters")
     .build()

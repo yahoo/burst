@@ -32,7 +32,7 @@ object FabricNetReporter extends VitalsReporter {
   val _pingMetric = VitalsReporterFixedValueMetric("fab_net_ping_ns")
 
   private[this]
-  val _connectOpenCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_connect_open_counter")
+  val _connectOpenCounter: LongUpDownCounter = metric.upDownCounter(s"${dName}_connect_open_counter")
     .setDescription(s"open connections in use")
     .setUnit("connections")
     .build()

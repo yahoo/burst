@@ -2,6 +2,7 @@
 package org.burstsys.vitals.reporter.metric
 
 import io.opentelemetry.api.metrics.{LongCounter, LongHistogram}
+import org.burstsys.vitals.reporter.metric
 
 /**
  * measures all aspects of a recurring operation that takes a certain amount of time and has a varying 'unit' size.
@@ -71,25 +72,25 @@ class VitalsReporterUnitOpMetricContext(name: String, unit: String) extends Vita
   private def fullName = s"${name}_$unit"
 
   private[this]
-  val _opCounter: LongCounter = meter.counterBuilder(s"${fullName}_count")
+  val _opCounter: LongCounter = metric.counter(s"${fullName}_count")
     .setUnit("ops")
     .setDescription(s"$name $unit count")
     .build()
 
   private[this]
-  val _opTimeHist: LongHistogram = meter.histogramBuilder(s"${fullName}_time_histo").ofLongs()
+  val _opTimeHist: LongHistogram = metric.longHistogram(s"${fullName}_time_histo")
     .setDescription(s"$name $unit time histogram")
     .setUnit("nanos")
     .build()
 
   private[this]
-  val _sizeCounter: LongCounter = meter.counterBuilder(s"${fullName}_size")
+  val _sizeCounter: LongCounter = metric.counter(s"${fullName}_size")
     .setUnit("bytes")
     .setDescription(s"$name bytes of data")
     .build()
 
   private[this]
-  val _opSizeHist: LongHistogram = meter.histogramBuilder(s"${fullName}_size_histo").ofLongs()
+  val _opSizeHist: LongHistogram = metric.longHistogram(s"${fullName}_size_histo")
     .setDescription(s"$name operation bytes histogram")
     .setUnit("bytes")
     .build()

@@ -5,8 +5,7 @@ import io.opentelemetry.api.metrics.LongCounter
 import org.burstsys.tesla.TeslaTypes.{TeslaMemoryPtr, TeslaMemorySize}
 import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.reporter.VitalsByteQuantReporter
-import org.burstsys.vitals.reporter.metric.meter
+import org.burstsys.vitals.reporter.{VitalsByteQuantReporter, metric}
 import org.jctools.queues.MpmcArrayQueue
 
 import java.util
@@ -31,7 +30,7 @@ class TeslaFlexCoupler[Builder <: TeslaPartBuilder, Collector <: TeslaFlexCollec
 
   private lazy val reporter =  new VitalsByteQuantReporter(collectorName, "proxies") {}
 
-  private[flex] lazy val retryCounter: LongCounter = meter.counterBuilder(s"${collectorName}_retries")
+  private[flex] lazy val retryCounter: LongCounter = metric.counter(s"${collectorName}_retries")
     .setUnit("retries")
     .setDescription(s"$collectorName retry count")
     .build()
