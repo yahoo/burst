@@ -13,7 +13,7 @@ import scala.concurrent.{Future, Promise}
 
 package object transmitter extends VitalsLogger {
 
-  class NettyMessageSendRunnable(channel: Channel, msg: FabricNetMsg, tag: String) extends Runnable {
+  class NettyMessageSendRunnable(channel: Channel, msg: FabricNetMsg) extends Runnable {
 
     private val promise = Promise[Unit]()
 
@@ -30,19 +30,19 @@ package object transmitter extends VitalsLogger {
         val transmitEnqueued = System.nanoTime
         channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
           val transmitDuration = System.nanoTime - transmitEnqueued
-          log trace burstStdMsg(s"$tag encodeNanos=$encodeDuration transmitNanos=$transmitDuration")
+          log trace burstLocMsg(s"encodeNanos=$encodeDuration transmitNanos=$transmitDuration")
           if (future.isSuccess) {
             FabricNetReporter.onMessageXmit(buffSize)
             promise.success(())
           } else {
-            log warn burstStdMsg(s"$tag FAIL  ${future.cause}", future.cause)
+            log warn burstLocMsg(s"FAIL  ${future.cause}", future.cause)
             if (!promise.isCompleted)
               promise.failure(future.cause())
           }
         })
       } catch safely {
         case t: Throwable =>
-          log error burstStdMsg(s"XMIT_FAIL $t $tag", t)
+          log error burstLocMsg(s"FAB_TX_FAIL $t", t)
           promise.failure(t)
       }
     }

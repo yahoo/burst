@@ -8,10 +8,10 @@ import io.opentelemetry.context.Context
 import org.burstsys.nexus.message.{NexusMsg, NexusStreamParcelMsg}
 import org.burstsys.nexus.server.NexusStreamFeeder
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.nexus.trek.NexusServerParcelSendTrekMark
+import org.burstsys.nexus.trek.{NexusServerParcelSendTrekMark, NexusTransmitTrekMark}
 import org.burstsys.nexus.{NexusChannel, NexusReporter}
 import org.burstsys.tesla
-import org.burstsys.vitals.errors.VitalsException
+import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.trek.context.injectContext
 
@@ -45,29 +45,41 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
    */
   def transmitControlMessage(msg: NexusMsg): Future[Unit] = {
     val tag = s"NexusTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort"
-    if (!canSendMsg) return Promise.failed(
-      VitalsException(s"$tag channel not open or active").fillInStackTrace()
-    ).future
-
-    val promise = Promise[Unit]()
-    val transmitStart = System.nanoTime
-    // do the alloc/write/flush on the channel thread so the fabric thead is done right away
-    channel.eventLoop.submit(Context.current().wrap(() => {
-      val buffer = channel.alloc().buffer()
-      injectContext(msg, buffer)
-      msg.encode(buffer)
-      val buffSize = buffer.capacity
-      channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
-        if (!future.isSuccess) {
-          log warn burstStdMsg(s"$tag control message transmit failed  ${future.cause}", future.cause)
-          promise.failure(future.cause())
-        } else {
-          NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
-          promise.success((): Unit)
+    NexusTransmitTrekMark.begin() { stage =>
+      try {
+        if (!canSendMsg) {
+          val ex = VitalsException(s"$tag channel not open or active").fillInStackTrace()
+          NexusTransmitTrekMark.fail(stage, ex)
+          return Promise.failed(ex).future
         }
-      })
-    }))
-    promise.future
+
+        val promise = Promise[Unit]()
+        val transmitStart = System.nanoTime
+        // do the alloc/write/flush on the channel thread so the fabric thead is done right away
+        channel.eventLoop.submit(Context.current().wrap(() => {
+          val buffer = channel.alloc().buffer()
+          injectContext(msg, buffer)
+          msg.encode(buffer)
+          val buffSize = buffer.capacity
+          channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
+            if (!future.isSuccess) {
+              log warn burstStdMsg(s"$tag control message transmit failed  ${future.cause}", future.cause)
+              promise.failure(future.cause())
+              NexusTransmitTrekMark.fail(stage, future.cause()
+            } else {
+              NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
+              promise.success((): Unit)
+              NexusTransmitTrekMark.end(stage)
+            }
+          })
+        }))
+        promise.future
+      } catch safely {
+        case t: Throwable =>
+          NexusTransmitTrekMark.fail(stage, t)
+          throw t
+      }
+    }
   }
 
   /**

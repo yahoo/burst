@@ -7,6 +7,7 @@ import org.burstsys.nexus.client.NexusClientReporter
 import org.burstsys.nexus.message._
 import org.burstsys.nexus.server.NexusServerReporter
 import org.burstsys.nexus.transmitter.NexusTransmitter
+import org.burstsys.nexus.trek.NexusReceiveTrekMark
 import org.burstsys.tesla.thread.request.TeslaRequestCoupler
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
@@ -67,33 +68,41 @@ class NexusReceiver(
     @unused val messageLength = buffer.readInt()
     val scp = extractContext(this, buffer)
     try {
-      val messageTypeKey = buffer.readInt()
+      NexusReceiveTrekMark.begin() { stage =>
+        try {
+          val messageTypeKey = buffer.readInt()
 
-      TeslaRequestCoupler {
-        // pass thread control from netty pool to tesla pool for parts pool access
-        NexusMsgType(messageTypeKey) match {
-          case NexusStreamInitiatedMsgType =>
-            dispatchMessage(NexusStreamInitiatedMsg(buffer), clientListener.onStreamInitiatedMsg)
+          TeslaRequestCoupler {
+            // pass thread control from netty pool to tesla pool for parts pool access
+            NexusMsgType(messageTypeKey) match {
+              case NexusStreamInitiatedMsgType =>
+                dispatchMessage(NexusStreamInitiatedMsg(buffer), clientListener.onStreamInitiatedMsg)
 
-          case NexusStreamParcelMsgType =>
-            dispatchMessage(NexusStreamParcelMsg(buffer), clientListener.onStreamParcelMsg)
+              case NexusStreamParcelMsgType =>
+                dispatchMessage(NexusStreamParcelMsg(buffer), clientListener.onStreamParcelMsg)
 
-          case NexusStreamCompleteMsgType =>
-            dispatchMessage(NexusStreamCompleteMsg(buffer), clientListener.onStreamCompleteMsg)
+              case NexusStreamCompleteMsgType =>
+                dispatchMessage(NexusStreamCompleteMsg(buffer), clientListener.onStreamCompleteMsg)
 
-          case NexusStreamHeartbeatMsgType =>
-            dispatchMessage(NexusStreamHeartbeatMsg(buffer), clientListener.onStreamHeartbeatMsg)
+              case NexusStreamHeartbeatMsgType =>
+                dispatchMessage(NexusStreamHeartbeatMsg(buffer), clientListener.onStreamHeartbeatMsg)
 
-          case NexusStreamInitiateMsgType =>
-            dispatchMessage(NexusStreamInitiateMsg(buffer), serverListener.onStreamInitiateMsg)
+              case NexusStreamInitiateMsgType =>
+                dispatchMessage(NexusStreamInitiateMsg(buffer), serverListener.onStreamInitiateMsg)
 
-          case NexusStreamAbortMsgType =>
-            dispatchMessage(NexusStreamAbortMsg(buffer), serverListener.onStreamAbortMsg)
+              case NexusStreamAbortMsgType =>
+                dispatchMessage(NexusStreamAbortMsg(buffer), serverListener.onStreamAbortMsg)
 
-          case mt =>
-            val e = VitalsException(s"Unknown message type: $mt")
-            log error(burstStdMsg(e), e)
-            throw e
+              case mt =>
+                val e = VitalsException(s"Unknown message type: $mt")
+                log error(burstStdMsg(e), e)
+                throw e
+            }
+          }
+          NexusReceiveTrekMark.end(stage)
+        } catch safely {
+          case t: Throwable =>
+            NexusReceiveTrekMark.fail(stage, t)
         }
       }
     } finally {

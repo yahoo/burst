@@ -6,6 +6,14 @@ import org.burstsys.vitals.trek.{VitalsTrekCell, VitalsTrekMark, VitalsTrekRemot
 
 package object trek {
 
+  final object NexusTransmitTrekMark extends VitalsTrekMark("NexusTransmit",
+    VitalsTrekCell, VitalsTrekWorker
+  )
+
+  final object NexusReceiveTrekMark extends VitalsTrekMark("NexusReceive",
+    VitalsTrekCell, VitalsTrekWorker
+  )
+
   final object NexusClientStreamStartTrekMark extends VitalsTrekMark("NexusClientStreamStart",
     VitalsTrekCell, VitalsTrekWorker, SpanKind.CLIENT
   )

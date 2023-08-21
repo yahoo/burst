@@ -6,6 +6,14 @@ import org.burstsys.vitals.trek.{VitalsTrekCell, VitalsTrekClient, VitalsTrekMar
 
 package object trek {
 
+  final object FabricNetReceive extends VitalsTrekMark("FabricNetReceive",
+    VitalsTrekCell, VitalsTrekServer
+  )
+
+  final object FabricNetTransmit extends VitalsTrekMark("FabricNetTransmit",
+    VitalsTrekCell, VitalsTrekClient
+  )
+
   final object FabricNetHeartbeat extends VitalsTrekMark("FabricNetHeartbeat",
     VitalsTrekCell, VitalsTrekClient, SpanKind.CLIENT, root = true
   )

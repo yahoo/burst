@@ -73,8 +73,8 @@ package object trek extends VitalsLogger {
 
   case class VitalsTrekMark(
                              name: String,
-                             cluster: VitalsTrekCluster,
-                             role: VitalsTrekRole,
+                             @unused cluster: VitalsTrekCluster,
+                             @unused role: VitalsTrekRole,
                              kind: SpanKind = SpanKind.INTERNAL,
                              root: Boolean = false
                            ) {
@@ -121,7 +121,6 @@ package object trek extends VitalsLogger {
         .setSpanKind(kind)
         .setParent(context)
         .setAttribute(NAME_KEY, name)
-        .setAttribute(CLUSTER_KEY, cluster.name)
 
       if (root) {
         builder.addLink(Span.current.getSpanContext)

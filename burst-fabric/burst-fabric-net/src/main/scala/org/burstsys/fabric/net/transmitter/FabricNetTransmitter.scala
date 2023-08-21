@@ -6,11 +6,14 @@ import io.opentelemetry.context.Context
 import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.FabricNetLink
 import org.burstsys.fabric.net.message.FabricNetMsg
+import org.burstsys.fabric.trek.FabricNetTransmit
+import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 
 import java.net.SocketAddress
 import scala.concurrent.{Future, Promise}
+import scala.util.{Success, Failure}
 
 /**
  * outbound writes of control and data plane communication. Both the client and server share
@@ -57,17 +60,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
    * network write is done on a channel thread asynchronously
    */
   def transmitControlMessage(msg: FabricNetMsg): Future[Unit] = {
-    val tag = s"FabricNetTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort)"
-
-    if (!channel.isOpen || !channel.isActive) {
-      val msg = s"$tag cannot transmit channelOpen=${channel.isOpen} channelActive=${channel.isActive} "
-      log trace burstStdMsg(msg)
-      return Future.failed(VitalsException(msg).fillInStackTrace())
-    }
-
-    val nettySend = new NettyMessageSendRunnable(channel, msg, tag)
-    channel.eventLoop.submit(Context.current().wrap(nettySend))
-    nettySend.completion
+    doTransmit(msg)
   }
 
   /**
@@ -76,17 +69,33 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
    * network write is done on a channel thread asynchronously
    */
   def transmitDataMessage(msg: FabricNetMsg): Future[Unit] = {
-    val tag = s"FabricNetTransmitter.transmitDataMessage(${msg.getClass.getName} $remotePort:$remotePort"
-
-    if (!channel.isOpen || !channel.isActive) {
-      val msg = s"$tag cannot transmit channelOpen=${channel.isOpen} channelActive=${channel.isActive}"
-      log warn burstStdMsg(msg)
-      return Future.failed(VitalsException(msg).fillInStackTrace())
-    }
-
-    val nettySend = new NettyMessageSendRunnable(channel, msg, tag)
-    channel.eventLoop.submit(Context.current().wrap(nettySend))
-    nettySend.completion
+    doTransmit(msg)
   }
 
+  private def doTransmit(msg: FabricNetMsg): Future[Unit] = {
+    FabricNetTransmit.begin() { stage =>
+      try {
+        if (!channel.isOpen || !channel.isActive) {
+          val message = s"cannot transmit msg=${msg.getClass.getName} channelOpen=${channel.isOpen} channelActive=${channel.isActive} "
+          log trace burstStdMsg(message)
+          val t = VitalsException(message).fillInStackTrace()
+          FabricNetTransmit.fail(stage, t)
+          return Future.failed(t)
+        }
+
+        val nettySend = new NettyMessageSendRunnable(channel, msg)
+        channel.eventLoop.submit(Context.current().wrap(nettySend))
+        nettySend.completion andThen {
+          case Success(_) =>
+            FabricNetTransmit.end(stage)
+          case Failure(t) =>
+            FabricNetTransmit.fail(stage, t)
+        }
+      } catch {
+        case t: Throwable =>
+          FabricNetTransmit.fail(stage, t)
+          throw t
+      }
+    }
+  }
 }
