@@ -4,7 +4,7 @@ package org.burstsys.fabric.net.message
 import com.esotericsoftware.kryo.io.{Input, Output}
 import com.esotericsoftware.kryo.{Kryo, KryoSerializable}
 import io.netty.buffer.ByteBuf
-import org.burstsys.fabric.net.{FabricNetMessageId, fabricKryoOutputBufferMaxSize}
+import org.burstsys.fabric.net.{FabricNetMessageId, fabricKryoOutputBufferInitialSize, fabricKryoOutputBufferMaxSize}
 import org.burstsys.fabric.topology.model.node.FabricNode
 import org.burstsys.vitals.errors.{VitalsException, _}
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
@@ -200,7 +200,7 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
       val k = acquireKryo
       try {
         val output = {
-          new Output(fabricKryoOutputBufferMaxSize.toInt)
+          new Output(fabricKryoOutputBufferInitialSize.toInt, fabricKryoOutputBufferMaxSize.toInt)
         }
         this.write(k, output)
         buffer.writeBytes(output.toBytes)
