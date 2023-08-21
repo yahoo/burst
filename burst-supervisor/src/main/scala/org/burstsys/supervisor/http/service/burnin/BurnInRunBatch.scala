@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.supervisor.http.service.burnin
 
-import io.opentelemetry.api.trace.{Span, TraceId}
-import io.opentelemetry.context.Context
+import io.opentelemetry.api.common.AttributeKey
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.model.domain.CatalogDomain
@@ -18,9 +17,10 @@ import org.burstsys.supervisor.http.service.provider.BurnInDatasetDescriptor.Loo
 import org.burstsys.supervisor.http.service.provider.{BurnInBatch, BurnInDatasetDescriptor, BurnInEvent, BurnInLogEvent}
 import org.burstsys.supervisor.trek.{BurnInDatasetTrek, BurnInQueryTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
-import org.burstsys.vitals
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.uid
+import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch._
+import org.burstsys.supervisor.http.service.burnin.BurnInWorker.{guidSpanKey, querySpanKey}
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentSkipListMap, TimeoutException}
@@ -256,6 +256,11 @@ case class BurnInRunBatch(
 
 }
 
+object BurnInWorker {
+  private val guidSpanKey = AttributeKey.stringKey("guid")
+  private val querySpanKey = AttributeKey.stringKey("query")
+}
+
 case class BurnInWorker(
                          workerId: Int,
                          agent: AgentService,
@@ -327,6 +332,8 @@ case class BurnInWorker(
     dataset.willRunQuery()
 
     BurnInQueryTrek.begin(guid) { stage =>
+      stage.span.setAttribute(guidSpanKey, guid)
+      stage.span.setAttribute(querySpanKey, query)
       val over = FabricOver(dataset.domain.domainKey, dataset.view.viewKey)
       val future = agent.execute(query, over, guid)
 

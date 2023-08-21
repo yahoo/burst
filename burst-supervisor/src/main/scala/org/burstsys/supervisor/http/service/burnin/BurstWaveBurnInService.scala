@@ -5,6 +5,7 @@ import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch.BurnInLabel
 import org.burstsys.supervisor.http.service.provider._
+import org.burstsys.supervisor.trek.StartBurnInTrek
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals
 import org.burstsys.vitals.errors.{VitalsException, safely}
@@ -36,48 +37,53 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
   override def isRunning: Boolean = _run != null && _run.isRunning
 
   override def startBurnIn(config: BurnInConfig): Boolean = {
-    if (_run != null && _run.isRunning) {
-      registerLogEvent("Burn In already running!", Level.SEVERE)
-      return false
-    }
+    StartBurnInTrek.begin() { stage =>
+      if (_run != null && _run.isRunning) {
+        registerLogEvent("Burn In already running!", Level.SEVERE)
+        StartBurnInTrek.fail(stage, VitalsException("Burn In already running!"))
+        return false
+      }
 
-    val (isValid, errors) = config.validate()
-    if (!isValid) {
-      registerLogEvent(s"Invalid config detected: ${errors.mkString("- ", "\n- ", "")}")
-      return false
-    }
-    TeslaRequestFuture {
-      val run = BurnInRun(config)
+      val (isValid, errors) = config.validate()
+      if (!isValid) {
+        registerLogEvent(s"Invalid config detected: ${errors.mkString("- ", "\n- ", "")}")
+        StartBurnInTrek.fail(stage, VitalsException("Invalid config detected"))
+        return false
+      }
+      TeslaRequestFuture {
+        val run = BurnInRun(config)
 
-      try {
-        _events.clear()
-        _config = config
-        _run = run
+        try {
+          _events.clear()
+          _config = config
+          _run = run
 
-        run.start()
-        registerLogEvent("Starting burn-in")
-        eachListener(l => l.burnInStarted(config))
+          run.start()
+          registerLogEvent("Starting burn-in")
+          eachListener(l => l.burnInStarted(config))
 
-        cleanupBurnInDatasets()
+          cleanupBurnInDatasets()
 
-        for (batch <- run.batches) {
-          batch.ensureDatasets()
-          val stats = batch.run()
-          run.recordBatchStats(stats)
-          //      registerEvent(BurnInStatsEvent(stats))
-          batch.cleanUp()
-        }
-        run.finalizeStats()
-        run.stop()
-        stopBurnIn()
-      } catch safely {
-        case t: Throwable =>
-          registerLogEvent(s"Unhandled exception ${t.getMessage}@${vitals.errors.printStack(t)}", Level.SEVERE)
+          for (batch <- run.batches) {
+            batch.ensureDatasets()
+            val stats = batch.run()
+            run.recordBatchStats(stats)
+            //      registerEvent(BurnInStatsEvent(stats))
+            batch.cleanUp()
+          }
+          run.finalizeStats()
           run.stop()
           stopBurnIn()
+        } catch safely {
+          case t: Throwable =>
+            registerLogEvent(s"Unhandled exception ${t.getMessage}@${vitals.errors.printStack(t)}", Level.SEVERE)
+            run.stop()
+            stopBurnIn()
+        }
       }
+      StartBurnInTrek.end(stage)
+      true
     }
-    true
   }
 
   private def cleanupBurnInDatasets(): Unit = {
@@ -106,6 +112,7 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
   }
 
   private def registerLogEvent(message: String, level: Level = Level.INFO): Unit = {
+    log log (level, message)
     registerEvent(BurnInLogEvent(message, level))
   }
 

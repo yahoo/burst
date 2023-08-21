@@ -6,6 +6,14 @@ import org.burstsys.vitals.trek.{VitalsTrekCell, VitalsTrekMark, VitalsTrekSuper
 
 package object trek {
 
+  object RunQueryTrek extends VitalsTrekMark(
+    "RunQuery", VitalsTrekCell, VitalsTrekSupervisor, SpanKind.SERVER, root = true
+  )
+
+  object StartBurnInTrek extends VitalsTrekMark(
+    "StartBurnIn", VitalsTrekCell, VitalsTrekSupervisor, SpanKind.SERVER, root = true
+  )
+
   object BurnInDatasetTrek extends VitalsTrekMark(
     "BurnInDataset", VitalsTrekCell, VitalsTrekSupervisor, root = true
   )

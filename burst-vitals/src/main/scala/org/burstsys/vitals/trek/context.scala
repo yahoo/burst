@@ -2,8 +2,8 @@ package org.burstsys.vitals.trek
 
 import io.netty.buffer.{ByteBuf, Unpooled}
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.context.{Context, Scope}
 import io.opentelemetry.context.propagation.{TextMapGetter, TextMapSetter}
+import io.opentelemetry.context.{Context, Scope}
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.IterableHasAsJava

@@ -46,9 +46,9 @@ package object trek extends VitalsLogger {
   object VitalsTrekClient extends VitalsTrekRole("client")
 
   // these names must conform to open telemetry attribute naming standards.
-  private val NAME_KEY = "trekname"
-  private val TREK_ID = "TrekId"
-  private val CALL_ID = "CallId"
+  private val NAME_KEY = "trek.name"
+  private val TREK_ID = "trek.id"
+  private val CALL_ID = "trek.callId"
   private val CLUSTER_KEY = "cluster"
 
   case class TrekStage(span: Span, scope: Scope) {
@@ -79,23 +79,9 @@ package object trek extends VitalsLogger {
                              root: Boolean = false
                            ) {
 
-    private def trekSpanBuilder: SpanBuilder = {
-      val builder = vitals.tracing.tracer.spanBuilder(name)
-        .setSpanKind(kind)
-        .setAttribute(NAME_KEY, name)
-        .setAttribute(CLUSTER_KEY, cluster.name)
-      if (root) {
-        builder.setNoParent()
-      }
-      Baggage.current().forEach((key, entry) => {
-        log debug burstLocMsg(s"trek $name baggage $key=${entry.getValue}")
-        builder.setAttribute(key, entry.getValue)
-      })
-      builder
-    }
-
     /**
      * Wrap a block of code in a trek stage. The trek's scope will be closed when the block exits.
+     *
      * @param trekId the id of the trek
      * @param callId the id of the call
      * @param wrapped the block of code to wrap
@@ -123,20 +109,33 @@ package object trek extends VitalsLogger {
       if (log.isDebugEnabled)
         log debug burstLocMsg(s"start trek $name trekId=$trekId callId=$callId parent=${Span.current}")
 
-      val current = Context.current()
-      if (Baggage.current.getEntryValue(TREK_ID) != trekId) {
+      val parent = if (root) Context.root else Context.current
+      val context = if (Baggage.current.getEntryValue(TREK_ID) != trekId) {
         Baggage.current.toBuilder
           .put(TREK_ID, trekId)
-          .put(CALL_ID, callId)
-          .build()
-          .storeInContext(current)
+          .put(CALL_ID, callId).build()
+          .storeInContext(parent)
+      } else parent
+
+      val builder = vitals.tracing.tracer.spanBuilder(name)
+        .setSpanKind(kind)
+        .setParent(context)
+        .setAttribute(NAME_KEY, name)
+        .setAttribute(CLUSTER_KEY, cluster.name)
+
+      if (root) {
+        builder.addLink(Span.current.getSpanContext)
       }
 
-      val span = trekSpanBuilder
-        .startSpan()
+      Baggage.current.forEach((key, entry) => {
+        log debug burstLocMsg(s"trek $name baggage $key=${entry.getValue}")
+        builder.setAttribute(key, entry.getValue)
+      })
+
+      val span = builder.startSpan()
 
       val stage = TrekStage(span, span.makeCurrent())
-      span.addEvent("BEGIN")
+      span.addEvent("BEGIN") // the begin event is important to the TrekSpanProcessor and TrekLoggingSpanExporter
       if (log.isDebugEnabled)
         log debug burstLocMsg(s"start trek $name returns span=$span")
       stage
@@ -159,56 +158,6 @@ package object trek extends VitalsLogger {
       stage
         .setStatus(StatusCode.ERROR)
         .end()
-    }
-
-    /**
-     * This uses open telemetry's context propagation to set the trace id to a value derived from the trek id allowing
-     * us to take a trek id and associate it with the same trace no matter where we are.
-     * This might not be needed if we implemented context propagation in the fabric and nexus layers.
-     */
-    @unused
-    protected def createSpanParent(trekId: VitalsUid, callId: VitalsUid): Span = {
-      val traceId = trekToSpanId(trekId)
-      if (log.isTraceEnabled)
-        log trace burstLocMsg(s"trek $name traceid=$traceId")
-      if (Span.current().getSpanContext.getTraceId == traceId) {
-        if (log.isTraceEnabled)
-          log trace burstLocMsg(s"trek $name matches current context")
-        return Span.current()
-      }
-
-      // our current span traceid doesn't match the traceId/trekId so build the span at the root
-      val spanId: String = {
-        // we might need to recreate the span id from an external id
-        if (callId == null) {
-          IdGenerator.random().generateSpanId()
-        } else {
-          DigestUtils.sha256Hex(callId.getBytes(StandardCharsets.UTF_8))
-        }
-      }
-      val traceStateBuilder = Span.current().getSpanContext.getTraceState.toBuilder
-        .put(CLUSTER_KEY, cluster.name)
-        .put(TREK_ID, trekId)
-        .put(CALL_ID, callId)
-      val context = SpanContext.create(
-        traceId,
-        spanId,
-        protoSpan.getSpanContext.getTraceFlags,
-        traceStateBuilder.build())
-      if (log.isTraceEnabled)
-        log trace burstLocMsg(s"trek $name calculates parent context span=$context")
-      val parentSpan = Span.wrap(context)
-      if (log.isTraceEnabled)
-        log trace burstLocMsg(s"trek $name uses parent span span=$parentSpan")
-      parentSpan
-    }
-
-    private def trekToSpanId(trekId: VitalsUid): String = {
-      val idHash = tracing.uidToTraceId(trekId)
-      if (log.isTraceEnabled) {
-        log trace burstLocMsg(s"trek $name hashes trekId to $idHash")
-      }
-      idHash.take(TraceId.getLength)
     }
   }
 }
