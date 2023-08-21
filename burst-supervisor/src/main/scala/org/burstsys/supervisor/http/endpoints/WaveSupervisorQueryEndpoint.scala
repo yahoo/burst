@@ -44,7 +44,7 @@ final class WaveSupervisorQueryEndpoint extends WaveSupervisorEndpoint {
           FabricOver(domain.toLong, view.toLong, timezone)
         } catch safely {
           case _: NumberFormatException =>
-            RunQueryTrek.fail(stage, VitalsException(s"domain=$domain, view=$view invalid or malformed")
+            RunQueryTrek.fail(stage, VitalsException(s"domain=$domain, view=$view invalid or malformed"))
             return FabricExecuteResult(
               resultStatus = FabricInvalidResultStatus,
               resultMessage = s"domain=$domain, view=$view invalid or malformed"

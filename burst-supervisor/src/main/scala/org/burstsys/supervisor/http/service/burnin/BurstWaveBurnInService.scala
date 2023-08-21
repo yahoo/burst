@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.supervisor.http.service.burnin
 
+import com.twitter.logging
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch.BurnInLabel
@@ -112,7 +113,14 @@ case class BurstWaveBurnInService(agent: AgentService, catalog: CatalogService)
   }
 
   private def registerLogEvent(message: String, level: Level = Level.INFO): Unit = {
-    log log (level, message)
+    level match {
+      case _@Level.FINEST => log trace message
+      case _@Level.FINER | _@Level.FINE => log debug message
+      case _@Level.INFO => log info message
+      case _@Level.WARNING => log warn message
+      case _@Level.SEVERE => log error message
+      case _ => log info s"$level: $message"
+    }
     registerEvent(BurnInLogEvent(message, level))
   }
 
