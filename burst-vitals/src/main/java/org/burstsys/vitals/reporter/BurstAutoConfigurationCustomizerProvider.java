@@ -18,7 +18,6 @@ public class BurstAutoConfigurationCustomizerProvider implements AutoConfigurati
     @ParametersAreNonnullByDefault
     public void customize(AutoConfigurationCustomizer autoConfigurationCustomizer) {
         autoConfigurationCustomizer.addTracerProviderCustomizer(this::addBurstTracers);
-        autoConfigurationCustomizer.addPropagatorCustomizer();
     }
 
     private SdkTracerProviderBuilder addBurstTracers(SdkTracerProviderBuilder tracerProvider, ConfigProperties config) {
