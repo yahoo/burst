@@ -33,12 +33,11 @@ final class WaveSupervisorQueryEndpoint extends WaveSupervisorEndpoint {
     resultOrErrorResponse {
       val uid = s"WEB_$newBurstUid"
       RunQueryTrek.begin(uid) { stage =>
-        if (timezone == null || timezone.isEmpty || !timeZoneNameList.contains(timezone))
-          RunQueryTrek.fail(stage, VitalsException(s"timezone=$timezone invalid or malformed"))
-          return FabricExecuteResult(
-            FabricInvalidResultStatus,
-            s"timezone=$timezone invalid or malformed"
-          )
+        if (timezone == null || timezone.isEmpty || !timeZoneNameList.contains(timezone)) {
+          RunQueryTrek.fail(stage, VitalsException(s"timezone='$timezone' invalid or malformed"))
+          return FabricExecuteResult(FabricInvalidResultStatus, s"timezone='$timezone' invalid or malformed")
+        }
+
 
         val over = try {
           FabricOver(domain.toLong, view.toLong, timezone)
