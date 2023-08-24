@@ -64,31 +64,24 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
         val messageTypeKey = buffer.readInt()
         stage.span.setAttribute(fabricMessageTypeKey, messageTypeKey)
         FabricNetReporter.onMessageRecv(buffer.capacity)
+        val bytes: Array[Byte] = {
+          val oldPosition = buffer.nioBuffer().position()
+          val array = new Array[Byte](buffer.nioBuffer().remaining)
+          buffer.nioBuffer().get(array, 0, array.length)
+          buffer.nioBuffer().position(oldPosition)
+          array
+        }
 
         TeslaRequestFuture {
-          val messageId = FabricNetMsgType(messageTypeKey)
+          val msgType = FabricNetMsgType(messageTypeKey)
           connection match {
             case None =>
-              val message = burstStdMsg(s"FAB_NET_NO_CONNECTION $this $messageId")
+              val message = burstStdMsg(s"FAB_NET_NO_CONNECTION $this $msgType")
               FabricNetReceive.fail(stage, VitalsException(message))
               log warn message
             case Some(connection) =>
-              val bytes: Array[Byte] = {
-                val oldPosition = buffer.nioBuffer().position()
-                val array = new Array[Byte](buffer.nioBuffer().remaining)
-                buffer.nioBuffer().get(array, 0, array.length)
-                buffer.nioBuffer().position(oldPosition)
-                array
-              }
               FabricNetReceive.end(stage)
-              TeslaRequestFuture {
-                try {
-                  connection.onMessage(messageId, bytes)
-                } catch safely {
-                  case t: Throwable =>
-                    log error(burstStdMsg(s"FAB_RX_FAIL $this", t), t)
-                }
-              }
+              connection.onMessage(msgType, bytes)
           }
         }
       } catch safely {
