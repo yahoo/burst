@@ -24,11 +24,11 @@ public class BurstAutoConfigurationCustomizerProvider implements AutoConfigurati
     }
 
     private SdkTracerProviderBuilder addBurstSpanProcessors(SdkTracerProviderBuilder tracerProvider, ConfigProperties config) {
-        if (!config.getBoolean("burst.otel.trek.enable", false)) {
-            return tracerProvider;
+        if (config.getBoolean("burst.otel.trek.enable", false)) {
+            logger.info("TrekLoggingSpanExporter is enabled");
+            tracerProvider.addSpanProcessor(TrekSpanProcessor.create(TrekLoggingSpanExporter.create()));
         }
-        logger.info("TrekLoggingSpanExporter is enabled");
-        return tracerProvider.addSpanProcessor(TrekSpanProcessor.create(TrekLoggingSpanExporter.create()));
+        return tracerProvider;
     }
 
 }
