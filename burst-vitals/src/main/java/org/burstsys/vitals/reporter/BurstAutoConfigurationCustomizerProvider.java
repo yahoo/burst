@@ -7,7 +7,6 @@ import io.opentelemetry.sdk.autoconfigure.spi.ConfigProperties;
 import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 
@@ -21,12 +20,13 @@ public class BurstAutoConfigurationCustomizerProvider implements AutoConfigurati
     @ParametersAreNonnullByDefault
     public void customize(AutoConfigurationCustomizer autoConfigurationCustomizer) {
         logger.info("BurstAutoConfigurationCustomizerProvider will customize otel");
-        autoConfigurationCustomizer.addTracerProviderCustomizer(this::addBurstTracers);
+        autoConfigurationCustomizer.addTracerProviderCustomizer(this::addBurstSpanProcessors);
     }
 
-    private SdkTracerProviderBuilder addBurstTracers(SdkTracerProviderBuilder tracerProvider, ConfigProperties config) {
-//        if (!config.getList("otel.traces.exporter", Collections.emptyList()).contains("trek"))
-//            return tracerProvider;
+    private SdkTracerProviderBuilder addBurstSpanProcessors(SdkTracerProviderBuilder tracerProvider, ConfigProperties config) {
+        if (!config.getBoolean("burst.otel.trek.enable", false)) {
+            return tracerProvider;
+        }
         logger.info("TrekLoggingSpanExporter is enabled");
         return tracerProvider.addSpanProcessor(TrekSpanProcessor.create(TrekLoggingSpanExporter.create()));
     }
