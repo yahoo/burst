@@ -136,8 +136,11 @@ class FabricNetServerConnectionContext(
   var stage: Option[TrekStage] = None
 
   private val assessorFunction: BackgroundFunction = () => {
-    stage = Option(FabricNetAssess.begin() { stage => stage })
-    transmitter transmitControlMessage FabricNetAssessReqMsg(newRequestId, serverKey, clientKey)
+    stage = Option(FabricNetAssess.begin() { stage =>
+      transmitter transmitControlMessage FabricNetAssessReqMsg(newRequestId, serverKey, clientKey)
+      stage
+    })
+
   }
 
   private def assessResponse(msg: FabricNetAssessRespMsg): Unit = {

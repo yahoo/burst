@@ -8,6 +8,7 @@ import org.burstsys.nexus.message.{NexusMsg, NexusStreamParcelMsg}
 import org.burstsys.nexus.trek.NexusTransmitTrekMark
 import org.burstsys.nexus.{NexusChannel, NexusReporter}
 import org.burstsys.tesla
+import org.burstsys.tesla.parcel.TeslaParcel
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.trek.context.injectContext
@@ -41,12 +42,22 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
    * @param msg the message to send
    */
   def transmitControlMessage(msg: NexusMsg): Future[Unit] = {
-    val tag = s"NexusTransmitter.transmitControlMessage(${msg.getClass.getSimpleName} $remoteAddress:$remotePort"
+    doTransmit(msg)
+  }
+
+  /**
+   * transmit a data plane message. These are immediately flushed through the pipeline
+   */
+  def transmitDataMessage(message: NexusStreamParcelMsg): Future[Unit] = {
+    doTransmit(message, message.parcel)
+  }
+
+  private def doTransmit(msg: NexusMsg, parcel: TeslaParcel = null): Future[Unit] = {
     NexusTransmitTrekMark.begin() { stage =>
       stage.span.setAttribute(nexusMessageTypeKey, msg.messageType.code)
       try {
         if (!canSendMsg) {
-          val ex = VitalsException(s"$tag channel not open or active").fillInStackTrace()
+          val ex = VitalsException(s"Nexus channel not open or not active").fillInStackTrace()
           NexusTransmitTrekMark.fail(stage, ex)
           return Promise.failed(ex).future
         }
@@ -55,13 +66,20 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
         val transmitStart = System.nanoTime
         // do the alloc/write/flush on the channel thread so the fabric thead is done right away
         channel.eventLoop.submit(Context.current().wrap(() => {
-          val buffer = channel.alloc().buffer()
+          val buffer = if (parcel != null) {
+            channel.alloc().buffer(parcel.currentUsedMemory)
+          } else {
+            channel.alloc().buffer()
+          }
           injectContext(msg, buffer)
           msg.encode(buffer)
+          if (parcel != null) {
+            tesla.parcel.factory.releaseParcel(parcel)
+          }
           val buffSize = buffer.capacity
           channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
             if (!future.isSuccess) {
-              log warn burstStdMsg(s"$tag control message transmit failed  ${future.cause}", future.cause)
+              log warn burstStdMsg(s"Nexus message transmit failed  ${future.cause}", future.cause)
               promise.failure(future.cause())
               NexusTransmitTrekMark.fail(stage, future.cause())
             } else {
@@ -78,37 +96,6 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
           throw t
       }
     }
-  }
-
-  /**
-   * transmit a data plane message. These are immediately flushed through the pipeline
-   */
-  def transmitDataMessage(message: NexusStreamParcelMsg): Future[Unit] = {
-    val tag = s"NexusTransmitter.transmitDataMessage($remoteAddress:$remotePort"
-    if (!canSendMsg) return Promise.failed(
-      VitalsException(s"$tag channel not open or active").fillInStackTrace()
-    ).future
-
-    val promise = Promise[Unit]()
-    val transmitStart = System.nanoTime
-    channel.eventLoop.submit(Context.current.wrap(() => {
-      val buffer = channel.alloc().buffer(message.parcel.currentUsedMemory)
-      injectContext(message, buffer)
-      message.encode(buffer)
-      tesla.parcel.factory releaseParcel message.parcel
-      val buffSize = buffer.capacity
-
-      channel.writeAndFlush(buffer).addListener((future: NettyFuture[_ >: Void]) => {
-        if (!future.isSuccess) {
-          log warn burstStdMsg(s"$tag data message transmit failed  ${future.cause}", future.cause)
-          promise.failure(future.cause())
-        } else {
-          NexusReporter.onTransmit(ns = System.nanoTime - transmitStart, bytes = buffSize)
-          promise.success(())
-        }
-      })
-    }))
-    promise.future
   }
 
   private def canSendMsg: Boolean = channel.isOpen && channel.isActive

@@ -59,44 +59,43 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
     @unused val _ = buffer.readInt() // first field is the message length
     val scp = extractContext(this, buffer)
     try {
-      FabricNetReceive.begin() { stage =>
-        try {
-          val messageTypeKey = buffer.readInt()
-          stage.span.setAttribute(fabricMessageTypeKey, messageTypeKey)
-          FabricNetReporter.onMessageRecv(buffer.capacity)
+      val stage = FabricNetReceive.beginSync()
+      try {
+        val messageTypeKey = buffer.readInt()
+        stage.span.setAttribute(fabricMessageTypeKey, messageTypeKey)
+        FabricNetReporter.onMessageRecv(buffer.capacity)
 
-          TeslaRequestCoupler {
-            val messageId = FabricNetMsgType(messageTypeKey)
-            connection match {
-              case None =>
-                log warn burstStdMsg(s"FAB_NET_NO_CONNECTION $this $messageId")
-              case Some(connection) =>
-                val bytes: Array[Byte] = {
-                  val oldPosition = buffer.nioBuffer().position()
-                  val array = new Array[Byte](buffer.nioBuffer().remaining)
-                  buffer.nioBuffer().get(array, 0, array.length)
-                  buffer.nioBuffer().position(oldPosition)
-                  array
+        TeslaRequestFuture {
+          val messageId = FabricNetMsgType(messageTypeKey)
+          connection match {
+            case None =>
+              val message = burstStdMsg(s"FAB_NET_NO_CONNECTION $this $messageId")
+              FabricNetReceive.fail(stage, VitalsException(message))
+              log warn message
+            case Some(connection) =>
+              val bytes: Array[Byte] = {
+                val oldPosition = buffer.nioBuffer().position()
+                val array = new Array[Byte](buffer.nioBuffer().remaining)
+                buffer.nioBuffer().get(array, 0, array.length)
+                buffer.nioBuffer().position(oldPosition)
+                array
+              }
+              FabricNetReceive.end(stage)
+              TeslaRequestFuture {
+                try {
+                  connection.onMessage(messageId, bytes)
+                } catch safely {
+                  case t: Throwable =>
+                    log error(burstStdMsg(s"FAB_RX_FAIL $this", t), t)
                 }
-                TeslaRequestFuture {
-                  try {
-                    connection.onMessage(messageId, bytes)
-                  } catch safely {
-                    case t: Throwable =>
-                      log error(burstStdMsg(s"FAB_RX_FAIL $this", t), t)
-                  }
-                }
-                FabricNetReceive.end(stage)
-            }
+              }
           }
-        } catch safely {
-          case t: Throwable =>
-            FabricNetReceive.fail(stage, t)
-            throw t
         }
-      }
-    } finally {
-      scp.close()
-    }
+      } catch safely {
+        case t: Throwable =>
+          FabricNetReceive.fail(stage, t)
+          throw t
+      } finally stage.closeScope()
+    } finally scp.close()
   }
 }

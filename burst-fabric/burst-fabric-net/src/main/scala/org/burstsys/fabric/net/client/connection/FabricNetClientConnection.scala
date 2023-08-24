@@ -6,7 +6,7 @@ import org.burstsys.fabric
 import org.burstsys.fabric.container.FabricWorkerService
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetHeartbeatMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.message.{AccessParameters, FabricNetAssessReqMsgType, FabricNetMsg, FabricNetShutdownMsgType}
 import org.burstsys.fabric.net.transceiver.{FabricNetReceiver, FabricNetTransmitter}
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, newRequestId}
@@ -63,7 +63,9 @@ class FabricNetClientConnectionContext(
                                         receiver: FabricNetReceiver,
                                         client: FabricNetClient
                                       ) extends AnyRef
-  with FabricNetClientConnection with FabricNetLink with FabricNetClientAssessHandler {
+  with FabricNetClientConnection with FabricNetLink {
+
+  private val assessor = FabricNetClientAssessHandler()
 
   override val modality: VitalsServiceModality = VitalsPojo
 
@@ -133,7 +135,7 @@ class FabricNetClientConnectionContext(
             log debug s"rescued heartbeat thread from $t"
         }
       }).start
-    assessorBackgroundFunction.start
+    assessor.backgroundThread.start
     markRunning
     this
   }
@@ -153,7 +155,7 @@ class FabricNetClientConnectionContext(
     ensureRunning
     log info stoppingMessage
     _heartbeatFunction.stop
-    assessorBackgroundFunction.stop
+    assessor.backgroundThread.stop
     markNotRunning
     this
   }
@@ -176,8 +178,7 @@ class FabricNetClientConnectionContext(
             throw failure
           }
 
-          val response = getAssessMessage(msg)
-
+          val response = FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, assessor.getAssessment)
           transmitter.transmitControlMessage(response) onComplete {
             case Success(_) =>
               FabricNetAssessResp.end(stage)

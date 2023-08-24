@@ -16,9 +16,7 @@ import scala.language.postfixOps
 /**
  * client side management of assess requests
  */
-trait FabricNetClientAssessHandler {
-
-  self: FabricNetClientConnectionContext =>
+case class FabricNetClientAssessHandler() {
 
   /**
    * This is actually done on the supervisor (normalized to 0-10)
@@ -44,15 +42,15 @@ trait FabricNetClientAssessHandler {
   private[this]
   val _diskCollector: FabricLastHourMetricCollector = FabricLastHourMetricCollector().initialize
 
-  def getAssessMessage(msg: FabricNetAssessReqMsg): FabricNetAssessRespMsg = {
-    FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, FabricAssessment(
+  def getAssessment: FabricAssessment = {
+    FabricAssessment(
       _pingCollector.exportMetric, _lavCollector.exportMetric, _memCollector.exportMetric, _diskCollector.exportMetric
-    ))
+    )
   }
 
   def memoryPercentUsed: Double = percentUsed("memory", offheap.nativeMemoryMax, used = host.mappedMemoryUsed)
 
-  lazy val assessorBackgroundFunction = new VitalsBackgroundFunction("fab-worker-assess",
+  lazy val backgroundThread = new VitalsBackgroundFunction("fab-worker-assess",
     fabric.configuration.burstFabricTopologyAssessmentPeriodMs.get,
     fabric.configuration.burstFabricTopologyAssessmentPeriodMs.get,
     {

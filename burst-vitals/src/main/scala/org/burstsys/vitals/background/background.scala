@@ -1,9 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import io.opentelemetry.context.Context
+
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ThreadFactory}
-
 import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.threading.burstThreadGroupGlobal
 
@@ -23,7 +24,9 @@ package object background extends VitalsLogger {
     }
   }
 
-  implicit val backgrounderExecutor: ExecutionContextExecutorService =
-    ExecutionContext.fromExecutorService(Executors.newCachedThreadPool(backgrounderThreadFactory))
+  implicit val backgrounderExecutor: ExecutionContextExecutorService = {
+    val pool = Context.taskWrapping(Executors.newCachedThreadPool(backgrounderThreadFactory))
+    ExecutionContext.fromExecutorService(pool)
+  }
 
 }

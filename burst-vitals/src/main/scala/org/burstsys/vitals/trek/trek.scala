@@ -89,7 +89,7 @@ package object trek extends VitalsLogger {
      * @return the return value of the block
      */
     def begin[R](trekId: VitalsUid = null, callId: VitalsUid = null)(wrapped: TrekStage => R): R = {
-      val stage: TrekStage = beginSync(trekId, callId)
+      val stage = beginSync(trekId, callId)
       try {
         wrapped(stage)
       } finally {
