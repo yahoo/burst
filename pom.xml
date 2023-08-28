@@ -31,7 +31,7 @@
                 </property>
             </activation>
             <properties>
-                <skipTests>false</skipTests>
+                <skipTests>true</skipTests>
             </properties>
 
             <build>

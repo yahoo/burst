@@ -2,6 +2,7 @@
 package org.burstsys.vitals
 
 import io.opentelemetry.api.baggage.Baggage
+import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace._
 import io.opentelemetry.context.{Context, Scope}
 import io.opentelemetry.sdk.trace.IdGenerator
@@ -46,10 +47,10 @@ package object trek extends VitalsLogger {
   object VitalsTrekClient extends VitalsTrekRole("client")
 
   // these names must conform to open telemetry attribute naming standards.
-  private val NAME_KEY = "trek.name"
+  private val NAME_KEY = AttributeKey.stringKey("trek.name")
+  private val ROOT_KEY = AttributeKey.booleanKey("trek.root")
   private val TREK_ID = "trek.id"
   private val CALL_ID = "trek.callId"
-  private val CLUSTER_KEY = "cluster"
 
   case class TrekStage(span: Span, scope: Scope) {
 
@@ -110,6 +111,7 @@ package object trek extends VitalsLogger {
         log debug burstLocMsg(s"start trek $name trekId=$trekId callId=$callId parent=${Span.current}")
 
       val parent = if (root) Context.root else Context.current
+
       val context = if (Baggage.current.getEntryValue(TREK_ID) != trekId) {
         Baggage.current.toBuilder
           .put(TREK_ID, trekId)
@@ -121,6 +123,7 @@ package object trek extends VitalsLogger {
         .setSpanKind(kind)
         .setParent(context)
         .setAttribute(NAME_KEY, name)
+        .setAttribute(ROOT_KEY, root.asInstanceOf[java.lang.Boolean])
 
       if (root) {
         builder.addLink(Span.current.getSpanContext)
