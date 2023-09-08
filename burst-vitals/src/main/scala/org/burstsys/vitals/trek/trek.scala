@@ -126,6 +126,7 @@ package object trek extends VitalsLogger {
         .setAttribute(ROOT_KEY, root.asInstanceOf[java.lang.Boolean])
 
       if (root) {
+        builder.setNoParent()
         builder.addLink(Span.current.getSpanContext)
       }
 

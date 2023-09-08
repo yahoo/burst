@@ -1,9 +1,9 @@
 package org.burstsys.vitals
 
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.api.trace.{SpanId, TraceId, Tracer}
+import io.opentelemetry.api.trace.{TraceId, Tracer}
 import org.apache.commons.codec.digest.DigestUtils
-import org.burstsys.vitals.logging.{VitalsLogger, burstLocMsg}
+import org.burstsys.vitals.logging.VitalsLogger
 import org.burstsys.vitals.uid.VitalsUid
 
 import java.nio.charset.StandardCharsets
