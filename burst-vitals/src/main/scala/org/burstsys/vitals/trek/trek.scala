@@ -1,22 +1,19 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
-import io.opentelemetry.api.baggage.Baggage
+import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace._
 import io.opentelemetry.context.{Context, Scope}
-import io.opentelemetry.sdk.trace.IdGenerator
-import org.apache.commons.codec.digest.DigestUtils
-import org.burstsys.vitals
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.uid.VitalsUid
 
-import java.nio.charset.StandardCharsets
 import scala.annotation.unused
+
 
 package object trek extends VitalsLogger {
   lazy private[vitals]
-  val _tracer = tracing.tracer
+  val _tracer = GlobalOpenTelemetry.getTracer("org.burstsys")
 
   lazy private val protoSpan: Span = {
     if (Span.current().getSpanContext.isValid)
@@ -110,7 +107,7 @@ package object trek extends VitalsLogger {
       if (log.isDebugEnabled)
         log debug burstLocMsg(s"start trek $name trekId=$trekId callId=$callId parent=${Span.current}")
 
-      val builder = vitals.tracing.tracer.spanBuilder(name)
+      val builder = _tracer.spanBuilder(name)
         .setSpanKind(kind)
         .setAttribute(NAME_KEY, name)
         .setAttribute(ROOT_KEY, root.asInstanceOf[java.lang.Boolean])
