@@ -2,6 +2,7 @@
 package org.burstsys.agent.ops
 
 import io.opentelemetry.api.common.Attributes
+import org.burstsys.agent._
 import org.burstsys.agent.api.server
 import org.burstsys.agent.api.server.maxConcurrencyGate
 import org.burstsys.agent.configuration.burstAgentApiTimeoutDuration
@@ -9,7 +10,6 @@ import org.burstsys.agent.model.execution.group.call._
 import org.burstsys.agent.model.execution.group.over._
 import org.burstsys.agent.model.execution.result._
 import org.burstsys.agent.transform.AgentTransform
-import org.burstsys.agent._
 import org.burstsys.api._
 import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
 import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupUid, sanitizeGuid}
@@ -21,7 +21,6 @@ import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.{VitalsException, messageFromException}
 
 import java.util.concurrent.{ConcurrentHashMap, TimeUnit, TimeoutException}
-import scala.collection.mutable
 import scala.concurrent.{Await, Future}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Failure, Success}
@@ -68,14 +67,15 @@ trait AgentExecuteOps extends AgentService {
 
     val start = System.nanoTime
     lazy val durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime - start)
-    val cleanGuid = sanitizeGuid(guid)
-    if (!cleanGuid.startsWith(guid)) {
-      log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$cleanGuid' instead"
+    val saniGuid = sanitizeGuid(guid)
+    if (!saniGuid.startsWith(guid)) {
+      log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$saniGuid' instead"
     }
-    val tag = s"guid='$guid' cleanGuid='$cleanGuid' $over startConcurrency=${maxConcurrencyGate.get}"
-    log info s"AGENT_PIPELINE_BEGIN $tag"
+    AgentRequestTrekMark.begin(saniGuid) { trek =>
+      val cleanGuid = s"${saniGuid}_${trek.span.getSpanContext.getTraceId}"
+      val tag = s"guid='$guid' cleanGuid='$cleanGuid' $over startConcurrency=${maxConcurrencyGate.get}"
+      log info s"AGENT_PIPELINE_BEGIN $tag"
 
-    AgentRequestTrekMark.begin(cleanGuid) { trek =>
       TeslaRequestFuture { // execute the request if we have a free wave
         onAgentRequestBegin(cleanGuid, source, over, call)
 

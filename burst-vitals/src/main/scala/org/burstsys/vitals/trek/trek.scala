@@ -110,30 +110,20 @@ package object trek extends VitalsLogger {
       if (log.isDebugEnabled)
         log debug burstLocMsg(s"start trek $name trekId=$trekId callId=$callId parent=${Span.current}")
 
-      val parent = if (root) Context.root else Context.current
-
-      val context = if (Baggage.current.getEntryValue(TREK_ID) != trekId) {
-        Baggage.current.toBuilder
-          .put(TREK_ID, trekId)
-          .put(CALL_ID, callId).build()
-          .storeInContext(parent)
-      } else parent
-
       val builder = vitals.tracing.tracer.spanBuilder(name)
         .setSpanKind(kind)
-        .setParent(context)
         .setAttribute(NAME_KEY, name)
         .setAttribute(ROOT_KEY, root.asInstanceOf[java.lang.Boolean])
 
+      val parent = if (root) Context.root else Context.current
+
+      builder.setParent(parent)
+
       if (root) {
-        builder.setNoParent()
         builder.addLink(Span.current.getSpanContext)
       }
 
-      Baggage.current.forEach((key, entry) => {
-        log debug burstLocMsg(s"trek $name baggage $key=${entry.getValue}")
-        builder.setAttribute(key, entry.getValue)
-      })
+      builder.setAttribute(TREK_ID, trekId).setAttribute(CALL_ID, callId)
 
       val span = builder.startSpan()
 

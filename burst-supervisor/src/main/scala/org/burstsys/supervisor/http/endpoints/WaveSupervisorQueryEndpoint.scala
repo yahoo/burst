@@ -51,7 +51,7 @@ final class WaveSupervisorQueryEndpoint extends WaveSupervisorEndpoint {
         }
 
         val call = if (args == null || args.trim.isEmpty) None else Some(FabricCall(args))
-        val result = Await.result(agent.execute(source, over, uid, call), 90 seconds)
+        val result = Await.result(agent.execute(source, over, s"${uid}_${stage.span.getSpanContext.getTraceId}", call), 90 seconds)
         RunQueryTrek.end(stage)
         result.toJson // here is where our JSON architecture pays off
       }

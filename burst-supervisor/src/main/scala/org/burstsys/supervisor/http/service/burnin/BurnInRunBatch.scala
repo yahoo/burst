@@ -12,6 +12,7 @@ import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.fabric.wave.metadata.model.view.FabricView
 import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch.BurnInLabel
+import org.burstsys.supervisor.http.service.burnin.BurnInWorker.{guidSpanKey, querySpanKey}
 import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType
 import org.burstsys.supervisor.http.service.provider.BurnInDatasetDescriptor.LookupType
 import org.burstsys.supervisor.http.service.provider.{BurnInBatch, BurnInDatasetDescriptor, BurnInEvent, BurnInLogEvent}
@@ -19,8 +20,6 @@ import org.burstsys.supervisor.trek.{BurnInDatasetTrek, BurnInQueryTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.uid
-import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch._
-import org.burstsys.supervisor.http.service.burnin.BurnInWorker.{guidSpanKey, querySpanKey}
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentSkipListMap, TimeoutException}
@@ -280,7 +279,7 @@ case class BurnInWorker(
             break()
           }
 
-          val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
+          val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}_t${stage.span.getSpanContext.getTraceId}"
           flushDataset(dataset)
           registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
           if (!shouldContinue()) {
