@@ -11,13 +11,12 @@ import org.burstsys.nexus
 import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
 import org.burstsys.samplesource.nexus.SampleSourceNexusServer
 import org.burstsys.samplestore.configuration.{sampleStoreNexusHostAddrOverride, sampleStoreNexusHostNameAddrOverride}
-import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
 import org.burstsys.samplestore.store.container.{NexusConnectedPortAccessParameter, NexusHostAddrAccessParameter, NexusHostNameAccessParameter, NexusPortAccessParameter}
 import org.burstsys.samplestore.store.message.FabricStoreMetadataReqMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.net.VitalsHostAddress
+import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 
 /**
@@ -125,7 +124,7 @@ SampleStoreFabricWorkerContainerContext(netConfig: FabricNetworkConfig)
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status(level: Int): AnyRef = {
-    SampleSourceHandlerRegistry.getSources
+  override def status(level: Int, attributes: VitalsPropertyMap): AnyRef = {
+    SampleSourceHandlerRegistry.getSources.toArray
   }
 }

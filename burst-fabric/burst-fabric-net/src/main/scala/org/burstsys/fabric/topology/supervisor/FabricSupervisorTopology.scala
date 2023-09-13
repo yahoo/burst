@@ -14,6 +14,7 @@ import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.git
 import org.burstsys.vitals.healthcheck.{VitalsComponentHealth, VitalsHealthMarginal, VitalsHealthUnhealthy}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
+import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.burstsys.vitals.reporter.instrument.prettyTimeFromNanos
 import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 
@@ -283,7 +284,7 @@ class FabricSupervisorTopologyContext[T <: FabricSupervisorListener](container: 
    *
    * @return Case class that will be serialized to Json
    */
-  override def status(level: Int): AnyRef = {
+  override def status(level: Int, attributes: VitalsPropertyMap): AnyRef = {
     case class TopologyStatus(healthyWorkers: Array[FabricWorkerNode] = healthyWorkers.map(_.forExport))
     TopologyStatus()
   }

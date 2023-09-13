@@ -11,7 +11,7 @@ import org.burstsys.samplesource.trek.SampleSourceFeedStreamTrek
 import org.burstsys.samplestore.api._
 import org.burstsys.samplestore.api.configuration.burstSampleStoreHeartbeatInterval
 import org.burstsys.tesla.parcel
-import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
+import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.properties._
@@ -91,7 +91,7 @@ final case class SampleSourceNexusFeeder() extends NexusStreamFeeder with System
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status(level: Int): AnyRef = {
+  override def status(level: Int, attributes: VitalsPropertyMap): AnyRef = {
     case class StatusResponse(feedStreamRequests: Array[FeedStreamRequest] = _requests.asScala.toArray)
     StatusResponse()
   }
