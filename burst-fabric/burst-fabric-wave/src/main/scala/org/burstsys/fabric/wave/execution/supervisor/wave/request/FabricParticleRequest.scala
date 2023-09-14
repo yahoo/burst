@@ -5,8 +5,10 @@ import org.burstsys.fabric.topology.model.node.worker.FabricWorkerProxy
 import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.fabric.wave.execution.model.wave.FabricParticle
 import org.burstsys.fabric.wave.execution.supervisor.FabricScatteredGatherRequest
+import org.burstsys.fabric.wave.trek.FabricSupervisorParticleTrekMark
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlotZombie
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
+import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net.VitalsHostName
 import org.burstsys.vitals.uid.{VitalsUid, newBurstUid}
@@ -42,36 +44,44 @@ class FabricParticleRequest(container: FabricWaveSupervisorContainer, worker: Fa
     val guid = slot.scatter.guid
     lazy val tag = s"FabricParticleRequest.execute(guid=$guid, ruid=$ruid, host=$destinationHostName)"
     slot.slotBegin()
-    container.executeParticle(worker.connection, slot, particle) transform {
-      case Success(r) =>
-        result = r
+    FabricSupervisorParticleTrekMark.begin(guid, ruid) { st =>
+      slot.setTrekStage(st)
+      container.executeParticle(worker.connection, slot, particle) transform {
+        case Success(r) =>
+          result = r
 
-        /* scatters are closed when they fail or time out. Closing a scatter closes all its requests;
+          /* scatters are closed when they fail or time out. Closing a scatter closes all its requests;
          * closing a request clears out the request's `slot` field. Additionally, only gathers that are received during
          * an active fabric wave will get merged together (and therefore release their resources) */
-        slot match {
-          // indicates that the request was cancelled
-          case null =>
-            log info s"$tag releasing resources for timed-out request slot=$slot result=$result"
-            result.releaseResourcesOnSupervisor()
-          // update outside of active merge loop, will probably never happen since slot probably == null
-          case slot if slot.slotState == TeslaScatterSlotZombie =>
-            log info s"$tag releasing resources for timed-out request slot=$slot result=$result"
-            result.releaseResourcesOnSupervisor()
-            /* calling success on a zombie slot doesn't give a success message to the scatter,
+          slot match {
+            // indicates that the request was cancelled
+            case null =>
+              val e = VitalsException(s"$tag releasing resources for timed-out request slot=$slot result=$result")
+              log info e.getMessage
+              FabricSupervisorParticleTrekMark.fail(st, e)
+              result.releaseResourcesOnSupervisor()
+            // update outside of active merge loop, will probably never happen since slot probably == null
+            case slot if slot.slotState == TeslaScatterSlotZombie =>
+              log info s"$tag releasing resources for timed-out request slot=$slot result=$result"
+              result.releaseResourcesOnSupervisor()
+              /* calling success on a zombie slot doesn't give a success message to the scatter,
              * it removes the slot from the zombie list and marks it as idle */
-            slot.slotSuccess()
-          case slot =>
-            slot.slotSuccess()
-        }
-        Success((): Unit)
+              FabricSupervisorParticleTrekMark.end(st)
+              slot.slotSuccess()
+            case slot =>
+              FabricSupervisorParticleTrekMark.end(st)
+              slot.slotSuccess()
+          }
+          Success((): Unit)
 
-      case Failure(t) =>
-        log error burstStdMsg(s"FAB_PARTICLE_REQUEST_FAIL $t $tag", t)
-        if (slot != null) {
-          slot.slotFailed(t)
-        }
-        throw t
+        case Failure(t) =>
+          log error burstStdMsg(s"FAB_PARTICLE_REQUEST_FAIL $t $tag", t)
+          FabricSupervisorParticleTrekMark.fail(st, t)
+          if (slot != null) {
+            slot.slotFailed(t)
+          }
+          throw t
+      }
     }
   }
 

@@ -11,7 +11,7 @@ package object trek {
   )
 
   final object FabricSupervisorParticleTrekMark extends VitalsTrekMark("FabricSupervisorParticle",
-    VitalsTrekCell, VitalsTrekSupervisor,
+    VitalsTrekCell, VitalsTrekSupervisor
   )
 
   final object FabricWorkerRequestTrekMark extends VitalsTrekMark("FabricWorkerRequest",

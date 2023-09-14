@@ -1,7 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.container.supervisor
 
-import io.opentelemetry.api.trace.Span
 import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorContainerContext, FabricSupervisorListener}
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.server.connection.{FabricNetCall, FabricNetServerConnection}
@@ -20,7 +19,6 @@ import org.burstsys.fabric.wave.message.cache.{FabricNetCacheOperationReqMsg, Fa
 import org.burstsys.fabric.wave.message.scatter.{FabricNetProgressMsg, FabricNetScatterMsg}
 import org.burstsys.fabric.wave.message.wave.{FabricNetParticleReqMsg, FabricNetParticleRespMsg}
 import org.burstsys.fabric.wave.metadata.supervisor.FabricSupervisorMetadata
-import org.burstsys.fabric.wave.trek.FabricSupervisorParticleTrekMark
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlot
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors.VitalsException
@@ -200,21 +198,15 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
     val tag = s"FabricWaveSupervisorContainer.executeParticle(guid=$guid, ruid=$ruid)"
     val msg = FabricNetParticleReqMsg(guid, ruid, connection.serverKey, connection.clientKey, particle)
     val call = ExecutionParticleOpCall(msg)
-    FabricSupervisorParticleTrekMark.begin(guid, msg.ruid) { stage =>
-      slot.setTrekStage(stage)
-      _particleCallMap.put(msg, call)
-      _particleSlotMap.put(msg, slot)
-      log debug burstLocMsg(s"Sending particle with span=${slot.stage} current=${Span.current}")
-      connection.transmitControlMessage(call.request) onComplete {
-        case Success(_) =>
-          log trace s"FAB_NET_PARTICLE_XMIT_SUCCESS $tag"
-          slot.stage.span.addEvent("transmitControlMessage.success")
-        case Failure(t) =>
-          log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
-          FabricSupervisorParticleTrekMark.fail(stage, t)
-      }
-      call.receipt.future
+    _particleCallMap.put(msg, call)
+    _particleSlotMap.put(msg, slot)
+    connection.transmitControlMessage(call.request) onComplete {
+      case Success(_) =>
+        log trace s"FAB_NET_PARTICLE_XMIT_SUCCESS $tag"
+      case Failure(t) =>
+        log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
     }
+    call.receipt.future
   }
 
   override def onNetMessage(connection: FabricNetServerConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
@@ -247,7 +239,6 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
         if (call == null) {
           log warn s"$tag SLOTLESS"
         } else {
-          FabricSupervisorParticleTrekMark.end(slot.stage)
           log debug burstLocMsg(s"$tag received result")
           _particleCallMap.remove(msg)
           _particleSlotMap.remove(msg)
