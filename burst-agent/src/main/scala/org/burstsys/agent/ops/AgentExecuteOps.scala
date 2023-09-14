@@ -72,7 +72,7 @@ trait AgentExecuteOps extends AgentService {
       log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$saniGuid' instead"
     }
     AgentRequestTrekMark.begin(saniGuid) { trek =>
-      val cleanGuid = s"${saniGuid}_${trek.span.getSpanContext.getTraceId}"
+      val cleanGuid = s"${saniGuid}_${trek.getTraceId}"
       val tag = s"guid='$guid' cleanGuid='$cleanGuid' $over startConcurrency=${maxConcurrencyGate.get}"
       log info s"AGENT_PIPELINE_BEGIN $tag"
 

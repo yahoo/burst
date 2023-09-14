@@ -67,6 +67,8 @@ package object trek extends VitalsLogger {
     }
 
     def closeScope(): Unit = scope.close()
+
+    def getTraceId: String = span.getSpanContext.getTraceId
   }
 
   case class VitalsTrekMark(
