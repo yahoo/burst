@@ -1,11 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.execution.supervisor.wave.request
 
+import org.burstsys.fabric.topology.model.node.worker.FabricWorkerProxy
+import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.fabric.wave.execution.model.wave.FabricParticle
 import org.burstsys.fabric.wave.execution.supervisor.FabricScatteredGatherRequest
-import org.burstsys.fabric.topology.model.node.worker.FabricWorkerProxy
-import org.burstsys.fabric.wave.trek.FabricSupervisorParticleTrekMark
-import org.burstsys.fabric.wave.container.supervisor.FabricWaveSupervisorContainer
 import org.burstsys.tesla.scatter.slot.TeslaScatterSlotZombie
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.logging._

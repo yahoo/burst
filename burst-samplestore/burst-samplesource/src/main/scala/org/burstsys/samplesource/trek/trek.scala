@@ -5,10 +5,6 @@ import io.opentelemetry.api.trace.SpanKind
 import org.burstsys.vitals.trek.{VitalsTrekMark, VitalsTrekRemote, VitalsTrekWorker}
 
 package object trek {
-  final object SampleStoreViewGeneratorTrek extends VitalsTrekMark("getViewGenerator",
-    VitalsTrekRemote, VitalsTrekWorker, SpanKind.SERVER
-  )
-
   final object SampleSourceFeedStreamTrek extends VitalsTrekMark("FeedStream",
     VitalsTrekRemote, VitalsTrekWorker, SpanKind.PRODUCER
   )

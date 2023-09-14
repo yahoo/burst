@@ -14,6 +14,7 @@ import org.burstsys.samplestore.api._
 import org.burstsys.samplestore.api.client.SampleStoreApiClient
 import org.burstsys.samplestore.api.configuration.{burstSampleStoreApiHostProperty, burstSampleStoreApiPortProperty, burstSampleStoreApiSslEnableProperty}
 import org.burstsys.samplestore.model.{SampleStoreLocus, SampleStoreSlice, _}
+import org.burstsys.samplestore.trek.SampleStoreGetViewGeneratorTrek
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.healthcheck._
@@ -104,53 +105,64 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     val tag = s"SampleStoreMaster.slices(guid=$guid, datasource=$datasource)"
     val start = System.nanoTime
 
-    twitterFutureToScalaFuture(apiClient(datasource).getViewGenerator(guid, datasource)) map { response =>
-      response.context.state match {
-        case BurstSampleStoreApiRequestSuccess if response.loci.isEmpty || response.loci.get.isEmpty =>
-          throw VitalsException("Got no loci from sample store supervisor")
+    SampleStoreGetViewGeneratorTrek.begin(guid) { st =>
+      twitterFutureToScalaFuture(apiClient(datasource).getViewGenerator(guid, datasource)) map { response =>
+        response.context.state match {
+          case BurstSampleStoreApiRequestSuccess if response.loci.isEmpty || response.loci.get.isEmpty =>
+            val e = VitalsException("Got no loci from sample store supervisor")
+            SampleStoreGetViewGeneratorTrek.fail(st, e)
+            throw e
 
-        case BurstSampleStoreApiRequestSuccess =>
-          val loci = response.loci.get.map(SampleStoreDataLocus(_)).toArray
-          SampleStoreGeneration(guid, response.generationHash, loci, datasource.view.schemaName, response.motifFilter)
+          case BurstSampleStoreApiRequestSuccess =>
+            SampleStoreGetViewGeneratorTrek.end(st)
+            val loci = response.loci.get.map(SampleStoreDataLocus(_)).toArray
+            SampleStoreGeneration(guid, response.generationHash, loci, datasource.view.schemaName, response.motifFilter)
 
-        case BurstSampleStoreApiRequestTimeout |
-             BurstSampleStoreApiRequestException |
-             BurstSampleStoreApiRequestInvalid |
-             BurstSampleStoreApiNotReady =>
-          throw VitalsException(s"Got ${response.context.state} from samplestore master")
+          case BurstSampleStoreApiRequestTimeout |
+               BurstSampleStoreApiRequestException |
+               BurstSampleStoreApiRequestInvalid |
+               BurstSampleStoreApiNotReady =>
+            val e =  VitalsException(s"Got ${response.context.state} from samplestore master")
+            SampleStoreGetViewGeneratorTrek.fail(st, e)
+            throw e
 
-        case r =>
-          throw VitalsException(s"Got unrecognized $r from samplestore master")
+          case r =>
+            val e = VitalsException(s"Got unrecognized $r from samplestore master")
+            SampleStoreGetViewGeneratorTrek.fail(st, e)
+            throw e
+        }
+      } recover {
+        case t =>
+          val e =  VitalsException(s"Failed to get view generation guid=$guid datasource=$datasource", t)
+          SampleStoreGetViewGeneratorTrek.fail(st, e)
+          throw e
+      } map { generator =>
+        val workerMap = new mutable.HashMap[FabricWorkerNode, mutable.ArrayBuffer[SampleStoreLocus]]
+        val i = new AtomicInteger
+        // spread the loci across the workers
+        generator.loci foreach { locus =>
+          val worker = workers(i.getAndIncrement() % workers.length)
+          workerMap.getOrElseUpdate(worker, new mutable.ArrayBuffer[SampleStoreLocus]) += locus
+        }
+        val motifFilter = generator.motifFilter.getOrElse(throw VitalsException(s"$tag no motif filter!"))
+        val sliceCount = workerMap.size
+        log info s"SAMPLE_STORE_SLICE_GOT_WORKERS workers=${workerMap.size} $tag"
+
+        // mapping the slices to workers using nodeId as sliceKey.
+        // Hey, nobody said keys had to fall in (0..slices) and as far as I can tell it's only used to build the region file path
+        val slices = workerMap.keys.map { worker =>
+          SampleStoreSlice(
+            guid, sliceKey = worker.nodeId.toInt, generator.generationHash, sliceCount,
+            datasource, motifFilter, worker, workerMap(worker).toArray)
+        }.toArray[FabricSlice]
+        val elapsedNanos = System.nanoTime - start
+        log info s"SAMPLE_STORE_SLICE_SUCCESS elapsedTime=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}), slices=${slices.length} $tag"
+        slices
+      } recover {
+        case t =>
+          log error burstStdMsg(s"SAMPLE_STORE_SLICE_FAIL $tag", t)
+          throw t
       }
-    } recover {
-      case t =>
-        throw VitalsException(s"Failed to get view generation guid=$guid datasource=$datasource", t)
-    } map { generator =>
-      val workerMap = new mutable.HashMap[FabricWorkerNode, mutable.ArrayBuffer[SampleStoreLocus]]
-      val i = new AtomicInteger
-      // spread the loci across the workers
-      generator.loci foreach { locus =>
-        val worker = workers(i.getAndIncrement() % workers.length)
-        workerMap.getOrElseUpdate(worker, new mutable.ArrayBuffer[SampleStoreLocus]) += locus
-      }
-      val motifFilter = generator.motifFilter.getOrElse(throw VitalsException(s"$tag no motif filter!"))
-      val sliceCount = workerMap.size
-      log info s"SAMPLE_STORE_SLICE_GOT_WORKERS workers=${workerMap.size} $tag"
-
-      // mapping the slices to workers using nodeId as sliceKey.
-      // Hey, nobody said keys had to fall in (0..slices) and as far as I can tell it's only used to build the region file path
-      val slices = workerMap.keys.map { worker =>
-        SampleStoreSlice(
-          guid, sliceKey = worker.nodeId.toInt, generator.generationHash, sliceCount,
-          datasource, motifFilter, worker, workerMap(worker).toArray)
-      }.toArray[FabricSlice]
-      val elapsedNanos = System.nanoTime - start
-      log info s"SAMPLE_STORE_SLICE_SUCCESS elapsedTime=$elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}), slices=${slices.length} $tag"
-      slices
-    } recover {
-      case t =>
-        log error burstStdMsg(s"SAMPLE_STORE_SLICE_FAIL $tag", t)
-        throw t
     }
   }
 

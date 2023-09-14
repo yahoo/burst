@@ -207,10 +207,11 @@ class FabricWaveSupervisorContainerContext(netConfig: FabricNetworkConfig) exten
       log debug burstLocMsg(s"Sending particle with span=${slot.stage} current=${Span.current}")
       connection.transmitControlMessage(call.request) onComplete {
         case Success(_) =>
+          log trace s"FAB_NET_PARTICLE_XMIT_SUCCESS $tag"
           slot.stage.span.addEvent("transmitControlMessage.success")
         case Failure(t) =>
           log warn s"FAB_NET_PARTICLE_XMIT_FAIL $t $tag"
-          FabricSupervisorParticleTrekMark.fail(slot.stage, t)
+          FabricSupervisorParticleTrekMark.fail(stage, t)
       }
       call.receipt.future
     }
