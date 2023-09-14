@@ -54,13 +54,10 @@ abstract class FabricGroupExecuteContext(container: FabricWaveSupervisorContaine
     val start = System.nanoTime
     FabricSupervisorWaveTrekMark.begin(scanner.group.groupUid) { stage =>
       lazy val tag = s"FabricWaveExecute.waveExecute(${scanner.group}, $over, traceId=${stage.getTraceId})"
-      log info burstLocMsg(s"start $tag")
       container.data.slices(scanner.group.groupUid, scanner.datasource) map { slices =>
-        log info burstLocMsg(s"map $tag")
         FabricWave(scanner.group.groupUid, slices.map(FabricParticle(scanner.group.groupUid, _, scanner)))
-      } chainWithFuture {
-        log info burstLocMsg(s"chain $tag")
-        container.execution.dispatchExecutionWave
+      } chainWithFuture { w =>
+        container.execution.dispatchExecutionWave(w, stage)
       } andThen {
         case Success(_) =>
           val elapsedNanos = System.nanoTime - start

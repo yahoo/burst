@@ -22,7 +22,7 @@ trait TeslaScatterMachine extends AnyRef
    */
   final override
   def execute(): Unit = {
-    lazy val tag = s"TeslaScatterMachine.execute(guid=$guid traceId=${Span.current.getSpanContext.getTraceId})"
+    lazy val tag = s"TeslaScatterMachine.execute(guid=$guid, traceId=${Span.current.getSpanContext.getTraceId})"
     lockScatter("execute")
     try {
       _scatterState match {

@@ -46,7 +46,6 @@ class FabricParticleRequest(container: FabricWaveSupervisorContainer, worker: Fa
     FabricSupervisorParticleTrekMark.begin(guid, ruid) { st =>
       lazy val tag = s"FabricParticleRequest.execute(guid=$guid, ruid=$ruid, host=$destinationHostName, traceId=${st.getTraceId})"
       slot.setTrekStage(st)
-      log info burstLocMsg(s"$tag Sending particle")
       container.executeParticle(worker.connection, slot, particle) transform {
         case Success(r) =>
           result = r

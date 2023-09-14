@@ -279,7 +279,7 @@ case class BurnInWorker(
             break()
           }
 
-          val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}_t${stage.getTraceId}"
+          val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
           flushDataset(dataset)
           registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
           if (!shouldContinue()) {

@@ -2,6 +2,7 @@
 package org.burstsys.fabric.wave.execution.supervisor
 
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.context.Scope
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.wave.container.supervisor.{FabricWaveSupervisorContainer, FabricWaveSupervisorListener}
 import org.burstsys.fabric.wave.execution.model.gather.FabricGather
@@ -17,6 +18,7 @@ import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
+import org.burstsys.vitals.trek.TrekStage
 
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
@@ -44,7 +46,7 @@ trait FabricSupervisorExecution extends FabricSupervisorService {
    * execute a scatter/gather wave operation
    * All errors are thrown as a [[org.burstsys.fabric.wave.exception.FabricException]]
    */
-  def dispatchExecutionWave(wave: FabricWave): Future[FabricGather]
+  def dispatchExecutionWave(wave: FabricWave, stage: TrekStage = null): Future[FabricGather]
 
 }
 
@@ -63,10 +65,11 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
 
   override def modality: VitalsServiceModality = container.bootModality
 
-  override def dispatchExecutionWave(wave: FabricWave): Future[FabricGather] = {
+  override def dispatchExecutionWave(wave: FabricWave, stage: TrekStage = null): Future[FabricGather] = {
+    val cntxt: Option[Scope] = if (stage != null) Some(stage.span.makeCurrent()) else None
     val tag = s"FabricWaveScatter.executionWaveOp(wave=$wave, traceId=${Span.current.getSpanContext.getTraceId})"
     val start = System.nanoTime
-    log info burstLocMsg(s"$tag dispatch execution wave")
+    log debug burstLocMsg(s"$tag dispatch execution wave")
 
     val scatter = tesla.scatter.pool.grabScatter(wave.guid)
     scatter.timeout = scatterTimeout // ensure that we give up on this wave after 5 minutes, even if we're >< this close
@@ -80,7 +83,6 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
               throw VitalsException(s"WAVE_PART_SPAWN_FAIL ${particle.slice.worker} not found $tag ")
           }
       }
-      log info burstLocMsg(s"$tag future wave")
       scatter.execute()
       processScatterEvents(scatter)
     } andThen {
@@ -93,6 +95,7 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
         FabricWaveReporter.failedWave(System.nanoTime - start, scatter.failures)
     } andThen { case _ =>
       tesla.scatter.pool releaseScatter scatter
+      cntxt.foreach(_.close())
     }
   }
 

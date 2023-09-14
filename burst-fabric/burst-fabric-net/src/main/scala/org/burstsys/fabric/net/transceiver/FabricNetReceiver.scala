@@ -7,7 +7,7 @@ import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.message._
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter}
 import org.burstsys.fabric.trek.FabricNetReceive
-import org.burstsys.tesla.thread.request.{TeslaRequestCoupler, TeslaRequestFuture}
+import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.trek.context.extractContext

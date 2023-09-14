@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--This config used in the running system, not during tests-->
 <Configuration status="info" packages="org.burstsys.vitals.logging" monitorInterval="30" >
-    <Console name="console" target="SYSTEM_OUT">
-        <PatternLayout pattern="%d{HH:mm:ss:SSS} [%-5p][%-37t] %m%n"/>
-    </Console>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss:SSS} [%-5p][%-37t] %m%n"/>
+        </Console>
+    </Appenders>
     <Loggers>
         <Root level="${sys:burst.loglevel:-info}" includeLocation="true">
             <AppenderRef ref="console"/>

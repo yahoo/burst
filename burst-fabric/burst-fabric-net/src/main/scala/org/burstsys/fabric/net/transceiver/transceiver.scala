@@ -14,6 +14,7 @@ import scala.concurrent.{Future, Promise}
 package object transceiver extends VitalsLogger {
 
   val fabricMessageTypeKey: AttributeKey[java.lang.Long] = AttributeKey.longKey("burst.fabric.message.type")
+  val fabricMessageNameKey: AttributeKey[java.lang.String] = AttributeKey.stringKey("burst.fabric.message.name")
 
   /**
     * handle message events associated with a fabric network client

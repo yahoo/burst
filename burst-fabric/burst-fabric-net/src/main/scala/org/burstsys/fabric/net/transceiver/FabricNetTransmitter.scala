@@ -75,6 +75,7 @@ class FabricNetTransmitter(container: FabricContainer, isServer: Boolean, channe
   private def doTransmit(msg: FabricNetMsg): Future[Unit] = {
     FabricNetTransmit.begin() { stage =>
       stage.span.setAttribute(fabricMessageTypeKey, msg.messageType.code)
+      stage.span.setAttribute(fabricMessageNameKey, msg.messageType.getClass.getName)
       try {
         if (!channel.isOpen || !channel.isActive) {
           val message = s"cannot transmit msg=${msg.getClass.getName} channelOpen=${channel.isOpen} channelActive=${channel.isActive} "
