@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.wave.execution.supervisor
 
+import io.opentelemetry.api.trace.Span
 import org.burstsys.fabric.container.FabricSupervisorService
 import org.burstsys.fabric.wave.container.supervisor.{FabricWaveSupervisorContainer, FabricWaveSupervisorListener}
 import org.burstsys.fabric.wave.execution.model.gather.FabricGather
@@ -15,7 +16,7 @@ import org.burstsys.tesla.scatter._
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.VitalsService.VitalsServiceModality
 import org.burstsys.vitals.errors.VitalsException
-import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
@@ -63,8 +64,9 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
   override def modality: VitalsServiceModality = container.bootModality
 
   override def dispatchExecutionWave(wave: FabricWave): Future[FabricGather] = {
-    val tag = s"FabricWaveScatter.executionWaveOp($wave)"
+    val tag = s"FabricWaveScatter.executionWaveOp(wave=$wave, traceId=${Span.current.getSpanContext.getTraceId})"
     val start = System.nanoTime
+    log info burstLocMsg(s"$tag dispatch execution wave")
 
     val scatter = tesla.scatter.pool.grabScatter(wave.guid)
     scatter.timeout = scatterTimeout // ensure that we give up on this wave after 5 minutes, even if we're >< this close
@@ -78,6 +80,7 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
               throw VitalsException(s"WAVE_PART_SPAWN_FAIL ${particle.slice.worker} not found $tag ")
           }
       }
+      log info burstLocMsg(s"$tag future wave")
       scatter.execute()
       processScatterEvents(scatter)
     } andThen {
