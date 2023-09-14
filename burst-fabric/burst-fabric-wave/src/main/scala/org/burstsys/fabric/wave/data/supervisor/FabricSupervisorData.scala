@@ -34,7 +34,6 @@ trait FabricSupervisorData extends FabricSupervisorService with FabricCacheOps {
     * the set of workers that are thought likely to have a slice's data in cache. Note that this is not
     * a guarantee in the future (once we are sparkfree)
     *
-    * @param slice
     * @return
     */
   def affineWorkers(slice: FabricSlice): Array[FabricWorkerNode]

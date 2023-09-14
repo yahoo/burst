@@ -26,14 +26,14 @@ import scala.util.{Failure, Success}
  * ==Wave Executions using the Tesla Scatter Framework ==
  * Waves are the basic unit of group analysis execution in Burst. They are a familiar scatter/gather model with
  * intelligent runtime decisions about which worker(s) to choose to each host a
- * data [[org.burstsys.fabric.data.model.slice.FabricSlice]]
- * and execute a [[org.burstsys.fabric.execution.model.scanner.FabricScanner]] against it.
+ * data [[org.burstsys.fabric.wave.data.model.slice.FabricSlice]]
+ * and execute a [[org.burstsys.fabric.wave.execution.model.scanner.FabricScanner]] against it.
  * <br/>
  * Each synchronous wave is a set of individual [[org.burstsys.tesla.scatter.TeslaScatterRequest]]
- * each responsible for a [[org.burstsys.fabric.execution.model.wave.FabricParticle]] instances that goes out asynchronously,
+ * each responsible for a [[org.burstsys.fabric.wave.execution.model.wave.FabricParticle]] instances that goes out asynchronously,
  * each assigned to a [[org.burstsys.tesla.scatter.slot.TeslaScatterSlot]]. The wave execution then waits for all of those requests to either succeed,
- * fail, or timeout. [[org.burstsys.fabric.execution.model.wave.FabricParticle]] failures or timeouts are handled in various ways including retries, scatter failure
- * promotion, or moving the [[org.burstsys.fabric.execution.model.wave.FabricParticle]] to a different worker.
+ * fail, or timeout. [[org.burstsys.fabric.wave.execution.model.wave.FabricParticle]] failures or timeouts are handled in various ways including retries, scatter failure
+ * promotion, or moving the [[org.burstsys.fabric.wave.execution.model.wave.FabricParticle]] to a different worker.
  * <hr/>
  * '''Note''' that each particle contains all the information, analysis and data specification, that is required to execute the request. The worker may
  * in fact cache both/either execution and data.
@@ -121,16 +121,16 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
    * ==Wave Executions using the Tesla Scatter Framework ==
    * Waves are the basic unit of group analysis execution in Burst. They are a familiar scatter/gather model with
    * intelligent runtime decisions about which worker(s) to choose to each host a
-   * data [[org.burstsys.fabric.data.model.slice.FabricSlice]]
-   * and execute a [[org.burstsys.fabric.execution.model.scanner.FabricScanner]] against it.
+   * data [[org.burstsys.fabric.wave.data.model.slice.FabricSlice]]
+   * and execute a [[org.burstsys.fabric.wave.execution.model.scanner.FabricScanner]] against it.
    * <br/><br/>
    * Each synchronous wave is a set of individual [[org.burstsys.tesla.scatter.TeslaScatterRequest]]
-   * each responsible for a [[org.burstsys.fabric.execution.model.wave.FabricParticle]] instances that goes
+   * each responsible for a [[org.burstsys.fabric.wave.execution.model.wave.FabricParticle]] instances that goes
    * out  asynchronously, each assigned to a [[org.burstsys.tesla.scatter.slot.TeslaScatterSlot]].
    * The wave execution then waits for all of those requests to either succeed, fail, or timeout.
-   * [[org.burstsys.fabric.execution.model.wave.FabricParticle]] failures or timeouts are handled in various ways
+   * [[org.burstsys.fabric.wave.execution.model.wave.FabricParticle]] failures or timeouts are handled in various ways
    * including retries, scatter failure promotion, or moving the
-   * [[org.burstsys.fabric.execution.model.wave.FabricParticle]] to a different worker.
+   * [[org.burstsys.fabric.wave.execution.model.wave.FabricParticle]] to a different worker.
    */
   private def processScatterEvents(scatter: TeslaScatter): FabricGather = {
     val tag = s"FabricWaveLoop.scatterUpdateEventLoop(guid=${scatter.guid})"
@@ -222,7 +222,7 @@ class FabricWaveSupervisorExecutionContext(container: FabricWaveSupervisorContai
 
         case updateOfUnknownType =>
           waveMerge.shutdownMerge()
-          val msg = s"FAB_WAVE_UNKNOWN_UPDATE request=${updateOfUnknownType}"
+          val msg = s"FAB_WAVE_UNKNOWN_UPDATE request=$updateOfUnknownType"
           log error burstStdMsg(s"FAB_WAVE_LOOP_FAIL $msg $tag")
           throw VitalsException(msg).fillInStackTrace()
       }
