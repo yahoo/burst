@@ -102,19 +102,16 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
   ///////////////////////////////////////////////////////////////////
 
   override def slices(guid: VitalsUid, workers: Array[FabricWorkerNode], datasource: FabricDatasource): Future[Array[FabricSlice]] = {
-    val tag = s"SampleStoreMaster.slices(guid=$guid, datasource=$datasource)"
     val start = System.nanoTime
 
     SampleStoreGetViewGeneratorTrek.begin(guid) { st =>
+      val tag = s"SampleStoreMaster.slices(guid=$guid, datasource=$datasource, traceId=${st.getTraceId})"
       twitterFutureToScalaFuture(apiClient(datasource).getViewGenerator(guid, datasource)) map { response =>
         response.context.state match {
           case BurstSampleStoreApiRequestSuccess if response.loci.isEmpty || response.loci.get.isEmpty =>
-            val e = VitalsException("Got no loci from sample store supervisor")
-            SampleStoreGetViewGeneratorTrek.fail(st, e)
-            throw e
+            throw VitalsException("Got no loci from sample store supervisor")
 
           case BurstSampleStoreApiRequestSuccess =>
-            SampleStoreGetViewGeneratorTrek.end(st)
             val loci = response.loci.get.map(SampleStoreDataLocus(_)).toArray
             SampleStoreGeneration(guid, response.generationHash, loci, datasource.view.schemaName, response.motifFilter)
 
@@ -122,14 +119,10 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
                BurstSampleStoreApiRequestException |
                BurstSampleStoreApiRequestInvalid |
                BurstSampleStoreApiNotReady =>
-            val e =  VitalsException(s"Got ${response.context.state} from samplestore master")
-            SampleStoreGetViewGeneratorTrek.fail(st, e)
-            throw e
+            throw  VitalsException(s"Got ${response.context.state} from samplestore master")
 
           case r =>
-            val e = VitalsException(s"Got unrecognized $r from samplestore master")
-            SampleStoreGetViewGeneratorTrek.fail(st, e)
-            throw e
+            throw VitalsException(s"Got unrecognized $r from samplestore master")
         }
       } recover {
         case t =>
@@ -137,6 +130,7 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
           SampleStoreGetViewGeneratorTrek.fail(st, e)
           throw e
       } map { generator =>
+        SampleStoreGetViewGeneratorTrek.end(st)
         val workerMap = new mutable.HashMap[FabricWorkerNode, mutable.ArrayBuffer[SampleStoreLocus]]
         val i = new AtomicInteger
         // spread the loci across the workers

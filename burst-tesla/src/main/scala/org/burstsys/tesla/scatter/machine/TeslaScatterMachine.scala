@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.scatter.machine
 
+import io.opentelemetry.api.trace.Span
 import org.burstsys.tesla.scatter.{TeslaScatterContext, TeslaScatterFailState, TeslaScatterRunState, TeslaScatterStopState, TeslaScatterSuccessState}
 import org.burstsys.vitals.errors.VitalsException
 
@@ -21,7 +22,7 @@ trait TeslaScatterMachine extends AnyRef
    */
   final override
   def execute(): Unit = {
-    lazy val tag = s"TeslaScatterMachine.execute(guid=$guid)"
+    lazy val tag = s"TeslaScatterMachine.execute(guid=$guid traceId=${Span.current.getSpanContext.getTraceId})"
     lockScatter("execute")
     try {
       _scatterState match {

@@ -29,13 +29,6 @@ trait FabricGroupExecutor extends Any {
 
   /**
    *
-   * @param name
-   * @param datasource
-   * @param groupKey
-   * @param over
-   * @param scanner
-   * @param call
-   * @param executionStart
    * @return
    */
   def doWaveExecute(name: String, datasource: FabricDatasource, groupKey: FabricGroupKey, over: FabricOver,
@@ -57,10 +50,10 @@ abstract class FabricGroupExecuteContext(container: FabricWaveSupervisorContaine
   final override
   def doWaveExecute(name: String, datasource: FabricDatasource, groupKey: FabricGroupKey, over: FabricOver,
                     scanner: FabricPlaneScanner, call: Option[FabricCall], executionStart: Long): Future[FabricResultGroup] = {
-    lazy val tag = s"FabricWaveExecute.waveExecute(${scanner.group}, $over)"
 
     val start = System.nanoTime
     FabricSupervisorWaveTrekMark.begin(scanner.group.groupUid) { stage =>
+      lazy val tag = s"FabricWaveExecute.waveExecute(${scanner.group}, $over, traceId=${stage.getTraceId})"
       container.data.slices(scanner.group.groupUid, scanner.datasource) map { slices =>
         FabricWave(scanner.group.groupUid, slices.map(FabricParticle(scanner.group.groupUid, _, scanner)))
       } chainWithFuture {
@@ -71,8 +64,8 @@ abstract class FabricGroupExecuteContext(container: FabricWaveSupervisorContaine
           log info s"WAVE_EXECUTE_SUCCESS elapsedNs=elapsedNanos (${prettyTimeFromNanos(elapsedNanos)}) $tag"
           FabricSupervisorWaveTrekMark.end(stage)
         case Failure(t) =>
-          FabricSupervisorWaveTrekMark.fail(stage, t)
           log error burstStdMsg(s"WAVE_EXECUTE_FAIL $t $tag", t)
+          FabricSupervisorWaveTrekMark.fail(stage, t)
       } map {
         case gather: FabricFaultGather =>
           FabricResultGroup(scanner.group, FabricFaultResultStatus, gather.resultMessage, FabricResultGroupMetrics(gather))
