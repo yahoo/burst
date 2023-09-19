@@ -20,6 +20,7 @@ import org.burstsys.samplestore.store.container.supervisor.http.endpoints.{Sampl
 import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLogService
 import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
+import org.burstsys.samplestore.trek.{SampleStoreMetadataReqTrek, SampleStoreUpdateMetadataTrek}
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstLocMsg
@@ -110,17 +111,21 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   )
 
   override def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {
-    connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
+    SampleStoreMetadataReqTrek.begin() { stage =>
+      connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
+    }
   }
 
   override def updateMetadata(sourceName: String): Future[Unit] = {
-    val currentMetadata = SampleSourceHandlerRegistry.getSupervisor(sourceName).getBroadcastVars
-    val updateFutures = topology.healthyWorkers.flatMap{worker =>
-      topology.getWorker(worker).map{w =>
-        updateMetadata(w.connection, sourceName, currentMetadata)
+    SampleStoreUpdateMetadataTrek.begin() { stage =>
+      val currentMetadata = SampleSourceHandlerRegistry.getSupervisor(sourceName).getBroadcastVars
+      val updateFutures = topology.healthyWorkers.flatMap { worker =>
+        topology.getWorker(worker).map { w =>
+          updateMetadata(w.connection, sourceName, currentMetadata)
+        }
       }
+      Future.reduceLeft(updateFutures.toIndexedSeq) { (_, _) => () }
     }
-    Future.reduceLeft(updateFutures.toIndexedSeq){(_, _) => ()}
   }
 
   override def onNetMessage(connection: FabricNetServerConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
@@ -212,9 +217,9 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
    * @return Case classs that will be serialized to Json
    */
   override def status(level: VitalsHostPort, attributes: VitalsPropertyMap): AnyRef = {
+    val showconf = attributes.getOrElse("showconf", "false").asInstanceOf[String].toBoolean
     Map[String, AnyRef](
-      "sources" -> SampleSourceHandlerRegistry.getSources.map(StoreInfo),
-      "attributes" -> attributes
+      "sources" -> SampleSourceHandlerRegistry.getSources.map(i => if (showconf) StoreInfo(i) else i)
     )
   }
 }
