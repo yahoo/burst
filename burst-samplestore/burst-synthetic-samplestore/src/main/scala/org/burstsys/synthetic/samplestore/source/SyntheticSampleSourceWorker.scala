@@ -7,16 +7,17 @@ import org.burstsys.brio.provider.SyntheticDataProvider
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.samplestore.pipeline
-import org.burstsys.synthetic.samplestore.configuration.{defaultItemCountProperty, defaultMaxItemSizeProperty, defaultPressTimeoutProperty, syntheticDatasetProperty}
+import org.burstsys.synthetic.samplestore.configuration._
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
 
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-import scala.concurrent.{Future, TimeoutException}
+import scala.concurrent.{Future, Promise, TimeoutException}
 import scala.language.postfixOps
+import scala.util.{Failure, Success}
 
 case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
 
@@ -33,6 +34,7 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
    * @return a future that completes when the stream has been fed
    */
   override def feedStream(stream: NexusStream): Future[Unit] = {
+    val feedStreamComplete = Promise[Unit]()
     TeslaRequestFuture {
       val props = stream.properties.extend
       val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
@@ -53,29 +55,46 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
 
         val schema = BrioSchema(dataProvider.schemaName)
         val maxItemSize = props.getValueOrProperty(defaultMaxItemSizeProperty)
-        val itemCount = props.getValueOrProperty(defaultItemCountProperty)
+        val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
+        val batchCount = props.getValueOrProperty(defaultBatchCountProperty)
         val rejectedItemCounter = new AtomicInteger()
+        val completedItemCounter = new AtomicInteger()
+        val finished = new CountDownLatch(globalItemCount)
 
         val start = System.nanoTime
-        val finished = new CountDownLatch(itemCount)
-        dataProvider.data(itemCount, stream.properties).foreach(item => {
-          val pressSource = dataProvider.pressSource(item)
-          val pressedItem = pipeline.pressToFuture(stream, pressSource, schema, item.schemaVersion, maxItemSize)
-          pressedItem
-            .map({ result =>
-              if (log.isDebugEnabled)
-                log debug burstLocMsg(s"job=${result._1} size=${result._2} on stream")
-            })
-            .recover({ case _ => rejectedItemCounter.incrementAndGet() })
-            .andThen({ case _ => finished.countDown() })
-        })
-
-        while (!finished.await(50, TimeUnit.MILLISECONDS)) {
-          if (System.nanoTime() > start + timeout.toNanos) throw new TimeoutException()
+        val batches = (1 to batchCount).map { i =>
+          TeslaRequestFuture[Unit] {
+          log info burstLocMsg(s"starting batch $i")
+          val itemCount = globalItemCount / batchCount
+          dataProvider.data(itemCount, stream.properties).foreach(item => {
+            val pressSource = dataProvider.pressSource(item)
+            val pressedItem = pipeline.pressToFuture(stream, pressSource, schema, item.schemaVersion, maxItemSize)
+            pressedItem
+              .map({ result =>
+                if (log.isDebugEnabled)
+                  log debug burstLocMsg(s"job=${result._1} size=${result._2} on stream")
+              })
+              .recover({ case _ => rejectedItemCounter.incrementAndGet() })
+              .andThen({ case _ => finished.countDown() })
+          })}.andThen {
+            case Success(_) =>
+              log info burstStdMsg(s"completed batch $i items")
+              completedItemCounter.incrementAndGet()
+            case Failure(ex) =>
+              log error burstStdMsg(s"exception", ex)
+          }
         }
-
-        stream.complete(itemCount, expectedItemCount = itemCount, potentialItemCount = itemCount, rejectedItemCounter.longValue)
-
+        val s = Future.sequence(batches)
+        s.onComplete({
+          case Success(_) =>
+            log info burstStdMsg(s"completed ${completedItemCounter.get()} items")
+            stream.complete(itemCount = globalItemCount, expectedItemCount = globalItemCount, potentialItemCount = globalItemCount, rejectedItemCounter.longValue)
+            feedStreamComplete.success(())
+          case Failure(ex) =>
+            log error burstStdMsg(s"exception", ex)
+            stream.completeExceptionally(ex)
+            feedStreamComplete.failure(ex)
+        })
       } catch safely {
         case _: TimeoutException =>
           stream.timedOut(timeout)
@@ -85,6 +104,7 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
           stream.completeExceptionally(t)
       }
     }
+    feedStreamComplete.future
   }
 
   override def putBroadcastVars(metadata: MetadataParameters): Unit = {}

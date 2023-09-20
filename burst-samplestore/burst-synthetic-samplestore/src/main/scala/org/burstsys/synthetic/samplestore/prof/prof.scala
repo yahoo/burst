@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.synthetic.samplestore
+package org.burstsys.synthetic.samplestore.prof
 
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
@@ -23,15 +23,17 @@ object prof extends VitalsLogger {
 
   def main(args: Array[String]): Unit = {
     VitalsLog.configureLogging("synthetic-samplestore", consoleOnly = true)
-    //Configurator.setLevel(org.burstsys.tesla.part.log.getName, Level.TRACE)
-    //Configurator.setLevel(org.burstsys.brio.press.pipeline.log.getName, Level.TRACE) // see press queue
+    Configurator.setLevel(org.burstsys.tesla.part.log.getName, Level.INFO)
+    // Configurator.setLevel(org.burstsys.tesla.part.log.getName, Level.TRACE)
+    // Configurator.setLevel(org.burstsys.samplestore.log, Level.DEBUG) // see press queue
     // Configurator.setLevel(org.burstsys.brio.flurry.provider.unity.log.getName, Level.TRACE) // see data created
     // Configurator.setLevel(org.burstsys.tesla.buffer.log.getName, Level.TRACE)
     // Configurator.setLevel(org.burstsys.brio.dictionary.factory.log.getName, Level.TRACE) // see dictionary
 
     val props = Map(
       "synthetic.samplestore.press.dataset" -> "simple-unity",
-      "synthetic.samplestore.press.item.count" -> s"$count"
+      "synthetic.samplestore.press.item.count" -> s"$count",
+      "synthetic.samplestore.press.item.batchcount" -> "160",
     )
     val stream = MockNexusStream("unity", props)
     val worker = SyntheticSampleSourceWorker()

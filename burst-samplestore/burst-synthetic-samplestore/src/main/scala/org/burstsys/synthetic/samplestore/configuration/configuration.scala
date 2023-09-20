@@ -29,6 +29,13 @@ package object configuration {
     default = Some(10e6.toInt)
   )
 
+  val batchCountProperty = "synthetic.samplestore.press.item.batchcount"
+  val defaultBatchCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification(
+    key = batchCountProperty,
+    description = "the number of concurrent batches per worker",
+    default = Some(1.toInt)
+  )
+
   val itemCountProperty = "synthetic.samplestore.press.item.count"
   val defaultItemCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification(
     key = itemCountProperty,
