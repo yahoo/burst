@@ -14,15 +14,17 @@ import org.burstsys.samplesource.service.MetadataParameters
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
 import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLog
 
+import scala.annotation.unused
+
 @Path("/")
 @Produces(Array(MediaType.APPLICATION_JSON))
 class SampleStoreStatusEndpoint {
 
   @Inject
-  private var topology: FabricSupervisorTopology = _
+  protected var topology: FabricSupervisorTopology = _
 
   @Inject
-  private var requestLog: ViewGenerationRequestLog = _
+  protected var requestLog: ViewGenerationRequestLog = _
 
   @GET
   def status(): Response = {
@@ -31,7 +33,7 @@ class SampleStoreStatusEndpoint {
         "workerCount" -> topology.healthyWorkers.length,
         "workers" -> topology.healthyWorkers.map(_.nodeMoniker),
         "requestCount" -> requestLog.requests.length,
-        "stores" -> SampleSourceHandlerRegistry.getSources.map(StoreInfo),
+        "stores" -> SampleSourceHandlerRegistry.getSources.toArray
       )
     ).build
   }
@@ -51,6 +53,7 @@ class SampleStoreStatusEndpoint {
 
 object StatusResponseObjects {
   case class StoreInfo(name: String) {
+    @unused
     val vars: MetadataParameters = SampleSourceHandlerRegistry.getSupervisor(name).getBroadcastVars
   }
 }

@@ -3,14 +3,14 @@ package org.burstsys.samplestore.store.container.supervisor
 
 import org.burstsys.fabric.container.SupervisorLog4JPropertiesFileName
 import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorContainerContext, FabricSupervisorListener}
-import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
 import org.burstsys.samplesource.handler.{SampleSourceHandlerRegistry, SimpleSampleStoreApiServerDelegate}
 import org.burstsys.samplesource.service.MetadataParameters
+import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.samplestore.api.{SampleStoreApiServerDelegate, SampleStoreDataLocus}
 import org.burstsys.samplestore.store.container._
@@ -111,13 +111,13 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   )
 
   override def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {
-    SampleStoreMetadataReqTrek.begin() { stage =>
+    SampleStoreMetadataReqTrek.begin() { _ =>
       connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
     }
   }
 
   override def updateMetadata(sourceName: String): Future[Unit] = {
-    SampleStoreUpdateMetadataTrek.begin() { stage =>
+    SampleStoreUpdateMetadataTrek.begin() { _ =>
       val currentMetadata = SampleSourceHandlerRegistry.getSupervisor(sourceName).getBroadcastVars
       val updateFutures = topology.healthyWorkers.flatMap { worker =>
         topology.getWorker(worker).map { w =>
@@ -217,13 +217,13 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
    * @return Case classs that will be serialized to Json
    */
   override def status(level: VitalsHostPort, attributes: VitalsPropertyMap): AnyRef = {
-    val showconf = if (attributes.contains("showconf"))
-      attributes.getOrElse("showconf", "false").toBoolean
+    val showConf = if (attributes.contains("showConf"))
+      attributes.getOrElse("showConf", "false").toBoolean
     else
       false
     Map[String, AnyRef](
-      "sources" -> SampleSourceHandlerRegistry.getSources.map{i =>
-        if (showconf)
+      s"sources (showConf=$showConf)" -> SampleSourceHandlerRegistry.getSources.map{i =>
+        if (showConf)
           StoreInfo(i)
         else
           i
