@@ -217,9 +217,17 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
    * @return Case classs that will be serialized to Json
    */
   override def status(level: VitalsHostPort, attributes: VitalsPropertyMap): AnyRef = {
-    val showconf = attributes.getOrElse("showconf", "false").asInstanceOf[String].toBoolean
+    val showconf = if (attributes.contains("showconf"))
+      attributes.getOrElse("showconf", "false").toBoolean
+    else
+      false
     Map[String, AnyRef](
-      "sources" -> SampleSourceHandlerRegistry.getSources.map(i => if (showconf) StoreInfo(i) else i)
+      "sources" -> SampleSourceHandlerRegistry.getSources.map{i =>
+        if (showconf)
+          StoreInfo(i)
+        else
+          i
+      }
     )
   }
 }
