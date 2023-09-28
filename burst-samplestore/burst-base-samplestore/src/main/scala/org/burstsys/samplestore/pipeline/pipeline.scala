@@ -32,4 +32,6 @@ package object pipeline extends VitalsLogger with PressPipeline {
 
   final val brioPressDefaultDictionarySize: TeslaPoolId = 10e6.toInt
 
+  final case class PressJobResults(jobId: Long, bytes: Long, jobDuration: Long, pressDuration: Long, skipped: Boolean)
+
 }

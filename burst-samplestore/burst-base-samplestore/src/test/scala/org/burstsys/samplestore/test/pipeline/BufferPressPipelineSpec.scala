@@ -23,7 +23,7 @@ class BufferPressPipelineSpec extends PressAbstractSpec {
     val stream = MockNexusStream("unity", expectedItemCount = count)
     val futures = for (_ <- 0 until count) yield
       pipeline.pressToFuture(stream, MockPressSource(), presserSchema,
-        1, 10000000)
+        1, maxItemSize = 10e6.toInt, maxTotalBytes =10e9.toLong)
 
     Await.result(Future.sequence(futures), 1 minutes)
     tesla.buffer.factory.inUseParts should be(brioPressThreadsProperty.get)

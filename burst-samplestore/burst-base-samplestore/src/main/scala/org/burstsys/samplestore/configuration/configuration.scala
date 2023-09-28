@@ -29,4 +29,12 @@ package object configuration {
     description = "in containerized environments the override the JVM reported host address",
     default = None
   )
+
+  val maxLoadSizeProperty = "burst.samplestore.load.max.bytes"
+  val defaultMaxLoadSizeProperty: VitalsPropertySpecification[Long] = VitalsPropertySpecification(
+    key = maxLoadSizeProperty,
+    description = "the max size for a dataset load in bytes",
+    default = Some(1e12.toInt) // 1TB
+  )
+
 }

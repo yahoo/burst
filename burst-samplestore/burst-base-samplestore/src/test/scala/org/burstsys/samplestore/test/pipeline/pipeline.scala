@@ -74,10 +74,17 @@ package object pipeline extends VitalsLogger {
 
     override def put(chunk: TeslaParcel): Unit = ???
 
+
+    override def putItemCount: Long = counter.get()
+
+    override def putBytesCount: Long = bytes.get()
+
     private val counter = new java.util.concurrent.atomic.AtomicLong(0)
+    private val bytes = new java.util.concurrent.atomic.AtomicLong(0)
 
     override def put(buffer: TeslaMutableBuffer): Unit = {
       val c = counter.incrementAndGet()
+      bytes.addAndGet(buffer.currentUsedMemory)
       if (c % 100000 == 0 || c == expectedItemCount)
         log info s"$c/$expectedItemCount(${((c.toDouble / expectedItemCount.toDouble) * 1000.0).floor / 10.0}%) buffer ${buffer.basePtr} put on stream"
       tesla.buffer.factory.releaseBuffer(buffer)

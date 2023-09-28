@@ -22,6 +22,8 @@ import scala.util.{Failure, Success}
 
 object NexusStreamHandler {
   private val statusKey = AttributeKey.stringKey("stream.status")
+  private val putItemCountKey = AttributeKey.longKey("stream.putItemCount")
+  private val putBytesCountKey = AttributeKey.longKey("stream.putByteCount")
   private val itemCountKey = AttributeKey.longKey("stream.itemCount")
   private val expectedItemCountKey = AttributeKey.longKey("stream.expectedItemCount")
   private val potentialItemCountKey = AttributeKey.longKey("stream.potentialItemCount")
@@ -91,6 +93,8 @@ case class NexusStreamHandler(stream: NexusStream, transmitter: NexusTransmitter
     stage.addEvent("Stream complete: " + parcel.status.statusName)
     stage.span
       .setAttribute(statusKey, parcel.status.statusName)
+      .setAttribute(putItemCountKey, stream.putItemCount.asInstanceOf[java.lang.Long])
+      .setAttribute(putBytesCountKey, stream.putBytesCount.asInstanceOf[java.lang.Long])
       .setAttribute(itemCountKey, stream.itemCount.asInstanceOf[java.lang.Long])
       .setAttribute(expectedItemCountKey, stream.expectedItemCount.asInstanceOf[java.lang.Long])
       .setAttribute(potentialItemCountKey, stream.potentialItemCount.asInstanceOf[java.lang.Long])

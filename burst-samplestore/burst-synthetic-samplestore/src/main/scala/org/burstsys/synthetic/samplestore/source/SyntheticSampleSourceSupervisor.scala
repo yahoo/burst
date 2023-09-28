@@ -2,7 +2,7 @@
 package org.burstsys.synthetic.samplestore.source
 
 import org.burstsys.samplesource.SampleStoreTopology
-import org.burstsys.samplesource.service.SampleSourceSupervisorService
+import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceSupervisorService}
 import org.burstsys.samplestore.api
 import org.burstsys.samplestore.api.{BurstSampleStoreDataSource, SampleStoreDataLocus, SampleStoreGeneration}
 import org.burstsys.synthetic.samplestore.configuration
@@ -50,5 +50,10 @@ case class SyntheticSampleSourceSupervisor() extends SampleSourceSupervisorServi
 
   override def onSampleStoreDataLocusAdded(locus: SampleStoreDataLocus): Unit = {
     log info burstStdMsg(s"added worker=$locus")
+  }
+
+  override def getBroadcastVars: MetadataParameters = {
+    Map(
+    )
   }
 }

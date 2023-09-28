@@ -14,8 +14,8 @@ import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
 
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicInteger
-import scala.concurrent.{Future, Promise, TimeoutException}
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
+import scala.concurrent.{Await, Future, Promise, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
@@ -38,70 +38,81 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
     TeslaRequestFuture {
       val props = stream.properties.extend
       val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
-      try {
-        val modelName = stream.get[String](syntheticDatasetProperty)
-        val dataProvider = {
-          val p = SyntheticDataProvider.providerNamed(modelName)
-          if (p == null) {
-            log error burstStdMsg(s"Data provider $modelName not found, substituting ${unityBrio.schemaName}")
-            unityBrio
-          } else {
-            p
-          }
+      val modelName = stream.get[String](syntheticDatasetProperty)
+      val dataProvider = {
+        val p = SyntheticDataProvider.providerNamed(modelName)
+        if (p == null) {
+          log error burstStdMsg(s"Data provider $modelName not found, substituting ${unityBrio.schemaName}")
+          unityBrio
+        } else {
+          p
         }
-        if (!(stream.schema equalsIgnoreCase dataProvider.schemaName)) {
-          throw VitalsException(s"Stream and synthetic data provider do not specify the same schema. stream=${stream.schema} provider=${dataProvider.schemaName}")
-        }
+      }
+      if (!(stream.schema equalsIgnoreCase dataProvider.schemaName)) {
+        throw VitalsException(s"Stream and synthetic data provider do not specify the same schema. stream=${stream.schema} provider=${dataProvider.schemaName}")
+      }
 
-        val schema = BrioSchema(dataProvider.schemaName)
-        val maxItemSize = props.getValueOrProperty(defaultMaxItemSizeProperty)
-        val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
-        val batchCount = props.getValueOrProperty(defaultBatchCountProperty)
-        val rejectedItemCounter = new AtomicInteger()
-        val completedItemCounter = new AtomicInteger()
-        val finished = new CountDownLatch(globalItemCount)
+      val schema = BrioSchema(dataProvider.schemaName)
+      val maxItemSize = props.getValueOrProperty(defaultMaxItemSizeProperty)
+      val maxLoadSize = props.getValueOrProperty(defaultMaxLoadSizeProperty)
+      val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
+      val batchCount = props.getValueOrProperty(defaultBatchCountProperty)
+      val rejectedItemCounter = new AtomicInteger()
+      val completedItemCounter = new AtomicInteger()
+      val finished = new CountDownLatch(globalItemCount)
+      val cancelWork = new AtomicBoolean(false)
 
-        val start = System.nanoTime
-        val batches = (1 to batchCount).map { i =>
-          TeslaRequestFuture[Unit] {
+      val batches = (1 to batchCount).map { i =>
+        TeslaRequestFuture[Boolean] {
           log info burstLocMsg(s"starting batch $i")
           val itemCount = globalItemCount / batchCount
-          dataProvider.data(itemCount, stream.properties).foreach(item => {
+          val data = dataProvider.data(itemCount, stream.properties)
+          var notSkipped = true
+          while (data.hasNext && notSkipped && !cancelWork.get()) {
+            val item = data.next()
             val pressSource = dataProvider.pressSource(item)
-            val pressedItem = pipeline.pressToFuture(stream, pressSource, schema, item.schemaVersion, maxItemSize)
-            pressedItem
-              .map({ result =>
-                if (log.isDebugEnabled)
-                  log debug burstLocMsg(s"job=${result._1} size=${result._2} on stream")
+            val pressedItem = pipeline.pressToFuture(stream, pressSource, schema, item.schemaVersion, maxItemSize, maxLoadSize)
+            pressedItem.map({
+                case pipeline.PressJobResults(jobId, itemSize, jobDuration, pressDuration, skipped) =>
+                  if (log.isDebugEnabled)
+                    log debug burstLocMsg(s"(jobId=$jobId, itemSize=$itemSize, jobDuration=$jobDuration, pressDuration=$pressDuration, skipped=$skipped) on stream")
+                  if (skipped) {
+                    rejectedItemCounter.incrementAndGet()
+                    notSkipped = false
+                  } else {
+                    completedItemCounter.incrementAndGet()
+                  }
               })
               .recover({ case _ => rejectedItemCounter.incrementAndGet() })
               .andThen({ case _ => finished.countDown() })
-          })}.andThen {
-            case Success(_) =>
-              log info burstStdMsg(s"completed batch $i items")
-              completedItemCounter.incrementAndGet()
-            case Failure(ex) =>
-              log error burstStdMsg(s"exception", ex)
           }
-        }
-        val s = Future.sequence(batches)
-        s.onComplete({
-          case Success(_) =>
-            log info burstStdMsg(s"completed ${completedItemCounter.get()} items")
-            stream.complete(itemCount = globalItemCount, expectedItemCount = globalItemCount, potentialItemCount = globalItemCount, rejectedItemCounter.longValue)
-            feedStreamComplete.success(())
+          notSkipped
+        }.andThen {
+          case Success(notSkipped) =>
+            log info burstStdMsg(s"completed (batch=$i, truncated=${!notSkipped}, cancelled=${cancelWork.get()})")
+            completedItemCounter.incrementAndGet()
           case Failure(ex) =>
             log error burstStdMsg(s"exception", ex)
-            stream.completeExceptionally(ex)
-            feedStreamComplete.failure(ex)
-        })
-      } catch safely {
-        case _: TimeoutException =>
+        }
+      }
+      val s = Future.sequence(batches)
+      try {
+        // wait for all batches to complete but not forever
+        Await.ready(s, timeout)
+        log info burstStdMsg(s"stream completed (itemCount=${completedItemCounter.get()}, rejectedItemCount=${rejectedItemCounter.get()}, targetItemCount=$globalItemCount)")
+        stream.complete(itemCount = globalItemCount, expectedItemCount = globalItemCount, potentialItemCount = globalItemCount, rejectedItemCounter.longValue)
+        feedStreamComplete.success(())
+      } catch {
+        case t: java.util.concurrent.TimeoutException =>
+          log error burstStdMsg("Synthetic samplesource feedStream timedout")
+          cancelWork.set(true)
           stream.timedOut(timeout)
-
+          feedStreamComplete.failure(t)
         case t =>
           log error("Synthetic samplesource feedStream failed", t)
+          cancelWork.set(true)
           stream.completeExceptionally(t)
+          feedStreamComplete.failure(t)
       }
     }
     feedStreamComplete.future

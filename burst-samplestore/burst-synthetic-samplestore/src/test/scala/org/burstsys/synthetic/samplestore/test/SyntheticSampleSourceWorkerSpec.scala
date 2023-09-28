@@ -104,4 +104,8 @@ case class MockNexusStream(
   override def stop: MockNexusStream.this.type = this
 
   override def abort(): Unit = ???
+
+  override def putItemCount: NexusSliceKey = ???
+
+  override def putBytesCount: NexusSliceKey = ???
 }

@@ -19,7 +19,7 @@ package object configuration {
   val defaultPressTimeoutProperty: VitalsPropertySpecification[Duration] = VitalsPropertySpecification[Duration](
     key = pressTimeoutProperty,
     description = "the amount of time to wait for all items to be pressed",
-    default = Some(1 minute)
+    default = Some(5 minute)
   )
 
   val maxItemSizeProperty = "synthetic.samplestore.press.item.max.bytes"
@@ -27,6 +27,13 @@ package object configuration {
     key = maxItemSizeProperty,
     description = "the max size for an item in bytes",
     default = Some(10e6.toInt)
+  )
+
+  val maxLoadSizeProperty = "synthetic.samplestore.load.max.bytes"
+  val defaultMaxLoadSizeProperty: VitalsPropertySpecification[Long] = VitalsPropertySpecification(
+    key = maxLoadSizeProperty,
+    description = "the max size for a worker's dataset load in bytes",
+    default = Some(10e9.toInt) // 1GB
   )
 
   val batchCountProperty = "synthetic.samplestore.press.item.batchcount"
