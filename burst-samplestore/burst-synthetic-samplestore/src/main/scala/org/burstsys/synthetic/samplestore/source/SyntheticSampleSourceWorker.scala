@@ -59,13 +59,13 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
       val batchCount = props.getValueOrProperty(defaultBatchCountProperty)
       val rejectedItemCounter = new AtomicInteger()
       val completedItemCounter = new AtomicInteger()
-      val finished = new CountDownLatch(globalItemCount)
       val cancelWork = new AtomicBoolean(false)
 
       val batches = (1 to batchCount).map { i =>
         TeslaRequestFuture[Boolean] {
-          log info burstLocMsg(s"starting batch $i")
           val itemCount = globalItemCount / batchCount
+          val finished = new CountDownLatch(itemCount)
+          log info burstLocMsg(s"starting batch $i")
           val data = dataProvider.data(itemCount, stream.properties)
           var notSkipped = true
           while (data.hasNext && notSkipped && !cancelWork.get()) {
@@ -86,6 +86,7 @@ case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
               .recover({ case _ => rejectedItemCounter.incrementAndGet() })
               .andThen({ case _ => finished.countDown() })
           }
+          finished.await(timeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
           notSkipped
         }.andThen {
           case Success(notSkipped) =>
