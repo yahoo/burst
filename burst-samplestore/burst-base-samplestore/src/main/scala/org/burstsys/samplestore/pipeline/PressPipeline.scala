@@ -8,7 +8,6 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressSink, BrioPressSource, BrioPresser}
 import org.burstsys.brio.types.BrioTypes.BrioVersionKey
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplestore.configuration.defaultMaxLoadSizeProperty
 import org.burstsys.samplestore.{SampleStoreReporter, pipeline}
 import org.burstsys.tesla.TeslaTypes._
 import org.burstsys.tesla.buffer.factory._
@@ -54,13 +53,13 @@ trait PressPipeline extends AnyRef {
             // grab a job as they come in
             val job = this.take // all waiting in request thread
             val jobStart = System.nanoTime
-            pipeline.log debug burstStdMsg(s"taking ${job.jobId} on queue (size=${this.size()})")
+            pipeline.log debug burstStdMsg(s"presser taking ${job.jobId} on queue (size=${this.size()})")
             var blobBuffer = TeslaWorkerCoupler(grabBuffer(job.maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger)))
             val pressElapsed = TeslaWorkerCoupler { // worker thread for CPU bound pressing
               val workerStart = System.nanoTime
               try {
                 val jobId = job.jobId
-                pipeline.log debug burstStdMsg(s"taking ${job.jobId} on queue (size=${this.size()})")
+                pipeline.log debug burstStdMsg(s"worker taking ${job.jobId} on queue (size=${this.size()})")
                 blobBuffer = job.press(presser, blobBuffer)
                 val elapsedNs = System.nanoTime - workerStart
                 val byteCount = pressBuffer.currentUsedMemory
@@ -79,7 +78,7 @@ trait PressPipeline extends AnyRef {
                 case t: Throwable =>
                   job.p.failure(t)
                   SampleStoreReporter.onPressReject()
-                  log error(burstStdMsg(s"press failed", t), t)
+                  pipeline.log error(burstStdMsg(s"press failed", t), t)
                   blobBuffer = null
               } finally {
                 pressBuffer.reset
@@ -91,9 +90,9 @@ trait PressPipeline extends AnyRef {
             val jobElapsed = System.nanoTime() - jobStart
             if (blobBuffer != null) {
               if (job.maxTotalBytes > 0 && job.maxTotalBytes < job.stream.putBytesCount + blobBuffer.currentUsedMemory) {
-                if (log.isDebugEnabled()) {
+                if (pipeline.log.isDebugEnabled()) {
                   val msg = s"(jobId=${job.jobId}, guid=${job.guid}, maxTotalBytes=${job.maxTotalBytes}, stream.putBytesCount=${job.stream.putBytesCount}, blobBuffer.currentUsedMemory=${blobBuffer.currentUsedMemory}) -- discarding press job"
-                  log debug burstLocMsg(msg)
+                  pipeline.log debug burstLocMsg(msg)
                 }
                 SampleStoreReporter.onPressReject()
                 releaseBuffer(blobBuffer)

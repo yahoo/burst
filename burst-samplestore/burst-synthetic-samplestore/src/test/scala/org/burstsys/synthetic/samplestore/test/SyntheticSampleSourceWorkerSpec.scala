@@ -2,8 +2,8 @@
 package org.burstsys.synthetic.samplestore.test
 
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
-import org.burstsys.nexus.{NexusGlobalUid, NexusSliceKey, NexusStreamUid}
 import org.burstsys.nexus.stream.NexusStream
+import org.burstsys.nexus.{NexusGlobalUid, NexusSliceKey, NexusStreamUid}
 import org.burstsys.samplestore.test.BaseSampleStoreTest
 import org.burstsys.synthetic.samplestore.source.SyntheticSampleSourceWorker
 import org.burstsys.tesla
@@ -14,8 +14,9 @@ import org.burstsys.vitals.properties.{BurstMotifFilter, VitalsPropertyMap}
 import org.burstsys.vitals.uid
 
 import java.util.concurrent.ConcurrentLinkedQueue
-import scala.concurrent.{Await, Future}
+import java.util.concurrent.atomic.AtomicLong
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 class SyntheticSampleSourceWorkerSpec extends BaseSampleStoreTest {
   it should "generate the requested number of items" in {
@@ -54,6 +55,8 @@ case class MockNexusStream(
 
   val buffers = new ConcurrentLinkedQueue[TeslaMutableBuffer]()
 
+  private val bytesSeen = new AtomicLong()
+
   override def filter: BurstMotifFilter = ???
 
   override def sliceKey: NexusSliceKey = ???
@@ -66,7 +69,10 @@ case class MockNexusStream(
 
   override def put(chunk: TeslaParcel): Unit = ???
 
-  override def put(buffer: TeslaMutableBuffer): Unit = buffers.offer(buffer)
+  override def put(buffer: TeslaMutableBuffer): Unit = {
+    bytesSeen.addAndGet(buffer.currentUsedMemory)
+    buffers.offer(buffer)
+  }
 
   override def take: TeslaParcel = ???
 
@@ -107,5 +113,5 @@ case class MockNexusStream(
 
   override def putItemCount: NexusSliceKey = ???
 
-  override def putBytesCount: NexusSliceKey = ???
+  override def putBytesCount: NexusSliceKey = bytesSeen.get()
 }

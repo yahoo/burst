@@ -32,8 +32,8 @@ package object configuration {
   val maxLoadSizeProperty = "synthetic.samplestore.load.max.bytes"
   val defaultMaxLoadSizeProperty: VitalsPropertySpecification[Long] = VitalsPropertySpecification(
     key = maxLoadSizeProperty,
-    description = "the max size for a worker's dataset load in bytes",
-    default = Some(10e9.toInt) // 1GB
+    description = "the max size for a dataset load in bytes",
+    default = Some(10e10.toInt) // 100GB
   )
 
   val batchCountProperty = "synthetic.samplestore.press.item.batchcount"
@@ -48,6 +48,13 @@ package object configuration {
     key = itemCountProperty,
     description = "the number of items to generate",
     default = Some(0)
+  )
+
+  val workersCountProperty = "synthetic.samplestore.workers.count"
+  val defaultWorkersCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification(
+    key = workersCountProperty,
+    description = "the number of currently active workers",
+    default = Some(1)
   )
 
 }
