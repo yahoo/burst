@@ -21,6 +21,38 @@ import scala.util.{Failure, Success}
 
 abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService {
 
+  protected trait DataProvider {
+    def scanner(stream: NexusStream, props: VitalsExtendedPropertyMap): Iterator[T]
+
+    def pressInstance(item: T): BrioPressInstance
+
+    def pressSource(item: BrioPressInstance): BrioPressSource
+
+    def schema: BrioSchema
+  }
+
+  protected def getProvider(stream: NexusStream, props: VitalsExtendedPropertyMap, stats: BatchStats): DataProvider
+
+  protected class BatchStats(val itemCount: Int, val maxStreamSize: Long, val maxItemSize: Int, val batchCount: Int) {
+    val rejectedItemCounter = new AtomicInteger()
+    val itemCounter = new AtomicInteger()
+    val cancelWork = new AtomicBoolean(false)
+    val skipped = new AtomicBoolean(false)
+    val expectedItemCount = new AtomicInteger(itemCount)
+
+    def continueProcessing: Boolean = {
+      !cancelWork.get() && !skipped.get()
+    }
+
+    def addAttributes(span: Span): Unit = {
+      span.setAttribute(REJECTED_ITEMS_KEY, rejectedItemCounter.get())
+      span.setAttribute(ITEM_COUNT_KEY, itemCounter.get())
+      span.setAttribute(EXPECTED_ITEM_COUNT_KEY, expectedItemCount.get())
+      span.setAttribute(CANCEL_WORK_KEY, Boolean.box(cancelWork.get()))
+      span.setAttribute(SKIPPED_KEY, Boolean.box(skipped.get()))
+    }
+  }
+
   def prepareStats(stream: NexusStream, props: VitalsExtendedPropertyMap): BatchStats
 
   /**
@@ -35,11 +67,10 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
       TeslaRequestFuture {
         val props: VitalsExtendedPropertyMap = stream.properties.extend
         val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
-        val batchCount = Math.max(1, props.getValueOrProperty(defaultBatchCountProperty))
         val stats = prepareStats(stream, props)
 
-        log info burstStdMsg(s"(traceId=${stage.getTraceId}, itemCount=${stats.itemCount}, batchCont=$batchCount) starting batches")
-        val batches = (1 to batchCount).map { i =>
+        log info burstStdMsg(s"(traceId=${stage.getTraceId}, itemCount=${stats.itemCount}, batchCont=$stats.batchCount) starting batches")
+        val batches = (1 to stats.batchCount).map { i =>
           doBatch(stream, props, i, stats)
         }
         val s = Future.sequence(batches)
@@ -68,42 +99,12 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
     feedStreamComplete.future
   }
 
-  protected class BatchStats(val itemCount: Int, val maxStreamSize: Long, val maxItemSize: Int) {
-    val rejectedItemCounter = new AtomicInteger()
-    val itemCounter = new AtomicInteger()
-    val cancelWork = new AtomicBoolean(false)
-    val skipped = new AtomicBoolean(false)
-    val expectedItemCount = new AtomicInteger(itemCount)
 
-    def continueProcessing: Boolean = {
-      !cancelWork.get() && !skipped.get()
-    }
-
-    def addAttributes(span: Span): Unit = {
-      span.setAttribute(REJECTED_ITEMS_KEY, rejectedItemCounter.get())
-      span.setAttribute(ITEM_COUNT_KEY, itemCounter.get())
-      span.setAttribute(EXPECTED_ITEM_COUNT_KEY, expectedItemCount.get())
-      span.setAttribute(CANCEL_WORK_KEY, Boolean.box(cancelWork.get()))
-      span.setAttribute(SKIPPED_KEY, Boolean.box(skipped.get()))
-    }
-  }
-
-  protected case class BatchResult(batchId: Int, itemCount: Int, skipped: Boolean)
-
-  protected trait DataProvider {
-    def pressInstance(item: T): BrioPressInstance
-    def pressSource(item: BrioPressInstance): BrioPressSource
-    def schema: BrioSchema
-    def schemaVersion: Int
-  }
-
-  protected def getScanner(stream: NexusStream, props: VitalsExtendedPropertyMap): Iterator[T]
-
-  protected def getProvider(stream: NexusStream, props: VitalsExtendedPropertyMap): DataProvider
+  private case class BatchResult(batchId: Int, itemCount: Int, skipped: Boolean)
 
   private def doBatch(stream: NexusStream, props: VitalsExtendedPropertyMap, batchId: Int, stats: BatchStats): Future[BatchResult] = {
-    val data = getScanner(stream, props)
-    val provider = getProvider(stream, props)
+    val provider = getProvider(stream, props, stats)
+    val data = provider.scanner(stream, props)
 
     val batchComplete = Promise[BatchResult]()
     SyntheticBatchTrek.begin(stream.guid, stream.suid) {stage =>
@@ -114,7 +115,7 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
         if (!data.hasNext) {
           if (log.isDebugEnabled())
             log debug burstLocMsg(s"skipping batch (guid=${stream.guid}, batchId=$batchId)")
-          batchComplete.success(new BatchResult(batchId, 0, skipped = false))
+          batchComplete.success(BatchResult(batchId, 0, skipped = false))
         } else {
           val inFlightItemCount = new AtomicInteger(0)
           val readItemCount = new AtomicInteger(0)
@@ -152,7 +153,7 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
                 if (inFlightItemCount.decrementAndGet() == 0 && scanDone.get()) {
                   if (log.isDebugEnabled)
                     log debug burstLocMsg(s"(guid=${stream.guid}, batchId=$batchId, readItemCount=$readItemCount) completed")
-                  batchComplete.success(new BatchResult(batchId, readItemCount.get(), skipped = false))
+                  batchComplete.success(BatchResult(batchId, readItemCount.get(), skipped = false))
                   stats.addAttributes(stage.span)
                   SyntheticBatchTrek.end(stage)
                 }
