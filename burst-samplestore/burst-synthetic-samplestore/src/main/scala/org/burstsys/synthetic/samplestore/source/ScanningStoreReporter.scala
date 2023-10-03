@@ -21,18 +21,18 @@ object ScanningStoreReporter extends VitalsReporter {
   private[this]
   val _readSkippedMetric = VitalsReporterUnitOpMetric("read", "skipped")
 
-  def onReadComplete(stats: BatchStats, ns: Long, bytes: Long): Unit = {
+  def onReadComplete(stats: FeedControl, ns: Long, bytes: Long): Unit = {
     _readItemsMetric.recordOpWithTime(ns)
     _readBytesMetric.recordOpWithTimeAndSize(ns, bytes)
     stats.processedItemsCounter.incrementAndGet()
   }
 
-  def onReadReject(stats: BatchStats): Unit = {
+  def onReadReject(stats: FeedControl): Unit = {
     _readRejectMetric.recordOp()
     stats.rejectedItemsCounter.incrementAndGet()
   }
 
-  def onReadSkipped(stats: BatchStats): Unit = {
+  def onReadSkipped(stats: FeedControl): Unit = {
     _readSkippedMetric.recordOp()
     stats.skipped.set(true)
   }

@@ -2,51 +2,48 @@ package org.burstsys.synthetic.samplestore.source
 
 import io.opentelemetry.api.trace.Span
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.synthetic.samplestore.trek.CANCEL_WORK_KEY
 
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
-
-class BatchControl(           val stream: NexusStream,
-                              val itemCount: Int,
-                              val maxStreamSize: Long,
-                              val maxItemSize: Int,
-                              val batchCount: Int
-                            ) {
-  private val cancelled = new AtomicBoolean(false)
-  val stats: BatchStats = BatchStats(itemCount)
+class BatchControl(
+                    val stream: NexusStream,
+                    val feedControl: FeedControl,
+                    val id: Long,
+                    val itemCount: Int,
+                    val maxStreamSize: Long,
+                    val maxItemSize: Int,
+                  )
+{
 
   def continueProcessing: Boolean = {
-    !cancelled.get() && !stats.skipped.get()
+    !feedControl.isCancelled && !feedControl.isSkipped
   }
 
   def addAttributes(span: Span): Unit = {
-    stats.addAttributes(span)
-    span.setAttribute(CANCEL_WORK_KEY, Boolean.box(cancelled.get()))
+    feedControl.addAttributes(span)
   }
 
   def cancel(): Unit = {
-    cancelled.set(true)
+    feedControl.cancel()
   }
 
   def isCancelled: Boolean = {
-    cancelled.get().booleanValue()
+    feedControl.isCancelled
   }
 
   def processedItemsCount: Int = {
-    stats.processedItemsCounter.get()
+    feedControl.processedItemsCount
   }
 
   def expectedItemsCount: Int = {
-    stats.expectedItemsCount.get()
+    feedControl.expectedItemsCount
   }
   def rejectedItemsCount: Int = {
-    stats.rejectedItemsCounter.get()
+    feedControl.rejectedItemsCount
   }
   def potentialItemsCount: Int = {
-    stats.potentialItemsCounter.get()
+    feedControl.potentialItemsCount
   }
   def skipped: Boolean = {
-    stats.skipped.get()
+    feedControl.isSkipped
   }
 }
 

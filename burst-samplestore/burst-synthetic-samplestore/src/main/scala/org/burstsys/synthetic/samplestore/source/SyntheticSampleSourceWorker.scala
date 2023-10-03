@@ -12,11 +12,18 @@ import org.burstsys.vitals.properties._
 
 import scala.language.postfixOps
 
-case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[BrioPressInstance]() {
+case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[BrioPressInstance, FeedControl, BatchControl]() {
 
   def name: String = SyntheticSampleSourceName
 
-  override def prepareBatchControl(stream: NexusStream): BatchControl = {
+  override def prepareFeedControl(stream: NexusStream): FeedControl = {
+    val props: VitalsExtendedPropertyMap = stream.properties.extend
+    val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
+    val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
+    new FeedControl(timeout, globalItemCount)
+  }
+
+  def prepareBatchControls(feedControl: FeedControl, stream: NexusStream): Iterable[BatchControl] = {
     val props: VitalsExtendedPropertyMap = stream.properties.extend
     val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
     val batchCount = Math.max(1, props.getValueOrProperty(defaultBatchCountProperty))
@@ -25,9 +32,9 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
     val maxLoadSize = props.getValueOrProperty(defaultMaxLoadSizeProperty)
     val workerCount = props.getValueOrProperty(defaultWorkersCountProperty)
     val streamMaxSize = Math.max(maxLoadSize / workerCount, 1e6.toInt)
-    val bs = new BatchControl(stream, itemCount, streamMaxSize, maxItemSize, batchCount)
-    bs.stats.expectedItemsCount.set(globalItemCount)
-    bs
+    (1 to batchCount).map { i =>
+      new BatchControl(stream, feedControl, i, itemCount, streamMaxSize, maxItemSize)
+    }
   }
 
   private val unityBrio = BurstUnitySyntheticDataProvider()
