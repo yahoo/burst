@@ -1,12 +1,12 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.synthetic.samplestore.source
+package org.burstsys.samplestore.store.container.worker
 
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.samplestore.pipeline
-import org.burstsys.synthetic.samplestore.trek._
+import org.burstsys.samplestore.trek.{BATCH_ID_KEY, SyntheticBatchTrek, SyntheticFeedStreamTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
@@ -69,7 +69,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
             feedControl.cancel()
             stream.timedOut(feedControl.timeout)
             feedStreamComplete.failure(t)
-          case t =>
+          case t: Throwable =>
             log error("(traceId=${stage.getTraceId}) synthetic samplesource feedStream failed", t)
             feedControl.cancel()
             stream.completeExceptionally(t)

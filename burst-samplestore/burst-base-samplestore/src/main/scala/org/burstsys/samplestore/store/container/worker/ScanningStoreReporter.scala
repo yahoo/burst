@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.synthetic.samplestore.source
+package org.burstsys.samplestore.store.container.worker
 
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
