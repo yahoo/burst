@@ -1,13 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.synthetic.samplestore.source
 
-import io.opentelemetry.api.trace.Span
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.samplestore.pipeline
-import org.burstsys.synthetic.samplestore.SyntheticStoreReporter
 import org.burstsys.synthetic.samplestore.configuration._
 import org.burstsys.synthetic.samplestore.trek._
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
@@ -22,7 +20,7 @@ import scala.util.{Failure, Success}
 abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService {
 
   protected trait DataProvider {
-    def scanner(stream: NexusStream, props: VitalsExtendedPropertyMap): Iterator[T]
+    def scanner(stream: NexusStream): Iterator[T]
 
     def pressInstance(item: T): BrioPressInstance
 
@@ -31,29 +29,10 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
     def schema: BrioSchema
   }
 
-  protected def getProvider(stream: NexusStream, props: VitalsExtendedPropertyMap, stats: BatchStats): DataProvider
+  protected def getProvider(control: BatchControl): DataProvider
 
-  protected class BatchStats(val itemCount: Int, val maxStreamSize: Long, val maxItemSize: Int, val batchCount: Int) {
-    val rejectedItemCounter = new AtomicInteger()
-    val itemCounter = new AtomicInteger()
-    val cancelWork = new AtomicBoolean(false)
-    val skipped = new AtomicBoolean(false)
-    val expectedItemCount = new AtomicInteger(itemCount)
 
-    def continueProcessing: Boolean = {
-      !cancelWork.get() && !skipped.get()
-    }
-
-    def addAttributes(span: Span): Unit = {
-      span.setAttribute(REJECTED_ITEMS_KEY, rejectedItemCounter.get())
-      span.setAttribute(ITEM_COUNT_KEY, itemCounter.get())
-      span.setAttribute(EXPECTED_ITEM_COUNT_KEY, expectedItemCount.get())
-      span.setAttribute(CANCEL_WORK_KEY, Boolean.box(cancelWork.get()))
-      span.setAttribute(SKIPPED_KEY, Boolean.box(skipped.get()))
-    }
-  }
-
-  def prepareStats(stream: NexusStream, props: VitalsExtendedPropertyMap): BatchStats
+  def prepareBatchControl(stream: NexusStream): BatchControl
 
   /**
    * Instantiate an instance of a synthetic data provider and use it to feed the stream.
@@ -67,30 +46,33 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
       TeslaRequestFuture {
         val props: VitalsExtendedPropertyMap = stream.properties.extend
         val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
-        val stats = prepareStats(stream, props)
+        val batchControl = prepareBatchControl(stream)
 
-        log info burstStdMsg(s"(traceId=${stage.getTraceId}, itemCount=${stats.itemCount}, batchCont=$stats.batchCount) starting batches")
-        val batches = (1 to stats.batchCount).map { i =>
-          doBatch(stream, props, i, stats)
+        log info burstStdMsg(s"(traceId=${stage.getTraceId}, batchCont=${batchControl.batchCount}) starting batches")
+        val batches = (1 to batchControl.batchCount).map { i =>
+          doBatch(batchControl, i)
         }
         val s = Future.sequence(batches)
         try {
           // wait for all batches to complete but not forever
           Await.ready(s, timeout)
-          log info burstStdMsg(s"stream completed (traceId=${stage.getTraceId}, itemCount=${stats.itemCounter.get()}, " +
-            s"rejectedItemCount=${stats.rejectedItemCounter.get()}, expectedItemCount=${stats.expectedItemCount})")
-          stream.complete(itemCount = stats.itemCounter.longValue(), expectedItemCount = stats.expectedItemCount.longValue(),
-            potentialItemCount = stats.expectedItemCount.longValue(), stats.rejectedItemCounter.longValue)
+          log info burstStdMsg(s"stream completed (traceId=${stage.getTraceId}, processedItemsCount=${batchControl.processedItemsCount}, " +
+            s"rejectedItemsCount=${batchControl.rejectedItemsCount}, expectedItemsCount=${batchControl.expectedItemsCount})")
+          stream.complete(
+            itemCount = batchControl.processedItemsCount,
+            expectedItemCount = batchControl.expectedItemsCount,
+            potentialItemCount = batchControl.potentialItemsCount,
+            batchControl.rejectedItemsCount)
           feedStreamComplete.success(())
         } catch {
           case t: java.util.concurrent.TimeoutException =>
             log error burstStdMsg("(traceId=${stage.getTraceId}) synthetic samplesource feedStream timedout")
-            stats.cancelWork.set(true)
+            batchControl.cancel()
             stream.timedOut(timeout)
             feedStreamComplete.failure(t)
           case t =>
             log error("(traceId=${stage.getTraceId}) synthetic samplesource feedStream failed", t)
-            stats.cancelWork.set(true)
+            batchControl.cancel()
             stream.completeExceptionally(t)
             feedStreamComplete.failure(t)
         }
@@ -102,59 +84,56 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
 
   private case class BatchResult(batchId: Int, itemCount: Int, skipped: Boolean)
 
-  private def doBatch(stream: NexusStream, props: VitalsExtendedPropertyMap, batchId: Int, stats: BatchStats): Future[BatchResult] = {
-    val provider = getProvider(stream, props, stats)
-    val data = provider.scanner(stream, props)
+  private def doBatch(control: BatchControl, batchId: Int) = {
+    val provider = getProvider(control)
+    val data = provider.scanner(control.stream)
 
     val batchComplete = Promise[BatchResult]()
-    SyntheticBatchTrek.begin(stream.guid, stream.suid) {stage =>
+    SyntheticBatchTrek.begin(control.stream.guid, control.stream.suid) {stage =>
       stage.span.setAttribute(BATCH_ID_KEY, batchId)
       TeslaRequestFuture {
         if (log.isDebugEnabled())
-          log debug burstLocMsg(s"starting (guid=${stream.guid}, batchId=$batchId)")
+          log debug burstLocMsg(s"starting (guid=${control.stream.guid}, batchId=$batchId)")
         if (!data.hasNext) {
           if (log.isDebugEnabled())
-            log debug burstLocMsg(s"skipping batch (guid=${stream.guid}, batchId=$batchId)")
+            log debug burstLocMsg(s"skipping batch (guid=${control.stream.guid}, batchId=$batchId)")
           batchComplete.success(BatchResult(batchId, 0, skipped = false))
         } else {
           val inFlightItemCount = new AtomicInteger(0)
           val readItemCount = new AtomicInteger(0)
           val scanDone = new AtomicBoolean(false)
-          while (data.hasNext && stats.continueProcessing) {
+          while (data.hasNext && control.continueProcessing) {
             val item = data.next()
             inFlightItemCount.incrementAndGet()
             readItemCount.incrementAndGet()
 
             val pressInstance = provider.pressInstance(item)
             val pressSource = provider.pressSource(pressInstance)
-            val pressedItemFuture = pipeline.pressToFuture(stream, pressSource, provider.schema, pressInstance.schemaVersion, stats.maxItemSize, stats.maxStreamSize)
+            val pressedItemFuture = pipeline.pressToFuture(control.stream, pressSource, provider.schema,
+              pressInstance.schemaVersion, control.maxItemSize, control.maxStreamSize)
             pressedItemFuture.andThen {
               case Success(pipeline.PressJobResults(jobId, pressSize, jobDuration, pressDuration, skipped)) =>
                 if (log.isDebugEnabled) {
-                  log debug burstLocMsg(s"(guid=${stream.guid}, batchId=$batchId, jobId=$jobId, " +
+                  log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=$batchId, jobId=$jobId, " +
                     s"bytes=$pressSize, jobDuration=$jobDuration, pressDuration=$pressDuration, skipped=$skipped) on stream")
                 }
                 if (skipped) {
-                  stats.cancelWork.set(true)
-                  stats.rejectedItemCounter.incrementAndGet()
-                  stats.skipped.set(true)
-                  SyntheticStoreReporter.onReadSkipped()
-                  SyntheticStoreReporter.onReadReject()
+                  control.cancel()
+                  ScanningStoreReporter.onReadSkipped(control.stats)
+                  ScanningStoreReporter.onReadReject(control.stats)
                 } else {
-                  stats.itemCounter.incrementAndGet()
-                  SyntheticStoreReporter.onReadComplete(jobDuration, pressSize)
+                  ScanningStoreReporter.onReadComplete(control.stats, jobDuration, pressSize)
                 }
               case Failure(t) =>
                 stage.span.recordException(t)
-                stats.rejectedItemCounter.incrementAndGet()
-                SyntheticStoreReporter.onReadReject()
+                ScanningStoreReporter.onReadReject(control.stats)
             }.andThen {
               case _ =>
                 if (inFlightItemCount.decrementAndGet() == 0 && scanDone.get()) {
                   if (log.isDebugEnabled)
-                    log debug burstLocMsg(s"(guid=${stream.guid}, batchId=$batchId, readItemCount=$readItemCount) completed")
+                    log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=$batchId, readItemCount=$readItemCount) completed")
                   batchComplete.success(BatchResult(batchId, readItemCount.get(), skipped = false))
-                  stats.addAttributes(stage.span)
+                  control.addAttributes(stage.span)
                   SyntheticBatchTrek.end(stage)
                 }
             }
@@ -166,7 +145,7 @@ abstract class ScanningSampleSourceWorker[T]() extends SampleSourceWorkerService
     }
     batchComplete.future.andThen {
       case Success(BatchResult(batchId, itemCount, skipped)) =>
-        log info burstStdMsg(s"completed (batch=$batchId, itemCount=$itemCount, truncated=$skipped, cancelled=${stats.cancelWork.get()})")
+        log info burstStdMsg(s"completed (batch=$batchId, itemCount=$itemCount, truncated=$skipped, cancelled=${control.isCancelled})")
       case Failure(ex) =>
         log error burstStdMsg(s"exception", ex)
     }

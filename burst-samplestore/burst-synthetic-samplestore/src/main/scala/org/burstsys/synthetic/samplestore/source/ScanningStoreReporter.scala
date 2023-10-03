@@ -1,11 +1,11 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.synthetic.samplestore
+package org.burstsys.synthetic.samplestore.source
 
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
 
 private[samplestore]
-object SyntheticStoreReporter extends VitalsReporter {
+object ScanningStoreReporter extends VitalsReporter {
 
   final val dName: String = "SyntheticStore"
 
@@ -21,16 +21,19 @@ object SyntheticStoreReporter extends VitalsReporter {
   private[this]
   val _readSkippedMetric = VitalsReporterUnitOpMetric("read", "skipped")
 
-  def onReadComplete(ns: Long, bytes: Long): Unit = {
+  def onReadComplete(stats: BatchStats, ns: Long, bytes: Long): Unit = {
     _readItemsMetric.recordOpWithTime(ns)
     _readBytesMetric.recordOpWithTimeAndSize(ns, bytes)
+    stats.processedItemsCounter.incrementAndGet()
   }
 
-  def onReadReject(): Unit = {
+  def onReadReject(stats: BatchStats): Unit = {
     _readRejectMetric.recordOp()
+    stats.rejectedItemsCounter.incrementAndGet()
   }
 
-  def onReadSkipped(): Unit = {
+  def onReadSkipped(stats: BatchStats): Unit = {
     _readSkippedMetric.recordOp()
+    stats.skipped.set(true)
   }
 }

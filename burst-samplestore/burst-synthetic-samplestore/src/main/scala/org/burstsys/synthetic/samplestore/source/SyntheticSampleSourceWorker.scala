@@ -16,7 +16,8 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
 
   def name: String = SyntheticSampleSourceName
 
-  override def prepareStats(stream: NexusStream, props: VitalsExtendedPropertyMap): BatchStats = {
+  override def prepareBatchControl(stream: NexusStream): BatchControl = {
+    val props: VitalsExtendedPropertyMap = stream.properties.extend
     val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
     val batchCount = Math.max(1, props.getValueOrProperty(defaultBatchCountProperty))
     val itemCount = globalItemCount / batchCount
@@ -24,14 +25,14 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
     val maxLoadSize = props.getValueOrProperty(defaultMaxLoadSizeProperty)
     val workerCount = props.getValueOrProperty(defaultWorkersCountProperty)
     val streamMaxSize = Math.max(maxLoadSize / workerCount, 1e6.toInt)
-    val bs = new BatchStats(itemCount, streamMaxSize, maxItemSize, batchCount)
-    bs.expectedItemCount.set(globalItemCount)
+    val bs = new BatchControl(stream, itemCount, streamMaxSize, maxItemSize, batchCount)
+    bs.stats.expectedItemsCount.set(globalItemCount)
     bs
   }
 
   private val unityBrio = BurstUnitySyntheticDataProvider()
-  private case class SyntheticDP(provider: BrioSyntheticDataProvider, props: VitalsExtendedPropertyMap, stats: BatchStats) extends DataProvider {
-    override def scanner(stream: NexusStream, props: VitalsExtendedPropertyMap): Iterator[BrioPressInstance] = {
+  private case class SyntheticDP(provider: BrioSyntheticDataProvider, stats: BatchControl) extends DataProvider {
+    override def scanner(stream: NexusStream): Iterator[BrioPressInstance] = {
       provider.data(stats.itemCount, stream.properties)
     }
 
@@ -48,8 +49,8 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
     }
   }
 
-  override protected def getProvider(stream: NexusStream, props: VitalsExtendedPropertyMap, stats: BatchStats): DataProvider = {
-    val modelName = stream.get[String](syntheticDatasetProperty)
+  override protected def getProvider(control: BatchControl): DataProvider = {
+    val modelName = control.stream.get[String](syntheticDatasetProperty)
     val dataProvider = {
       val p = SyntheticDataProvider.providerNamed(modelName)
       if (p == null) {
@@ -59,7 +60,7 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
         p
       }
     }
-    SyntheticDP(dataProvider, props, stats)
+    SyntheticDP(dataProvider, control)
   }
 
 }
