@@ -13,6 +13,9 @@ import org.burstsys.vitals.properties._
 
 import scala.language.postfixOps
 
+/**
+ * A sample source worker that generates synthetic data.
+ */
 case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[BrioPressInstance, FeedControl, BatchControl]() {
 
   def name: String = SyntheticSampleSourceName
@@ -37,6 +40,8 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
       new BatchControl(stream, feedControl, i, itemCount, streamMaxSize, maxItemSize)
     }
   }
+
+  override def finalizeBatch(control: BatchControl): BatchControl = control
 
   def finalizeBatchResults(feedControl: FeedControl, results: Iterable[BatchResult]): Unit = {
     log info burstStdMsg(s"synthetic samplestore batch processing complete")
@@ -76,5 +81,4 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
     }
     SyntheticDP(dataProvider, control)
   }
-
 }

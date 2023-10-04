@@ -32,6 +32,8 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
 
   def prepareBatchControls(feedControl: F, stream: NexusStream): Iterable[B]
 
+  def finalizeBatch(control: B): B
+
   def finalizeBatchResults(feedControl: F, results: Iterable[BatchResult]): Unit
 
   def prepareFeedControl(stream: NexusStream): F
@@ -139,7 +141,8 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
                 if (inFlightItemCount.decrementAndGet() == 0 && scanDone.get()) {
                   if (log.isDebugEnabled)
                     log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, readItemCount=$readItemCount) completed")
-                  batchComplete.success(BatchResult(control, readItemCount.get(), skipped = false))
+
+                  batchComplete.success(BatchResult(finalizeBatch(control), readItemCount.get(), skipped = false))
                   control.addAttributes(stage.span)
                   SyntheticBatchTrek.end(stage)
                 }
