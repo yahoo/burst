@@ -32,6 +32,8 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
 
   def prepareBatchControls(feedControl: F, stream: NexusStream): Iterable[B]
 
+  def finalizeBatchResults(feedControl: F, results: Iterable[BatchResult]): Unit
+
   def prepareFeedControl(stream: NexusStream): F
 
   /**
@@ -55,6 +57,12 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
         try {
           // wait for all batches to complete but not forever
           Await.ready(s, feedControl.timeout)
+          s.onComplete{
+            case Success(results) =>
+              finalizeBatchResults(feedControl, results)
+            case Failure(ex) =>
+              log error burstLocMsg(s"buckets completed with exception", ex)
+          }
           log info burstStdMsg(s"stream completed (traceId=${stage.getTraceId}, processedItemsCount=${feedControl.processedItemsCount}, " +
             s"rejectedItemsCount=${feedControl.rejectedItemsCount}, expectedItemsCount=${feedControl.expectedItemsCount})")
           stream.complete(
@@ -81,7 +89,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
   }
 
 
-  private case class BatchResult(control: B, itemCount: Int, skipped: Boolean)
+  final case class BatchResult(control: B, itemCount: Int, skipped: Boolean)
 
   private def doBatch(control: B) = {
     val provider = getProvider(control)

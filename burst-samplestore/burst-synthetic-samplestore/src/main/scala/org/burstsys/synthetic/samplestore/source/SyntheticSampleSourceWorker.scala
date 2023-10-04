@@ -17,7 +17,7 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
 
   def name: String = SyntheticSampleSourceName
 
-  override def prepareFeedControl(stream: NexusStream): FeedControl = {
+  def prepareFeedControl(stream: NexusStream): FeedControl = {
     val props: VitalsExtendedPropertyMap = stream.properties.extend
     val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
     val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
@@ -36,6 +36,12 @@ case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[Brio
     (1 to batchCount).map { i =>
       new BatchControl(stream, feedControl, i, itemCount, streamMaxSize, maxItemSize)
     }
+  }
+
+  def finalizeBatchResults(feedControl: FeedControl, results: Iterable[BatchResult]): Unit = {
+    log info burstStdMsg(s"synthetic samplestore batch processing complete")
+    if (log.isDebugEnabled())
+      results.foreach(r => log debug burstStdMsg(s"batch ${r.control.id} (itemCount=${r.itemCount}, skipped=${r.skipped}"))
   }
 
   private val unityBrio = BurstUnitySyntheticDataProvider()
