@@ -15,6 +15,7 @@ import org.burstsys.felt.model.collectors.runtime.FeltCollectorGather
 import org.burstsys.hydra.execute.HydraWaveExecutor
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsPojo
+import org.burstsys.vitals.errors.VitalsException
 
 import scala.concurrent.Future
 
@@ -47,7 +48,8 @@ object HydraService {
 }
 
 final case
-class HydraServiceContext(container: FabricWaveSupervisorContainer) extends FabricGroupExecuteContext with HydraWaveExecutor {
+class HydraServiceContext(container: FabricWaveSupervisorContainer)
+  extends FabricGroupExecuteContext(container) with HydraWaveExecutor {
 
   override def modality: VitalsService.VitalsServiceModality = VitalsPojo
 
@@ -62,8 +64,9 @@ class HydraServiceContext(container: FabricWaveSupervisorContainer) extends Fabr
     gather match {
       case g: FeltCollectorGather =>
         FeltCollectorResultGroup(gather.groupKey, g).extractResults
-      case _ =>
-        ???
+      case other =>
+        log error (s"unexpected gather type $other")
+        throw VitalsException(s"unexpected gather type $other")
     }
 
   }

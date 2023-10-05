@@ -40,6 +40,8 @@ object views {
   )
 
   def fromThriftDomain(dPk: Long, d: BTDomain): Array[CatalogView] = {
+    if (d.views == null)
+      return Array.empty
     d.views.asScala.map(fromThriftView(dPk, _)).toArray
   }
 }

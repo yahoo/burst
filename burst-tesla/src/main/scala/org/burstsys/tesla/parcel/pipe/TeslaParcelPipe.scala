@@ -1,9 +1,6 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.tesla.parcel.pipe
 
-import org.burstsys.tesla.parcel
-
-import java.util.concurrent.{ArrayBlockingQueue, TimeUnit}
 import org.burstsys.tesla.parcel.{TeslaParcel, _}
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
@@ -11,6 +8,7 @@ import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.uid._
 
+import java.util.concurrent.{ArrayBlockingQueue, TimeUnit}
 import scala.concurrent.duration.{Duration, _}
 import scala.language.postfixOps
 
@@ -108,21 +106,21 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
   // PUT/GET API
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  override def put(prcl: TeslaParcel): Unit = {
+  override def put(parcel: TeslaParcel): Unit = {
     lazy val tag = s"TeslaParcelPipe.put name=$pipeName"
     try {
       ensureRunning
-      if (parcel.log.isDebugEnabled) {
-        if (prcl.status.isMarker) {
-          parcel.log debug s"$tag action=PUT status=${prcl.status.statusName} $ids parcelQueueSize=${_parcels.size}"
+      if (log.isDebugEnabled) {
+        if (parcel.status.isMarker) {
+          log debug s"$tag action=PUT status=${parcel.status.statusName} $ids parcelQueueSize=${_parcels.size}"
         } else if (logNonStatusParcel(_parcels.size)) {
-          parcel.log debug s"$tag action=PUT status=${prcl.status.statusName} $ids parcelQueueSize=${_parcels.size} buffers=${prcl.bufferCount}"
+          log debug s"$tag action=PUT status=${parcel.status.statusName} $ids parcelQueueSize=${_parcels.size} buffers=${parcel.bufferCount}"
         }
       }
-      _parcels.put(prcl.blockPtr)
+      _parcels.put(parcel.blockPtr)
     } catch safely {
       case t: Throwable =>
-        parcel.log error(burstStdMsg(s"PARCEL_PIPE_FAIL $tag", t), t)
+        log error(burstStdMsg(s"PARCEL_PIPE_FAIL $tag", t), t)
         throw t
     }
   }
@@ -133,17 +131,17 @@ class TeslaParcelPipeContext(pipeName: String, guid: VitalsUid, suid: VitalsUid,
     try {
       val ptr = _parcels.poll(timeoutDuration.toNanos, TimeUnit.NANOSECONDS)
       val prcl: TeslaParcel = if (ptr == null) TeslaTimeoutMarkerParcel else TeslaParcelAnyVal(ptr)
-      if (parcel.log.isDebugEnabled) {
+      if (log.isDebugEnabled) {
         if (prcl.status.isMarker) {
-          parcel.log debug s"$tag action=TAKE status=${prcl.status.statusName} $ids parcelQueueSize=${_parcels.size}"
+          log debug s"$tag action=TAKE status=${prcl.status.statusName} $ids parcelQueueSize=${_parcels.size}"
         } else if (logNonStatusParcel(_parcels.size)) {
-          parcel.log debug s"$tag action=TAKE status=${prcl.status.statusName} $ids parcelQueueSize=${_parcels.size} buffers=${prcl.bufferCount}"
+          log debug s"$tag action=TAKE status=${prcl.status.statusName} $ids parcelQueueSize=${_parcels.size} buffers=${prcl.bufferCount}"
         }
       }
       prcl
     } catch safely {
       case t: Throwable =>
-        parcel.log error(burstStdMsg(s"PARCEL_PIPE_FAIL $t $tag", t), t)
+        log error(burstStdMsg(s"PARCEL_PIPE_FAIL $t $tag", t), t)
         throw t
     }
   }

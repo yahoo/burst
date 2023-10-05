@@ -37,7 +37,7 @@ object NexusServerReporter extends VitalsReporter {
   val _serverStreamFailMetric = VitalsReporterUnitOpMetric("nexus_server_stream_fail")
 
   private[this]
-  val _serverConnectionCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"nexus_server_connection_counter")
+  val _serverConnectionCounter: LongUpDownCounter = metric.upDownCounter(s"nexus_server_connection_counter")
     .setDescription(s"server connections in use")
     .setUnit("connections")
     .build()

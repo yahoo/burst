@@ -4,6 +4,7 @@ package org.burstsys.tesla.scatter.slot
 import io.opentelemetry.api.trace.Span
 import org.burstsys.tesla.scatter._
 import org.burstsys.vitals.net.VitalsHostName
+import org.burstsys.vitals.trek.TrekStage
 import org.burstsys.vitals.uid._
 
 import java.util.concurrent.locks.ReentrantLock
@@ -116,9 +117,9 @@ trait TeslaScatterSlot extends Any {
    */
   def failure: Throwable
 
-  def span:  Span
+  def stage: TrekStage
 
-  def setSpan(span: Span): Unit
+  def setTrekStage(span: TrekStage): Unit
 
 }
 
@@ -182,7 +183,7 @@ class TeslaScatterSlotContext(scatter: TeslaScatterContext, slotId: TeslaScatter
   val _cancelled = TeslaScatterSlotCancel(this)
 
   private[this]
-  var _span:Span = _
+  var _stage: TrekStage = _
 
   override
   def toString: String = s"slotId=$slotId, ruid=$ruid, destinationHostName='$destinationHostName', state=${_slotState}"
@@ -355,11 +356,11 @@ class TeslaScatterSlotContext(scatter: TeslaScatterContext, slotId: TeslaScatter
     scatter.slotCancelled(slot = this, update = _cancelled)
   }
 
-  override def span: Span = {
-    _span
+  override def stage: TrekStage = {
+    _stage
   }
 
-  override def setSpan(span: Span): Unit = {
-    _span = span
+  override def setTrekStage(stage: TrekStage): Unit = {
+    _stage = stage
   }
 }

@@ -41,7 +41,7 @@ object FabricRegionReporter extends VitalsReporter {
   val _parcelCompressionMetric = VitalsReporterPercentValueMetric("region_parcel_compression")
 
   private[this]
-  val _currentRegionsOpenCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"region_open_counter")
+  val _currentRegionsOpenCounter: LongUpDownCounter = metric.upDownCounter(s"region_open_counter")
     .setDescription(s"regions open")
     .setUnit("regions")
     .build()

@@ -4,12 +4,10 @@ package org.burstsys.fabric.net.message
 import com.esotericsoftware.kryo.io.{Input, Output}
 import com.esotericsoftware.kryo.{Kryo, KryoSerializable}
 import io.netty.buffer.ByteBuf
-import org.burstsys.fabric.net.{FabricNetMessageId, fabricKryoOutputBufferMaxSize}
+import org.burstsys.fabric.net.{FabricNetMessageId, fabricKryoOutputBufferInitialSize, fabricKryoOutputBufferMaxSize}
 import org.burstsys.fabric.topology.model.node.FabricNode
 import org.burstsys.vitals.errors.{VitalsException, _}
-import org.burstsys.vitals.stats._
 import org.burstsys.vitals.kryo.{acquireKryo, releaseKryo}
-import org.burstsys.vitals.trek.context.{extractContext, injectContext}
 
 import scala.collection.mutable
 
@@ -17,6 +15,11 @@ import scala.collection.mutable
  * base trait for all fabric protocol messages
  */
 trait FabricNetMsg extends AnyRef {
+
+  /**
+   * @return the type of this message
+   */
+  def messageType: FabricNetMsgType
 
   /**
    * @return the id of this message
@@ -96,8 +99,6 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
 
   /**
    * connection unique id
-   *
-   * @param id
    */
   final def messageId_=(id: FabricNetMessageId): Unit = _messageId = id
 
@@ -178,11 +179,10 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
    */
   final def decode(buffer: Array[Byte]): this.type = {
     // the message type is already read
-    val subBuf = extractContext(buffer)
     val k = acquireKryo
     try {
       try {
-        val input = new Input(subBuf)
+        val input = new Input(buffer)
         this.read(k, input)
       } finally
         releaseKryo(k)
@@ -202,11 +202,10 @@ abstract class FabricNetMsgContext(val messageType: FabricNetMsgType)
   final def encode(buffer: ByteBuf): this.type = {
     try {
       buffer.writeInt(messageType.code) // write the message type
-      injectContext(buffer)
       val k = acquireKryo
       try {
         val output = {
-          new Output(fabricKryoOutputBufferMaxSize.toInt)
+          new Output(fabricKryoOutputBufferInitialSize.toInt, fabricKryoOutputBufferMaxSize.toInt)
         }
         this.write(k, output)
         buffer.writeBytes(output.toBytes)

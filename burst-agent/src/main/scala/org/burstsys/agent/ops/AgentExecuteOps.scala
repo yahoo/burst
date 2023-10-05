@@ -1,8 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.agent.ops
 
-import java.util.concurrent.{TimeUnit, TimeoutException}
-
+import io.opentelemetry.api.common.Attributes
+import org.burstsys.agent._
 import org.burstsys.agent.api.server
 import org.burstsys.agent.api.server.maxConcurrencyGate
 import org.burstsys.agent.configuration.burstAgentApiTimeoutDuration
@@ -10,7 +10,6 @@ import org.burstsys.agent.model.execution.group.call._
 import org.burstsys.agent.model.execution.group.over._
 import org.burstsys.agent.model.execution.result._
 import org.burstsys.agent.transform.AgentTransform
-import org.burstsys.agent.{AgentLanguage, AgentService, AgentServiceContext, transform}
 import org.burstsys.api._
 import org.burstsys.fabric.wave.exception.FabricQueryProcessingException
 import org.burstsys.fabric.wave.execution.model.execute.group.{FabricGroupUid, sanitizeGuid}
@@ -21,8 +20,9 @@ import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.tesla.thread.request._
 import org.burstsys.vitals.errors.{VitalsException, messageFromException}
 
-import scala.collection.mutable
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit, TimeoutException}
 import scala.concurrent.{Await, Future}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Failure, Success}
 
 /**
@@ -37,7 +37,7 @@ trait AgentExecuteOps extends AgentService {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _languageMap = new mutable.HashMap[String, AgentLanguage]
+  val _languageMap = new ConcurrentHashMap[String, AgentLanguage]()
 
   private[this]
   var _languages: String = "{}"
@@ -50,26 +50,29 @@ trait AgentExecuteOps extends AgentService {
   def registerLanguage(language: AgentLanguage): this.type = {
 
     for (prefix <- language.languagePrefixes) {
-      if (_languageMap.contains(prefix) && _languageMap(prefix) != language)
-        log warn s"Duplicate prefix in registerLanguage.  Cannot assign $language to $prefix because ${_languageMap(prefix)} already claimed it"
+      if (_languageMap.contains(prefix) && _languageMap.get(prefix) != language)
+        log warn s"Duplicate prefix in registerLanguage.  Cannot assign $language to $prefix because ${_languageMap.get(prefix)} already claimed it"
       else
-        _languageMap += prefix.toLowerCase() -> language
+        _languageMap.put(prefix.toLowerCase(), language)
     }
-    _languages = _languageMap.keySet.mkString("{'", "', '", "'}")
+    _languages = _languageMap.keySet.asScala.mkString("{'", "', '", "'}")
     this
   }
 
   final override
   def execute(source: String, over: FabricOver, guid: FabricGroupUid, call: Option[FabricCall]): Future[FabricExecuteResult] = {
-    if (modality.isClient)
-      apiClient.groupExecute(Some(guid), source, over, call.map(fabricToAgentCall)) map thriftToFabricExecuteResult
-    else {
-      val start = System.nanoTime
-      lazy val durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime - start)
-      val cleanGuid = sanitizeGuid(guid)
-      if (!cleanGuid.startsWith(guid)) {
-        log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$cleanGuid' instead"
-      }
+    if (modality.isClient) {
+      return apiClient.groupExecute(Some(guid), source, over, call.map(fabricToAgentCall)) map thriftToFabricExecuteResult
+    }
+
+    val start = System.nanoTime
+    lazy val durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime - start)
+    val saniGuid = sanitizeGuid(guid)
+    if (!saniGuid.startsWith(guid)) {
+      log info s"AGENT_PIPELINE_GUID_INVALID guid='$guid' provided, using cleanGuid='$saniGuid' instead"
+    }
+    AgentRequestTrekMark.begin(saniGuid) { trek =>
+      val cleanGuid = s"${saniGuid}_${trek.getTraceId}"
       val tag = s"guid='$guid' cleanGuid='$cleanGuid' $over startConcurrency=${maxConcurrencyGate.get}"
       log info s"AGENT_PIPELINE_BEGIN $tag"
 
@@ -86,7 +89,7 @@ trait AgentExecuteOps extends AgentService {
           }
           Await.result(wave, burstAgentApiTimeoutDuration)
         }
-      } recover { // make sure that any unhandle exception is turned into a FabricExecuteResult
+      } recover { // make sure that any unhandled exception is turned into a FabricExecuteResult
         case t: TimeoutException =>
           log.warn(s"AGENT_PIPELINE_TIMEOUT $tag timeout=$burstAgentApiTimeoutDuration", t)
           FabricExecuteResult(FabricTimeoutResultStatus, s"Timeout exceeded. ${messageFromException(t)}")
@@ -105,14 +108,20 @@ trait AgentExecuteOps extends AgentService {
         case Success(result) if result.succeeded =>
           log info s"AGENT_EXECUTE_DONE status=${result.resultStatus} $tag endConcurrency=${maxConcurrencyGate.get} duration=${durationMs}ms success=true"
           onAgentRequestSucceed(cleanGuid)
+          trek.span.setAttribute("result.resultSetCount", result.resultGroup.map(_.resultSets.size).getOrElse(0))
+          AgentRequestTrekMark.end(trek)
 
         case Success(result) =>
           log warn s"AGENT_EXECUTE_DONE status=${result.resultStatus} $tag endConcurrency=${maxConcurrencyGate.get} duration=${durationMs}ms message='${result.resultMessage.split("\n")(0)}' failure=true"
           onAgentRequestFail(cleanGuid, result.resultStatus, result.resultMessage)
+          trek.span.addEvent(result.resultStatus.name, Attributes.empty)
+          AgentRequestTrekMark.fail(trek)
 
         case Failure(ex) =>
           log warn(s"AGENT_EXECUTE_DONE status=UNHANDLED $tag endConcurrency=${maxConcurrencyGate.get} duration=${durationMs}ms failure=true", ex)
           onAgentRequestFail(cleanGuid, FabricFaultResultStatus, ex.getLocalizedMessage)
+          trek.span.recordException(ex)
+          AgentRequestTrekMark.fail(trek)
       }
     }
   }
@@ -123,11 +132,12 @@ trait AgentExecuteOps extends AgentService {
       val processor = source.trim.takeWhile(p => p.isLetterOrDigit).toLowerCase
       val tag = s"AgentPipeline.delegateLanguage(guid='$guid' language='$processor' $over)"
       _languageMap.get(processor) match {
-        case Some(language) =>
+        case null =>
+          throw VitalsException(s"AGENT_EXECUTE_PROCESSOR_NOT_FOUND processor='$processor' supported processors are ${_languages} $tag")
+        case language =>
           log info tag
           onAgentRequestBegin(guid, source, over, call)
           language
-        case None => throw VitalsException(s"AGENT_EXECUTE_PROCESSOR_NOT_FOUND processor='$processor' supported processors are ${_languages} $tag")
       }
     } chainWithFuture { language =>
       language.executeGroupAsWave(guid, source, over, call)

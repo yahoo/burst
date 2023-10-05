@@ -3,7 +3,6 @@ package org.burstsys.samplestore.worker
 
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.LongAdder
-
 import org.burstsys.fabric.wave.data.model.slice.metadata.FabricSliceMetadata
 import org.burstsys.fabric.wave.data.model.slice.state.{FabricDataFailed, FabricDataNoData, FabricDataState, FabricDataWarm}
 import org.burstsys.fabric.wave.data.model.snap.FabricSnap
@@ -13,6 +12,7 @@ import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.nexus.{configuration, _}
 import org.burstsys.samplestore.api.configuration.burstSampleStoreHeartbeatDuration
 import org.burstsys.samplestore.model.SampleStoreSlice
+import org.burstsys.samplestore.trek.{SampleStoreLoaderProcessStreamTrekMark, SampleStoreLoaderReleaseStreamsTrekMark}
 import org.burstsys.tesla.parcel.pipe.TeslaParcelPipe
 import org.burstsys.tesla.parcel.{TeslaAbortMarkerParcel, TeslaEndMarkerParcel, TeslaExceptionMarkerParcel, TeslaHeartbeatMarkerParcel, TeslaNoDataMarkerParcel, TeslaParcelStatus, TeslaTimeoutMarkerParcel}
 import org.burstsys.vitals.errors.VitalsException
@@ -128,33 +128,37 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
    */
   final def releaseStreams(): Unit = {
     lazy val tag = s"SampleStoreLoader.releaseStreams($parameters)"
-    try {
-      val metadata = snap.metadata
-      log debug burstStdMsg(tag)
-      // make sure all streams have completed
-      // wait long period - we really do not want to give up easily at this point just for hygiene
-      _streams foreach {
-        stream =>
-          try {
-            // TODO: if `!stream.receipt.isCompleted`, send abort message telling the server to shut down.
-            //       we hold the snap's write lock for as long as we wait so we should end quickly here
-            Await.result(stream.completion, releaseStreamTimeout)
-          } catch safely {
-            case _: TimeoutException =>
-              val msg = s"SAMPLE_STORE_RELEASE_STREAM_TIMEOUT timeout=$releaseStreamTimeout stream=$stream"
-              log error burstStdMsg(msg)
-              metadata.failure(msg)
-            // TODO: we need a way to stop the NexusClientConnection from the stream (_isStreamingData = false).
-            //       For now we just wind up throwing away the client that provided this stream
-          }
+    SampleStoreLoaderReleaseStreamsTrekMark.begin(snap.guid) { stage =>
+      try {
+        val metadata = snap.metadata
+        log debug burstStdMsg(tag)
+        // make sure all streams have completed
+        // wait long period - we really do not want to give up easily at this point just for hygiene
+        _streams foreach {
+          stream =>
+            try {
+              // TODO: if `!stream.receipt.isCompleted`, send abort message telling the server to shut down.
+              //       we hold the snap's write lock for as long as we wait so we should end quickly here
+              Await.result(stream.completion, releaseStreamTimeout)
+            } catch safely {
+              case _: TimeoutException =>
+                val msg = s"SAMPLE_STORE_RELEASE_STREAM_TIMEOUT timeout=$releaseStreamTimeout stream=$stream"
+                log error burstStdMsg(msg)
+                metadata.failure(msg)
+              // TODO: we need a way to stop the NexusClientConnection from the stream (_isStreamingData = false).
+              //       For now we just wind up throwing away the client that provided this stream
+            }
+        }
+        _nexusClients foreach releaseClientToPool
+        _pipe.stop // allow pipe to clean up
+        SampleStoreLoaderReleaseStreamsTrekMark.end(stage)
+      } catch safely {
+        case t: Throwable =>
+          val msg = s"SAMPLE_STORE_FAIL $t $tag"
+          log error burstStdMsg(msg, t)
+          SampleStoreLoaderReleaseStreamsTrekMark.fail(stage, t)
+          throw VitalsException(msg, t)
       }
-      _nexusClients foreach releaseClientToPool
-      _pipe.stop // allow pipe to clean up
-    } catch safely {
-      case t: Throwable =>
-        val msg = s"SAMPLE_STORE_FAIL $t $tag"
-        log error burstStdMsg(msg, t)
-        throw VitalsException(msg, t)
     }
   }
 
@@ -172,6 +176,7 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
   final def processStreamData(): FabricDataState = {
     lazy val tag = s"SampleStoreLoader.processStreamData($parameters)"
     val metadata = snap.metadata
+    val stage = SampleStoreLoaderProcessStreamTrekMark.beginSync(snap.guid)
     try {
       log debug burstStdMsg(tag)
       // process all streams
@@ -264,39 +269,31 @@ case class SampleStoreLoader(snap: FabricSnap, slice: SampleStoreSlice) {
       // anything bad happen here?
       // -----------------------------------
       if (timeouts >= TimeoutLimit) {
-        // this slice is not yet complete, however an unacceptable number of timeouts occurred and we aborted the load
-        val msg = s"SAMPLE_STORE_STREAM_TIMEOUT $xferStatus $countMsg"
-        log error s"$msg $tag"
-        metadata.failure(msg)
+        metadata.failure(s"SAMPLE_STORE_STREAM_TIMEOUT $xferStatus $countMsg")
 
       } else if (streamsAborted > 0) {
-        val msg = s"SAMPLE_STORE_STREAM_ABORT $xferStatus $countMsg"
-        log error s"$msg $tag"
-        metadata.failure(msg)
+        metadata.failure(s"SAMPLE_STORE_STREAM_ABORT $xferStatus $countMsg")
 
       } else if (_exceptionStreamCount.longValue > 0) {
-        val msg = s"SAMPLE_STORE_STREAM_EXCEPTION in ${_exceptionStreamCount}  $countMsg"
-        log error s"$msg $tag"
-        metadata.failure(msg)
+        metadata.failure(s"SAMPLE_STORE_STREAM_EXCEPTION in ${_exceptionStreamCount}  $countMsg")
 
       } else if (_reportedItemCount.longValue != _itemCount.longValue) {
-        val msg = s"SAMPLE_STORE_STREAM_INCOMPLETE $countMsg reportedItems=${_reportedItemCount} expectedItems=${_expectedItemCount}"
-        log error s"$msg $tag"
-        metadata.failure(msg)
+        metadata.failure(s"SAMPLE_STORE_STREAM_INCOMPLETE $countMsg reportedItems=${_reportedItemCount} expectedItems=${_expectedItemCount}")
 
-      } else if (!dataReceived) {
-        // we did not receive any data from any of the streams
+      } else if (!dataReceived) { // we did not receive any data from any of the streams
         metadata.state = FabricDataNoData
         log info s"SAMPLE_STORE_STREAM_NO_DATA $tag $countMsg emptyStreams=$streamsNoData"
 
-      } else {
-        // all is well
+      } else { // all is well
         metadata.state = FabricDataWarm
         log info s"SAMPLE_STORE_STREAM_GOOD_DATA $tag $countMsg emptyStreams=$streamsNoData"
       }
 
       if (snap.metadata.state == FabricDataFailed) {
+        SampleStoreLoaderProcessStreamTrekMark.fail(stage, VitalsException(snap.metadata.failure))
         log error burstStdMsg(s"FAIL ${snap.metadata.failure} $tag")
+      } else {
+        SampleStoreLoaderProcessStreamTrekMark.end(stage)
       }
 
       metadata.state

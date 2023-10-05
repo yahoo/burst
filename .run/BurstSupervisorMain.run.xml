@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="org.burstsys.supervisor.BurstSupervisorMain" />
     <module name="burst-supervisor" />
     <option name="PROGRAM_PARAMETERS" value="-s -w 1" />
-    <option name="VM_PARAMETERS" value="-Dburst.fabric.http.keystore.path=certs/localhost.p12" />
+    <option name="VM_PARAMETERS" value="--add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED -Dburst.fabric.http.keystore.path=keystore" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.burstsys.supervisor.container.*" />

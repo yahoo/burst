@@ -7,7 +7,8 @@ import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
 import org.burstsys.fabric.wave.execution.model.result.FabricExecuteResult
 import org.burstsys.fabric.wave.execution.model.result.status.FabricInvalidResultStatus
 import org.burstsys.fabric.wave.metadata.model.over.FabricOver
-import org.burstsys.vitals.errors.safely
+import org.burstsys.supervisor.trek.RunQueryTrek
+import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.time.timeZoneNameList
 import org.burstsys.vitals.uid._
 
@@ -30,26 +31,30 @@ final class WaveSupervisorQueryEndpoint extends WaveSupervisorEndpoint {
                     @FormParam("args") args: String
                   ): FabricExecuteResult = {
     resultOrErrorResponse {
-      if (timezone == null || timezone.isEmpty || !timeZoneNameList.contains(timezone))
-        return FabricExecuteResult(
-          FabricInvalidResultStatus,
-          s"timezone=$timezone invalid or malformed"
-        )
+      val uid = s"WEB_$newBurstUid"
+      RunQueryTrek.begin(uid) { stage =>
+        if (timezone == null || timezone.isEmpty || !timeZoneNameList.contains(timezone)) {
+          RunQueryTrek.fail(stage, VitalsException(s"timezone='$timezone' invalid or malformed"))
+          return FabricExecuteResult(FabricInvalidResultStatus, s"timezone='$timezone' invalid or malformed")
+        }
 
-      val over = try {
-        FabricOver(domain.toLong, view.toLong, timezone)
-      } catch safely {
-        case _: NumberFormatException =>
-          return FabricExecuteResult(
-            resultStatus = FabricInvalidResultStatus,
-            resultMessage = s"domain=$domain, view=$view invalid or malformed"
-          )
+
+        val over = try {
+          FabricOver(domain.toLong, view.toLong, timezone)
+        } catch safely {
+          case _: NumberFormatException =>
+            RunQueryTrek.fail(stage, VitalsException(s"domain=$domain, view=$view invalid or malformed"))
+            return FabricExecuteResult(
+              resultStatus = FabricInvalidResultStatus,
+              resultMessage = s"domain=$domain, view=$view invalid or malformed"
+            )
+        }
+
+        val call = if (args == null || args.trim.isEmpty) None else Some(FabricCall(args))
+        val result = Await.result(agent.execute(source, over, s"$uid", call), 90 seconds)
+        RunQueryTrek.end(stage)
+        result.toJson // here is where our JSON architecture pays off
       }
-
-      val uid = s"WEB_${newBurstUid}"
-      val call = if (args == null || args.trim.isEmpty) None else Some(FabricCall(args))
-      val result = Await.result(agent.execute(source, over, uid, call), 90 seconds)
-      result.toJson // here is where our JSON architecture pays off
     }
   }
 

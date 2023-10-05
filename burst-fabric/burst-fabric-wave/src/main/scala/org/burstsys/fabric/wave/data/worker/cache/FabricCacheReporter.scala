@@ -39,13 +39,13 @@ object FabricCacheReporter extends VitalsReporter with FabricSnapCacheListener {
   val _eraseMetric = VitalsReporterUnitOpMetric("cache_erase")
 
   private[this]
-  val _currentMemoryCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"cache_memory_counter")
+  val _currentMemoryCounter: LongUpDownCounter = metric.upDownCounter(s"cache_memory_counter")
     .setDescription(s"cache memory in use")
     .setUnit("bytes")
     .build()
 
   private[this]
-  val _currentDiskCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"cache_disk_counter")
+  val _currentDiskCounter: LongUpDownCounter = metric.upDownCounter(s"cache_disk_counter")
     .setDescription(s"disk memory in use")
     .setUnit("bytes")
     .build()

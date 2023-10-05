@@ -1,9 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals
 
+import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
 import io.opentelemetry.api.{GlobalOpenTelemetry, OpenTelemetry}
-import io.opentelemetry.context.propagation.ContextPropagators
+import io.opentelemetry.context.propagation.{ContextPropagators, TextMapPropagator}
 import io.opentelemetry.exporter.logging.LoggingMetricExporter
 import io.opentelemetry.exporter.logging.otlp.{OtlpJsonLoggingMetricExporter, OtlpJsonLoggingSpanExporter}
 import io.opentelemetry.sdk.OpenTelemetrySdk
@@ -51,42 +52,32 @@ package object reporter extends VitalsLogger {
   // private state
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private[reporter]
-  val _reporters: mutable.Set[VitalsReporter] = ConcurrentHashMap.newKeySet[VitalsReporter].asScala
+  private[reporter] val _reporters = ConcurrentHashMap.newKeySet[VitalsReporter]
 
-  private
-  var _stalePeriod: Duration = _
+  private var _stalePeriod: Duration = _
 
-  private
-  var _waitPeriod: Duration = _
+  private var _waitPeriod: Duration = _
 
-  private
-  var _reportPeriod: Duration = _
+  private var _reportPeriod: Duration = _
 
-  private
-  var _samplePeriod: Duration = _
+  private var _samplePeriod: Duration = _
 
-  private
-  val _resource: Resource = Resource.getDefault
+  private val _resource: Resource = Resource.getDefault
 
   private lazy val trekEnable: Boolean = configuration.vitalsEnableTrekProperty.get
 
-  lazy private
-  val _sdkTracerProvider: SdkTracerProvider = {
+  private lazy val _sdkTracerProvider: SdkTracerProvider = {
     val b = SdkTracerProvider.builder()
       .setResource(_resource)
       .addSpanProcessor(SimpleSpanProcessor.create(OtlpJsonLoggingSpanExporter.create()))
       //.addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanExporter.create()))
       .addSpanProcessor(TrekSpanProcessor.create(TrekLoggingSpanExporter.create()))
-
     b.build()
   }
 
-  private
-  val _metricReaders: mutable.Set[MetricReader] = mutable.Set()
+  private val _metricReaders: mutable.Set[MetricReader] = mutable.Set()
 
-  lazy private
-  val _sdkMeterProvider:SdkMeterProvider  = {
+  lazy private val _sdkMeterProvider: SdkMeterProvider = {
     _metricReaders.add(PeriodicMetricReader.builder(OtlpJsonLoggingMetricExporter.create()).build())
 
     val mpb = SdkMeterProvider.builder().setResource(_resource)
@@ -104,7 +95,13 @@ package object reporter extends VitalsLogger {
     val ot = OpenTelemetrySdk.builder()
       .setTracerProvider(_sdkTracerProvider)
       .setMeterProvider(_sdkMeterProvider)
-      .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance())).build()
+      .setPropagators(ContextPropagators.create(
+        TextMapPropagator.composite(
+          W3CTraceContextPropagator.getInstance(),
+          W3CBaggagePropagator.getInstance()
+        )
+      ))
+      .build()
     log info s"Starting Open Telemetry $ot"
     try {
       GlobalOpenTelemetry.set(ot)
@@ -126,7 +123,7 @@ package object reporter extends VitalsLogger {
   final def enabled_=(value: Boolean): Unit = configuration.burstVitalsEnableReporting.set(value)
 
   final def register(reporter: VitalsReporter): Unit = {
-    _reporters += reporter
+    _reporters add reporter
   }
 
   final def startReporterSystem(
@@ -149,7 +146,7 @@ package object reporter extends VitalsLogger {
     _samplePeriod = samplePeriod
     _stalePeriod = stalePeriod
 
-    reflection.getPackageSubTypesOf(classOf[VitalsReporterSource]).asScala.foreach{
+    reflection.getPackageSubTypesOf(classOf[VitalsReporterSource]).asScala.foreach {
       source =>
         log info s"Loading reporters from ${source.getClass.getName.stripSuffix(".package$")}"
         source.reporters.foreach(register)

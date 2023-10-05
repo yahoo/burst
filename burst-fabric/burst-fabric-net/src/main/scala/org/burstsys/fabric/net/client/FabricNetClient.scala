@@ -14,8 +14,7 @@ import org.burstsys.fabric.net.FabricNetIoMode.FabricNetIoMode
 import org.burstsys.fabric.net.client.connection.FabricNetClientConnection
 import org.burstsys.fabric.net.message.assess.FabricNetAssessReqMsg
 import org.burstsys.fabric.net.message.{AccessParameters, FabricNetInboundFrameDecoder, FabricNetOutboundFrameEncoder}
-import org.burstsys.fabric.net.receiver.FabricNetReceiver
-import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
+import org.burstsys.fabric.net.transceiver.{FabricNetReceiver, FabricNetTransmitter}
 import org.burstsys.fabric.net.{FabricNetIoMode, FabricNetLink, FabricNetworkConfig, message}
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.errors.VitalsException

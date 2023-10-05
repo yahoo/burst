@@ -3,25 +3,24 @@ package org.burstsys.fabric.net.client.connection
 
 import io.netty.channel.Channel
 import org.burstsys.fabric
-import org.burstsys.fabric.configuration
 import org.burstsys.fabric.container.FabricWorkerService
 import org.burstsys.fabric.container.worker.FabricWorkerContainer
 import org.burstsys.fabric.net.client.{FabricNetClient, FabricNetClientListener}
-import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetHeartbeatMsg}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessReqMsg, FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.message.{AccessParameters, FabricNetAssessReqMsgType, FabricNetMsg, FabricNetShutdownMsgType}
-import org.burstsys.fabric.net.receiver.FabricNetReceiver
-import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
+import org.burstsys.fabric.net.transceiver.{FabricNetReceiver, FabricNetTransmitter}
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, message, newRequestId}
 import org.burstsys.fabric.topology.model.node.supervisor.FabricSupervisorNode
 import org.burstsys.fabric.topology.model.node.worker.FabricWorkerNode
 import org.burstsys.fabric.topology.model.node.{FabricNode, UnknownFabricNodeId, UnknownFabricNodePort}
+import org.burstsys.fabric.trek.{FabricNetAssessResp, FabricNetHeartbeat}
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.VitalsService.{VitalsPojo, VitalsServiceModality}
 import org.burstsys.vitals.background.VitalsBackgroundFunction
-import org.burstsys.vitals.errors.safely
+import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.git
 import org.burstsys.vitals.healthcheck.{VitalsComponentHealth, VitalsHealthMarginal, VitalsHealthMonitoredComponent}
-import org.burstsys.vitals.logging.burstStdMsg
+import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.Future
@@ -64,7 +63,9 @@ class FabricNetClientConnectionContext(
                                         receiver: FabricNetReceiver,
                                         client: FabricNetClient
                                       ) extends AnyRef
-  with FabricNetClientConnection with FabricNetLink with FabricNetClientAssessHandler {
+  with FabricNetClientConnection with FabricNetLink {
+
+  private val assessor = FabricNetClientAssessHandler()
 
   override val modality: VitalsServiceModality = VitalsPojo
 
@@ -115,21 +116,26 @@ class FabricNetClientConnectionContext(
       "fab-client-heartbeat", 100 milliseconds, fabric.configuration.burstFabricTopologyHeartbeatPeriodMs.get, {
         try {
           if (channel != null && channel.isActive) {
-            val heartbeat = FabricNetHeartbeatMsg(newRequestId, clientKey, serverKey, git.commitId, accessParameters)
-            transmitter.transmitControlMessage(heartbeat) onComplete {
-              case Success(_) =>
-                log debug "heartbeat transmitted successfully"
-              case Failure(exception) =>
-                log debug s"heartbeat failed to transmit $exception"
+            FabricNetHeartbeat.begin() { span =>
+              val heartbeat = FabricNetHeartbeatMsg(newRequestId, clientKey, serverKey, git.commitId, accessParameters)
+              transmitter.transmitControlMessage(heartbeat) onComplete {
+                case Success(_) =>
+                  log debug "heartbeat transmitted successfully"
+                  FabricNetHeartbeat.end(span)
+                case Failure(exception) =>
+                  log debug s"heartbeat failed to transmit $exception"
+                  FabricNetHeartbeat.fail(span, exception)
+              }
             }
           } else {
             log warn s"Did not attempt to send client heartbeat $this isConnected=${if (channel != null) channel.isActive else "null"}"
           }
         } catch safely {
-          case t: Throwable => log debug s"rescued heartbeat thread from $t"
+          case t: Throwable =>
+            log debug s"rescued heartbeat thread from $t"
         }
       }).start
-    assessorBackgroundFunction.start
+    assessor.backgroundThread.start
     markRunning
     this
   }
@@ -149,7 +155,7 @@ class FabricNetClientConnectionContext(
     ensureRunning
     log info stoppingMessage
     _heartbeatFunction.stop
-    assessorBackgroundFunction.stop
+    assessor.backgroundThread.stop
     markNotRunning
     this
   }
@@ -160,10 +166,28 @@ class FabricNetClientConnectionContext(
       case FabricNetAssessReqMsgType =>
         val msg = FabricNetAssessReqMsg(buffer)
         log debug burstStdMsg(s"FabricNetClientConnection.onNetClientAssessReqMsg $this $msg")
-        serverKey.nodeId = msg.senderKey.nodeId
-        _listenerSet.stream.forEach(_.onNetClientAssessReqMsg(this, msg))
 
-        sendAssessResponse(msg)
+        FabricNetAssessResp.begin() { stage =>
+          serverKey.nodeId = msg.senderKey.nodeId
+          _listenerSet.stream.forEach(_.onNetClientAssessReqMsg(this, msg))
+
+          lazy val hdr = s"FabricNetClientAssessHandler.assessRequest"
+          if (msg.receiverKey != clientKey) {
+            val failure = VitalsException(s"msg.receiverKey=${msg.receiverKey} != localKey=$clientKey")
+            FabricNetAssessResp.fail(stage, failure)
+            throw failure
+          }
+
+          val response = FabricNetAssessRespMsg(msg, clientKey, serverKey, git.commitId, assessor.getAssessment)
+          transmitter.transmitControlMessage(response) onComplete {
+            case Success(_) =>
+              FabricNetAssessResp.end(stage)
+              log debug s"$hdr success"
+            case Failure(ex) =>
+              FabricNetAssessResp.fail(stage, ex)
+              log error burstLocMsg(s"$hdr failure", ex)
+          }
+        }
 
       /////////////////// Shutdown /////////////////
       case FabricNetShutdownMsgType =>

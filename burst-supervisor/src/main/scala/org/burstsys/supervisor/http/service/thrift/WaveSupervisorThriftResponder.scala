@@ -42,30 +42,36 @@ case class WaveSupervisorThriftResponder(catalog: CatalogService, agent: AgentSe
   override def ensureDomain(btDomain: BTDomain): BTDomainResponse = {
     log.info("CLIENT_THRIFT method=ensureDomain")
     val ruid = requestLog.calledEnsureDomain(EnsureDomainRequest(domainUdk = btDomain.udk))
-    val domainPk = catalog.ensureDomain(domains.fromThriftDomain(btDomain)) match {
-      case Failure(ex) =>
-        requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, ex))
-        return DomainResponse(ex)
-      case Success(pk) => pk
-    }
+    try {
+      val domainPk = catalog.ensureDomain(domains.fromThriftDomain(btDomain)) match {
+        case Failure(ex) =>
+          requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, ex))
+          return DomainResponse(ex)
+        case Success(pk) => pk
+      }
 
-    val ensureViewsFailure = views.fromThriftDomain(domainPk, btDomain).foldLeft(null: Throwable)(
-      (failure: Throwable, view: CatalogView) =>
-        if (failure != null) failure
-        else catalog.ensureViewInDomain(btDomain.udk, view) match {
-          case Failure(ex) => ex
-          case Success(_) => null
-        }
-    )
-
-    if (ensureViewsFailure == null) {
-      getDomain(btDomain.udk,
-        { status => requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, status)) },
-        { exception => requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, exception)) }
+      val ensureViewsFailure = views.fromThriftDomain(domainPk, btDomain).foldLeft(null: Throwable)(
+        (failure: Throwable, view: CatalogView) =>
+          if (failure != null) failure
+          else catalog.ensureViewInDomain(btDomain.udk, view) match {
+            case Failure(ex) => ex
+            case Success(_) => null
+          }
       )
-    } else {
-      requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, ensureViewsFailure))
-      DomainResponse(ensureViewsFailure)
+
+      if (ensureViewsFailure == null) {
+        getDomain(btDomain.udk,
+          { status => requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, status)) },
+          { exception => requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, exception)) }
+        )
+      } else {
+        requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, ensureViewsFailure))
+        DomainResponse(ensureViewsFailure)
+      }
+    } catch safely {
+      case t: Throwable =>
+        requestLog.finishedEnsureDomain(EnsureDomainRequest(ruid, btDomain.udk, tStatus.ExceptionStatus, t))
+        DomainResponse(t)
     }
   }
 
@@ -94,21 +100,27 @@ case class WaveSupervisorThriftResponder(catalog: CatalogService, agent: AgentSe
   override def ensureDomainContainsView(domainUdk: String, btView: BTView): BTViewResponse = {
     log.info("CLIENT_THRIFT method=ensureDomainContainsView")
     val ruid = requestLog.calledEnsureDomainContainsView(EnsureViewRequst(domainUdk = domainUdk, viewUdk = btView.udk))
-    val domain = catalog.findDomainByUdk(domainUdk) match {
-      case Failure(ex) =>
-        requestLog.finishedEnsureDomainContainsView(EnsureViewRequst(ruid, domainUdk, btView.udk, tStatus.ExceptionStatus, ex))
-        return ViewResponse(ex)
-      case Success(domain) => domain
-    }
+    try {
+      val domain = catalog.findDomainByUdk(domainUdk) match {
+        case Failure(ex) =>
+          requestLog.finishedEnsureDomainContainsView(EnsureViewRequst(ruid, domainUdk, btView.udk, tStatus.ExceptionStatus, ex))
+          return ViewResponse(ex)
+        case Success(domain) => domain
+      }
 
-    val view = views.fromThriftView(domain.pk, btView)
-    catalog.ensureViewInDomain(domainUdk, view) match {
-      case Failure(ex) =>
+      val view = views.fromThriftView(domain.pk, btView)
+      catalog.ensureViewInDomain(domainUdk, view) match {
+        case Failure(ex) =>
+          requestLog.finishedEnsureDomainContainsView(EnsureViewRequst(ruid, domainUdk, btView.udk, tStatus.ExceptionStatus, ex))
+          ViewResponse(ex)
+        case Success(view) =>
+          requestLog.finishedEnsureDomainContainsView(EnsureViewRequst(ruid, domainUdk, btView.udk, tStatus.SuccessStatus))
+          ViewResponse(domainUdk, view)
+      }
+    } catch safely {
+      case ex =>
         requestLog.finishedEnsureDomainContainsView(EnsureViewRequst(ruid, domainUdk, btView.udk, tStatus.ExceptionStatus, ex))
         ViewResponse(ex)
-      case Success(view) =>
-        requestLog.finishedEnsureDomainContainsView(EnsureViewRequst(ruid, domainUdk, btView.udk, tStatus.SuccessStatus))
-        ViewResponse(domainUdk, view)
     }
   }
 
@@ -148,7 +160,7 @@ case class WaveSupervisorThriftResponder(catalog: CatalogService, agent: AgentSe
 
     val (domain, views) = catalog.findDomainWithViewsByUdk(domainUdk) match {
       case Failure(ex) =>
-      requestLog.finishedExecuteQuery(request.copy(status = tStatus.ExceptionStatus, exception = ex))
+        requestLog.finishedExecuteQuery(request.copy(status = tStatus.ExceptionStatus, exception = ex))
         return QueryResponse(ex)
       case Success(domainAndViews) => domainAndViews
     }

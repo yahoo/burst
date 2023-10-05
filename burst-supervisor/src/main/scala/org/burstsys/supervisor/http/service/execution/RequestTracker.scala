@@ -19,7 +19,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 trait RequestTracker {
-  def requestStarted(guid: VitalsUid, source: String, over: FabricOver, call: Option[FabricCall]): VitalsUid
+  def requestStarted(guid: VitalsUid, traceId: String, source: String, over: FabricOver, call: Option[FabricCall]): VitalsUid
 
   def requestSucceeded(guid: VitalsUid): VitalsUid
 
@@ -70,9 +70,6 @@ private[execution] final class RequestKey(val guid: VitalsUid, val startTime: Lo
 object RequestKey {
   def apply(guid: VitalsUid): RequestKey = new RequestKey(guid)
 
-  private[execution] val builder = new function.Function[VitalsUid, RequestKey] {
-    override def apply(guid: VitalsUid): RequestKey = RequestKey(guid)
-  }
 }
 
 class RequestTrackerContext extends RequestTracker {
@@ -124,7 +121,7 @@ class RequestTrackerContext extends RequestTracker {
   })
   cleanup.start
 
-  private def findKey(guid: VitalsUid): RequestKey = requestKeys.computeIfAbsent(guid, RequestKey.builder)
+  private def findKey(guid: VitalsUid): RequestKey = requestKeys.computeIfAbsent(guid, _ => RequestKey(guid))
 
   private def requestFinished(guid: VitalsUid, state: FabricResultStatus, message: String): VitalsUid = this.synchronized {
     requests.get(findKey(guid)) match {
@@ -170,10 +167,8 @@ class RequestTrackerContext extends RequestTracker {
 
   override def lastReset: Long = _lastReset
 
-  override def requestStarted(guid: VitalsUid, source: String, over: FabricOver, call: Option[FabricCall]): VitalsUid = this.synchronized {
-    val request = requests.computeIfAbsent(findKey(guid), new function.Function[RequestKey, RequestState] {
-      override def apply(t: RequestKey): RequestState = RequestState(guid, over, call)
-    })
+  override def requestStarted(guid: VitalsUid, traceId: String, source: String, over: FabricOver, call: Option[FabricCall]): VitalsUid = this.synchronized {
+    val request = requests.computeIfAbsent(findKey(guid), _ => RequestState(guid, traceId, over, call))
     val trimmed = source.trim
     if (request.source.isEmpty || request.source.last != trimmed)
       request.source += trimmed

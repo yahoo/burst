@@ -138,7 +138,7 @@ abstract class FabricWaveCacheLifecycleSpec extends FabricWaveSupervisorWorkerBa
           case Failure(t) =>
             FAIL(t)
           case Success(wave) =>
-            supervisorContainer.execution.executionWaveOp(wave) onComplete {
+            supervisorContainer.execution.dispatchExecutionWave(wave) onComplete {
               case Failure(t) =>
                 FAIL(t)
               case Success(gather) =>

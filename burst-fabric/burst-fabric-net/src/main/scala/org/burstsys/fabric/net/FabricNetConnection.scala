@@ -2,10 +2,10 @@
 package org.burstsys.fabric.net
 
 import io.netty.buffer.ByteBuf
-import org.burstsys.fabric.net.transmitter.FabricNetTransmitter
 import org.burstsys.fabric.topology.model.node.FabricNode
 import io.netty.channel.Channel
 import org.burstsys.fabric.net.message.FabricNetMsgType
+import org.burstsys.fabric.net.transceiver.FabricNetTransmitter
 
 /**
   * Each connection between ''server'' and ''client'' has a 1:1 pair of connection objects, one

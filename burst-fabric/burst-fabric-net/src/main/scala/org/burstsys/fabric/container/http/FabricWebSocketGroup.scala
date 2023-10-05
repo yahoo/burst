@@ -252,7 +252,8 @@ class WebSocketGroupContext(url: String, listener: FabricWebSocketListener)
       listener.onWebSocketReceive(this, websocket, json)
       @nowarn("msg=the type test for.*?has type parameters eliminated by erasure")
       val _ = json match {
-        case map: Map[String, Any] => // cast removed by erasure, but json implies that if this _is_ a map it must be [String, Any]
+        // cast removed by erasure, but json implies that if this _is_ a map it must be [String, Any]
+        case map:  Map[String, Any] =>
           map.get("action") match {
             case Some(action: String) =>
               listener.onWebSocketAction(this, websocket, action, map)

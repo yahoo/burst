@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.agent.event
 
+import io.opentelemetry.api.trace.Span
 import org.burstsys.agent.AgentServiceContext
 import org.burstsys.fabric.wave.execution.model.execute.parameters.FabricCall
 import org.burstsys.fabric.wave.execution.model.pipeline.publishPipelineEvent
@@ -21,7 +22,8 @@ trait AgentEventTalker extends AnyRef with AgentEventListener {
 
   final override
   def onAgentRequestBegin(guid: VitalsUid, source: String, over: FabricOver, call: Option[FabricCall]): Unit = {
-    publishAgentEvent(AgentRequestStarted(guid, source, over, call))
+    val traceId = Span.current.getSpanContext.getTraceId
+    publishAgentEvent(AgentRequestStarted(guid, traceId, source, over, call))
   }
 
   final override

@@ -2,7 +2,6 @@
 package org.burstsys.api
 
 import java.net.InetSocketAddress
-
 import org.burstsys.vitals.{VitalsService, errors}
 import org.burstsys.vitals.errors.{VitalsException, messageFromException, safely}
 import com.twitter.finagle.netty4.ssl.server.Netty4ServerEngineFactory
@@ -10,6 +9,7 @@ import com.twitter.finagle.ssl._
 import com.twitter.finagle.ssl.server.SslServerConfiguration
 import com.twitter.finagle.thrift.ThriftService
 import com.twitter.finagle.{ListeningServer, Thrift}
+import org.burstsys.tesla
 
 import scala.reflect.ClassTag
 import org.burstsys.vitals.logging._
@@ -45,6 +45,7 @@ abstract class BurstApiServer[S <: ThriftService : ClassTag] extends VitalsServi
 
     try {
       var serverBuilder = Thrift.server
+        .withExecutionOffloaded(tesla.thread.request.teslaRequestExecutorService)
         .withSession.maxLifeTime(maxConnectionLifeTime)
         .withSession.maxIdleTime(maxConnectionIdleTime)
         .withRequestTimeout(apiRequestTimeout)

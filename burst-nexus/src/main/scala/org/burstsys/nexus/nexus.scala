@@ -6,7 +6,7 @@ import org.burstsys.nexus.client.NexusClient
 import org.burstsys.nexus.client.NexusClientReporter
 import org.burstsys.nexus.server.NexusServer
 import org.burstsys.nexus.server.NexusServerReporter
-import org.burstsys.nexus.transmitter.NexusTransmitter
+import org.burstsys.nexus.transceiver.NexusTransmitter
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.net._
 import org.burstsys.vitals.reporter.VitalsReporter

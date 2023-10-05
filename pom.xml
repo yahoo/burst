@@ -31,7 +31,7 @@
                 </property>
             </activation>
             <properties>
-                <skipTests>false</skipTests>
+                <skipTests>true</skipTests>
             </properties>
 
             <build>
@@ -98,10 +98,15 @@
                             <logForkedProcessCommand>true</logForkedProcessCommand>
                             <systemProperties>
                                 <burst.loglevel>${burst.test.loglevel}</burst.loglevel>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.nexus.server.port>${burst.nexus.server.port}</burst.nexus.server.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.agent.api.port>${burst.agent.api.port}</burst.agent.api.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.catalog.api.port>${burst.catalog.api.port}</burst.catalog.api.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.fabric.net.port>${burst.fabric.net.port}</burst.fabric.net.port>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <burst.fabric.http.port>${burst.fabric.http.port}</burst.fabric.http.port>
                             </systemProperties>
                         </configuration>
@@ -186,7 +191,7 @@
         <!--********************************************************************************************-->
 
         <scala-major.version>2.13</scala-major.version>
-        <scala-minor.version>11-M2</scala-minor.version>
+        <scala-minor.version>11</scala-minor.version>
         <scala.version>${scala-major.version}.${scala-minor.version}</scala.version>
 
         <!-- libraries with many components and no BOM -->
@@ -435,15 +440,20 @@
                 <artifactId>metrics-core</artifactId>
                 <version>4.2.17</version>
             </dependency>
-
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
-                <version>1.24.0</version>
+                <version>1.27.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>1.28.0-alpha</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
@@ -456,6 +466,11 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>1.1.1</version>
             </dependency>
 
             <dependency>

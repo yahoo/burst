@@ -3,12 +3,20 @@ package org.burstsys.vitals.reporter
 
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.{Attributes, AttributesBuilder}
-import io.opentelemetry.api.metrics.Meter
+import io.opentelemetry.api.metrics.{DoubleHistogramBuilder, LongCounterBuilder, LongHistogramBuilder, LongUpDownCounterBuilder, Meter}
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.net
+import org.burstsys.vitals.{burstPackage, net}
 
 package object metric extends VitalsLogger {
-  lazy val meter: Meter = GlobalOpenTelemetry.meterBuilder("org.burstsys").build()
+  lazy val meter: Meter = GlobalOpenTelemetry.meterBuilder(burstPackage).build()
+
+  def upDownCounter(name: String): LongUpDownCounterBuilder = meter.upDownCounterBuilder(s"$burstPackage.$name")
+
+  def counter(name: String): LongCounterBuilder = meter.counterBuilder(s"$burstPackage.$name")
+
+  def longHistogram(name: String): LongHistogramBuilder = meter.histogramBuilder(s"$burstPackage.$name").ofLongs()
+
+  def doubleHistogram(name: String): DoubleHistogramBuilder = meter.histogramBuilder(s"$burstPackage.$name")
 
   /**
    * we keep a double input value scaled up as a long in the histogram

@@ -24,7 +24,7 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
 
   final
   def startPartTender: Future[Unit] = {
-    val builder: Option[StringBuilder] = if (part.log.isInfoEnabled) Some(new StringBuilder) else None
+    val builder: Option[StringBuilder] = if (part.log.isDebugEnabled) Some(new StringBuilder) else None
     TeslaRequestFuture {
       Thread.currentThread setName s"tesla-$partName-tender"
       while (true) {
@@ -49,7 +49,7 @@ trait TeslaFactoryTender[TenderPart, TenderPartPool <: TeslaPartPool[TenderPart]
         }
         if (builder.isDefined) {
           builder.get ++= s"*****************************************\n"
-          part.log info builder.get.result()
+          part.log debug builder.get.result()
         }
       }
     }

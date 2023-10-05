@@ -1,9 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.vitals.test
 
+import io.opentelemetry.context.Context
+
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeoutException}
-
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.errors.messageFromException
 import org.burstsys.vitals.reporter.instrument._
@@ -33,7 +34,9 @@ object VitalsTest {
     val completedTasks = new AtomicLong
     val taskIds = new AtomicLong
     val jobStart = System.nanoTime
-    implicit val ex: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(concurrency))
+    implicit val ex: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(
+      Context.taskWrapping(Executors.newFixedThreadPool(concurrency))
+    )
     val taskQueue = new LinkedBlockingQueue[VitalsTestTask]
 
     for (i <- 0 until concurrency) {

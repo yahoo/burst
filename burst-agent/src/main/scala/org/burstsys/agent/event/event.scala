@@ -21,7 +21,7 @@ package object event {
    * @param source
    * @param over
    */
-  final case class AgentRequestStarted(guid: VitalsUid, source: String, over: FabricOver, call: Option[FabricCall]) extends AgentRequestEvent
+  final case class AgentRequestStarted(guid: VitalsUid, traceId: String, source: String, over: FabricOver, call: Option[FabricCall]) extends AgentRequestEvent
 
   /**
    * the success completion of the Agent request execution lifecycle

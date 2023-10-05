@@ -2,7 +2,7 @@
 package org.burstsys.supervisor.test.rest
 
 import org.burstsys.client.client.BurstSyncClient
-import org.burstsys.client.client.model.BParameter
+import org.burstsys.client.client.model.{BDomain, BParameter, BView}
 import org.burstsys.client.client.model.results.BCell
 import org.burstsys.fabric
 import org.burstsys.supervisor.test.support.BurstSupervisorContainterSpec
@@ -101,4 +101,41 @@ class ThriftSpec extends BurstSupervisorContainterSpec {
     row(2).datum.doubleVal() should equal(10)
   }
 
+  it should "ensure domain exists" in {
+    val uid = newBurstUid
+    val domain = BDomain.withUdk(uid)
+      .withMoniker("no-views-test")
+      .withViews(null)
+      .build()
+    val domainResponse = client.ensureDomain(domain)
+    domainResponse.getPk.toLong should be >=(0L)
+    domainResponse.getViews.size() should equal(0)
+  }
+
+  it should "create a domain and view" in {
+    val domainUid = newBurstUid
+    val viewUid = newBurstUid
+    val domain = BDomain.withUdk(domainUid)
+      .withMoniker("no-views-test")
+      .withViews(List(
+        BView.withUdk(domainUid, viewUid)
+          .withMoniker("no-views-test-view")
+          .withStoreProperties(Map.empty[String, String].asJava)
+          .withViewMotif("hydra")
+          .withViewProperties(Map.empty[String, String].asJava)
+          .withLabels(Map.empty[String, String].asJava)
+          .withSchemaName(schema)
+          .build()
+      ).asJava)
+      .build()
+    val domainResponse = client.ensureDomain(domain)
+    domainResponse.getPk.toLong should be >=(0L)
+    domainResponse.getUdk shouldEqual domainUid
+
+    domainResponse.getViews.size() should equal(1)
+    val view = domainResponse.getViews.get(0)
+    view.getPk.toLong should be >=(0L)
+    view.getUdk shouldEqual viewUid
+    view.getDomainUdk shouldEqual domainUid
+  }
 }

@@ -1,36 +1,40 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.supervisor.http.service.burnin
 
+import io.opentelemetry.api.common.AttributeKey
 import org.burstsys.agent.AgentService
 import org.burstsys.catalog.CatalogService
 import org.burstsys.catalog.model.domain.CatalogDomain
 import org.burstsys.catalog.model.view.CatalogView
-import org.burstsys.fabric.wave.data.model.generation.key.FabricGenerationKey
-import org.burstsys.fabric.wave.data.model.ops
-import org.burstsys.fabric.wave.data.model.ops.{FabricCacheEvict, FabricCacheFlush}
+import org.burstsys.fabric.wave.data.model.ops.FabricCacheFlush
 import org.burstsys.fabric.wave.execution.model.result.status
 import org.burstsys.fabric.wave.metadata.model.domain.FabricDomain
 import org.burstsys.fabric.wave.metadata.model.over.FabricOver
 import org.burstsys.fabric.wave.metadata.model.view.FabricView
+import org.burstsys.supervisor.http.service.burnin.BurnInRunBatch.BurnInLabel
+import org.burstsys.supervisor.http.service.burnin.BurnInWorker.{guidSpanKey, querySpanKey}
 import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType
-import org.burstsys.supervisor.http.service.provider.BurnInBatch.DurationType.ByDuration
 import org.burstsys.supervisor.http.service.provider.BurnInDatasetDescriptor.LookupType
 import org.burstsys.supervisor.http.service.provider.{BurnInBatch, BurnInDatasetDescriptor, BurnInEvent, BurnInLogEvent}
+import org.burstsys.supervisor.trek.{BurnInDatasetTrek, BurnInQueryTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.errors.{VitalsException, safely}
 import org.burstsys.vitals.uid
 
-import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentSkipListMap, TimeoutException}
 import java.util.logging.Level
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
+import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
 import scala.util.control.Breaks._
 import scala.util.{Failure, Success, Try}
 
 object BurnInRunBatch {
+  val BurnInLabel = "Burn-In"
+
   /**
    * - look up views (w/associated domain) by pk/udk
    * - dedup domains by view
@@ -54,11 +58,11 @@ object BurnInRunBatch {
 
     val datasets = ArrayBuffer[BurnInRunDataset]()
     val counter = new AtomicLong(initialCounter)
-    val domainDedupe = mutable.Map[Long /* domain pk */ , ArrayBuffer[Long /* view pk */ ]]()
+    val domainDedupe = new ConcurrentSkipListMap[Long /* domain pk */ , ArrayBuffer[Long /* view pk */ ]]()
     val generated = mutable.Map[Long /* counter */ , BurnInDatasetDescriptor]()
     val loadQueries = mutable.Map[Long, String]()
     val loadIntervals = mutable.Map[Long, Option[Int]]()
-    def nextGeneratedId: Long = counter.getAndAdd(-1)
+    def nextGeneratedId(): Long = counter.getAndAdd(-1)
 
     /*
      * - look up views (w/associated domain) by pk/udk
@@ -93,32 +97,32 @@ object BurnInRunBatch {
               views.map(v => (v.domainFk, v.pk))
           }
         case LookupType.Generate =>
-          val domainPk = nextGeneratedId
+          val domainPk = nextGeneratedId()
           val views = ArrayBuffer[(Long, Long)]()
           for (_ <- 0 until dataset.copies.getOrElse(1)) {
             generated(domainPk) = dataset
-            views += ((domainPk, nextGeneratedId))
+            views += ((domainPk, nextGeneratedId()))
           }
           views.toArray
       }
 
       for ((domainPk, viewPk) <- views) {
-        val views = domainDedupe.getOrElseUpdate(domainPk, ArrayBuffer.empty)
+        val viewsForDomain = domainDedupe.computeIfAbsent(domainPk, _ => ArrayBuffer.empty[Long])
         loadIntervals(viewPk) = dataset.reloadEvery
         dataset.loadQuery.foreach(loadQueries(viewPk) = _)
-        views += viewPk
+        viewsForDomain += viewPk
       }
     }
 
-    for (domainWithViews <- domainDedupe) {
+    counter.set(initialCounter)
+    for (domainWithViews <- domainDedupe.asScala) {
       val domainPk = domainWithViews._1
       val viewPks = domainWithViews._2
 
-      counter.set(initialCounter)
-      val datasetId = nextGeneratedId
+      val datasetId = nextGeneratedId()
       val (domain: FabricDomain, views: Array[FabricView]) = if (domainPk < 0) {
         val dataset = generated(domainPk)
-        (dataset.domain.get.toFabric(datasetId), viewPks.map(_ => dataset.view.get.toFabric(nextGeneratedId, datasetId)).toArray)
+        (dataset.domain.get.toFabric(datasetId), viewPks.map(_ => dataset.view.get.toFabric(nextGeneratedId(), datasetId)).toArray)
       } else {
         val domain = catalog.findDomainByPk(domainPk) match {
           case Failure(exception) =>
@@ -133,7 +137,7 @@ object BurnInRunBatch {
               val message = s"Failed to load view pk=$viewPk. ${exception.getMessage}"
               logError(message)
               throw VitalsException(message)
-            case Success(view) => view.copy(pk = nextGeneratedId, domainFk = datasetId)
+            case Success(view) => view.copy(pk = nextGeneratedId(), domainFk = datasetId)
           }
         })
         (domain, views)
@@ -141,7 +145,8 @@ object BurnInRunBatch {
 
       for (view <- views) {
         val reloadInterval = loadIntervals(view.viewKey)
-        datasets += BurnInRunDataset(domain, view, loadQueries.getOrElse(view.viewKey, batch.defaultLoadQuery.get), batch.queries, reloadInterval)
+        val loadQuery = loadQueries.getOrElse(view.viewKey, batch.defaultLoadQuery.get)
+        datasets += BurnInRunDataset(domain, view, loadQuery, batch.queries, reloadInterval)
       }
     }
 
@@ -178,16 +183,20 @@ case class BurnInRunBatch(
       return
     }
     _didCreateDatasets = true
+    log debug ("Creating datasets {}", datasets)
     registerLogEvent(s"Creating ${datasets.length} temporary datasets")
+    val createdDomains = ConcurrentHashMap.newKeySet[Long](datasets.length)
     for (dataset <- datasets) {
-      registerLogEvent(s"Inserting domain ${dataset.domain.domainKey}")
-      catalog.insertDomainWithPk(CatalogDomain(dataset.domain, s"Burn-In Domain ${dataset.domain.domainKey}", udk = None, Some(Map("Burn-In" -> "")))) match {
-        case Failure(e) => registerLogEvent(s"Failed to insert domain pk=${dataset.domain.domainKey}: ${e.getMessage}", Level.WARNING)
-        case Success(_) =>
+      if (!createdDomains.contains(dataset.domain.domainKey)) {
+        registerLogEvent(s"Inserting domain ${dataset.domain.domainKey}")
+        catalog.insertDomainWithPk(CatalogDomain(dataset.domain, s"Burn-In Domain ${dataset.domain.domainKey}", udk = None, Some(Map(BurnInLabel -> "")))) match {
+          case Failure(e) => registerLogEvent(s"Failed to insert domain pk=${dataset.domain.domainKey}: ${e.getMessage}", Level.INFO)
+          case Success(_) => createdDomains.add(dataset.domain.domainKey)
+        }
       }
       registerLogEvent(s"Inserting view ${dataset.view.viewKey}")
-      catalog.insertViewWithPk(CatalogView(dataset.view, "moniker", udk = None, Some(Map("Burn-In" -> "")))) match {
-        case Failure(e) => registerLogEvent(s"Failed to insert view pk=${dataset.view.viewKey}: ${e.getMessage}", Level.WARNING)
+      catalog.insertViewWithPk(CatalogView(dataset.view, "moniker", udk = None, Some(Map(BurnInLabel -> "")))) match {
+        case Failure(e) => registerLogEvent(s"Failed to insert view pk=${dataset.view.viewKey}: ${e.getMessage}", Level.INFO)
         case Success(_) => dataset.ready = true
       }
     }
@@ -220,7 +229,7 @@ case class BurnInRunBatch(
     }
   }
 
-  private def shouldContinueIterations: Boolean = _totalDatasetCounter.get() < config.desiredDatasetIterations.get
+  private def shouldContinueIterations: Boolean = _totalDatasetCounter.get() <= config.desiredDatasetIterations.get
 
   private def shouldContinueDuration: Boolean = System.currentTimeMillis() < startTimeMillis + config.desiredDuration.get.toMillis
 
@@ -246,6 +255,11 @@ case class BurnInRunBatch(
 
 }
 
+object BurnInWorker {
+  private val guidSpanKey = AttributeKey.stringKey("guid")
+  private val querySpanKey = AttributeKey.stringKey("query")
+}
+
 case class BurnInWorker(
                          workerId: Int,
                          agent: AgentService,
@@ -259,39 +273,47 @@ case class BurnInWorker(
     TeslaRequestFuture {
       var result = BurnInRunBatchStats(BatchCompletedNormally)
       while (shouldContinue()) breakable {
-        val dataset = nextDataset()
-        if (!dataset.ready) {
-          break()
-        }
+        BurnInDatasetTrek.begin() { stage =>
+          val dataset = nextDataset()
+          if (!dataset.ready) {
+            break()
+          }
 
-        val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
-        flushDataset(dataset)
-        registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
-        if (!shouldContinue()) {
-          break()
-        }
-        runQuery(dataset, dataset.loadQuery, s"${guidBase}_Load") match {
+          val guidBase = s"BurnIn_d${Math.abs(dataset.view.domainKey)}_v${Math.abs(dataset.view.viewKey)}"
+          flushDataset(dataset)
+          registerLogEvent(s"Loading dataset view=${dataset.view.viewKey}", Level.FINE)
+          if (!shouldContinue()) {
+            BurnInDatasetTrek.end(stage)
+            break()
+          }
 
-          case Failure(exception) =>
-            registerLogEvent(s"Failed to load view=${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
+          runQuery(dataset, dataset.loadQuery, s"${guidBase}_Load") match {
 
-          case Success(loadStats) =>
-            registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}", Level.FINE)
-            result = result.merge(loadStats)
-            //            reportStats(loadStats)
-            for (queryIdx <- dataset.queries.indices) {
-              val query = dataset.queries(queryIdx)
-              if (!shouldContinue()) {
-                break()
+            case Failure(exception) =>
+              stage.addEvent("Load failed")
+              BurnInDatasetTrek.fail(stage, exception)
+              registerLogEvent(s"Failed to load view=${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
+
+            case Success(loadStats) =>
+              registerLogEvent(s"Loaded dataset, beginning queries view=${dataset.view.viewKey}", Level.FINE)
+              result = result.merge(loadStats)
+              //            reportStats(loadStats)
+              for (queryIdx <- dataset.queries.indices) {
+                val query = dataset.queries(queryIdx)
+                if (!shouldContinue()) {
+                  BurnInDatasetTrek.end(stage)
+                  break()
+                }
+                runQuery(dataset, query, s"${guidBase}_Query$queryIdx") match {
+                  case Failure(exception) =>
+                    registerLogEvent(s"Failed to execute query  $queryIdx on view ${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
+                  case Success(queryStats) =>
+                    result = result.merge(queryStats)
+                  //                  reportStats(queryStats)
+                }
               }
-              runQuery(dataset, query, s"${guidBase}_Query$queryIdx") match {
-                case Failure(exception) =>
-                  registerLogEvent(s"Failed to execute query  $queryIdx on view ${dataset.view.viewKey}: ${exception.getMessage}", Level.WARNING)
-                case Success(queryStats) =>
-                  result = result.merge(queryStats)
-                //                  reportStats(queryStats)
-              }
-            }
+              BurnInDatasetTrek.end(stage)
+          }
         }
       }
       result
@@ -308,37 +330,49 @@ case class BurnInWorker(
     }
     dataset.willRunQuery()
 
-    val over = FabricOver(dataset.domain.domainKey, dataset.view.viewKey)
-    val future = agent.execute(query, over, guid)
+    BurnInQueryTrek.begin(guid) { stage =>
+      stage.span.setAttribute(guidSpanKey, guid)
+      stage.span.setAttribute(querySpanKey, query)
+      val over = FabricOver(dataset.domain.domainKey, dataset.view.viewKey)
+      val future = agent.execute(query, over, guid)
 
-    while (shouldContinue() && !future.isCompleted) {
-      try {
-        Await.ready(future, 5.seconds)
-      } catch safely {
-        case _: TimeoutException => // loop again if the future isn't ready yet
+      while (shouldContinue() && !future.isCompleted) {
+        try {
+          Await.ready(future, 5.seconds)
+        } catch safely {
+          case _: TimeoutException => // loop again if the future isn't ready yet
+        }
       }
-    }
 
-    future.value match {
-      case Some(value) =>
-        value.flatMap(result => result.resultStatus match {
-          case status.FabricSuccessResultStatus
-               | status.FabricNoDataResultStatus =>
-            Success(BurnInRunBatchStats(result))
+      future.value match {
+        case Some(value) =>
+          value.flatMap(result => result.resultStatus match {
+            case status.FabricSuccessResultStatus
+                 | status.FabricNoDataResultStatus =>
+              BurnInQueryTrek.end(stage)
+              Success(BurnInRunBatchStats(result))
 
-          case status.FabricInProgressResultStatus
-               | status.FabricUnknownResultStatus
-               | status.FabricFaultResultStatus
-               | status.FabricInvalidResultStatus
-               | status.FabricTimeoutResultStatus
-               | status.FabricNotReadyResultStatus
-               | status.FabricStoreErrorResultStatus =>
-            Failure(VitalsException(s"Query execution failed: ${result.resultMessage}"))
+            case status.FabricInProgressResultStatus
+                 | status.FabricUnknownResultStatus
+                 | status.FabricFaultResultStatus
+                 | status.FabricInvalidResultStatus
+                 | status.FabricTimeoutResultStatus
+                 | status.FabricNotReadyResultStatus
+                 | status.FabricStoreErrorResultStatus =>
+              val exception = VitalsException(s"Query execution failed: ${result.resultMessage}")
+              BurnInQueryTrek.fail(stage, exception)
+              Failure(exception)
 
-          case _ => ???
-        })
-      case None =>
-        Failure(VitalsException("Query execution incomplete"))
+            case _ =>
+              val exception = VitalsException(s"Query execution unknown status: ${result.resultMessage}")
+              BurnInQueryTrek.fail(stage, exception)
+              Failure(exception)
+          })
+        case None =>
+          val exception = VitalsException("Query execution incomplete")
+          BurnInQueryTrek.fail(stage, exception)
+          Failure(exception)
+      }
     }
   }
 

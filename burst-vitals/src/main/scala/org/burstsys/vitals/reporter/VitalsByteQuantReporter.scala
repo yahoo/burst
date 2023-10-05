@@ -16,13 +16,13 @@ abstract class VitalsByteQuantReporter(prefix: String, quantum: String) extends 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  private val _currentAllocCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_alloc_counter")
+  private val _currentAllocCounter: LongUpDownCounter = metric.upDownCounter(s"${dName}_alloc_counter")
     .setDescription(s"$prefix $quantum blocks alloc'ed")
     .setUnit(quantum)
     .build()
 
 
-  private val _currentByteCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_bytes_counter")
+  private val _currentByteCounter: LongUpDownCounter = metric.upDownCounter(s"${dName}_bytes_counter")
     .setDescription(s"$prefix $quantum bytes alloc'ed")
     .setUnit(quantum)
     .build()

@@ -2,6 +2,7 @@
 package org.burstsys.vitals.reporter.metric
 
 import io.opentelemetry.api.metrics.DoubleHistogram
+import org.burstsys.vitals.reporter.metric
 
 import scala.language.implicitConversions
 
@@ -40,7 +41,7 @@ class VitalsReporterFloatValueMetricContext(name: String) extends VitalsReporter
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _valueHist: DoubleHistogram = meter.histogramBuilder(s"${name}_histo")
+  val _valueHist: DoubleHistogram = metric.doubleHistogram(s"${name}_histo")
     .setDescription(s"$name histogram")
     .setUnit("units")
     .build()

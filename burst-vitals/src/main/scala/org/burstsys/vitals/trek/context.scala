@@ -2,33 +2,39 @@ package org.burstsys.vitals.trek
 
 import io.netty.buffer.{ByteBuf, Unpooled}
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.context.Context
 import io.opentelemetry.context.propagation.{TextMapGetter, TextMapSetter}
+import io.opentelemetry.context.{Context, Scope}
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
 object context {
 
-  private final val LAST_TAG:Byte = -1
-  private final val PROPERTY_TAG:Byte = -2
+  private final val LAST_TAG: Byte = -1
+  private final val PROPERTY_TAG: Byte = -2
 
-  def injectContext(msg: ByteBuf): Unit = {
+  def injectContext(msg: AnyRef, buffer: ByteBuf): Unit = {
     val prop = GlobalOpenTelemetry.getPropagators.getTextMapPropagator
-    prop.inject(Context.current(), msg, msgSetter)
-    msg.writeByte(LAST_TAG)
+    if (log.isTraceEnabled())
+      log trace s"inject context msg=$msg msg=$buffer context=${Context.current()} prop=$prop"
+    prop.inject(Context.current(), buffer, msgSetter)
+    buffer.writeByte(LAST_TAG)
   }
 
-  def extractContext(msg: ByteBuf): Unit = {
-    GlobalOpenTelemetry.getPropagators.getTextMapPropagator.extract(Context.current(), msg, msgGetter)
-    skipContext(msg)
+  def extractContext(msg: AnyRef, buffer: ByteBuf): Scope = {
+    val prop = GlobalOpenTelemetry.getPropagators.getTextMapPropagator
+    if (log.isTraceEnabled())
+      log trace s"extract context msg=$msg msg=$buffer context=${Context.current()} prop=$prop"
+    val context: Context = prop.extract(Context.current(), buffer, msgGetter)
+    skipContext(buffer)
+    context.makeCurrent()
   }
 
-  def extractContext(msg: Array[Byte]): Array[Byte] = {
-    val buffer = Unpooled.wrappedBuffer(msg)
-    this.extractContext(buffer)
+  def extractContext(msg: AnyRef, arry: Array[Byte]): Array[Byte] = {
+    val buffer = Unpooled.wrappedBuffer(arry)
+    this.extractContext(msg, buffer)
     val ri = buffer.readerIndex()
-    msg.slice(ri, msg.length)
+    arry.slice(ri, arry.length)
   }
 
   private def skipContext(msg: ByteBuf): Unit = {
@@ -62,6 +68,7 @@ object context {
   }
 
   private val msgGetter = new MsgGetter()
+
   private class MsgGetter extends TextMapGetter[ByteBuf] {
     override def keys(msg: ByteBuf): java.lang.Iterable[String] = {
       // assume we are at the beginning of the context
@@ -83,7 +90,7 @@ object context {
 
     override def get(msg: ByteBuf, key: String): String = {
       val ri = msg.readerIndex()
-      var getValue:String = null
+      var getValue: String = null
       var tag = msg.readByte()
 
       while (tag != LAST_TAG) {
@@ -98,13 +105,20 @@ object context {
         tag = msg.readByte()
       }
       msg.readerIndex(ri) // return to where we started
+      if (log.isTraceEnabled()) {
+        log trace s"context get key=$key value=$getValue msg=$msg"
+      }
       getValue
     }
   }
 
   private val msgSetter = new MsgSetter()
+
   private class MsgSetter extends TextMapSetter[ByteBuf] {
     override def set(carrier: ByteBuf, key: String, value: String): Unit = {
+      if (log.isTraceEnabled()) {
+        log trace s"context set key=$key value=$value msg=$carrier"
+      }
       carrier.writeByte(PROPERTY_TAG)
       encodeAsciiStringToByteBuf(key, carrier)
       encodeAsciiStringToByteBuf(value, carrier)

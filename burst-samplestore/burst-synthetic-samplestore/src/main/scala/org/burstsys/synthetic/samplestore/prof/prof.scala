@@ -1,5 +1,5 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.synthetic.samplestore
+package org.burstsys.synthetic.samplestore.prof
 
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
@@ -20,22 +20,26 @@ import scala.concurrent.{Await, Future}
 
 object prof extends VitalsLogger {
   val count = 100000000
+  private val waitDuration = 5.days
 
   def main(args: Array[String]): Unit = {
     VitalsLog.configureLogging("synthetic-samplestore", consoleOnly = true)
-    //Configurator.setLevel(org.burstsys.tesla.part.log.getName, Level.TRACE)
-    //Configurator.setLevel(org.burstsys.brio.press.pipeline.log.getName, Level.TRACE) // see press queue
+    Configurator.setLevel(org.burstsys.tesla.part.log.getName, Level.INFO)
+    // Configurator.setLevel(org.burstsys.samplestore.log, Level.DEBUG) // see press queue
     // Configurator.setLevel(org.burstsys.brio.flurry.provider.unity.log.getName, Level.TRACE) // see data created
     // Configurator.setLevel(org.burstsys.tesla.buffer.log.getName, Level.TRACE)
     // Configurator.setLevel(org.burstsys.brio.dictionary.factory.log.getName, Level.TRACE) // see dictionary
 
     val props = Map(
       "synthetic.samplestore.press.dataset" -> "simple-unity",
-      "synthetic.samplestore.press.item.count" -> s"$count"
+      "synthetic.samplestore.press.item.count" -> s"$count",
+      "synthetic.samplestore.press.item.batchcount" -> "160",
+      "synthetic.samplestore.load.max.bytes" -> s"${10e12.toLong}",
+      "synthetic.samplestore.press.timeout" -> waitDuration.toString,
     )
     val stream = MockNexusStream("unity", props)
     val worker = SyntheticSampleSourceWorker()
-    Await.result(worker.feedStream(stream), 5.days)
+    Await.result(worker.feedStream(stream), waitDuration.plus(1.second))
   }
 
   private case class MockNexusStream(
@@ -61,11 +65,17 @@ object prof extends VitalsLogger {
 
     override def put(chunk: TeslaParcel): Unit = ???
 
+    override def putItemCount: Long = counter.get()
     private val counter = new java.util.concurrent.atomic.AtomicLong(0)
+
+    override def putBytesCount: Long = bytes.get()
+    private val bytes = new java.util.concurrent.atomic.AtomicLong(0)
+
     override def put(buffer: TeslaMutableBuffer): Unit = {
       val c = counter.incrementAndGet()
+      bytes.addAndGet(buffer.currentUsedMemory)
       if (c % 100000 == 0)
-        log info s"$c/$count(${((c.toDouble/count.toDouble)*1000.0).floor/10.0}%) buffer ${buffer.basePtr} put on stream"
+        log info s"$c/$count(${((c.toDouble/count.toDouble)*1000.0).floor/10.0}%) $putBytesCount bytes put on stream"
       tesla.buffer.factory.releaseBuffer(buffer)
     }
 
@@ -96,7 +106,9 @@ object prof extends VitalsLogger {
      *
      * @param limit the timeout used by the server
      */
-    override def timedOut(limit: Duration): Unit = ???
+    override def timedOut(limit: Duration): Unit = {
+      log error s"timed out after $limit"
+    }
 
     override def completeExceptionally(exception: Throwable): Unit = ???
 

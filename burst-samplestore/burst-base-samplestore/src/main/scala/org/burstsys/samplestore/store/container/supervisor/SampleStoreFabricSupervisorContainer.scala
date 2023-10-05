@@ -2,31 +2,25 @@
 package org.burstsys.samplestore.store.container.supervisor
 
 import org.burstsys.fabric.container.SupervisorLog4JPropertiesFileName
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainer
-import org.burstsys.fabric.container.supervisor.FabricSupervisorContainerContext
-import org.burstsys.fabric.container.supervisor.FabricSupervisorListener
-import org.burstsys.fabric.net.message.assess.FabricNetAssessRespMsg
-import org.burstsys.fabric.net.message.assess.FabricNetHeartbeatMsg
+import org.burstsys.fabric.container.supervisor.{FabricSupervisorContainer, FabricSupervisorContainerContext, FabricSupervisorListener}
+import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
 import org.burstsys.fabric.net.server.connection.FabricNetServerConnection
-import org.burstsys.fabric.net.FabricNetworkConfig
-import org.burstsys.fabric.net.message
+import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.topology.FabricTopologyWorker
 import org.burstsys.fabric.topology.supervisor.FabricTopologyListener
-import org.burstsys.samplesource.handler.SampleSourceHandlerRegistry
-import org.burstsys.samplesource.handler.SimpleSampleStoreApiServerDelegate
+import org.burstsys.samplesource.handler.{SampleSourceHandlerRegistry, SimpleSampleStoreApiServerDelegate}
 import org.burstsys.samplesource.service.MetadataParameters
-import org.burstsys.samplesource.SampleStoreTopology
-import org.burstsys.samplesource.SampleStoreTopologyProvider
-import org.burstsys.samplestore.api.{SampleStoreApiListener, SampleStoreApiServerDelegate, SampleStoreDataLocus}
+import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
+import org.burstsys.samplestore.api.{SampleStoreApiServerDelegate, SampleStoreDataLocus}
 import org.burstsys.samplestore.store.container._
 import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.{SampleStoreStatusEndpoint, SampleStoreViewRequestEndpoint}
 import org.burstsys.samplestore.store.container.supervisor.http.services.ViewGenerationRequestLogService
 import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
-import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataReqMsg
-import org.burstsys.samplestore.store.message.metadata.FabricStoreMetadataRespMsg
+import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
+import org.burstsys.samplestore.trek.{SampleStoreMetadataReqTrek, SampleStoreUpdateMetadataTrek}
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstLocMsg
@@ -117,17 +111,21 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   )
 
   override def updateMetadata(connection: FabricNetServerConnection, sourceName: String, metadata: MetadataParameters): Future[Unit] = {
-    connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
+    SampleStoreMetadataReqTrek.begin() { _ =>
+      connection.transmitDataMessage(FabricStoreMetadataReqMsg(connection.serverKey, connection.clientKey, sourceName, metadata))
+    }
   }
 
   override def updateMetadata(sourceName: String): Future[Unit] = {
-    val currentMetadata = SampleSourceHandlerRegistry.getSupervisor(sourceName).getBroadcastVars
-    val updateFutures = topology.healthyWorkers.flatMap{worker =>
-      topology.getWorker(worker).map{w =>
-        updateMetadata(w.connection, sourceName, currentMetadata)
+    SampleStoreUpdateMetadataTrek.begin() { _ =>
+      val currentMetadata = SampleSourceHandlerRegistry.getSupervisor(sourceName).getBroadcastVars
+      val updateFutures = topology.healthyWorkers.flatMap { worker =>
+        topology.getWorker(worker).map { w =>
+          updateMetadata(w.connection, sourceName, currentMetadata)
+        }
       }
+      Future.reduceLeft(updateFutures.toIndexedSeq) { (_, _) => () }
     }
-    Future.reduceLeft(updateFutures.toIndexedSeq){(_, _) => ()}
   }
 
   override def onNetMessage(connection: FabricNetServerConnection, messageId: message.FabricNetMsgType, buffer: Array[Byte]): Unit = {
@@ -218,7 +216,18 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
    *
    * @return Case classs that will be serialized to Json
    */
-  override def status(level: Int): AnyRef = {
-    SampleSourceHandlerRegistry.getSources.map(StoreInfo)
+  override def status(level: VitalsHostPort, attributes: VitalsPropertyMap): AnyRef = {
+    val showConf = if (attributes.contains("showConf"))
+      attributes.getOrElse("showConf", "false").toBoolean
+    else
+      false
+    Map[String, AnyRef](
+      s"sources (showConf=$showConf)" -> SampleSourceHandlerRegistry.getSources.map{i =>
+        if (showConf)
+          StoreInfo(i)
+        else
+          i
+      }
+    )
   }
 }

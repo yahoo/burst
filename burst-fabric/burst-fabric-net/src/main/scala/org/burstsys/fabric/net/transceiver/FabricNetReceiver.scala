@@ -1,14 +1,16 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.fabric.net.receiver
+package org.burstsys.fabric.net.transceiver
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.message._
 import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter}
-import org.burstsys.tesla.thread.request.{TeslaRequestCoupler, TeslaRequestFuture}
+import org.burstsys.fabric.trek.FabricNetReceive
+import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.trek.context.extractContext
 
 import scala.annotation.unused
 
@@ -55,31 +57,38 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
   override def channelRead0(ctx: ChannelHandlerContext, buffer: ByteBuf): Unit = {
     // gather basics
     @unused val _ = buffer.readInt() // first field is the message length
-    val messageTypeKey = buffer.readInt()
-    FabricNetReporter.onMessageRecv(buffer.capacity)
+    val scp = extractContext(this, buffer)
+    try {
+      val stage = FabricNetReceive.beginSync()
+      try {
+        val messageTypeKey = buffer.readInt()
+        stage.span.setAttribute(fabricMessageTypeKey, messageTypeKey)
+        FabricNetReporter.onMessageRecv(buffer.capacity)
+        val bytes: Array[Byte] = {
+          val oldPosition = buffer.nioBuffer().position()
+          val array = new Array[Byte](buffer.nioBuffer().remaining)
+          buffer.nioBuffer().get(array, 0, array.length)
+          buffer.nioBuffer().position(oldPosition)
+          array
+        }
 
-    TeslaRequestCoupler {
-      val messageId = FabricNetMsgType(messageTypeKey)
-      connection match {
-        case None =>
-          log warn burstStdMsg(s"FAB_NET_NO_CONNECTION $this $messageId")
-        case Some(connection) =>
-          val bytes: Array[Byte] = {
-            val oldPosition = buffer.nioBuffer().position()
-            val array = new Array[Byte](buffer.nioBuffer().remaining)
-            buffer.nioBuffer().get(array, 0, array.length)
-            buffer.nioBuffer().position(oldPosition)
-            array
+        TeslaRequestFuture {
+          val msgType = FabricNetMsgType(messageTypeKey)
+          connection match {
+            case None =>
+              val message = burstStdMsg(s"FAB_NET_NO_CONNECTION $this $msgType")
+              FabricNetReceive.fail(stage, VitalsException(message))
+              log warn message
+            case Some(connection) =>
+              FabricNetReceive.end(stage)
+              connection.onMessage(msgType, bytes)
           }
-          TeslaRequestFuture {
-            try {
-              connection.onMessage(messageId, bytes)
-            } catch safely {
-              case t: Throwable =>
-                log error(burstStdMsg(s"FAB_NET_RECEIVER_DISPATCH_FAIL $this", t), t)
-            }
-          }
-      }
-    }
+        }
+      } catch safely {
+        case t: Throwable =>
+          FabricNetReceive.fail(stage, t)
+          throw t
+      } finally stage.closeScope()
+    } finally scp.close()
   }
 }

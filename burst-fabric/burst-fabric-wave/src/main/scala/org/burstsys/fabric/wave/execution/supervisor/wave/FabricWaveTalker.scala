@@ -12,8 +12,6 @@ import org.burstsys.vitals.uid._
  */
 trait FabricWaveTalker extends AnyRef with FabricWaveListener {
 
-  self: FabricWaveSupervisorExecutionContext =>
-
   private[this] def publish(event: FabricWaveEvent): Unit =
     publishPipelineEvent(event)
 

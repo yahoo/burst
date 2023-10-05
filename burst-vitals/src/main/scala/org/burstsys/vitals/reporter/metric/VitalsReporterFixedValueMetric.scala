@@ -2,6 +2,7 @@
 package org.burstsys.vitals.reporter.metric
 
 import io.opentelemetry.api.metrics.LongHistogram
+import org.burstsys.vitals.reporter.metric
 
 import scala.language.implicitConversions
 
@@ -40,7 +41,7 @@ class VitalsReporterFixedValueMetricContext(name: String) extends VitalsReporter
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private[this]
-  val _valueHist: LongHistogram = meter.histogramBuilder(s"${name}_histo").ofLongs()
+  val _valueHist: LongHistogram = metric.longHistogram(s"${name}_histo")
     .setDescription(s"$name histogram")
     .setUnit("units")
     .build()

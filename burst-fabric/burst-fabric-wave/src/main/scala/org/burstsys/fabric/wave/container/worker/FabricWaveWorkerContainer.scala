@@ -276,44 +276,43 @@ FabricWaveWorkerContainerContext(netConfig: FabricNetworkConfig)
   /**
    * local client-worker has an incoming particle request
    */
-  final
-  def executeParticle(connection: FabricNetClientConnection, msg: FabricNetParticleReqMsg): Unit = {
+  final def executeParticle(connection: FabricNetClientConnection, msg: FabricNetParticleReqMsg): Unit = {
     val guid = msg.particle.slice.guid
     val ruid = msg.ruid
     val tag = s"FabricWaveWorkerContainer.executeParticle(guid=$guid, ruid=$ruid)"
-    val span = FabricWorkerRequestTrekMark.begin(guid)
-    try {
-      _guidToRuid.put(guid, ruid)
-      if (msg.particle.instrumented)
-        _reportingGuids.add(guid)
-      if (engine == null) throw FabricExecutionException(s"$tag no engine configured for worker")
-      log debug s"$tag executing particle ${msg.particle.slice.datasource} slice=${msg.particle.slice.sliceKey}"
-      val gather = engine.executionParticleOp(ruid, msg.particle)
-      // TODO - where do we compress these...
-      connection.transmitDataMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, gather)) onComplete {
-        case Success(_) =>
-          FabricWorkerRequestTrekMark.end(span)
-        case Failure(_) =>
-          FabricWorkerRequestTrekMark.fail(span)
+    FabricWorkerRequestTrekMark.begin(guid) { span =>
+      try {
+        _guidToRuid.put(guid, ruid)
+        if (msg.particle.instrumented)
+          _reportingGuids.add(guid)
+        if (engine == null) throw FabricExecutionException(s"$tag no engine configured for worker")
+        log debug s"$tag executing particle ${msg.particle.slice.datasource} slice=${msg.particle.slice.sliceKey}"
+        val gather = engine.executionParticleOp(ruid, msg.particle)
+        connection.transmitDataMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, gather)) onComplete {
+          case Success(_) =>
+            FabricWorkerRequestTrekMark.end(span)
+          case Failure(t) =>
+            FabricWorkerRequestTrekMark.fail(span, t)
+        }
+
+      } catch safely {
+
+        // transmit back fabric related exception for supervisor to sort out
+        case t: FabricException =>
+          log error burstStdMsg(s"FAIL $t $tag", t)
+          FabricWorkerRequestTrekMark.fail(span, t)
+          connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, t))
+
+        // something unpredictable happened...
+        case t: Throwable =>
+          log error burstStdMsg(s"FAIL $t $tag", t)
+          FabricWorkerRequestTrekMark.fail(span, t)
+          connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, FabricGenericException(t)))
+
+      } finally {
+        _guidToRuid.remove(guid)
+        _reportingGuids.remove(guid)
       }
-
-    } catch safely {
-
-      // transmit back fabric related exception for supervisor to sort out
-      case t: FabricException =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
-        FabricWorkerRequestTrekMark.fail(span)
-        connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, t))
-
-      // something unpredictable happened...
-      case t: Throwable =>
-        log error burstStdMsg(s"FAIL $t $tag", t)
-        FabricWorkerRequestTrekMark.fail(span)
-        connection.transmitControlMessage(FabricNetParticleRespMsg(msg, connection.clientKey, connection.serverKey, FabricGenericException(t)))
-
-    } finally {
-      _guidToRuid.remove(guid)
-      _reportingGuids.remove(guid)
     }
   }
 

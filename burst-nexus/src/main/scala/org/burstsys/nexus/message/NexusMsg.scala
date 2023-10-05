@@ -44,38 +44,30 @@ abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
 
   /**
     * connection unique id
-    *
-    * @param id
     */
   def ruid(id: Int): Unit = _ruid = id
 
   /**
     * nexus global operation uid
-    *
-    * @return
     */
   def guid: NexusGlobalUid = _guid
 
   /**
     * nexus global operation uid
-    *
-    * @param id
     */
   def guid(id: NexusGlobalUid): Unit = _guid = id
 
   /**
     * nexus global operation uid
-    *
-    * @return
     */
   def suid: NexusStreamUid = _suid
 
   /**
     * nexus global operation uid
-    *
-    * @param id
     */
   def suid(id: NexusStreamUid): Unit = _suid = id
+
+  def streamKey: (VitalsUid, VitalsUid) = (_guid, _suid)
 
   ////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -102,7 +94,6 @@ abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
     _ruid = buffer.readInt
     _guid = decodeAsciiStringFromByteBuf(buffer)
     _suid = decodeAsciiStringFromByteBuf(buffer)
-    extractContext(buffer)
     this
   }
 
@@ -111,7 +102,6 @@ abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
     buffer.writeInt(_ruid)
     encodeAsciiStringToByteBuf(_guid, buffer)
     encodeAsciiStringToByteBuf(_suid, buffer)
-    injectContext(buffer)
     this
   }
 

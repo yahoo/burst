@@ -32,7 +32,7 @@ object FeltReporter extends VitalsReporter {
   val _sweepCacheCleanMetric = VitalsReporterUnitOpMetric("felt_sweep_cache_clean", "sweep")
 
   private[this]
-  val _sweepCountCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"felt_sweep_current_counter")
+  val _sweepCountCounter: LongUpDownCounter = metric.upDownCounter(s"felt_sweep_current_counter")
     .setDescription(s"current active sweeps")
     .setUnit("sweep")
     .build()

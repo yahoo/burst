@@ -65,9 +65,6 @@ class NexusParcelConcurrentSpec extends NexusParcelStreamSpec {
             } catch {
               case e: Throwable =>
                 log error(s"Client $client failed to start stream $guid", e)
-                false
-              case _ =>
-                true
             }
           })
           true

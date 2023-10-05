@@ -3,89 +3,82 @@ package org.burstsys.synthetic.samplestore.source
 
 import org.burstsys.brio.flurry.provider.unity.BurstUnitySyntheticDataProvider
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.brio.provider.SyntheticDataProvider
+import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
+import org.burstsys.brio.provider.{BrioSyntheticDataProvider, SyntheticDataProvider}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
-import org.burstsys.samplestore.pipeline
-import org.burstsys.synthetic.samplestore.configuration.{defaultItemCountProperty, defaultMaxItemSizeProperty, defaultPressTimeoutProperty, syntheticDatasetProperty}
-import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
-import org.burstsys.vitals.errors.{VitalsException, safely}
-import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
+import org.burstsys.samplestore.store.container.worker.{BatchControl, FeedControl, ScanningSampleSourceWorker}
+import org.burstsys.synthetic.samplestore.configuration._
+import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.properties._
 
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-import scala.concurrent.{Future, TimeoutException}
 import scala.language.postfixOps
 
-case class SyntheticSampleSourceWorker() extends SampleSourceWorkerService {
+/**
+ * A sample source worker that generates synthetic data.
+ */
+case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[BrioPressInstance, FeedControl, BatchControl]() {
 
-  /**
-   * @return The name of this sample source worker.
-   */
-  override def name: String = SyntheticSampleSourceName
+  def name: String = SyntheticSampleSourceName
 
-  private val unityBrio = BurstUnitySyntheticDataProvider()
-  /**
-   * Instantiate an instance of a synthetic data provider and use it to feed the stream.
-   *
-   * @param stream the stream of the incoming request
-   * @return a future that completes when the stream has been fed
-   */
-  override def feedStream(stream: NexusStream): Future[Unit] = {
-    TeslaRequestFuture {
-      val props = stream.properties.extend
-      val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
-      try {
-        val modelName = stream.get[String](syntheticDatasetProperty)
-        val dataProvider = {
-          val p = SyntheticDataProvider.providerNamed(modelName)
-          if (p == null) {
-            log error burstStdMsg(s"Data provider $modelName not found, substituting ${unityBrio.schemaName}")
-            unityBrio
-          } else {
-            p
-          }
-        }
-        if (!(stream.schema equalsIgnoreCase dataProvider.schemaName)) {
-          throw VitalsException(s"Stream and synthetic data provider do not specify the same schema. stream=${stream.schema} provider=${dataProvider.schemaName}")
-        }
+  def prepareFeedControl(stream: NexusStream): FeedControl = {
+    val props: VitalsExtendedPropertyMap = stream.properties.extend
+    val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
+    val timeout = props.getValueOrProperty(defaultPressTimeoutProperty)
+    new FeedControl(timeout, globalItemCount)
+  }
 
-        val schema = BrioSchema(dataProvider.schemaName)
-        val maxItemSize = props.getValueOrProperty(defaultMaxItemSizeProperty)
-        val itemCount = props.getValueOrProperty(defaultItemCountProperty)
-        val rejectedItemCounter = new AtomicInteger()
-
-        val start = System.nanoTime
-        val finished = new CountDownLatch(itemCount)
-        dataProvider.data(itemCount, stream.properties).foreach(item => {
-          val pressSource = dataProvider.pressSource(item)
-          val pressedItem = pipeline.pressToFuture(stream, pressSource, schema, item.schemaVersion, maxItemSize)
-          pressedItem
-            .map({ result =>
-              if (log.isDebugEnabled)
-                log debug burstLocMsg(s"job=${result._1} size=${result._2} on stream")
-            })
-            .recover({ case _ => rejectedItemCounter.incrementAndGet() })
-            .andThen({ case _ => finished.countDown() })
-        })
-
-        while (!finished.await(50, TimeUnit.MILLISECONDS)) {
-          if (System.nanoTime() > start + timeout.toNanos) throw new TimeoutException()
-        }
-
-        stream.complete(itemCount, expectedItemCount = itemCount, potentialItemCount = itemCount, rejectedItemCounter.longValue)
-
-      } catch safely {
-        case _: TimeoutException =>
-          stream.timedOut(timeout)
-
-        case t =>
-          log error("Synthetic samplesource feedStream failed", t)
-          stream.completeExceptionally(t)
-      }
+  def prepareBatchControls(feedControl: FeedControl, stream: NexusStream): Iterable[BatchControl] = {
+    val props: VitalsExtendedPropertyMap = stream.properties.extend
+    val globalItemCount = props.getValueOrProperty(defaultItemCountProperty)
+    val batchCount = Math.max(1, props.getValueOrProperty(defaultBatchCountProperty))
+    val itemCount = globalItemCount / batchCount
+    val maxItemSize = props.getValueOrProperty(defaultMaxItemSizeProperty)
+    val maxLoadSize = props.getValueOrProperty(defaultMaxLoadSizeProperty)
+    val workerCount = props.getValueOrProperty(defaultWorkersCountProperty)
+    val streamMaxSize = Math.max(maxLoadSize / workerCount, 1e6.toInt)
+    (1 to batchCount).map { i =>
+      new BatchControl(stream, feedControl, i, itemCount, streamMaxSize, maxItemSize)
     }
   }
 
-  override def putBroadcastVars(metadata: MetadataParameters): Unit = {}
+  override def finalizeBatch(control: BatchControl): BatchControl = control
+
+  def finalizeBatchResults(feedControl: FeedControl, results: Iterable[BatchResult]): Unit = {
+    log info burstStdMsg(s"synthetic samplestore batch processing complete")
+    if (log.isDebugEnabled())
+      results.foreach(r => log debug burstStdMsg(s"batch ${r.control.id} (itemCount=${r.itemCount}, skipped=${r.skipped}"))
+  }
+
+  private val unityBrio = BurstUnitySyntheticDataProvider()
+  private case class SyntheticDP(provider: BrioSyntheticDataProvider, stats: BatchControl) extends DataProvider {
+    override def scanner(stream: NexusStream): Iterator[BrioPressInstance] = {
+      provider.data(stats.itemCount, stream.properties)
+    }
+
+    override def pressInstance(item: BrioPressInstance): BrioPressInstance = {
+      item
+    }
+
+    override def pressSource(item: BrioPressInstance): BrioPressSource = {
+      provider.pressSource(item)
+    }
+
+    override def schema: BrioSchema = {
+      BrioSchema(provider.schemaName)
+    }
+  }
+
+  override protected def getProvider(control: BatchControl): DataProvider = {
+    val modelName = control.stream.get[String](syntheticDatasetProperty)
+    val dataProvider = {
+      val p = SyntheticDataProvider.providerNamed(modelName)
+      if (p == null) {
+        log error burstStdMsg(s"Data provider $modelName not found, substituting ${unityBrio.schemaName}")
+        unityBrio
+      } else {
+        p
+      }
+    }
+    SyntheticDP(dataProvider, control)
+  }
 }

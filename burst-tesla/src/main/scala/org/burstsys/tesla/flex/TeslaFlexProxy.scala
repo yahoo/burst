@@ -4,8 +4,7 @@ package org.burstsys.tesla.flex
 import org.burstsys.tesla.TeslaTypes.TeslaMemorySize
 import org.burstsys.tesla.part.TeslaPartBuilder
 import org.burstsys.tesla.pool.TeslaPoolId
-import org.burstsys.vitals.reporter.VitalsByteQuantReporter
-import org.burstsys.vitals.reporter.metric.{meter, metricAttributes}
+import org.burstsys.vitals.reporter.metric.metricAttributes
 
 
 /**

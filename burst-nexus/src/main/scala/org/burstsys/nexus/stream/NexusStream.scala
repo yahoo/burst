@@ -2,9 +2,9 @@
 package org.burstsys.nexus.stream
 
 import org.burstsys.brio.types.BrioTypes.BrioSchemaName
-import org.burstsys.nexus.{NexusConnection, NexusGlobalUid, NexusSliceKey, NexusStreamUid}
 import org.burstsys.nexus.configuration.burstNexusStreamParcelPackerConcurrencyProperty
 import org.burstsys.nexus.message.NexusStreamInitiateMsg
+import org.burstsys.nexus.{NexusConnection, NexusGlobalUid, NexusSliceKey, NexusStreamUid}
 import org.burstsys.tesla
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
 import org.burstsys.tesla.parcel.packer.TeslaParcelPacker
@@ -72,6 +72,18 @@ trait NexusStream extends VitalsService {
    */
   def filter: BurstMotifFilter
 
+  // These stats are reported by the stream itself
+  /**
+   * The number of data items put onto the stream
+   */
+  def putItemCount: Long
+
+  /**
+   * The number of data bytes put into the stream
+   */
+  def putBytesCount: Long
+
+  // These stats are reported by the stream user
   /**
    * The number of items sent over the stream
    */
@@ -250,8 +262,11 @@ class NexusStreamContext(
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   // state
   //////////////////////////////////////////////////////////////////////////////////////////////////////
+  private val _putItemCount = new AtomicLong()
 
-  private val _itemCount = new AtomicLong()
+  private val _putBytesCount = new AtomicLong()
+
+  private val _reportedItemCount = new AtomicLong()
 
   private val _expectedItemCount = new AtomicLong()
 
@@ -316,11 +331,15 @@ class NexusStreamContext(
   // API
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  override def putItemCount: Long = _putItemCount.get
+
+  override def putBytesCount: Long = _putBytesCount.get
+
   override def completion: Future[NexusStream] = _completion.future
 
-  override def itemCount: Long = _itemCount.get
+  override def itemCount: Long = _reportedItemCount.get
 
-  override def itemCount_=(items: Long): Unit = _itemCount.set(items)
+  override def itemCount_=(items: Long): Unit = _reportedItemCount.set(items)
 
   override def expectedItemCount: Long = _expectedItemCount.get
 
@@ -340,6 +359,8 @@ class NexusStreamContext(
     if (!outbound) {
       throw VitalsException("Only outbound streams should use #put(TeslaMutableBuffer)")
     }
+    _putItemCount.incrementAndGet()
+    _putBytesCount.addAndGet(buffer.currentUsedMemory)
     val nextPacker = _parcelPackerIndex.getAndSet((_parcelPackerIndex.get() + 1) % _parcelPackers.size)
     _parcelPackers(nextPacker).put(buffer)
   }

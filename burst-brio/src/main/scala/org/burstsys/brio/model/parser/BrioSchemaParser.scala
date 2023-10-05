@@ -157,7 +157,7 @@ class BrioSchemaParser(log:Logger) {
     * @return
     */
   def parse(schemaSpecification: String): BrioSchemaClause = try {
-    val lexer = new BrioSchemaGrammarLexer(new ANTLRInputStream(schemaSpecification))
+    val lexer = new BrioSchemaGrammarLexer(CharStreams.fromString(schemaSpecification))
     val tokenStream = new CommonTokenStream(lexer)
     val parser = new BrioSchemaGrammarParser(tokenStream)
     lexer.removeErrorListeners()

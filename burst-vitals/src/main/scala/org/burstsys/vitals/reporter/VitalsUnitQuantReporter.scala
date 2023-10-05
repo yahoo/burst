@@ -20,7 +20,7 @@ abstract class VitalsUnitQuantReporter(prefix: String, quantum: String) extends 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  private val _currentInUseCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"${dName}_counter")
+  private val _currentInUseCounter: LongUpDownCounter = metric.upDownCounter(s"${dName}_counter")
     .setDescription(s"$prefix $quantum in use")
     .setUnit(quantum)
     .build()

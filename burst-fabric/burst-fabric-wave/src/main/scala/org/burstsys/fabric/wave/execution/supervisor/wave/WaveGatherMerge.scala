@@ -13,6 +13,7 @@ import org.burstsys.vitals.errors.safely
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.uid.VitalsUid
 
+import scala.annotation.unused
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -73,6 +74,7 @@ class WaveGatherMergeContext(scatter: TeslaScatter) extends WaveGatherMerge {
   private val _promise = Promise[FabricGather]()
 
   // this variable is ever accessed, but that's ok
+  @unused
   private val _mergeWorker: Future[Unit] = TeslaRequestFuture {
     var next = _workQueue.take()
     while (next != EndOfQueueGather) {

@@ -22,19 +22,19 @@ object FabricTopologyReporter extends VitalsReporter with FabricTopologyListener
   val _workerLossRateMetric = VitalsReporterUnitOpMetric("topo_worker_loss_rate")
 
   private[this]
-  val _workerCurrentCounter: LongUpDownCounter = metric.meter.upDownCounterBuilder(s"topo_current_worker_counter")
+  val _workerCurrentCounter: LongUpDownCounter = metric.upDownCounter(s"topo_current_worker_counter")
     .setDescription(s"current active workers")
     .setUnit("worker")
     .build()
 
   private[this]
-  val _workerTotalGain = metric.meter.counterBuilder(s"topo_worker_gain")
+  val _workerTotalGain = metric.counter(s"topo_worker_gain")
     .setDescription("total workers gained")
     .setUnit("worker")
     .build()
 
   private[this]
-  val _workerTotalLoss = metric.meter.counterBuilder(s"topo_worker_gain")
+  val _workerTotalLoss = metric.counter(s"topo_worker_gain")
     .setDescription("total workers gained")
     .setUnit("worker")
     .build()

@@ -118,7 +118,7 @@ class HydraScanner() extends FabricPlaneScannerContext with FabricPlaneScanner {
     if (StaticSweep == null) {
       // release read lock on sweep artifact in the cache
       if (_sweep != null)
-        _sweep.artifact.releaseReadLock
+        _sweep.artifact.releaseReadLock()
       _sweep = null
     }
     this
@@ -139,21 +139,21 @@ class HydraScanner() extends FabricPlaneScannerContext with FabricPlaneScanner {
         _sweep = StaticSweep
       } else {
         synchronized {
-          log info s"HYDRA_SWEEP_GEN_BEGIN $tag"
+          log debug s"HYDRA_SWEEP_GEN_BEGIN $tag"
           _sweep = try {
             // wait for a sweep with a read lock
             HydraSweep(source = _invocation.groupSource, schemaName = datasource.view.schemaName)
           } catch {
-            case t: TimeoutException =>
+            case _: TimeoutException =>
               _fault = VitalsException(s"hydra generation timeout after $maxGenerateDuration")
               null
           }
-          log info s"HYDRA_SWEEP_GEN_END $tag"
+          log debug s"HYDRA_SWEEP_GEN_END $tag"
         }
       }
     } catch safely {
       case t: Throwable =>
-        log info s"HYDRA_SWEEP_GEN_FAIL $tag"
+        log error s"HYDRA_SWEEP_GEN_FAIL $tag"
         _fault = t
     }
   }

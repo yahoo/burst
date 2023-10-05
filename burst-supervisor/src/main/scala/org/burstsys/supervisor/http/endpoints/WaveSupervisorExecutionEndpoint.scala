@@ -35,7 +35,7 @@ final class WaveSupervisorExecutionEndpoint extends WaveSupervisorEndpoint {
       val endWindowBegin: Long = endedAfterMillis.value.getOrElse(0)
       val endWindowEnd: Long = endedBeforeMillis.value.getOrElse(now)
 
-      var all = mutable.ArrayBuffer[FabricRequestJson]()
+      val all = mutable.ArrayBuffer[FabricRequestJson]()
       requests.foreach { req =>
         if (
           (req.startTime >= startWindowBegin && req.endTime <= startWindowEnd) &&

@@ -30,17 +30,16 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
     globalContext.reset
 
     // build the parse tree
-    val sqplans = EqlSupervisorQueryParse.begin(guid)
+    val stage = EqlSupervisorQueryParse.beginSync(guid)
     val block = ParsedBlock(source)
-    EqlSupervisorQueryParse.end(sqplans)
 
     val executions = block.getStatements.flatMap {
       case query: ParsedQuery =>
 
         // analyze the query for work
-        val sqps = EqlSupervisorQueryPlan.begin(guid)
+        val planSpan = EqlSupervisorQueryPlan.beginSync(guid)
         val analysis = Query(query)
-        EqlSupervisorQueryPlan.end(sqps)
+        EqlSupervisorQueryPlan.end(planSpan)
 
         // add a declaration for the primary schema in the global context
         val thisSchemaDeclaration = SchemaDeclaration(DeclarationScope.Frame, query.getSchema)
@@ -60,7 +59,7 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
         }
 
         // generate hydra
-        val sqgs = EqlSupervisorQueryGenerate.begin(guid)
+        val queryGenSpan = EqlSupervisorQueryGenerate.beginSync(guid)
         val generator = BlockGenerator(analysis)
 
         val querySchema = query.getSchema.getSchemaName.toLowerCase.trim
@@ -68,9 +67,10 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
           throw VitalsException(s"target schema '$schemaName' does not match the EQL declared schema '$querySchema'")
         }
         val source = generator.generateSource()
-        EqlSupervisorQueryGenerate.end(sqgs)
+        EqlSupervisorQueryGenerate.end(queryGenSpan)
 
         Some(source)
+
       case funnel: ParsedFunnel =>
         val analysis = Funnel(funnel)
         // add a declaration for the primary schema in the global context
@@ -80,6 +80,7 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
         val route = new Route(analysis)
         globalContext.addDeclaration(route.name.toLowerCase, route)
         None
+
       case segment: ParsedSegment =>
         val analysis = Segment(segment)
         val thisSchemaDeclaration = SchemaDeclaration(DeclarationScope.Frame, segment.getSchema)
@@ -89,6 +90,7 @@ class EqlContextImpl(val guid: FabricGroupUid) extends EqlContext {
         globalContext.addDeclaration(tablet.name.toLowerCase, tablet)
         None
     }
+    EqlSupervisorQueryParse.end(stage)
 
     //TODO return multiple executions for a true batch
     assert(executions.length == 1)
