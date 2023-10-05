@@ -63,7 +63,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
             case Success(results) =>
               finalizeBatchResults(feedControl, results)
             case Failure(ex) =>
-              log error burstLocMsg(s"buckets completed with exception", ex)
+              log error(burstLocMsg(s"buckets completed with exception", ex), ex)
           }
           log info burstStdMsg(s"stream completed (traceId=${stage.getTraceId}, processedItemsCount=${feedControl.processedItemsCount}, " +
             s"rejectedItemsCount=${feedControl.rejectedItemsCount}, expectedItemsCount=${feedControl.expectedItemsCount})")
@@ -80,7 +80,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
             stream.timedOut(feedControl.timeout)
             feedStreamComplete.failure(t)
           case t: Throwable =>
-            log error("(traceId=${stage.getTraceId}) synthetic samplesource feedStream failed", t)
+            log error(burstLocMsg(s"(traceId=${stage.getTraceId}) synthetic samplesource feedStream failed", t), t)
             feedControl.cancel()
             stream.completeExceptionally(t)
             feedStreamComplete.failure(t)
@@ -100,64 +100,70 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
     val batchComplete = Promise[BatchResult]()
     SyntheticBatchTrek.begin(control.stream.guid, control.stream.suid) {stage =>
       stage.span.setAttribute(BATCH_ID_KEY, Long.box(control.id))
+      if (log.isDebugEnabled())
+        log debug burstLocMsg(s"starting (guid=${control.stream.guid}, batchId=${control.id})")
       TeslaRequestFuture {
-        if (log.isDebugEnabled())
-          log debug burstLocMsg(s"starting (guid=${control.stream.guid}, batchId=${control.id})")
-        if (!data.hasNext) {
-          if (log.isDebugEnabled())
-            log debug burstLocMsg(s"skipping batch (guid=${control.stream.guid}, batchId=${control.id})")
-          batchComplete.success(BatchResult(control, 0, skipped = false))
-        } else {
-          val inFlightItemCount = new AtomicInteger(0)
-          val readItemCount = new AtomicInteger(0)
-          val scanDone = new AtomicBoolean(false)
-          while (data.hasNext && control.continueProcessing) {
-            val item = data.next()
-            inFlightItemCount.incrementAndGet()
-            readItemCount.incrementAndGet()
+        try {
+          if (!data.hasNext) {
+            if (log.isDebugEnabled())
+              log debug burstLocMsg(s"skipping batch (guid=${control.stream.guid}, batchId=${control.id})")
+            batchComplete.success(BatchResult(control, 0, skipped = false))
+          } else {
+            val inFlightItemCount = new AtomicInteger(0)
+            val readItemCount = new AtomicInteger(0)
+            val scanDone = new AtomicBoolean(false)
+            while (data.hasNext && control.continueProcessing) {
+              val item = data.next()
+              inFlightItemCount.incrementAndGet()
+              readItemCount.incrementAndGet()
 
-            val pressInstance = provider.pressInstance(item)
-            val pressSource = provider.pressSource(pressInstance)
-            val pressedItemFuture = pipeline.pressToFuture(control.stream, pressSource, provider.schema,
-              pressInstance.schemaVersion, control.maxItemSize, control.maxStreamSize)
-            pressedItemFuture.andThen {
-              case Success(pipeline.PressJobResults(jobId, pressSize, jobDuration, pressDuration, skipped)) =>
-                if (log.isDebugEnabled) {
-                  log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, jobId=$jobId, " +
-                    s"bytes=$pressSize, jobDuration=$jobDuration, pressDuration=$pressDuration, skipped=$skipped) on stream")
-                }
-                if (skipped) {
-                  control.cancel()
-                  ScanningStoreReporter.onReadSkipped(control.feedControl)
+              val pressInstance = provider.pressInstance(item)
+              val pressSource = provider.pressSource(pressInstance)
+              val pressedItemFuture = pipeline.pressToFuture(control.stream, pressSource, provider.schema,
+                pressInstance.schemaVersion, control.maxItemSize, control.maxStreamSize)
+              pressedItemFuture.andThen {
+                case Success(pipeline.PressJobResults(jobId, pressSize, jobDuration, pressDuration, skipped)) =>
+                  if (log.isDebugEnabled) {
+                    log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, jobId=$jobId, " +
+                      s"bytes=$pressSize, jobDuration=$jobDuration, pressDuration=$pressDuration, skipped=$skipped) on stream")
+                  }
+                  if (skipped) {
+                    control.cancel()
+                    ScanningStoreReporter.onReadSkipped(control.feedControl)
+                    ScanningStoreReporter.onReadReject(control.feedControl)
+                  } else {
+                    ScanningStoreReporter.onReadComplete(control.feedControl, jobDuration, pressSize)
+                  }
+                case Failure(t) =>
+                  stage.span.recordException(t)
                   ScanningStoreReporter.onReadReject(control.feedControl)
-                } else {
-                  ScanningStoreReporter.onReadComplete(control.feedControl, jobDuration, pressSize)
-                }
-              case Failure(t) =>
-                stage.span.recordException(t)
-                ScanningStoreReporter.onReadReject(control.feedControl)
-            }.andThen {
-              case _ =>
-                if (inFlightItemCount.decrementAndGet() == 0 && scanDone.get()) {
-                  if (log.isDebugEnabled)
-                    log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, readItemCount=$readItemCount) completed")
+              }.andThen {
+                case _ =>
+                  if (inFlightItemCount.decrementAndGet() == 0 && scanDone.get()) {
+                    if (log.isDebugEnabled)
+                      log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, readItemCount=$readItemCount) completed")
 
-                  batchComplete.success(BatchResult(finalizeBatch(control), readItemCount.get(), skipped = false))
-                  control.addAttributes(stage.span)
-                  SyntheticBatchTrek.end(stage)
-                }
+                    batchComplete.success(BatchResult(finalizeBatch(control), readItemCount.get(), skipped = false))
+                    control.addAttributes(stage.span)
+                    SyntheticBatchTrek.end(stage)
+                  }
+              }
             }
+            scanDone.set(true)
           }
-          scanDone.set(true)
+        } catch {
+          case ex: Throwable =>
+            log error(burstLocMsg(s"batch exception (guid=${control.stream.guid}, batchId=${control.id})", ex), ex)
+            stage.span.recordException(ex)
+            batchComplete.failure(ex)
         }
       }
-
     }
     batchComplete.future.andThen {
       case Success(BatchResult(control, itemCount, skipped)) =>
         log info burstStdMsg(s"completed (batch=${control.id}, itemCount=$itemCount, truncated=$skipped, cancelled=${control.isCancelled})")
       case Failure(ex) =>
-        log error burstStdMsg(s"exception", ex)
+        log error(burstStdMsg(s"exception", ex), ex)
     }
   }
 
