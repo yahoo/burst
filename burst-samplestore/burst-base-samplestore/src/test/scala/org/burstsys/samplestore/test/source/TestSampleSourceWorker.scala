@@ -41,7 +41,7 @@ case class TestSampleSourceWorker() extends SampleSourceWorkerService {
           stream.timedOut(timeout)
 
         case t =>
-          log error("Synthetic samplesource feedStream failed", t)
+          log error("test samplesource feedStream failed", t)
           stream.completeExceptionally(t)
       }
     }

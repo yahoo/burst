@@ -39,7 +39,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
   def prepareFeedControl(stream: NexusStream): F
 
   /**
-   * Instantiate an instance of a synthetic data provider and use it to feed the stream.
+   * Instantiate an instance of a scanning data provider and use it to feed the stream.
    *
    * @param stream the stream of the incoming request
    * @return a future that completes when the stream has been fed
@@ -77,13 +77,13 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
           ScanningFeedStreamTrek.end(stage)
         } catch {
           case t: java.util.concurrent.TimeoutException =>
-            log error burstStdMsg("(traceId=${stage.getTraceId}) synthetic samplesource feedStream timedout")
+            log error burstStdMsg("(traceId=${stage.getTraceId}) scanning samplesource feedStream timedout")
             feedControl.cancel()
             stream.timedOut(feedControl.timeout)
             feedStreamComplete.failure(t)
             ScanningFeedStreamTrek.fail(stage, t)
           case t: Throwable =>
-            log error(burstLocMsg(s"(traceId=${stage.getTraceId}) synthetic samplesource feedStream failed", t), t)
+            log error(burstLocMsg(s"(traceId=${stage.getTraceId}) scanning samplesource feedStream failed", t), t)
             feedControl.cancel()
             stream.completeExceptionally(t)
             feedStreamComplete.failure(t)
