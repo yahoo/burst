@@ -2,7 +2,7 @@
 
 # `Burst Runtime Architecture`
 
-![](../../../image/burst_runtime.svg)
+![](../../../docs/assets/img/tech/burst_runtime.svg)
 
 The Burst runtime topology is a fairly standard single-supervisor, multiple-worker 
 cluster that is called 
@@ -65,10 +65,16 @@ Any given Burst Cell can import data from one or more SampleStore instances. The
 can be thought of as being separated into a single Supervisor role along with one or more Worker
 roles. These can coexist on the same runtime deployment process or container or be on
 separate contexts where it is valuable to import data via massive parallelism
-where you want to distribute the Worker rolee across many nodes e.g.
+where you want to distribute the Worker role across many nodes e.g.
 a store such as HBASE.
-Its responsibilities are:
+At its heart, the sample store is an extraction, transform, and load (ETL) pipeline, optimized for partitoning the task into
+a large number of independent parallel shards. Its responsibilities are:
 1. Receive incoming dataset fetch requests from Cell Supervisor node via SampleStore protocol
-2. 
+2. Plan the fetch request into a set of parallelizable fetch tasks that untimately will be distributed to the worker nodes.
+3. Receive parallel data fetch requests from the Cell worker nodes via SampleStore protocol to each SampleStore workers.
+4. Each SampleStore worker fetches the individual items from the data source and presses it into a Brio instance.
+5. Each SampleStore worker sends the Brio instance back to the Cell worker via SampleStore protocol.
+
+If you require a SampleStore that is not currently supported, it is easy to implement.  The repository has 
 
 
