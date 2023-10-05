@@ -6,7 +6,7 @@ import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.samplestore.pipeline
-import org.burstsys.samplestore.trek.{BATCH_ID_KEY, SyntheticBatchTrek, SyntheticFeedStreamTrek}
+import org.burstsys.samplestore.trek.{BATCH_ID_KEY, SOURCE_NAME_KEY, ScanningBatchTrek, ScanningFeedStreamTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
@@ -46,7 +46,8 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
    */
   override def feedStream(stream: NexusStream): Future[Unit] = {
     val feedStreamComplete = Promise[Unit]()
-    SyntheticFeedStreamTrek.begin(stream.guid, stream.suid) {stage =>
+    ScanningFeedStreamTrek.begin(stream.guid, stream.suid) {stage =>
+      stage.span.setAttribute(SOURCE_NAME_KEY, this.name)
       TeslaRequestFuture {
         val feedControl = prepareFeedControl(stream)
         val batchControls = prepareBatchControls(feedControl, stream)
@@ -73,17 +74,20 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
             potentialItemCount = feedControl.potentialItemsCount,
             feedControl.rejectedItemsCount)
           feedStreamComplete.success(())
+          ScanningFeedStreamTrek.end(stage)
         } catch {
           case t: java.util.concurrent.TimeoutException =>
             log error burstStdMsg("(traceId=${stage.getTraceId}) synthetic samplesource feedStream timedout")
             feedControl.cancel()
             stream.timedOut(feedControl.timeout)
             feedStreamComplete.failure(t)
+            ScanningFeedStreamTrek.fail(stage, t)
           case t: Throwable =>
             log error(burstLocMsg(s"(traceId=${stage.getTraceId}) synthetic samplesource feedStream failed", t), t)
             feedControl.cancel()
             stream.completeExceptionally(t)
             feedStreamComplete.failure(t)
+            ScanningFeedStreamTrek.fail(stage, t)
         }
       }
     }
@@ -94,11 +98,12 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
   final case class BatchResult(control: B, itemCount: Int, skipped: Boolean)
 
   private def doBatch(control: B) = {
-    val provider = getProvider(control)
-    val data = provider.scanner(control.stream)
+    ScanningBatchTrek.begin(control.stream.guid, control.stream.suid) { stage =>
+      val provider = getProvider(control)
+      val data = provider.scanner(control.stream)
 
-    val batchComplete = Promise[BatchResult]()
-    SyntheticBatchTrek.begin(control.stream.guid, control.stream.suid) {stage =>
+      val batchComplete = Promise[BatchResult]()
+      stage.span.setAttribute(SOURCE_NAME_KEY, this.name)
       stage.span.setAttribute(BATCH_ID_KEY, Long.box(control.id))
       if (log.isDebugEnabled())
         log debug burstLocMsg(s"starting (guid=${control.stream.guid}, batchId=${control.id})")
@@ -145,7 +150,6 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
 
                     batchComplete.success(BatchResult(finalizeBatch(control), readItemCount.get(), skipped = false))
                     control.addAttributes(stage.span)
-                    SyntheticBatchTrek.end(stage)
                   }
               }
             }
@@ -158,12 +162,15 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
             batchComplete.failure(ex)
         }
       }
-    }
-    batchComplete.future.andThen {
-      case Success(BatchResult(control, itemCount, skipped)) =>
-        log info burstStdMsg(s"completed (batch=${control.id}, itemCount=$itemCount, truncated=$skipped, cancelled=${control.isCancelled})")
-      case Failure(ex) =>
-        log error(burstStdMsg(s"exception", ex), ex)
+
+      batchComplete.future.andThen {
+        case Success(BatchResult(control, itemCount, skipped)) =>
+          ScanningBatchTrek.end(stage)
+          log info burstStdMsg(s"completed (batch=${control.id}, itemCount=$itemCount, truncated=$skipped, cancelled=${control.isCancelled})")
+        case Failure(ex) =>
+          ScanningBatchTrek.fail(stage, ex)
+          log error(burstStdMsg(s"exception", ex), ex)
+      }
     }
   }
 

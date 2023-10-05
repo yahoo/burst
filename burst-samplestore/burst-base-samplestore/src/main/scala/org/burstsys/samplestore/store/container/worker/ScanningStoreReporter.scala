@@ -7,7 +7,7 @@ import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
 private[samplestore]
 object ScanningStoreReporter extends VitalsReporter {
 
-  final val dName: String = "SyntheticStore"
+  final val dName: String = "ScanningStore"
 
   private[this]
   val _readItemsMetric = VitalsReporterUnitOpMetric("read", "items")

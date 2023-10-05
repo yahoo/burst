@@ -15,6 +15,7 @@ package object trek {
     VitalsTrekRemote, VitalsTrekClient
   )
 
+  private[samplestore] val SOURCE_NAME_KEY = AttributeKey.stringKey("burstsys.samplesource.name")
   private[samplestore] val BATCH_ID_KEY = AttributeKey.longKey("burstsys.batchId")
   private[samplestore] val REJECTED_ITEMS_KEY = AttributeKey.longKey("burstsys.rejectedItems")
   private[samplestore] val PROCESSED_ITEMS_COUNT_KEY = AttributeKey.longKey("burstsys.processedItems")
@@ -23,11 +24,11 @@ package object trek {
   private[samplestore] val EXPECTED_ITEM_COUNT_KEY = AttributeKey.longKey("burstsys.expectedItems")
   private[samplestore] val POTENTIAL_ITEM_COUNT_KEY = AttributeKey.longKey("burstsys.potentialItems")
 
-  final object SyntheticFeedStreamTrek extends VitalsTrekMark("SyntheticFeedStream",
+  final object ScanningFeedStreamTrek extends VitalsTrekMark("ScanningFeedStream",
     VitalsTrekRemote, VitalsTrekWorker, SpanKind.PRODUCER
   )
 
-  final object SyntheticBatchTrek extends VitalsTrekMark("SyntheticBatch",
+  final object ScanningBatchTrek extends VitalsTrekMark("ScanningBatch",
     VitalsTrekRemote, VitalsTrekWorker, SpanKind.INTERNAL
   )
 }
