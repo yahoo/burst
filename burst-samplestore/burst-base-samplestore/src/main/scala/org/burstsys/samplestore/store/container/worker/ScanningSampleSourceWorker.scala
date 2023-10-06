@@ -54,10 +54,22 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
         val feedControl = prepareFeedControl(stream)
         val batchControls = prepareBatchControls(feedControl, stream)
 
+        val batchIds = new ConcurrentSkipListSet(batchControls.map(_.id).asJavaCollection)
+
         log info burstStdMsg(s"(traceId=${stage.getTraceId}, batchCount=${batchControls.size}) starting batches")
         stage.span.setAttribute(BATCH_COUNT_KEY, batchControls.size)
         val batches = batchControls.map { b =>
-          doBatch(b)
+          doBatch(b).andThen {
+            case Success(BatchResult(control, itemCount, skipped)) =>
+              if (batchIds.remove(control.id)) {
+                if (log.isDebugEnabled)
+                  log debug burstStdMsg(s"batch completed (batchId=${control.id}, traceId=${stage.getTraceId}); remaining batches=${batchIds.asScala.mkString("[", ",", "]")}")
+              } else {
+                log warn burstLocMsg(s"batch ${control.id} already completed (traceId=${stage.getTraceId})")
+              }
+            case Failure(ex) =>
+              log error(burstLocMsg(s"batch ${b.id} failed (traceId=${stage.getTraceId})", ex), ex)
+          }
         }
         val s = Future.sequence(batches)
         try {
@@ -80,13 +92,13 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
           ScanningFeedStreamTrek.end(stage)
         } catch {
           case t: java.util.concurrent.TimeoutException =>
-            log error burstStdMsg("(traceId=${stage.getTraceId}) scanning samplesource feedStream timedout")
+            log error burstStdMsg(s"(traceId=${stage.getTraceId}) scanning samplesource feedStream timeout; remaining batches=${batchIds.asScala.mkString("[",",","]")}")
             feedControl.cancel()
             stream.timedOut(feedControl.timeout)
             feedStreamComplete.failure(t)
             ScanningFeedStreamTrek.fail(stage, t)
           case t: Throwable =>
-            log error(burstLocMsg(s"(traceId=${stage.getTraceId}) scanning samplesource feedStream failed", t), t)
+            log error(burstLocMsg(s"(traceId=${stage.getTraceId}) scanning samplesource feedStream failed; remaining batches=${batchIds.asScala.mkString("[",",","]")}", t), t)
             feedControl.cancel()
             stream.completeExceptionally(t)
             feedStreamComplete.failure(t)
