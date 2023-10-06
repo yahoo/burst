@@ -6,11 +6,13 @@ import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
 import org.burstsys.samplestore.pipeline
-import org.burstsys.samplestore.trek.{BATCH_ID_KEY, SOURCE_NAME_KEY, ScanningBatchTrek, ScanningFeedStreamTrek}
+import org.burstsys.samplestore.trek._
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
+import scala.jdk.CollectionConverters._
 
+import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
 import scala.concurrent.{Await, Future, Promise}
 import scala.language.postfixOps
@@ -53,6 +55,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
         val batchControls = prepareBatchControls(feedControl, stream)
 
         log info burstStdMsg(s"(traceId=${stage.getTraceId}, batchCount=${batchControls.size}) starting batches")
+        stage.span.setAttribute(BATCH_COUNT_KEY, batchControls.size)
         val batches = batchControls.map { b =>
           doBatch(b)
         }
@@ -116,9 +119,10 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
           } else {
             val inFlightItemCount = new AtomicInteger(0)
             val readItemCount = new AtomicInteger(0)
-            val scanDone = new AtomicBoolean(false)
-            while (data.hasNext && control.continueProcessing) {
+            val scanDone = new AtomicBoolean(!(data.hasNext && control.continueProcessing))
+            while (!scanDone.get) {
               val item = data.next()
+              scanDone.set(!(data.hasNext && control.continueProcessing))
               inFlightItemCount.incrementAndGet()
               readItemCount.incrementAndGet()
 
@@ -153,7 +157,6 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
                   }
               }
             }
-            scanDone.set(true)
           }
         } catch {
           case ex: Throwable =>
