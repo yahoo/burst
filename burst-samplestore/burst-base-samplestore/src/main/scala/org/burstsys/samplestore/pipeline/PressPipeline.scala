@@ -1,6 +1,8 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.pipeline
 
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.context.Context
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.configuration.brioPressThreadsProperty
 import org.burstsys.brio.dictionary.factory._
@@ -17,6 +19,7 @@ import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
+import org.burstsys.vitals.trek.TrekStage
 import org.burstsys.vitals.uid._
 
 import java.util.concurrent.LinkedBlockingQueue
@@ -98,7 +101,13 @@ trait PressPipeline extends AnyRef {
                 releaseBuffer(blobBuffer)
                 job.p.complete(Success(PressJobResults(job.jobId, 0, jobElapsed, pressElapsed, skipped = true)))
               } else {
-                job.stream.put(blobBuffer)
+                // do the stream work in the context of the press request thread
+                val context = job.span.makeCurrent()
+                try {
+                  job.stream.put(blobBuffer)
+                } finally {
+                  context.close()
+                }
                 job.p.complete(Success(PressJobResults(job.jobId, blobBuffer.currentUsedMemory, jobElapsed, pressElapsed, skipped = false)))
               }
             }
@@ -126,7 +135,8 @@ trait PressPipeline extends AnyRef {
                         schema: BrioSchema,
                         version: BrioVersionKey,
                         maxItemSize: Int,
-                        maxTotalBytes: Long
+                        maxTotalBytes: Long,
+                        span: Span
                       )
   {
     def press(presser: BrioPresser, blobBuffer: TeslaMutableBuffer): TeslaMutableBuffer = {
@@ -148,7 +158,7 @@ trait PressPipeline extends AnyRef {
   def pressToFuture(stream: NexusStream, pressSource: BrioPressSource, schema: BrioSchema, version: BrioVersionKey,
                     maxItemSize: Int, maxTotalBytes: Long): Future[PressJobResults] = {
     val p = Promise[PressJobResults]()
-    val thing = PressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize, maxTotalBytes)
+    val thing = PressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize, maxTotalBytes, Span.current())
     pipeline.log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
     pressJobQueue put thing
     pipeline.log trace burstLocMsg(s"returning ${thing.jobId} future")
