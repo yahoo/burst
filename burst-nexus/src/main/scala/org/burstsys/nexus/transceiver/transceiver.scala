@@ -6,7 +6,8 @@ import org.burstsys.nexus.message._
 import org.burstsys.vitals.logging._
 
 package object transceiver extends VitalsLogger {
-  val nexusMessageTypeKey: AttributeKey[java.lang.Long] = AttributeKey.longKey("burst.nexus.message.type")
+  val nexusMessageTypeKey: AttributeKey[java.lang.Long] = AttributeKey.longKey("burstsys.nexus.message.type")
+  val nexusMessageNameKey: AttributeKey[java.lang.String] = AttributeKey.stringKey("burst.nexus.message.name")
 
   /**
    * nexus client msg event handler

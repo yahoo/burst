@@ -8,6 +8,7 @@ import org.burstsys.vitals.properties.VitalsPropertyMap
 import org.burstsys.vitals.reporter.instrument._
 
 import java.util
+import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
 package object message extends VitalsLogger {
@@ -18,10 +19,10 @@ package object message extends VitalsLogger {
   assert(maxFrameLength < Int.MaxValue)
 
   // how far into header is length field
-  val lengthFieldOffset: Int = 0
+  private val lengthFieldOffset: Int = 0
 
   // how many bytes to encode frame length
-  val lengthFieldLength: Int = 4
+  private val lengthFieldLength: Int = 4
 
   /**
     * on the way in, decode a length prefix frame
@@ -38,7 +39,20 @@ package object message extends VitalsLogger {
 
   def msgIds(msg: NexusMsg): String = s"message(msg_guid=${msg.guid} msg_suid=${msg.suid})"
 
-  sealed case class NexusMsgType(code: Int)
+  private val msgMap = new ConcurrentHashMap[Int, NexusMsgType]()
+  sealed case class NexusMsgType(code: Int, name: String) {
+    msgMap.put(code, this)
+  }
+
+  def codeToMsg(code: Int): NexusMsgType = {
+    msgMap.get(code) match {
+      case null =>
+        log warn burstLocMsg(s"unknown message type $code")
+        NexusMsgType(code, s"unknown message type $code")
+      case msgType =>
+        msgType
+    }
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   // stream request/response
@@ -48,13 +62,13 @@ package object message extends VitalsLogger {
     * sent from the client to the server to request the start of a stream
     * The response to this is [[NexusStreamInitiatedMsgType]]
     */
-  object NexusStreamInitiateMsgType extends NexusMsgType(1)
+  object NexusStreamInitiateMsgType extends NexusMsgType(1, "Initiate Stream Request")
 
   /**
     * send from the server back to the client to acknowledge the stream request
     * This is the response to a [[NexusStreamInitiateMsgType]]
     */
-  object NexusStreamInitiatedMsgType extends NexusMsgType(2)
+  object NexusStreamInitiatedMsgType extends NexusMsgType(2, "Initiate Stream Response")
 
   ////////////////////////////////////////////////////////////////////////////////
   // stream chunks
@@ -63,22 +77,22 @@ package object message extends VitalsLogger {
   /**
     * sent from the server to the client as parcels in the stream
     */
-  object NexusStreamParcelMsgType extends NexusMsgType(3)
+  object NexusStreamParcelMsgType extends NexusMsgType(3, "Stream Parcel")
 
   /**
     * sent from the server to the client when the stream is complete
     */
-  object NexusStreamCompleteMsgType extends NexusMsgType(4)
+  object NexusStreamCompleteMsgType extends NexusMsgType(4, "Stream Complete")
 
   /**
     * sent from the client to the server when the stream is no longer desired
     */
-  object NexusStreamAbortMsgType extends NexusMsgType(5)
+  object NexusStreamAbortMsgType extends NexusMsgType(5,  "Stream Abort")
 
   /**
     * sent from server to client to indicate the server is still active
     */
-  object NexusStreamHeartbeatMsgType extends NexusMsgType(6)
+  object NexusStreamHeartbeatMsgType extends NexusMsgType(6, "Stream Heartbeat")
 
 
   ////////////////////////////////////////////////////////////////////////////////

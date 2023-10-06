@@ -55,6 +55,7 @@ class NexusTransmitter(id: Int, isServer: Boolean, channel: Channel, maxQueuedWr
   private def doTransmit(msg: NexusMsg, parcel: TeslaParcel = null): Future[Unit] = {
     NexusTransmitTrekMark.begin() { stage =>
       stage.span.setAttribute(nexusMessageTypeKey, msg.messageType.code)
+      stage.span.setAttribute(nexusMessageNameKey, msg.messageType.name)
       try {
         if (!canSendMsg) {
           val ex = VitalsException(s"Nexus channel not open or not active").fillInStackTrace()
