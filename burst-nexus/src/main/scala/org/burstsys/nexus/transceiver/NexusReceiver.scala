@@ -36,6 +36,8 @@ class NexusReceiver(
   override def toString: String = s"NexusReceiver(${if (isServer) "server" else "client"} id=$id ${transmitter.link})"
 
   override def channelRegistered(ctx: ChannelHandlerContext): Unit = {
+    @unused // force load of message types
+    val initMsgType: NexusMsgType = message.NexusStreamInitiatedMsgType
     super.channelRegistered(ctx)
     if (isServer)
       NexusServerReporter.onServerConnectionStart()
