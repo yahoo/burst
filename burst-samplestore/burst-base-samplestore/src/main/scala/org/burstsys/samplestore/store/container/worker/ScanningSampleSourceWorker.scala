@@ -5,16 +5,17 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
+import org.burstsys.samplestore.configuration.defaultManualBatchSpanProperty
 import org.burstsys.samplestore.pipeline
 import org.burstsys.samplestore.trek._
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
 import org.burstsys.vitals.properties._
-import scala.jdk.CollectionConverters._
 
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
 import scala.concurrent.{Await, Future, Promise}
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
@@ -62,8 +63,11 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
           doBatch(b).andThen {
             case Success(BatchResult(control, itemCount, skipped)) =>
               if (batchIds.remove(control.id)) {
-                if (log.isDebugEnabled)
-                  log debug burstStdMsg(s"batch completed (batchId=${control.id}, traceId=${stage.getTraceId}); remaining batches=${batchIds.asScala.mkString("[", ",", "]")}")
+                if (log.isDebugEnabled) {
+                  log debug burstStdMsg(s"batch completed (batchId=${control.id}, traceId=${stage.getTraceId}," +
+                    s" itemCount=$itemCount, skipped=$skipped); " +
+                    s"remaining batches=${batchIds.asScala.mkString("[", ",", "]")}")
+                }
               } else {
                 log warn burstLocMsg(s"batch ${control.id} already completed (traceId=${stage.getTraceId})")
               }
@@ -118,8 +122,10 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
       val data = provider.scanner(control.stream)
 
       val batchComplete = Promise[BatchResult]()
-      stage.span.setAttribute(SOURCE_NAME_KEY, this.name)
-      stage.span.setAttribute(BATCH_ID_KEY, Long.box(control.id))
+      if (defaultManualBatchSpanProperty.get) {
+        stage.span.setAttribute(SOURCE_NAME_KEY, this.name)
+        stage.span.setAttribute(BATCH_ID_KEY, Long.box(control.id))
+      }
       if (log.isDebugEnabled())
         log debug burstLocMsg(s"starting (guid=${control.stream.guid}, batchId=${control.id})")
       TeslaRequestFuture {
@@ -156,7 +162,9 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
                     ScanningStoreReporter.onReadComplete(control.feedControl, jobDuration, pressSize)
                   }
                 case Failure(t) =>
-                  stage.span.recordException(t)
+                  if (defaultManualBatchSpanProperty.get) {
+                    stage.span.recordException(t)
+                  }
                   ScanningStoreReporter.onReadReject(control.feedControl)
               }.andThen {
                 case _ =>
@@ -165,7 +173,9 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
                       log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, readItemCount=$readItemCount) completed")
 
                     batchComplete.success(BatchResult(finalizeBatch(control), readItemCount.get(), skipped = false))
-                    control.addAttributes(stage.span)
+                    if (defaultManualBatchSpanProperty.get) {
+                      control.addAttributes(stage.span)
+                    }
                   }
               }
             }
@@ -173,17 +183,23 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
         } catch {
           case ex: Throwable =>
             log error(burstLocMsg(s"batch exception (guid=${control.stream.guid}, batchId=${control.id})", ex), ex)
-            stage.span.recordException(ex)
+            if (defaultManualBatchSpanProperty.get) {
+              stage.span.recordException(ex)
+            }
             batchComplete.failure(ex)
         }
       }
 
       batchComplete.future.andThen {
         case Success(BatchResult(control, itemCount, skipped)) =>
-          ScanningBatchTrek.end(stage)
+          if (defaultManualBatchSpanProperty.get) {
+            ScanningBatchTrek.end(stage)
+          }
           log info burstStdMsg(s"completed (batch=${control.id}, itemCount=$itemCount, truncated=$skipped, cancelled=${control.isCancelled})")
         case Failure(ex) =>
-          ScanningBatchTrek.fail(stage, ex)
+          if (defaultManualBatchSpanProperty.get) {
+            ScanningBatchTrek.fail(stage, ex)
+          }
           log error(burstStdMsg(s"exception", ex), ex)
       }
     }
