@@ -39,9 +39,18 @@ package object message extends VitalsLogger {
 
   def msgIds(msg: NexusMsg): String = s"message(msg_guid=${msg.guid} msg_suid=${msg.suid})"
 
-  private val msgMap = new ConcurrentHashMap[Int, NexusMsgType]()
+  private lazy val msgMap = {
+    val m = new ConcurrentHashMap[Int, NexusMsgType]()
+    m.putIfAbsent(NexusStreamInitiateMsgType.code, NexusStreamInitiateMsgType)
+    m.putIfAbsent(NexusStreamInitiatedMsgType.code, NexusStreamInitiatedMsgType)
+    m.putIfAbsent(NexusStreamParcelMsgType.code, NexusStreamParcelMsgType)
+    m.putIfAbsent(NexusStreamCompleteMsgType.code, NexusStreamCompleteMsgType)
+    m.putIfAbsent(NexusStreamAbortMsgType.code, NexusStreamAbortMsgType)
+    m.putIfAbsent(NexusStreamHeartbeatMsgType.code, NexusStreamHeartbeatMsgType)
+    m
+  }
   sealed case class NexusMsgType(code: Int, name: String) {
-    msgMap.put(code, this)
+    msgMap.putIfAbsent(code, this)
   }
 
   def codeToMsg(code: Int): NexusMsgType = {
