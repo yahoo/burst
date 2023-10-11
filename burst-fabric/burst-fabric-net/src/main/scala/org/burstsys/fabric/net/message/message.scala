@@ -47,16 +47,15 @@ package object message extends VitalsLogger {
    * @param code the int sent over the wire, used to dispatch messages to the correct recipient
    */
   case class FabricNetMsgType(code: Int, name: String) {
-    msgMap.put(code, this)
+    msgMap.putIfAbsent(code, this)
   }
 
-  private val msgMap = new ConcurrentHashMap[Int, FabricNetMsgType]()
+  val msgMap: ConcurrentHashMap[Int, FabricNetMsgType] = new ConcurrentHashMap[Int, FabricNetMsgType]()
 
   def codeToMsgType(code: Int): FabricNetMsgType = {
     msgMap.get(code) match {
       case null =>
-        log warn burstLocMsg(s"unknown message type $code")
-        FabricNetMsgType(code, s"unknown message type $code")
+        FabricNetMsgType(code, s"message code=$code")
       case msgType =>
         msgType
     }
