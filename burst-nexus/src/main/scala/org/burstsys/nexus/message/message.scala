@@ -39,7 +39,16 @@ package object message extends VitalsLogger {
 
   def msgIds(msg: NexusMsg): String = s"message(msg_guid=${msg.guid} msg_suid=${msg.suid})"
 
-  sealed case class NexusMsgType(code: Int, name: String)
+  sealed case class NexusMsgType(code: Int, name: String) {
+    override def equals(obj: Any): Boolean = {
+      obj match {
+        case that: NexusMsgType =>
+          code == that.code
+        case _ =>
+          false
+      }
+    }
+  }
 
 
   ////////////////////////////////////////////////////////////////////////////////

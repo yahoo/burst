@@ -48,6 +48,15 @@ package object message extends VitalsLogger {
    */
   case class FabricNetMsgType(code: Int, name: String) {
     msgMap.putIfAbsent(code, this)
+
+    override def equals(obj: Any): Boolean = {
+      obj match {
+        case that: FabricNetMsgType =>
+          code == that.code
+        case _ =>
+          false
+      }
+    }
   }
 
   val msgMap: ConcurrentHashMap[Int, FabricNetMsgType] = new ConcurrentHashMap[Int, FabricNetMsgType]()
