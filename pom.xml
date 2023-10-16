@@ -1262,11 +1262,9 @@
                             <arg>-feature</arg>
                             <arg>-release:${java-short.version}</arg>
                             <arg>-Wopt</arg>
-                            <!--
-                            <arg>-opt:inline:org.burstsys.vitals,org.burstsys.tesla,org.burstsys.zap,org.burstsys.nexus,org.burstsys.fabric</arg>
+                            <arg>-opt:inline:org.burstsys.*
                             <arg>-Yopt-inline-heuristics:at-inline-annotated</arg>
                             <arg>-opt-warnings:at-inline-failed-summary</arg>
-                            -->
                         </args>
                         <javacArgs>
                             <javacArg>-Xlint:unchecked</javacArg>
