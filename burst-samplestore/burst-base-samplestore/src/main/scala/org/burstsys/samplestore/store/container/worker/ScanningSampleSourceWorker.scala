@@ -1,6 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.samplestore.store.container.worker
 
+import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.Span
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
@@ -21,6 +22,9 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl]() extends SampleSourceWorkerService {
+  private val SOURCE_NAME_KEY = AttributeKey.stringKey("burstsys.samplesource.name")
+  private val BATCH_COUNT_KEY = AttributeKey.longKey("burstsys.batchCount")
+  private val BATCH_ID_KEY = AttributeKey.longKey("burstsys.batchId")
 
   protected trait DataProvider {
     def scanner(stream: NexusStream): Iterator[T]

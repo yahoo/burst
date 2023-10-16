@@ -15,9 +15,6 @@ package object trek {
     VitalsTrekRemote, VitalsTrekClient
   )
 
-  private[samplestore] val SOURCE_NAME_KEY = AttributeKey.stringKey("burstsys.samplesource.name")
-  private[samplestore] val BATCH_COUNT_KEY = AttributeKey.longKey("burstsys.batchCount")
-  private[samplestore] val BATCH_ID_KEY = AttributeKey.longKey("burstsys.batchId")
   private[samplestore] val REJECTED_ITEMS_KEY = AttributeKey.longKey("burstsys.rejectedItems")
   private[samplestore] val PROCESSED_ITEMS_COUNT_KEY = AttributeKey.longKey("burstsys.processedItems")
   private[samplestore] val CANCEL_WORK_KEY = AttributeKey.booleanKey("burstsys.cancelWork")

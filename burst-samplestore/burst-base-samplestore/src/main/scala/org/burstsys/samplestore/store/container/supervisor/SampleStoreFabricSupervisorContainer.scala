@@ -165,6 +165,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
           updateMetadata(w.connection, s, supervisor.getBroadcastVars)
         }
       case None =>
+        log warn burstLocMsg(s"worker=$worker not found in topology")
     }
   }
 
