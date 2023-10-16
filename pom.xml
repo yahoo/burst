@@ -1262,7 +1262,7 @@
                             <arg>-feature</arg>
                             <arg>-release:${java-short.version}</arg>
                             <arg>-Wopt</arg>
-                            <arg>-opt:inline:org.burstsys.*
+                            <arg>-opt:inline:org.burstsys.*</arg>
                             <arg>-Yopt-inline-heuristics:at-inline-annotated</arg>
                             <arg>-opt-warnings:at-inline-failed-summary</arg>
                         </args>

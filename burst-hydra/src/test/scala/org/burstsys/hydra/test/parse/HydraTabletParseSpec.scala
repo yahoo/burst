@@ -10,7 +10,6 @@ class HydraTabletParseSpec extends HydraSpecSupport {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Examples
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-
   it should "parse tablet 1" in {
     implicit val source: String =
       s"""
@@ -19,6 +18,4 @@ class HydraTabletParseSpec extends HydraSpecSupport {
 
     parser printParse (_.parseAnalysis(source, schema))
   }
-
-
 }
