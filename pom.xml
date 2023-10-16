@@ -31,7 +31,7 @@
                 </property>
             </activation>
             <properties>
-                <skipTests>true</skipTests>
+                <skipTests>false</skipTests>
             </properties>
 
             <build>
@@ -1262,6 +1262,7 @@
                             <arg>-feature</arg>
                             <arg>-release:${java-short.version}</arg>
                             <arg>-Wopt</arg>
+                            <arg>-opt:l:inline</arg>
                         </args>
                         <javacArgs>
                             <javacArg>-Xlint:unchecked</javacArg>
