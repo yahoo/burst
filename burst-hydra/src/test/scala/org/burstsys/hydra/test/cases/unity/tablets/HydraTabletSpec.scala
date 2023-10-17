@@ -9,6 +9,7 @@ import org.scalatest.Ignore
 import scala.language.postfixOps
 
 class HydraTabletSpec extends HydraAlloyTestRunner {
+  /**
 
   it should "successfully do a simple tablet visit" in {
     val source =
@@ -66,8 +67,8 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
       staticSweep = None
     )
   }
+   **/
 
-  /**
   it should "successfully do first/last member operations" in {
 
     val source =
@@ -129,5 +130,4 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
       staticSweep = None // Some(new B80E958558426496AA3957445C6B12DE3)
     )
   }
-  **/
 }
