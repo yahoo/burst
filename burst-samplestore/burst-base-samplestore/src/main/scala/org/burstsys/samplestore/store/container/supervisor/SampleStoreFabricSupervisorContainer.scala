@@ -162,7 +162,9 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
           val supervisor = SampleSourceHandlerRegistry.getSupervisor(s)
           log debug burstLocMsg(s"supervisor=${supervisor.name} worker=${w.nodeName}")
           supervisor.onSampleStoreDataLocusAdded(convertToLocus(worker))
-          updateMetadata(w.connection, s, supervisor.getBroadcastVars)
+          Future { // don't wait for the update to move on
+            updateMetadata(w.connection, s, supervisor.getBroadcastVars)
+          }
         }
       case None =>
         log warn burstLocMsg(s"worker=$worker not found in topology")
