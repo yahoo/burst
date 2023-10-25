@@ -6,7 +6,9 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.brio.provider.{BrioSyntheticDataProvider, SyntheticDataProvider}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplestore.store.container.worker.{BatchControl, FeedControl, ScanningSampleSourceWorker}
+import org.burstsys.samplesource
+import org.burstsys.samplesource.pipeline.PressPipeline
+import org.burstsys.samplesource.service.scanning.{BatchControl, FeedControl, ScanningSampleSourceWorker}
 import org.burstsys.synthetic.samplestore.configuration._
 import org.burstsys.vitals.logging.burstStdMsg
 import org.burstsys.vitals.properties._
@@ -17,6 +19,7 @@ import scala.language.postfixOps
  * A sample source worker that generates synthetic data.
  */
 case class SyntheticSampleSourceWorker() extends ScanningSampleSourceWorker[BrioPressInstance, FeedControl, BatchControl]() {
+
 
   def name: String = SyntheticSampleSourceName
 

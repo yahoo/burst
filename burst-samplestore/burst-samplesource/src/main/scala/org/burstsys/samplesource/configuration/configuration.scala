@@ -17,4 +17,10 @@ package object configuration {
     default = Some(256)
   )
 
+  val manualBatchSpan = "burst.samplestore.scanning.manualspan"
+  val defaultManualBatchSpanProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification(
+    key = manualBatchSpan,
+    description = "manually create a span around a scanning batch",
+    default = Some(false)
+  )
 }

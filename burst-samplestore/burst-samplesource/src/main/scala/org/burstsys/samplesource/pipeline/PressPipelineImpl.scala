@@ -1,8 +1,7 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.samplestore.pipeline
+package org.burstsys.samplesource.pipeline
 
 import io.opentelemetry.api.trace.Span
-import io.opentelemetry.context.Context
 import org.burstsys.brio.blob.BrioBlobEncoder
 import org.burstsys.brio.configuration.brioPressThreadsProperty
 import org.burstsys.brio.dictionary.factory._
@@ -10,7 +9,6 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressSink, BrioPressSource, BrioPresser}
 import org.burstsys.brio.types.BrioTypes.BrioVersionKey
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplestore.{SampleStoreReporter, pipeline}
 import org.burstsys.tesla.TeslaTypes._
 import org.burstsys.tesla.buffer.factory._
 import org.burstsys.tesla.buffer.mutable.TeslaMutableBuffer
@@ -19,7 +17,6 @@ import org.burstsys.tesla.thread.worker.TeslaWorkerCoupler
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
 import org.burstsys.vitals.reporter.instrument.{prettyByteSizeString, prettyRateString, prettyTimeFromNanos}
-import org.burstsys.vitals.trek.TrekStage
 import org.burstsys.vitals.uid._
 
 import java.util.concurrent.LinkedBlockingQueue
@@ -31,7 +28,7 @@ import scala.util.Success
  * A Fixed set of worker threads pressing items to blobs...
  * Metrics are tracked
  */
-trait PressPipeline extends AnyRef {
+class PressPipelineImpl extends PressPipeline {
 
   /**
    * establish a queue to allow fixed size pool to grab chunks of work
@@ -39,7 +36,7 @@ trait PressPipeline extends AnyRef {
   private[this]
   lazy val pressJobQueue = new LinkedBlockingQueue[PressPipelineJob](brioPressThreadsProperty.get*10) {
 
-    pipeline.log info burstStdMsg(s"start ${brioPressThreadsProperty.get} press worker thread(s)")
+    log info burstStdMsg(s"start ${brioPressThreadsProperty.get} press worker thread(s)")
 
     /**
      * startup a fixed worker pool for parallel pressing
@@ -56,19 +53,19 @@ trait PressPipeline extends AnyRef {
             // grab a job as they come in
             val job = this.take // all waiting in request thread
             val jobStart = System.nanoTime
-            pipeline.log debug burstStdMsg(s"presser taking ${job.jobId} on queue (size=${this.size()})")
+            log debug burstStdMsg(s"presser taking ${job.jobId} on queue (size=${this.size()})")
             var blobBuffer = TeslaWorkerCoupler(grabBuffer(job.maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger)))
             val pressElapsed = TeslaWorkerCoupler { // worker thread for CPU bound pressing
               val workerStart = System.nanoTime
               try {
                 val jobId = job.jobId
-                pipeline.log debug burstStdMsg(s"worker taking ${job.jobId} on queue (size=${this.size()})")
+                log debug burstStdMsg(s"worker taking ${job.jobId} on queue (size=${this.size()})")
                 blobBuffer = job.press(presser, blobBuffer)
                 val elapsedNs = System.nanoTime - workerStart
                 val byteCount = pressBuffer.currentUsedMemory
                 if (elapsedNs > slowPressDuration.toNanos) {
-                  SampleStoreReporter.onPressSlow()
-                  pipeline.log warn burstStdMsg(
+                  PressPipelineReporter.onPressSlow()
+                  log warn burstStdMsg(
                     s"BrioPressPipeline($i) guid=${job.guid}, jobId=$jobId SLOW PRESS elapsedNs=$elapsedNs (${
                       prettyTimeFromNanos(elapsedNs)
                     }) byteCount=$byteCount  (${prettyByteSizeString(byteCount)}) ${
@@ -76,12 +73,12 @@ trait PressPipeline extends AnyRef {
                     }"
                   )
                 }
-                SampleStoreReporter.onPressComplete(elapsedNs, byteCount)
+                PressPipelineReporter.onPressComplete(elapsedNs, byteCount)
               } catch safely {
                 case t: Throwable =>
                   job.p.failure(t)
-                  SampleStoreReporter.onPressReject()
-                  pipeline.log error(burstStdMsg(s"press failed", t), t)
+                  PressPipelineReporter.onPressReject()
+                  log error(burstStdMsg(s"press failed", t), t)
                   blobBuffer = null
               } finally {
                 pressBuffer.reset
@@ -93,11 +90,11 @@ trait PressPipeline extends AnyRef {
             val jobElapsed = System.nanoTime() - jobStart
             if (blobBuffer != null) {
               if (job.maxTotalBytes > 0 && job.maxTotalBytes < job.stream.putBytesCount + blobBuffer.currentUsedMemory) {
-                if (pipeline.log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                   val msg = s"(jobId=${job.jobId}, guid=${job.guid}, maxTotalBytes=${job.maxTotalBytes}, stream.putBytesCount=${job.stream.putBytesCount}, blobBuffer.currentUsedMemory=${blobBuffer.currentUsedMemory}) -- discarding press job"
-                  pipeline.log debug burstLocMsg(msg)
+                  log debug burstLocMsg(msg)
                 }
-                SampleStoreReporter.onPressReject()
+                PressPipelineReporter.onPressReject()
                 releaseBuffer(blobBuffer)
                 job.p.complete(Success(PressJobResults(job.jobId, 0, jobElapsed, pressElapsed, skipped = true)))
               } else {
@@ -140,7 +137,7 @@ trait PressPipeline extends AnyRef {
                       )
   {
     def press(presser: BrioPresser, blobBuffer: TeslaMutableBuffer): TeslaMutableBuffer = {
-      pipeline.log trace burstLocMsg(s"pressing job $jobId into buffer ${blobBuffer.basePtr}")
+      log trace burstLocMsg(s"pressing job $jobId into buffer ${blobBuffer.basePtr}")
       val sink = presser.press(schema, pressSource)
       BrioBlobEncoder.encodeV2Blob(sink.buffer, version, sink.dictionary, blobBuffer)
       blobBuffer
@@ -159,10 +156,9 @@ trait PressPipeline extends AnyRef {
                     maxItemSize: Int, maxTotalBytes: Long): Future[PressJobResults] = {
     val p = Promise[PressJobResults]()
     val thing = PressPipelineJob(jobId.getAndIncrement, stream, p, pressSource, schema, version, maxItemSize, maxTotalBytes, Span.current())
-    pipeline.log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
+    log trace burstLocMsg(s"putting ${thing.jobId} on queue (size=${pressJobQueue.size()})")
     pressJobQueue put thing
-    pipeline.log trace burstLocMsg(s"returning ${thing.jobId} future")
+    log trace burstLocMsg(s"returning ${thing.jobId} future")
     p.future
   }
-
 }

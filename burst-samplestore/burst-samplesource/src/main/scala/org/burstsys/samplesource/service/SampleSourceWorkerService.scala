@@ -2,6 +2,8 @@
 package org.burstsys.samplesource.service
 
 import org.burstsys.nexus.stream.NexusStream
+import org.burstsys.samplesource
+import org.burstsys.samplesource.pipeline.PressPipeline
 import org.burstsys.vitals.VitalsService
 import org.burstsys.vitals.VitalsService.VitalsStandardServer
 
@@ -44,10 +46,9 @@ trait SampleSourceWorkerService extends VitalsService {
 
   /**
    * Accept new broadcast parameters that may be needed for processing
-   * @param metadata
    */
-  def putBroadcastVars(metadata: MetadataParameters): Unit = {
+  def putBroadcastVars(metadata: MetadataParameters): Unit = {}
 
-  }
+  def pipeline: PressPipeline = samplesource.pipeline.pipeline
 }
 

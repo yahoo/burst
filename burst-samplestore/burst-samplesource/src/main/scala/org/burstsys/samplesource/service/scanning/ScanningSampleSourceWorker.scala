@@ -1,18 +1,17 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.samplestore.store.container.worker
+package org.burstsys.samplesource.service.scanning
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.Span
 import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService}
-import org.burstsys.samplestore.configuration.defaultManualBatchSpanProperty
-import org.burstsys.samplestore.pipeline
-import org.burstsys.samplestore.trek._
+import org.burstsys.samplesource.configuration.defaultManualBatchSpanProperty
+import org.burstsys.samplesource.pipeline.PressJobResults
+import org.burstsys.samplesource.service.{MetadataParameters, SampleSourceWorkerService, log}
+import org.burstsys.samplesource.trek.{ScanningBatchTrek, ScanningFeedStreamTrek}
 import org.burstsys.tesla.thread.request.{TeslaRequestFuture, teslaRequestExecutor}
 import org.burstsys.vitals.logging.{burstLocMsg, burstStdMsg}
-import org.burstsys.vitals.properties._
 
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
@@ -168,7 +167,7 @@ abstract class ScanningSampleSourceWorker[T, F <: FeedControl, B <: BatchControl
             val pressedItemFuture = pipeline.pressToFuture(control.stream, pressSource, provider.schema,
               pressInstance.schemaVersion, control.maxItemSize, control.maxStreamSize)
             pressedItemFuture.andThen {
-              case Success(pipeline.PressJobResults(jobId, pressSize, jobDuration, pressDuration, skipped)) =>
+              case Success(PressJobResults(jobId, pressSize, jobDuration, pressDuration, skipped)) =>
                 if (log.isDebugEnabled) {
                   log debug burstLocMsg(s"(guid=${control.stream.guid}, batchId=${control.id}, jobId=$jobId, " +
                     s"bytes=$pressSize, jobDuration=$jobDuration, pressDuration=$pressDuration, skipped=$skipped) on stream")

@@ -36,11 +36,4 @@ package object configuration {
     description = "the max size for a dataset load in bytes",
     default = Some(1e12.toInt) // 1TB
   )
-
-  val manualBatchSpan = "burst.samplestore.scanning.manualspan"
-  val defaultManualBatchSpanProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification(
-    key = manualBatchSpan,
-    description = "manually create a span around a scanning batch",
-    default = Some(false)
-  )
 }

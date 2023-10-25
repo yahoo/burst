@@ -2,7 +2,6 @@
 package org.burstsys.synthetic.samplestore.source
 
 import org.burstsys.samplesource.service.SampleSourceService
-
 import scala.annotation.unused
 
 /**

@@ -2,11 +2,6 @@
 package org.burstsys
 
 import org.burstsys.vitals.logging._
-import org.burstsys.vitals.reporter.{VitalsReporter, VitalsReporterSource}
 
-package object samplestore extends VitalsReporterSource with VitalsLogger {
+package object samplestore extends VitalsLogger
 
-  override def reporters: Array[VitalsReporter] = Array(
-    SampleStoreReporter
-  )
-}

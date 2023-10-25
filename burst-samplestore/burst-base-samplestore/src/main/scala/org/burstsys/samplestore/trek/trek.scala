@@ -15,6 +15,7 @@ package object trek {
     VitalsTrekRemote, VitalsTrekClient
   )
 
+  /*
   private[samplestore] val REJECTED_ITEMS_KEY = AttributeKey.longKey("burstsys.rejectedItems")
   private[samplestore] val PROCESSED_ITEMS_COUNT_KEY = AttributeKey.longKey("burstsys.processedItems")
   private[samplestore] val CANCEL_WORK_KEY = AttributeKey.booleanKey("burstsys.cancelWork")
@@ -29,4 +30,6 @@ package object trek {
   final object ScanningBatchTrek extends VitalsTrekMark("ScanningBatch",
     VitalsTrekRemote, VitalsTrekWorker, SpanKind.INTERNAL
   )
+  *
+   */
 }
