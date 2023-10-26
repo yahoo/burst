@@ -6,8 +6,6 @@ import org.burstsys.brio.model.schema.BrioSchema
 import org.burstsys.brio.press.{BrioPressInstance, BrioPressSource}
 import org.burstsys.brio.provider.{BrioSyntheticDataProvider, SyntheticDataProvider}
 import org.burstsys.nexus.stream.NexusStream
-import org.burstsys.samplesource
-import org.burstsys.samplesource.pipeline.PressPipeline
 import org.burstsys.samplesource.service.scanning.{BatchControl, FeedControl, ScanningSampleSourceWorker}
 import org.burstsys.synthetic.samplestore.configuration._
 import org.burstsys.vitals.logging.burstStdMsg
