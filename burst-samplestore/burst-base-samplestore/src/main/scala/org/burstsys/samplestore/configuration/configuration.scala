@@ -4,6 +4,7 @@ package org.burstsys.samplestore
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName}
 import org.burstsys.vitals.properties.VitalsPropertySpecification
 
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 package object configuration {
@@ -35,5 +36,12 @@ package object configuration {
     key = maxLoadSizeProperty,
     description = "the max size for a dataset load in bytes",
     default = Some(1e12.toInt) // 1TB
+  )
+
+  val rebroadcastDuration = "burst.samplestore.rebroadcast.durations"
+  val rebroadcastDurationProperty: VitalsPropertySpecification[Duration] = VitalsPropertySpecification(
+    key = rebroadcastDuration,
+    description = "the duration at which the broadcast vars are rebroadcast to the workers",
+    default = Some(5 minutes)
   )
 }

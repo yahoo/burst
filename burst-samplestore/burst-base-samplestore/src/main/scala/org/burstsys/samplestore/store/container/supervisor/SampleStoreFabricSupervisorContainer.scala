@@ -13,6 +13,7 @@ import org.burstsys.samplesource.service.MetadataParameters
 import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.samplestore.api.{SampleStoreApiServerDelegate, SampleStoreDataLocus}
+import org.burstsys.samplestore.configuration.rebroadcastDurationProperty
 import org.burstsys.samplestore.store.container._
 import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
@@ -32,7 +33,7 @@ import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 
 import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /**
@@ -59,7 +60,9 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   private val requestLog = new ViewGenerationRequestLogService()
 
   lazy val backgroundAssessor: VitalsBackgroundFunctions =
-    new VitalsBackgroundFunctions(s"sample-store-supervisor-broadcast-vars", 5 minutes, 5 minutes).start
+    new VitalsBackgroundFunctions(s"sample-store-supervisor-broadcast-vars", 5 minutes, backgroundDuration).start
+
+  protected val backgroundDuration: Duration = rebroadcastDurationProperty.get
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -86,6 +89,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
         .start
 
       backgroundAssessor += broadcastFunction
+      backgroundAssessor.start
 
       markRunning
     }
@@ -99,6 +103,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
       thriftApiServer.stop
       SystemInfoService.deregisterComponent(this)
       backgroundAssessor -= broadcastFunction
+      backgroundAssessor.start
 
       super.stop
 
