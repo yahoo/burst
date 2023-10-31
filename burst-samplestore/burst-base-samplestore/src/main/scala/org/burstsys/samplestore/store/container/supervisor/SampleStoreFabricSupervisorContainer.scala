@@ -103,7 +103,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
       thriftApiServer.stop
       SystemInfoService.deregisterComponent(this)
       backgroundAssessor -= broadcastFunction
-      backgroundAssessor.start
+      backgroundAssessor.stop
 
       super.stop
 
