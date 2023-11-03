@@ -10,15 +10,21 @@ import org.burstsys.fabric.net.server.defaultFabricNetworkServerConfig
 import org.burstsys.fabric.wave
 import org.burstsys.fabric.wave.container.supervisor.{FabricWaveSupervisorContainer, FabricWaveSupervisorContainerContext}
 import org.burstsys.hydra.HydraService
+import org.burstsys.supervisor
+import org.burstsys.supervisor.configuration
+import org.burstsys.supervisor.configuration.kedaScaleDownInterval
 import org.burstsys.supervisor.http.BurstWaveHttpBinder
 import org.burstsys.supervisor.http.endpoints._
 import org.burstsys.supervisor.http.service.burnin.BurstWaveBurnInService
+import org.burstsys.supervisor.http.service.execution.requests
 import org.burstsys.supervisor.http.service.provider.BurstWaveSupervisorBurnInService
 import org.burstsys.supervisor.http.service.thrift
 import org.burstsys.supervisor.http.websocket.{BurstExecutionRelay, BurstThriftRelay, BurstTopologyRelay, WaveSupervisorBurnInRelay}
+import org.burstsys.vitals
 import org.burstsys.vitals.configuration.burstLog4j2NameProperty
 import org.burstsys.vitals.errors._
 import org.burstsys.vitals.logging._
+import org.burstsys.vitals.net.VitalsHostPort
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 
 import scala.language.postfixOps
@@ -51,10 +57,19 @@ final case class BurstWaveSupervisorContainerContext()
 
   override def burnIn: BurstWaveSupervisorBurnInService = _burnIn
 
+  override def workersActive: Boolean = {
+    val earliestAllowedRequest = System.currentTimeMillis - configuration.kedaScaleDownInterval.get.toMillis
+    val systemBootTime = System.currentTimeMillis - vitals.host.uptime
+    val recentlyBooted = requests.mostRecentRequest.isEmpty && systemBootTime > earliestAllowedRequest
+    recentlyBooted || requests.mostRecentRequest.exists(_.startTime > earliestAllowedRequest)
+  }
+
+  override def desiredWorkerCount: Int = configuration.kedaScaleUpWorkerCount.get
+
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Http
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   override def httpBinder: AbstractBinder = new BurstWaveHttpBinder(this)
 
   override def httpResources: Array[Class[_]] = super.httpResources ++ Array(

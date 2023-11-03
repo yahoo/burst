@@ -117,4 +117,16 @@ package object configuration extends VitalsPropertyRegistry {
     description = "",
     default = None
   )
+
+  val burstFabricKedaScalerEnabledProperty: VitalsPropertySpecification[Boolean] = VitalsPropertySpecification[Boolean](
+    key = "burst.fabric.keda.scaler.enabled",
+    description = "enable keda scaler",
+    default = Some(false)
+  )
+
+  val burstFabricKedaScalerPortProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
+    key = "burst.fabric.keda.scaler.port",
+    description = "port for keda scaler",
+    default = Some(8081)
+  )
 }
