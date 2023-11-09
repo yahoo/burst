@@ -33,6 +33,7 @@ import BurnInTab from './tabs/burn-in/burn-in-tab';
 import WorkerTab from "./tabs/worker/worker-tab";
 import SettingsTab from "./tabs/settings/settings-tab";
 import ThirftTab from './tabs/thrift/thrift-tab'
+import SystemTab from "./tabs/system/system-tab";
 
 import MessageBanner from "./layout/message-banner";
 import Header from "./layout/header";
@@ -67,6 +68,7 @@ const NavLinks = () => {
         {to: '/workers', title: 'Workers'},
         {to: '/burn-in', title: burnInTitle},
         {to: '/settings', title: 'Settings'},
+        {to: '/system', title: 'System'}
     ]
 
     return (
@@ -112,6 +114,7 @@ const App = () => {
                                 <Route path="/burn-in" render={renderComponent(BurnInTab, "Burn-In")}/>
                                 <Route path="/workers" render={renderComponent(WorkerTab, "Worker")}/>
                                 <Route path="/settings" render={renderComponent(SettingsTab, "Settings")}/>
+                                <Route path="/system" render={renderComponent(SystemTab, "System")}/>
                                 <Redirect to="/waves"/>
                             </Switch>
                         </div>

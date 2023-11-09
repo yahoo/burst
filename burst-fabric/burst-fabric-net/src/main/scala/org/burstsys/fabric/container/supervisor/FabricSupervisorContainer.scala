@@ -24,7 +24,8 @@ import scala.language.postfixOps
 /**
  * the one per JVM top level container for a Fabric Supervisor
  */
-trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricContainer with FabricNetServerListener {
+trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricContainer
+  with FabricNetServerListener with BurstScalingService {
 
   /**
    * the supervisor topology service
@@ -41,7 +42,7 @@ trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricCon
 }
 
 abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](netConfig: FabricNetworkConfig)
-  extends FabricContainerContext with FabricSupervisorContainer[T] with BurstScalingService {
+  extends FabricContainerContext with FabricSupervisorContainer[T] {
 
   override def serviceName: String = s"fabric-supervisor-container"
 

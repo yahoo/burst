@@ -1,5 +1,7 @@
 import React from "react";
 import request from "../utility/api-requests";
+import {selectors} from "../store/reducers/host";
+import {useSelector} from "react-redux";
 
 const Pair = ({label, value, title = ""}) => (
     <div title={title}>
@@ -8,37 +10,18 @@ const Pair = ({label, value, title = ""}) => (
     </div>
 )
 
-class ConfigInfo extends React.Component {
-    state = {
-        configInfo: null
-    };
-
-    componentDidMount() {
-        this.fetchConfigInfo();
-        setInterval(() => this.fetchConfigInfo(), 180_000);
+const ConfigInfo = () => {
+    const configInfo = useSelector(selectors.gitInfo);
+    if (!configInfo) {
+        return <div/>
     }
 
-    fetchConfigInfo() {
-        request('/info/buildInfo', {method: 'GET'})
-            .then(data => this.setState({configInfo: data}))
-            .catch(e => console.log("Failed to fetch config info", e));
-    };
-
-    render() {
-        const {configInfo} = this.state;
-
-        if (!configInfo) {
-            return <div/>
-        }
-
-        const {build, commitId, branch} = configInfo;
-        return (
-            <div id="config-info">
-                <Pair label="version" value={build}/>
-                <Pair label="commit" value={commitId} title={`Branch: ${branch}`}/>
-            </div>
-        )
-    }
+    const {build, commitId, branch} = configInfo;
+    return (
+        <div id="config-info">
+            <Pair label="version" value={build}/>
+            <Pair label="commit" value={commitId} title={`Branch: ${branch}`}/>
+        </div>
+    )
 }
-
 export default ConfigInfo

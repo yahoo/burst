@@ -1,4 +1,4 @@
-import {configureStore} from "@reduxjs/toolkit";
+import {combineReducers, configureStore} from "@reduxjs/toolkit";
 
 import catalog from './reducers/catalog';
 import data from './reducers/data';
@@ -9,6 +9,7 @@ import thrift from './reducers/thrift'
 import burnIn from './reducers/burn-in'
 import crosscutting from './reducers/crosscutting';
 import settings from './reducers/settings';
+import host from "./reducers/host";
 
 export default configureStore({
     reducer: {
@@ -19,7 +20,8 @@ export default configureStore({
         query,
         thrift,
         workerTab,
-        settings,
+        [settings.name]: settings.reducer,
+        [host.name]: host.reducer,
         burnIn,
     },
     devTools: {

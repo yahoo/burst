@@ -57,15 +57,43 @@ final case class BurstWaveSupervisorContainerContext()
 
   override def burnIn: BurstWaveSupervisorBurnInService = _burnIn
 
-  override def workersActive: Boolean = {
-    val earliestAllowedRequest = System.currentTimeMillis - configuration.kedaScaleDownInterval.get.toMillis
-    val systemBootTime = System.currentTimeMillis - vitals.host.uptime
-    val recentlyBooted = requests.mostRecentRequest.isEmpty && systemBootTime > earliestAllowedRequest
-    recentlyBooted || requests.mostRecentRequest.exists(_.startTime > earliestAllowedRequest)
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Keda Scaling
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  private def requestWithinScaleDownInterval: Boolean = {
+    requests.mostRecentRequest.exists(_.startTime > lastRequestTimeToMaintainWorkers)
   }
 
-  override def desiredWorkerCount: Int = configuration.kedaScaleUpWorkerCount.get
+  private def lastRequestTimeToMaintainWorkers = {
+    System.currentTimeMillis - configuration.kedaScaleDownInterval.get.toMillis
+  }
 
+  private def systemBootedWithinScaleDownInterval: Boolean = {
+    vitals.host.uptime < configuration.kedaScaleDownInterval.get.toMillis
+  }
+
+  override def workersActive: Boolean = {
+    systemBootedWithinScaleDownInterval || requestWithinScaleDownInterval
+  }
+
+  override def desiredWorkerCount: Int = {
+    if (workersActive)
+      configuration.kedaScaleUpWorkerCount.get
+    else
+      1
+  }
+
+  override def scalingInfo: Any = {
+    Map(
+      "workersActive" -> workersActive,
+      "currentWorkerCount" -> currentWorkerCount,
+      "desiredWorkerCount" -> desiredWorkerCount,
+      "requestWithinScaleDownInterval" -> requestWithinScaleDownInterval,
+      "systemBootedWithinScaleDownInterval" -> systemBootedWithinScaleDownInterval,
+      "mostRecentRequestTime" -> requests.mostRecentRequest.map(_.startTime),
+      "earliestAllowedRequestTime" -> lastRequestTimeToMaintainWorkers,
+    )
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Http

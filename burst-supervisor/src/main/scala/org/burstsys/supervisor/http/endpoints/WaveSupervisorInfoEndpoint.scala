@@ -4,6 +4,8 @@ package org.burstsys.supervisor.http.endpoints
 import jakarta.ws.rs._
 import jakarta.ws.rs.core.{MediaType, Response}
 import org.burstsys.fabric
+import org.burstsys.supervisor.configuration
+import org.burstsys.supervisor.http.endpoints.InfoMessages.BurstKedaStatusJson
 import org.burstsys.supervisor.http.endpoints.InfoMessages.{BurstBuildInfoJson, BurstHostInfoJson, BurstSettingInfoJson, BurstSettingUpdateJson}
 import org.burstsys.vitals
 import org.burstsys.vitals.git
@@ -60,6 +62,18 @@ final class WaveSupervisorInfoEndpoint extends WaveSupervisorEndpoint {
       Response.noContent().build()
     }
   }
+
+  @GET
+  @Path("keda")
+  def kedaConfig: BurstKedaStatusJson = {
+    resultOrErrorResponse {
+      BurstKedaStatusJson(
+        configuration.kedaScaleDownInterval.get.toString, configuration.kedaScaleUpWorkerCount.get.toString,
+        supervisor.workersActive, supervisor.currentWorkerCount, supervisor.desiredWorkerCount,
+        supervisor.scalingInfo,
+      )
+    }
+  }
 }
 
 object InfoMessages {
@@ -98,4 +112,13 @@ object InfoMessages {
                                            value: String,
                                            key: String
                                          ) extends VitalsJsonObject
+
+  final case class BurstKedaStatusJson(
+                                        scaleDownInterval: String,
+                                        scaleUpWorkerCount: String,
+                                        isActive: Boolean,
+                                        currentWorkerCount: Int,
+                                        desiredWorkerCount: Int,
+                                        scalingInfo: Any,
+                                      ) extends VitalsJsonObject
 }

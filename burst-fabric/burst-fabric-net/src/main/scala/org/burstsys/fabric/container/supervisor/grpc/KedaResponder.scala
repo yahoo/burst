@@ -19,6 +19,14 @@ trait BurstScalingService {
   def currentWorkerCount: Int
 
   def desiredWorkerCount: Int
+
+  def scalingInfo: Any = {
+    Map(
+      "workersActive" -> workersActive,
+      "currentWorkerCount" -> currentWorkerCount,
+      "desiredWorkerCount" -> desiredWorkerCount
+    )
+  }
 }
 
 /**

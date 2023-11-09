@@ -37,14 +37,9 @@ const SettingsRow = ({setting, editState, onChange, onSave, onCancel}) => (
 
 const SettingsTabFn = () => {
     const dispatch = useDispatch()
-    const settings = useSelector(selectors.selectFilteredSettings)
-    const {
-        filter,
-        editing
-    } = useSelector(({settings}) => ({
-        filter: settings.filter,
-        editing: settings.editing,
-    }));
+    const settings = useSelector(selectors.getFilteredSettings)
+    const filter = useSelector(selectors.getFilterText)
+    const editedValues = useSelector(selectors.getEditedValues)
     useEffect(() => {
         dispatch(actions.loadSettings())
     }, [])
@@ -73,11 +68,11 @@ const SettingsTabFn = () => {
                             <SettingsRow
                                 key={setting.key}
                                 setting={setting}
-                                editState={editing[setting.key]}
+                                editState={editedValues[setting.key]}
                                 onChange={value => dispatch(actions.updateEdit({key: setting.key, value}))}
                                 onSave={() => dispatch(actions.saveSetting({
                                     key: setting.key,
-                                    value: editing[setting.key]
+                                    value: editedValues[setting.key]
                                 }))}
                                 onCancel={() => dispatch(actions.clearEdit({key: setting.key}))}
                             />

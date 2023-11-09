@@ -7,6 +7,7 @@ import PropertyEditor from "../../utility/PropertyEditor";
 import {dateTime} from '../../utility/burst-conversions';
 import {actions as catalog} from '../../store/reducers/catalog'
 import {actions as crosscutting} from '../../store/reducers/crosscutting'
+import {FaIcon} from "../../utility/fa-icon";
 
 const LabeledItem = ({label, item}) => (
     <span className="burst-labeled-item">
@@ -65,15 +66,16 @@ const EntityEditor = () => {
                 <Button variant="outline-warning" size="sm" onClick={revGenClock} disabled={modified || saving}>Rev
                     GC</Button>}
                 <LabeledItem key="moniker" label="Name" item={(
-                    <FormControl size="sm" style={{width: '25em'}} value={moniker || ''}
-                                 onChange={fieldUpdater('moniker')}/>
+                    <FormControl size="sm" style={{width: '25em'}} value={moniker || ''} onChange={fieldUpdater('moniker')}/>
                 )}/>
                 <LabeledItem key="UDK" label="UDK" item={(
                     <FormControl size="sm" style={{width: '10em'}} value={udk || ''} onChange={fieldUpdater('udk')}/>
                 )}/>
                 {isView && <LabeledItem key="Schema" label="Schema" item={schemaView}/>}
+                <Button variant="outline-danger" size="sm" onClick={() => dispatch(catalog.deleteEntity({type, entity}))}>
+                    <FaIcon icon="trash" inheritColor/> Delete
+                </Button>
                 {modified && (<>
-                    <span className="flex-grow-1"/>
                     <Button variant="outline-success" size="sm"
                             onClick={() => dispatch(catalog.save({type, entity}))} disabled={saving}>Save</Button>
                 </>)}
