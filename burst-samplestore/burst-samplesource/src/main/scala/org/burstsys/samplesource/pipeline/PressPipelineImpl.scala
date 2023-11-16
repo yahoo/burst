@@ -44,74 +44,86 @@ class PressPipelineImpl extends PressPipeline {
     (0 until brioPressThreadsProperty.get).foreach {
       i =>
         TeslaRequestFuture { // for waiting around
-          Thread.currentThread setName f"brio-presser-$i%02d"
-          val pressBuffer = TeslaWorkerCoupler(grabBuffer(pressBufferSize))
-          val dictionary = TeslaWorkerCoupler(grabMutableDictionary())
-          val presser = BrioPresser(BrioPressSink(pressBuffer, dictionary))
-
-          while (true) {
-            // grab a job as they come in
-            val job = this.take // all waiting in request thread
-            val jobStart = System.nanoTime
-            log debug burstStdMsg(s"presser taking ${job.jobId} on queue (size=${this.size()})")
-            var blobBuffer = TeslaWorkerCoupler(grabBuffer(job.maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger)))
-            val pressElapsed = TeslaWorkerCoupler { // worker thread for CPU bound pressing
-              val workerStart = System.nanoTime
-              try {
-                val jobId = job.jobId
-                log debug burstStdMsg(s"worker taking ${job.jobId} on queue (size=${this.size()})")
-                blobBuffer = job.press(presser, blobBuffer)
-                val elapsedNs = System.nanoTime - workerStart
-                val byteCount = pressBuffer.currentUsedMemory
-                if (elapsedNs > slowPressDuration.toNanos) {
-                  PressPipelineReporter.onPressSlow()
-                  log warn burstStdMsg(
-                    s"BrioPressPipeline($i) guid=${job.guid}, jobId=$jobId SLOW PRESS elapsedNs=$elapsedNs (${
-                      prettyTimeFromNanos(elapsedNs)
-                    }) byteCount=$byteCount  (${prettyByteSizeString(byteCount)}) ${
-                      prettyRateString("byte", byteCount, elapsedNs)
-                    }"
-                  )
-                }
-                PressPipelineReporter.onPressComplete(elapsedNs, byteCount)
-              } catch safely {
-                case t: Throwable =>
-                  job.p.failure(t)
-                  PressPipelineReporter.onPressReject()
-                  log error(burstStdMsg(s"press failed", t), t)
-                  blobBuffer = null
-              } finally {
-                pressBuffer.reset
-                dictionary.reset()
-              }
-              System.nanoTime - workerStart
-            }
-            // put the buffer on the stream outside of the worker thread in case we block on the stream
-            val jobElapsed = System.nanoTime() - jobStart
-            if (blobBuffer != null) {
-              if (job.maxTotalBytes > 0 && job.maxTotalBytes < job.stream.putBytesCount + blobBuffer.currentUsedMemory) {
-                if (log.isDebugEnabled()) {
-                  val msg = s"(jobId=${job.jobId}, guid=${job.guid}, maxTotalBytes=${job.maxTotalBytes}, stream.putBytesCount=${job.stream.putBytesCount}, blobBuffer.currentUsedMemory=${blobBuffer.currentUsedMemory}) -- discarding press job"
-                  log debug burstLocMsg(msg)
-                }
-                PressPipelineReporter.onPressReject()
-                releaseBuffer(blobBuffer)
-                job.p.complete(Success(PressJobResults(job.jobId, 0, jobElapsed, pressElapsed, skipped = true)))
-              } else {
-                // do the stream work in the context of the press request thread
-                val context = job.span.makeCurrent()
-                try {
-                  job.stream.put(blobBuffer)
-                } finally {
-                  context.close()
-                }
-                job.p.complete(Success(PressJobResults(job.jobId, blobBuffer.currentUsedMemory, jobElapsed, pressElapsed, skipped = false)))
-              }
-            }
+          try {
+            pressJob(i)
+          } catch {
+            case t: Throwable =>
+              log error(burstStdMsg(s"press worker thread failed", t), t)
           }
         }
+
+    }
+
+    private def pressJob(i: Int): Unit = {
+      Thread.currentThread setName f"brio-presser-$i%02d"
+      val pressBuffer = TeslaWorkerCoupler(grabBuffer(pressBufferSize))
+      val dictionary = TeslaWorkerCoupler(grabMutableDictionary())
+      val presser = BrioPresser(BrioPressSink(pressBuffer, dictionary))
+
+      while (true) {
+        // grab a job as they come in
+        val job = this.take // all waiting in request thread
+        val jobStart = System.nanoTime
+        log debug burstStdMsg(s"presser taking ${job.jobId} on queue (size=${this.size()})")
+        var blobBuffer = TeslaWorkerCoupler(grabBuffer(job.maxItemSize + brioPressDefaultDictionarySize + (10 * SizeOfInteger)))
+        val pressElapsed = TeslaWorkerCoupler { // worker thread for CPU bound pressing
+          val workerStart = System.nanoTime
+          try {
+            val jobId = job.jobId
+            log debug burstStdMsg(s"worker taking ${job.jobId} on queue (size=${this.size()})")
+            blobBuffer = job.press(presser, blobBuffer)
+            val elapsedNs = System.nanoTime - workerStart
+            val byteCount = pressBuffer.currentUsedMemory
+            if (elapsedNs > slowPressDuration.toNanos) {
+              PressPipelineReporter.onPressSlow()
+              log warn burstStdMsg(
+                s"BrioPressPipeline($i) guid=${job.guid}, jobId=$jobId SLOW PRESS elapsedNs=$elapsedNs (${
+                  prettyTimeFromNanos(elapsedNs)
+                }) byteCount=$byteCount  (${prettyByteSizeString(byteCount)}) ${
+                  prettyRateString("byte", byteCount, elapsedNs)
+                }"
+              )
+            }
+            PressPipelineReporter.onPressComplete(elapsedNs, byteCount)
+          } catch safely {
+            case t: Throwable =>
+              job.p.failure(t)
+              PressPipelineReporter.onPressReject()
+              log error(burstStdMsg(s"press failed", t), t)
+              blobBuffer = null
+          } finally {
+            pressBuffer.reset
+            dictionary.reset()
+          }
+          System.nanoTime - workerStart
+        }
+        // put the buffer on the stream outside of the worker thread in case we block on the stream
+        val jobElapsed = System.nanoTime() - jobStart
+        if (blobBuffer != null) {
+          if (job.maxTotalBytes > 0 && job.maxTotalBytes < job.stream.putBytesCount + blobBuffer.currentUsedMemory) {
+            if (log.isDebugEnabled()) {
+              val msg = s"(jobId=${job.jobId}, guid=${job.guid}, maxTotalBytes=${job.maxTotalBytes}, stream.putBytesCount=${job.stream.putBytesCount}, blobBuffer.currentUsedMemory=${blobBuffer.currentUsedMemory}) -- discarding press job"
+              log debug burstLocMsg(msg)
+            }
+            PressPipelineReporter.onPressReject()
+            releaseBuffer(blobBuffer)
+            job.p.complete(Success(PressJobResults(job.jobId, 0, jobElapsed, pressElapsed, skipped = true)))
+          } else {
+            // do the stream work in the context of the press request thread
+            val context = job.span.makeCurrent()
+            try {
+              job.stream.put(blobBuffer)
+            } finally {
+              context.close()
+            }
+            job.p.complete(Success(PressJobResults(job.jobId, blobBuffer.currentUsedMemory, jobElapsed, pressElapsed, skipped = false)))
+          }
+        }
+      }
+
     }
   }
+
 
   /**
    * The context for a press job

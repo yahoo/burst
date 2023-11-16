@@ -11,7 +11,7 @@ import org.burstsys.fabric.wave.metadata.model.datasource.FabricDatasource
 import org.burstsys.samplestore.SampleStoreName
 import org.burstsys.samplestore.api.BurstSampleStoreApiRequestState._
 import org.burstsys.samplestore.api._
-import org.burstsys.samplestore.api.client.SampleStoreApiClient
+import org.burstsys.samplestore.api.client.{SampleStoreApiClient, defaultHostName, defaultPort}
 import org.burstsys.samplestore.api.configuration.{burstSampleStoreApiHostProperty, burstSampleStoreApiPortProperty, burstSampleStoreApiSslEnableProperty}
 import org.burstsys.samplestore.model.{SampleStoreLocus, SampleStoreSlice, _}
 import org.burstsys.samplestore.trek.SampleStoreGetViewGeneratorTrek
@@ -25,6 +25,7 @@ import org.burstsys.vitals.uid.VitalsUid
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import scala.annotation.unused
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.language.implicitConversions
@@ -38,35 +39,38 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
   // STATE
   ///////////////////////////////////////////////////////////////////
 
-  private[this]
-  var _defaultClient: SampleStoreApiClient = SampleStoreApiClient()
-
   private val _clients = new ConcurrentHashMap[(VitalsHostName, VitalsHostPort), SampleStoreApiClient]()
 
   ///////////////////////////////////////////////////////////////////
   // API
   ///////////////////////////////////////////////////////////////////
 
-  private def defaultSampleStoreHost: VitalsHostName = _defaultClient.apiHost
-
-  private def defaultSampleStorePort: VitalsHostPort = _defaultClient.apiPort
-
-  def apiClient(datasource: FabricDatasource): SampleStoreApiClient = {
+  private def apiClient(datasource: FabricDatasource): SampleStoreApiClient = {
     sampleStoreServerLock synchronized {
       val storeProperties = datasource.view.storeProperties
       (storeProperties.get(sampleStoreHostName), storeProperties.get(sampleStoreHostPort).map(_.toInt)) match {
         case (Some(hostName), None) =>
           log debug s"view overrides samplesource host $hostName"
-          _clients.computeIfAbsent((hostName, defaultSampleStorePort), _ => SampleStoreApiClient(hostName).start)
+          cacheClient(hostName, defaultPort)
         case (None, Some(hostPort)) =>
           log debug s"view overrides samplesource port $hostPort"
-          _clients.computeIfAbsent((defaultSampleStoreHost, hostPort), _ => SampleStoreApiClient(apiPort = hostPort).start)
+          cacheClient(defaultHostName, hostPort)
         case (Some(hostname), Some(hostPort)) =>
           log debug s"view overrides host and port $hostname:$hostPort"
-          _clients.computeIfAbsent((hostname, hostPort), _ => SampleStoreApiClient(hostname, hostPort).start)
+          cacheClient(hostname, hostPort)
         case (None, None) =>
-          _defaultClient
+          cacheClient(defaultHostName, defaultPort)
       }
+    }
+  }
+
+  private def cacheClient(hostName: VitalsHostName, hostPort: VitalsHostPort): SampleStoreApiClient = {
+    val c = _clients.computeIfAbsent((hostName, hostPort), _ => SampleStoreApiClient(hostName, hostPort).start)
+    if (c.created < System.currentTimeMillis() - 60000) {
+      c.stop
+      _clients.computeIfAbsent((hostName, hostPort), _ => SampleStoreApiClient(hostName, hostPort).start)
+    } else {
+      c
     }
   }
 
@@ -79,7 +83,6 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     synchronized {
       ensureNotRunning
       log info startingMessage
-      _defaultClient.start
     }
     markRunning
     this
@@ -90,7 +93,6 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     synchronized {
       ensureRunning
       log info stoppingMessage
-      _defaultClient.stop
       _clients.forEach((_, client) => client.stop)
     }
     markNotRunning
@@ -164,12 +166,10 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
   burstSampleStoreApiPortProperty.listeners += watchHostProperty
   burstSampleStoreApiHostProperty.listeners += watchHostProperty
 
-  private def watchHostProperty(v: Option[_]): Unit = {
-    log info burstStdMsg(s"detected to sample store properties, restarting client")
+  private def watchHostProperty(@unused v: Option[_]): Unit = {
+    log info burstStdMsg(s"detected to sample store properties, restarting clients")
     sampleStoreServerLock synchronized {
-      _defaultClient.stop
-      _defaultClient = SampleStoreApiClient()
-      _defaultClient.start
+      _clients.clear()
     }
   }
 }
