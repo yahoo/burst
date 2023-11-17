@@ -68,7 +68,9 @@ class SampleStoreSupervisor(container: FabricWaveSupervisorContainer) extends Fa
     val c = _clients.computeIfAbsent((hostName, hostPort), _ => SampleStoreApiClient(hostName, hostPort).start)
     if (c.created < System.currentTimeMillis() - 60000) {
       c.stop
-      _clients.computeIfAbsent((hostName, hostPort), _ => SampleStoreApiClient(hostName, hostPort).start)
+      val nc = SampleStoreApiClient(hostName, hostPort).start
+      _clients.replace((hostName, hostPort), nc)
+      nc
     } else {
       c
     }
