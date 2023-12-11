@@ -303,8 +303,6 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
 
   /**
    * truncate row set to k or the row count whichever is smaller
-   *
-   * @param k
    */
   @inline final
   def truncateRows(k: Int): Unit = {
@@ -317,7 +315,7 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   def row(index: Int): ZapCube2Row = {
     if (index >= rowsCount)
       throw VitalsException(s"Row index out of bounds. index=$index rowCount=$itemCount")
-    ZapCube2RowAnyVal(basePtr + rowOffset(index))
+    ZapCube2RowAnyVal(basePtr + rowOffset(index)): @inline
   }
 
   @inline final
@@ -340,9 +338,6 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
    * This cube probably has more buckets then the source so we need to not just blindly block copy
    * the source cube structure over to the target, but we do want to preserve as much relevant state as
    * possible such as cursors, privots, row count,  rows etc.
-   *
-   * @param source
-   * @param rows
    */
   @inline final
   def importCube(source: ZapCube2AnyVal, rows: Int): Unit = {
@@ -382,12 +377,6 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   // row creation and access
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-  /**
-   *
-   * @param key
-   * @return
-   */
   @inline final
   def createNewRowFromKey(key: ZapCube2Key): ZapCube2Row = {
     val row = newRow
@@ -424,7 +413,7 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
   def resetDirtyRows(): Unit = {
     var r = 0
     while (r < rowsCount) {
-      row(r).dirty = false
+      row(r).dirty = false : @inline
       r += 1
     }
   }
@@ -463,9 +452,6 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
 
   /**
    * Called when cube is first allocated and when it is re-used
-   *
-   * @param pId
-   * @param builder
    */
   @inline final override
   def initialize(pId: TeslaPoolId, builder: ZapCube2Builder): Unit = {
@@ -572,13 +558,13 @@ trait ZapCube2State extends Any with TeslaPooledResource with ZapCube2 {
 
     // do the reachable rows agree with the total rows
     if (this.rowsCount != validatedRowCount) {
-      log warn s"validation cube $basePtr declared row count ${this.rowsCount} doesn't match validated block accessible row count ${validatedRowCount}"
+      log warn s"validation cube $basePtr declared row count ${this.rowsCount} doesn't match validated block accessible row count $validatedRowCount"
       valid = false
     }
     // do the start and end markers agree with the count
     if ((this.rowsEnd-this.rowsStart)/this.rowSize != this.rowsCount) {
       val allocCount = (this.rowsEnd-this.rowsStart)/this.rowSize
-      log warn s"validation cube $basePtr allocated row block count ${allocCount} doesn't match declared row count ${this.rowsCount}"
+      log warn s"validation cube $basePtr allocated row block count $allocCount doesn't match declared row count ${this.rowsCount}"
       valid = false
     }
 

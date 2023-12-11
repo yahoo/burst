@@ -58,10 +58,9 @@ object BurnInRunBatch {
 
     val datasets = ArrayBuffer[BurnInRunDataset]()
     val counter = new AtomicLong(initialCounter)
-    val domainDedupe = new ConcurrentSkipListMap[Long /* domain pk */ , ArrayBuffer[Long /* view pk */ ]]()
+    type ProcessView = (Long /*view pk*/, Option[Int] /* reload interval */ , String /* load query */ )
+    val domainDedupe = new ConcurrentSkipListMap[Long /* domain pk */ , ArrayBuffer[ProcessView]]()
     val generated = mutable.Map[Long /* counter */ , BurnInDatasetDescriptor]()
-    val loadQueries = mutable.Map[Long, String]()
-    val loadIntervals = mutable.Map[Long, Option[Int]]()
     def nextGeneratedId(): Long = counter.getAndAdd(-1)
 
     /*
@@ -75,7 +74,7 @@ object BurnInRunBatch {
         case LookupType.ByPk =>
           catalog.findViewByPk(dataset.pk.get) match {
             case Failure(_) =>
-              logWarn(s"Unable to find view by pk=${dataset.pk}")
+              logWarn(s"Unable to find view by pk=${dataset.pk.getOrElse(-1)}")
               Array.empty
             case Success(view) =>
               Array((view.domainFk, view.pk))
@@ -83,7 +82,7 @@ object BurnInRunBatch {
         case LookupType.ByUdk =>
           catalog.findViewByUdk(dataset.udk.get) match {
             case Failure(_) =>
-              logWarn(s"Unable to find view by udk=${dataset.udk}")
+              logWarn(s"Unable to find view by udk=${dataset.udk.getOrElse("unknown")}")
               Array.empty
             case Success(view) =>
               Array((view.domainFk, view.pk))
@@ -91,7 +90,7 @@ object BurnInRunBatch {
         case LookupType.ByProperty =>
           catalog.searchViewsByLabel(dataset.label.get, dataset.labelValue) match {
             case Failure(_) =>
-              logWarn(s"Unable to find view by label=${dataset.label} value=${dataset.labelValue}")
+              logWarn(s"Unable to find view by label=${dataset.label.getOrElse("unknown")} value=${dataset.labelValue}")
               Array.empty
             case Success(views) =>
               views.map(v => (v.domainFk, v.pk))
@@ -107,22 +106,21 @@ object BurnInRunBatch {
       }
 
       for ((domainPk, viewPk) <- views) {
-        val viewsForDomain = domainDedupe.computeIfAbsent(domainPk, _ => ArrayBuffer.empty[Long])
-        loadIntervals(viewPk) = dataset.reloadEvery
-        dataset.loadQuery.foreach(loadQueries(viewPk) = _)
-        viewsForDomain += viewPk
+        val viewsForDomain = domainDedupe.computeIfAbsent(domainPk, _ => ArrayBuffer.empty[ProcessView])
+        val v: ProcessView =(viewPk, dataset.reloadEvery, dataset.loadQuery.getOrElse(batch.defaultLoadQuery.get))
+        viewsForDomain += v
       }
     }
 
     counter.set(initialCounter)
     for (domainWithViews <- domainDedupe.asScala) {
       val domainPk = domainWithViews._1
-      val viewPks = domainWithViews._2
+      val viewTuples = domainWithViews._2
 
       val datasetId = nextGeneratedId()
-      val (domain: FabricDomain, views: Array[FabricView]) = if (domainPk < 0) {
+      val (domain: FabricDomain, views: Array[(FabricView, Option[Int], String)]) = if (domainPk < 0) {
         val dataset = generated(domainPk)
-        (dataset.domain.get.toFabric(datasetId), viewPks.map(_ => dataset.view.get.toFabric(nextGeneratedId(), datasetId)).toArray)
+        (dataset.domain.get.toFabric(datasetId), viewTuples.map(processView => (dataset.view.get.toFabric(processView._1, datasetId), processView._2, processView._3)).toArray)
       } else {
         val domain = catalog.findDomainByPk(domainPk) match {
           case Failure(exception) =>
@@ -131,22 +129,24 @@ object BurnInRunBatch {
             throw VitalsException(message)
           case Success(domain) => domain.copy(pk = datasetId)
         }
-        val views = viewPks.map(viewPk => {
+        val views = viewTuples.map(processView => {
+          val viewPk = processView._1
           catalog.findViewByPk(viewPk) match {
             case Failure(exception) =>
               val message = s"Failed to load view pk=$viewPk. ${exception.getMessage}"
               logError(message)
               throw VitalsException(message)
-            case Success(view) => view.copy(pk = nextGeneratedId(), domainFk = datasetId)
+            case Success(view) =>
+              val v = view.copy(pk = nextGeneratedId(), domainFk = datasetId)
+              (FabricView(v.domainFk, v.pk, 0, v.schemaName, v.viewMotif, v.viewProperties, v.storeProperties), processView._2, processView._3)
           }
         })
-        (domain, views)
+        (FabricDomain(domain.pk, domain.domainProperties), views.toArray)
       }
 
-      for (view <- views) {
-        val reloadInterval = loadIntervals(view.viewKey)
-        val loadQuery = loadQueries.getOrElse(view.viewKey, batch.defaultLoadQuery.get)
-        datasets += BurnInRunDataset(domain, view, loadQuery, batch.queries, reloadInterval)
+      for (processView <- views) {
+        val (view: FabricView, loadEvery: Option[Int], loadQuery: String) = processView
+        datasets += BurnInRunDataset(domain, view, loadQuery, batch.queries, loadEvery)
       }
     }
 
@@ -189,21 +189,27 @@ case class BurnInRunBatch(
     for (dataset <- datasets) {
       if (!createdDomains.contains(dataset.domain.domainKey)) {
         registerLogEvent(s"Inserting domain ${dataset.domain.domainKey}")
-        catalog.insertDomainWithPk(CatalogDomain(dataset.domain, s"Burn-In Domain ${dataset.domain.domainKey}", udk = None, Some(Map(BurnInLabel -> "")))) match {
-          case Failure(e) => registerLogEvent(s"Failed to insert domain pk=${dataset.domain.domainKey}: ${e.getMessage}", Level.INFO)
-          case Success(_) => createdDomains.add(dataset.domain.domainKey)
+        val cDomain = CatalogDomain(dataset.domain, s"Burn-In Domain ${dataset.domain.domainKey}", udk = None, Some(Map(BurnInLabel -> "")))
+        catalog.insertDomainWithPk(cDomain) match {
+          case Failure(e) =>
+            registerLogEvent(s"Failed to insert domain pk=${dataset.domain.domainKey}: ${e.getMessage}", Level.INFO)
+          case Success(_) =>
+            createdDomains.add(dataset.domain.domainKey)
         }
       }
       registerLogEvent(s"Inserting view ${dataset.view.viewKey}")
-      catalog.insertViewWithPk(CatalogView(dataset.view, "moniker", udk = None, Some(Map(BurnInLabel -> "")))) match {
-        case Failure(e) => registerLogEvent(s"Failed to insert view pk=${dataset.view.viewKey}: ${e.getMessage}", Level.INFO)
-        case Success(_) => dataset.ready = true
+      val cView = CatalogView(dataset.view, "moniker", udk = None, Some(Map(BurnInLabel -> "")))
+      catalog.insertViewWithPk(cView) match {
+        case Failure(e) =>
+          registerLogEvent(s"Failed to insert view pk=${dataset.view.viewKey}: ${e.getMessage}", Level.INFO)
+        case Success(_) =>
+          dataset.ready = true
       }
     }
   }
 
   def run(): BurnInRunBatchStats = {
-    if (!shouldContinue) {
+    if (!shouldContinue || this.datasets.isEmpty) {
       return BurnInRunBatchStats(BatchDidNotRun)
     }
     workers = (0 until config.concurrency).map { i =>

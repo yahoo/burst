@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.{Channel, ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.fabric.container.FabricContainer
 import org.burstsys.fabric.net.message._
-import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter}
+import org.burstsys.fabric.net.{FabricNetConnection, FabricNetLink, FabricNetReporter, message}
 import org.burstsys.fabric.trek.FabricNetReceive
 import org.burstsys.tesla.thread.request.TeslaRequestFuture
 import org.burstsys.vitals.errors._
@@ -63,6 +63,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
       try {
         val messageTypeKey = buffer.readInt()
         stage.span.setAttribute(fabricMessageTypeKey, messageTypeKey)
+        stage.span.setAttribute(fabricMessageNameKey, message.codeToMsgType(messageTypeKey).name)
         FabricNetReporter.onMessageRecv(buffer.capacity)
         val bytes: Array[Byte] = {
           val oldPosition = buffer.nioBuffer().position()
@@ -73,7 +74,7 @@ class FabricNetReceiver(container: FabricContainer, isServer: Boolean, channel: 
         }
 
         TeslaRequestFuture {
-          val msgType = FabricNetMsgType(messageTypeKey)
+          val msgType = message.codeToMsgType(messageTypeKey)
           connection match {
             case None =>
               val message = burstStdMsg(s"FAB_NET_NO_CONNECTION $this $msgType")

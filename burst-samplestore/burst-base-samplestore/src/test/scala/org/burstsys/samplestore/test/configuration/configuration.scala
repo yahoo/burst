@@ -23,7 +23,7 @@ package object configuration {
   // Slice Generation
   ///////////////////////////////////////////////////////////////////
 
-  val lociCountProperty: String = "synthetic.samplestore.loci.count"
+  val lociCountProperty: String = "samplestore.loci.count"
 
   val defaultLociCountProperty: VitalsPropertySpecification[Int] = VitalsPropertySpecification[Int](
     key = lociCountProperty,

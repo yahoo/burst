@@ -72,12 +72,16 @@ export const actions = {
     setFilter,
 }
 
+const selector = mapping => globalState => mapping(globalState[settingsSlice.name]);
+const getSettingsState = selector(s => s);
 export const selectors = {
-    selectSettings: state => state.settings,
-    selectFilteredSettings: state => {
-        const {settings, filter} = state.settings
+    getSettingsState,
+    getFilteredSettings: globalState => {
+        const {settings, filter} = getSettingsState(globalState)
         return settings.filter(s => !filter || s.key.includes(filter) || `${s.value}`.includes(filter) || s.description.includes(filter))
-    }
+    },
+    getFilterText: selector(state => state.filter),
+    getEditedValues: selector(state => state.editing),
 }
 
-export default settingsSlice.reducer
+export default settingsSlice

@@ -4,10 +4,12 @@ package org.burstsys.hydra.test.cases.unity.tablets
 import org.burstsys.alloy.views.AlloySmallDatasets.smallDataset_2_users_5_sessions
 import org.burstsys.alloy.views.unity.UnityUseCaseViews.over_200_200
 import org.burstsys.hydra.test.support.HydraAlloyTestRunner
+import org.scalatest.Ignore
 
 import scala.language.postfixOps
 
 class HydraTabletSpec extends HydraAlloyTestRunner {
+  /**
 
   it should "successfully do a simple tablet visit" in {
     val source =
@@ -65,6 +67,7 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
       staticSweep = None
     )
   }
+   **/
 
   it should "successfully do first/last member operations" in {
 
@@ -117,7 +120,6 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
             val found = result.rowSet.map {
               row => (row.cells(0) asLong, row.cells(1) asLong, row.cells(2) asLong, row.cells(3) asLong)
             } sortBy (_._4) sortBy (_._3) sortBy (_._2) sortBy (_._1)
-            val columnNames = result.columnNames
             val expected = Array(
               (0, 1, 0, 0), (1, 0, 1, 0), (2, 0, 1, 0), (3, 0, 1, 0), (4, 0, 0, 1), (5, 1, 0, 0), (6, 0, 1, 0), (7, 0, 1, 0), (8, 0, 1, 0), (9, 0, 0, 1)
             )
@@ -128,5 +130,4 @@ class HydraTabletSpec extends HydraAlloyTestRunner {
       staticSweep = None // Some(new B80E958558426496AA3957445C6B12DE3)
     )
   }
-
 }

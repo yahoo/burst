@@ -177,10 +177,14 @@ abstract class FabricContainerContext extends FabricContainer with FabricHttpSSL
     val uri = new URI(s"$scheme://$hostname:$httpPort/")
 
     val application = httpConfig
-    val sslConfig = new SSLEngineConfigurator(httpSSLContext).setClientMode(false)
+    val sslConfig = if (useHttps) {
+      new SSLEngineConfigurator(httpSSLContext).setClientMode(false)
+    } else
+      null
     log info s"Starting Grizzly server on $uri"
-    log info s"Configured TLS protocols:     ${Option(sslConfig.getEnabledProtocols).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
-    log info s"Configured TLS cipher suites: ${Option(sslConfig.getEnabledCipherSuites).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
+
+    log info s"Configured TLS protocols:     ${Option(sslConfig).map(s => Option(s.getEnabledProtocols)).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
+    log info s"Configured TLS cipher suites: ${Option(sslConfig).map(s => Option(s.getEnabledCipherSuites)).map(_.mkString("Array(", ", ", ")")).getOrElse("None")}"
     _server = GrizzlyHttpServerFactory.createHttpServer(uri, application, useHttps, sslConfig, false)
     for (nl: NetworkListener <- _server.getListeners.asScala) {
       val threadPoolSize = configuration.burstHttpThreadPoolSizeProperty.get

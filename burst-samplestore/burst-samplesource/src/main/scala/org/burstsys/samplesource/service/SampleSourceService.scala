@@ -20,5 +20,4 @@ trait SampleSourceService[C <: SampleSourceSupervisorService, W <: SampleSourceW
    * @return the class responsible for feeding streams sent to cell workers
    */
   def workerClass: Class[W]
-
 }

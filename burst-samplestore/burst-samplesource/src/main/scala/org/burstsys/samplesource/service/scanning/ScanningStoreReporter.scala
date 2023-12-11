@@ -1,13 +1,13 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.samplestore.store.container.worker
+package org.burstsys.samplesource.service.scanning
 
 import org.burstsys.vitals.reporter._
 import org.burstsys.vitals.reporter.metric.VitalsReporterUnitOpMetric
 
-private[samplestore]
+private[scanning]
 object ScanningStoreReporter extends VitalsReporter {
 
-  final val dName: String = "SyntheticStore"
+  final val dName: String = "ScanningStore"
 
   private[this]
   val _readItemsMetric = VitalsReporterUnitOpMetric("read", "items")

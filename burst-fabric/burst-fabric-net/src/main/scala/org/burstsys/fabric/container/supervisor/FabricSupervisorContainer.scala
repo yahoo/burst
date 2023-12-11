@@ -1,7 +1,10 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
 package org.burstsys.fabric.container.supervisor
 
+import io.grpc.ServerBuilder
 import org.burstsys.fabric.configuration
+import org.burstsys.fabric.container.supervisor.grpc.BurstScalingService
+import org.burstsys.fabric.container.supervisor.grpc.KedaResponder
 import org.burstsys.fabric.container.{FabricContainer, FabricContainerContext}
 import org.burstsys.fabric.net.{FabricNetworkConfig, message}
 import org.burstsys.fabric.net.message.assess.{FabricNetAssessRespMsg, FabricNetHeartbeatMsg}
@@ -21,7 +24,8 @@ import scala.language.postfixOps
 /**
  * the one per JVM top level container for a Fabric Supervisor
  */
-trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricContainer with FabricNetServerListener {
+trait FabricSupervisorContainer[T <: FabricSupervisorListener] extends FabricContainer
+  with FabricNetServerListener with BurstScalingService {
 
   /**
    * the supervisor topology service
@@ -59,6 +63,8 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
   protected[this]
   val _listenerSet: ConcurrentHashMap.KeySetView[T, lang.Boolean] = ConcurrentHashMap.newKeySet[T]
 
+  protected var _gRPCServer: io.grpc.Server = _
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // hookups
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +72,12 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
   def netServer: FabricNetServer = _net
 
   override def topology: FabricSupervisorTopology = _topology
+
+  override def workersActive: Boolean = true
+
+  override def currentWorkerCount: VitalsHostPort = topology.healthyWorkers.length
+
+  override def desiredWorkerCount: VitalsHostPort = topology.healthyWorkers.length
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
@@ -86,8 +98,15 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
       // start up the network and topology manager
       _net.start
       _topology.start
+      // start gRPC server
       health.registerService(_topology)
-
+      if (configuration.burstFabricKedaScalerEnabledProperty.get) {
+        val kedaPort = configuration.burstFabricKedaScalerPortProperty.get
+        _gRPCServer = ServerBuilder.forPort(kedaPort)
+          .addService(new KedaResponder(this)).build()
+        _gRPCServer.start()
+        log info s"Keda gRPC server started on port $kedaPort"
+      }
       markRunning
     }
     this
@@ -99,6 +118,9 @@ abstract class FabricSupervisorContainerContext[T <: FabricSupervisorListener](n
 
       _net.stop
       _topology.stop
+      if (configuration.burstFabricKedaScalerEnabledProperty.get) {
+        _gRPCServer.shutdownNow
+      }
 
       // stop generic container
       super.stop

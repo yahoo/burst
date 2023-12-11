@@ -1,10 +1,9 @@
 /* Copyright Yahoo, Licensed under the terms of the Apache 2.0 license. See LICENSE file in project root for terms. */
-package org.burstsys.samplestore.test.pipeline
+package org.burstsys.samplesource.test.pipeline
 
-import org.apache.logging.log4j.core.config.Configurator
 import org.burstsys.brio.configuration.brioPressThreadsProperty
 import org.burstsys.brio.model.schema.BrioSchema
-import org.burstsys.samplestore.pipeline
+import org.burstsys.samplesource.pipeline.pipeline
 import org.burstsys.tesla
 
 import scala.concurrent.duration._

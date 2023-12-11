@@ -90,6 +90,28 @@ const save = createAsyncThunk('catalog/save', async ({type, entity}, thunk) => {
     }
 })
 
+const deleteEntity = createAsyncThunk('catalog/delete', async ({type, entity}, thunk) => {
+    try {
+        if (confirm(`Are you sure you want to delete ${type} ${entity.moniker}?`)) {
+            const parameters = {pk: entity.pk};
+            const response = await request(`/catalog/delete${type[0].toUpperCase()}${type.slice(1)}`, {parameters})
+            return {type, [type]: entity.pk};
+        }
+    } catch (e) {
+        thunk.dispatch(crosscutting.displayError(e, `Failed to delete ${type}`))
+    }
+})
+
+const copyEntity = createAsyncThunk('catalog/copy', async ({type, entity}, thunk) => {
+    try {
+        const parameters = {pk: entity.pk};
+        const response = await request(`/catalog/copy${type[0].toUpperCase()}${type.slice(1)}`, {parameters})
+        return {type, [type]: response};
+    } catch (e) {
+        thunk.dispatch(crosscutting.displayError(e, `Failed to copy ${type}`))
+    }
+})
+
 const createDomain = createAsyncThunk('catalog/newDomain', async (ignored, thunk) => {
     try {
         const now = new Date()
@@ -283,6 +305,19 @@ const catalogSlice = createSlice({
             const {payload: view} = action;
             state.views[view.pk] = view;
             state.editor = cleanEditorState('view', view)
+        },
+        [deleteEntity.fulfilled]: (state, action) => {
+            const {type, [type]: pk} = action.payload
+            if (type === 'domain') {
+                delete state.domains[pk]
+                state.tree = state.tree.filter(d => d.pk !== pk)
+            } else if (type === 'view') {
+                delete state.views[pk]
+                state.tree.forEach(d => {
+                    d.children = d.children.filter(v => v.pk !== pk)
+                })
+            }
+            state.editor = cleanEditorState()
         }
     }
 })
@@ -298,6 +333,7 @@ export const actions = {
     createDomain,
     createView,
     bumpGenerationClock,
+    deleteEntity,
 }
 
 export default catalogSlice.reducer;

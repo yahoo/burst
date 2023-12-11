@@ -43,6 +43,10 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
 
   private val motif = Motif.build()
 
+  ///////////////////////////////////////////////////////////////////////////
+  // Domains and views
+  ///////////////////////////////////////////////////////////////////////////
+
   @POST
   @Path("search")
   def search(
@@ -66,30 +70,6 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
             }
           }
           tree.values.toArray
-      }
-    }
-  }
-
-  @POST
-  @Path("queryByPk")
-  def queryByPk(@FormParam("pk") pk: Long): CatalogJsonQuery = {
-    resultOrErrorResponse {
-      catalog findQueryByPk pk match {
-        case Failure(t) => throw t
-        case Success(c) => c
-      }
-    }
-  }
-
-  @POST
-  @Path("allQueries")
-  def allQueries(@FormParam("limit") limit: String): Array[CatalogJsonQuery] = {
-    resultOrErrorResponse {
-      val limitValue = if (limit == null || limit.isEmpty) None else Some(limit.toInt)
-      catalog allQueries limitValue match {
-        case Failure(t) => throw t
-        case Success(querys) =>
-          querys.map(c => c: CatalogJsonQuery)
       }
     }
   }
@@ -133,8 +113,6 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
 
   /**
    * Look up a domain by pk if param is numeric, or by udk otherwise
-   * @param id the identifer of the domain
-   * @return
    */
   private def domainFor(id: LongParam): CatalogDomain = id.value match {
     case None =>
@@ -191,7 +169,6 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
     }
   }
 
-
   @GET
   @Path("domains/{domain}/views")
   def viewsByDomain(@PathParam("domain") domainParam: LongParam): Array[CatalogJsonView] = {
@@ -200,26 +177,6 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
       catalog.allViewsForDomain(domain.pk) match {
         case Failure(t) => throw t
         case Success(views) => views.map(v => v: CatalogJsonView)
-      }
-    }
-  }
-
-  @POST
-  @Path("newQuery")
-  def newQuery(@FormParam("moniker") moniker: String, @FormParam("language") language: String,
-               @FormParam("source") source: String): CatalogJsonQuery = {
-    resultOrErrorResponse {
-      BurstCatalogApiQueryLanguageType valueOf language match {
-        case None =>
-          throw new WebApplicationException(VitalsException(s"Unknown language $language"), Response.Status.BAD_REQUEST)
-        case Some(lt) =>
-          val q = BurstCatalogQuery(0, moniker, lt, source)
-          catalog insertQuery q match {
-            case Failure(t) =>
-              throw new WebApplicationException(t, Response.Status.BAD_REQUEST)
-            case Success(c) =>
-              CatalogJsonQuery(c, moniker, Map.empty, lt.name, source)
-          }
       }
     }
   }
@@ -235,8 +192,8 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
       if (motif.getSchema(schemaName) == null)
         throw new WebApplicationException(s"Unknown schema name '$schemaName''")
       // set some defaults
-      val storeProperties = defaultPropertiesForStore
-      val viewProperties = defaultPropertiesForView
+      val storeProperties = defaultStoreProperties
+      val viewProperties = defaultViewProperties
       val viewMotif = defaultMotifForSchema(schemaName)
       val v = CatalogView(0, moniker, domainPk, schemaName, storeProperties = storeProperties, viewMotif = viewMotif, viewProperties = viewProperties)
       catalog.insertView(v) match {
@@ -248,13 +205,13 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
     }
   }
 
-  def defaultPropertiesForStore: Map[String, String] = Map(
+  def defaultStoreProperties: Map[String, String] = Map(
     FabricStoreNameProperty -> "sample",
     SampleStoreSourceNameProperty -> "AppEventsBrio",
     SampleStoreSourceVersionProperty -> "0.0"
   )
 
-  def defaultPropertiesForView: Map[String, String] = Map(
+  def defaultViewProperties: Map[String, String] = Map(
     fabric.wave.metadata.ViewNextLoadStaleMsProperty -> (1 day).toMillis.toString
   )
 
@@ -300,7 +257,6 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
     }
   }
 
-
   @POST
   @Path("updateDomain")
   @Consumes(Array(MediaType.APPLICATION_JSON))
@@ -327,31 +283,6 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
           case Failure(t) => throw t
           case Success(v) => v
         }
-      }
-    }
-  }
-
-  @POST
-  @Path("updateQuery")
-  @Consumes(Array(MediaType.APPLICATION_JSON))
-  def updateQuery(query: CatalogJsonQuery): CatalogJsonQuery = {
-    resultOrErrorResponse {
-      catalog.updateQuery(query) match {
-        case Failure(t) => throw t
-        case Success(c) => c
-      }
-    }
-  }
-
-  @POST
-  @Path("deleteQuery")
-  def deleteQuery(@FormParam("pk") pk: Long): BurstCatalogDeleteSuccess = {
-    resultOrErrorResponse {
-      catalog deleteQuery pk match {
-        case Failure(t) =>
-          throw new WebApplicationException(t, Response.Status.BAD_REQUEST)
-        case Success(_) =>
-          BurstCatalogDeleteSuccess(pk)
       }
     }
   }
@@ -401,14 +332,85 @@ final class WaveSupervisorCatalogEndpoint extends WaveSupervisorEndpoint {
     }
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // Queries
+  ///////////////////////////////////////////////////////////////////////////
 
+  @POST
+  @Path("allQueries")
+  def allQueries(@FormParam("limit") limit: String): Array[CatalogJsonQuery] = {
+    resultOrErrorResponse {
+      val limitValue = if (limit == null || limit.isEmpty) None else Some(limit.toInt)
+      catalog allQueries limitValue match {
+        case Failure(t) => throw t
+        case Success(querys) =>
+          querys.map(c => c: CatalogJsonQuery)
+      }
+    }
+  }
+
+  @POST
+  @Path("queryByPk")
+  def queryByPk(@FormParam("pk") pk: Long): CatalogJsonQuery = {
+    resultOrErrorResponse {
+      catalog findQueryByPk pk match {
+        case Failure(t) => throw t
+        case Success(c) => c
+      }
+    }
+  }
+
+  @POST
+  @Path("newQuery")
+  def newQuery(@FormParam("moniker") moniker: String, @FormParam("language") language: String,
+               @FormParam("source") source: String): CatalogJsonQuery = {
+    resultOrErrorResponse {
+      BurstCatalogApiQueryLanguageType valueOf language match {
+        case None =>
+          throw new WebApplicationException(VitalsException(s"Unknown language $language"), Response.Status.BAD_REQUEST)
+        case Some(lt) =>
+          val q = BurstCatalogQuery(0, moniker, lt, source)
+          catalog insertQuery q match {
+            case Failure(t) =>
+              throw new WebApplicationException(t, Response.Status.BAD_REQUEST)
+            case Success(c) =>
+              CatalogJsonQuery(c, moniker, Map.empty, lt.name, source)
+          }
+      }
+    }
+  }
+
+  @POST
+  @Path("updateQuery")
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def updateQuery(query: CatalogJsonQuery): CatalogJsonQuery = {
+    resultOrErrorResponse {
+      catalog.updateQuery(query) match {
+        case Failure(t) => throw t
+        case Success(c) => c
+      }
+    }
+  }
+
+  @POST
+  @Path("deleteQuery")
+  def deleteQuery(@FormParam("pk") pk: Long): BurstCatalogDeleteSuccess = {
+    resultOrErrorResponse {
+      catalog deleteQuery pk match {
+        case Failure(t) =>
+          throw new WebApplicationException(t, Response.Status.BAD_REQUEST)
+        case Success(_) =>
+          BurstCatalogDeleteSuccess(pk)
+      }
+    }
+  }
 }
 
 object CatalogMessages {
 
   case class BurstCatalogMotifValidation(success: Boolean = true, message: String = "valid!")
 
-  case class BurstCatalogDeleteSuccess(pk: Long, nuccess: Boolean = true, message: String = "valid!")
+  case class BurstCatalogDeleteSuccess(pk: Long, success: Boolean = true, message: String = "valid!")
 
   case class CatalogTreeNodeJson(pk: Long,
                                  @JsonSerialize(using = classOf[Values]) moniker: String,

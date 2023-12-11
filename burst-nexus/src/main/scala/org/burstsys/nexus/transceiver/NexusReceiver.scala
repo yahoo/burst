@@ -4,6 +4,7 @@ package org.burstsys.nexus.transceiver
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.burstsys.nexus.client.NexusClientReporter
+import org.burstsys.nexus.message
 import org.burstsys.nexus.message._
 import org.burstsys.nexus.server.NexusServerReporter
 import org.burstsys.nexus.trek.NexusReceiveTrekMark
@@ -35,6 +36,8 @@ class NexusReceiver(
   override def toString: String = s"NexusReceiver(${if (isServer) "server" else "client"} id=$id ${transmitter.link})"
 
   override def channelRegistered(ctx: ChannelHandlerContext): Unit = {
+    @unused // force load of message types
+    val initMsgType: NexusMsgType = message.NexusStreamInitiatedMsgType
     super.channelRegistered(ctx)
     if (isServer)
       NexusServerReporter.onServerConnectionStart()
@@ -71,10 +74,11 @@ class NexusReceiver(
         try {
           val messageTypeKey = buffer.readInt()
           stage.span.setAttribute(nexusMessageTypeKey, messageTypeKey)
+          stage.span.setAttribute(nexusMessageNameKey, message.codeToMsg(messageTypeKey).name)
 
           TeslaRequestCoupler {
             // pass thread control from netty pool to tesla pool for parts pool access
-            NexusMsgType(messageTypeKey) match {
+            message.codeToMsg(messageTypeKey) match {
               case NexusStreamInitiatedMsgType =>
                 dispatchMessage(NexusStreamInitiatedMsg(buffer), clientListener.onStreamInitiatedMsg)
 

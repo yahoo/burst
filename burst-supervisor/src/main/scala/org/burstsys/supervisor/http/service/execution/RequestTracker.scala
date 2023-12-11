@@ -51,6 +51,8 @@ trait RequestTracker {
 
   def get(guid: VitalsUid): Option[RequestState]
 
+  def mostRecentRequest: Option[RequestState]
+
   def foreach[T](work: RequestState => T): Unit
 }
 
@@ -77,6 +79,7 @@ class RequestTrackerContext extends RequestTracker {
   private val _emptyUid = "000000000000000000000000000000000_000000"
   private var _lastReset = System.currentTimeMillis()
   private val requests = new ConcurrentSkipListMap[RequestKey, RequestState]()
+  private var _mostRecentRequest: Option[RequestState] = None
   // concurrentskiplistmap uses the `.compareTo`, not `.equals`, to look up values
   // that means that we need to use the same RequestKey (or a key with the same startTime, but realisitically the same key)
   private val requestKeys = new ConcurrentHashMap[VitalsUid, RequestKey]()
@@ -165,10 +168,13 @@ class RequestTrackerContext extends RequestTracker {
     }
   }
 
+  override def mostRecentRequest: Option[RequestState] = _mostRecentRequest
+
   override def lastReset: Long = _lastReset
 
   override def requestStarted(guid: VitalsUid, traceId: String, source: String, over: FabricOver, call: Option[FabricCall]): VitalsUid = this.synchronized {
     val request = requests.computeIfAbsent(findKey(guid), _ => RequestState(guid, traceId, over, call))
+    _mostRecentRequest = Some(request)
     val trimmed = source.trim
     if (request.source.isEmpty || request.source.last != trimmed)
       request.source += trimmed

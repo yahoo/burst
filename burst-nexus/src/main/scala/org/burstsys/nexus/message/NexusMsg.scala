@@ -4,7 +4,6 @@ package org.burstsys.nexus.message
 import io.netty.buffer.ByteBuf
 import org.burstsys.nexus.stream.NexusStream
 import org.burstsys.nexus.{NexusGlobalUid, NexusStreamUid}
-import org.burstsys.vitals.trek.context.{extractContext, injectContext}
 import org.burstsys.vitals.uid._
 
 /**
@@ -13,8 +12,7 @@ import org.burstsys.vitals.uid._
 private[nexus]
 abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
 
-  private lazy val mName = getClass.getSimpleName.stripSuffix("$")
-  def messageName: String = mName
+  def messageName: String = messageType.name
 
   override def toString: String = s"$messageName ruid=$ruid, guid=$guid, suid=$suid"
 
@@ -91,6 +89,7 @@ abstract class NexusMsg(val messageType: NexusMsgType) extends AnyRef {
   ////////////////////////////////////////////////////////////////////////////////////
 
   protected def decode(buffer: ByteBuf): this.type = {
+    // the read of the code is missing because it is already read by the frame decoder
     _ruid = buffer.readInt
     _guid = decodeAsciiStringFromByteBuf(buffer)
     _suid = decodeAsciiStringFromByteBuf(buffer)

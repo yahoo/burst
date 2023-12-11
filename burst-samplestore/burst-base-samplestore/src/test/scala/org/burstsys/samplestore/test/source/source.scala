@@ -3,7 +3,7 @@ package org.burstsys.samplestore.test
 
 package object source {
 
-  /** `synthetic-samplesource` */
+  /** `samplesource` */
   val TestSampleSourceName = "test-base-samplesource"
 
   /** `consistent-hash` */

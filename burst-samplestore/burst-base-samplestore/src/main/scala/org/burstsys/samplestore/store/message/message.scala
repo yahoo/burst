@@ -9,8 +9,8 @@ package object message extends VitalsLogger {
   ////////////////////////////////////////////////////////////////////////////////
   // metadata request/response
   ////////////////////////////////////////////////////////////////////////////////
-  object FabricStoreMetadataReqMsgType extends FabricNetMsgType(501)
+  object FabricStoreMetadataReqMsgType extends FabricNetMsgType(501, "Metadata Request")
 
-  object FabricStoreMetadataRespMsgType extends FabricNetMsgType(502)
+  object FabricStoreMetadataRespMsgType extends FabricNetMsgType(502, "Metadata Response")
 
 }

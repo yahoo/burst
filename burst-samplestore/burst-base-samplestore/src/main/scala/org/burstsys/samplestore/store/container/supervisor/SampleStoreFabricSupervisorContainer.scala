@@ -13,6 +13,7 @@ import org.burstsys.samplesource.service.MetadataParameters
 import org.burstsys.samplesource.{SampleStoreTopology, SampleStoreTopologyProvider}
 import org.burstsys.samplestore.api.server.SampleStoreApiServer
 import org.burstsys.samplestore.api.{SampleStoreApiServerDelegate, SampleStoreDataLocus}
+import org.burstsys.samplestore.configuration.rebroadcastDurationProperty
 import org.burstsys.samplestore.store.container._
 import org.burstsys.samplestore.store.container.supervisor.http.SampleStoreHttpBinder
 import org.burstsys.samplestore.store.container.supervisor.http.endpoints.StatusResponseObjects.StoreInfo
@@ -22,6 +23,8 @@ import org.burstsys.samplestore.store.message.FabricStoreMetadataRespMsgType
 import org.burstsys.samplestore.store.message.metadata.{FabricStoreMetadataReqMsg, FabricStoreMetadataRespMsg}
 import org.burstsys.samplestore.trek.{SampleStoreMetadataReqTrek, SampleStoreUpdateMetadataTrek}
 import org.burstsys.tesla.thread.request.teslaRequestExecutor
+import org.burstsys.vitals.background.VitalsBackgroundFunctions
+import org.burstsys.vitals.background.VitalsBackgroundFunctions.BackgroundFunction
 import org.burstsys.vitals.errors.VitalsException
 import org.burstsys.vitals.logging.burstLocMsg
 import org.burstsys.vitals.net.{VitalsHostAddress, VitalsHostName, VitalsHostPort}
@@ -30,6 +33,7 @@ import org.burstsys.vitals.sysinfo.{SystemInfoComponent, SystemInfoService}
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 
 import scala.concurrent.Future
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /**
@@ -55,6 +59,11 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
   private val requestLog = new ViewGenerationRequestLogService()
 
+  lazy val backgroundAssessor: VitalsBackgroundFunctions =
+    new VitalsBackgroundFunctions(s"sample-store-supervisor-broadcast-vars", 5 minutes, backgroundDuration).start
+
+  protected val backgroundDuration: Duration = rebroadcastDurationProperty.get
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // lifecycle
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,6 +88,8 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
       thriftApiServer.talksTo(requestLog)
         .start
 
+      backgroundAssessor += broadcastFunction
+      backgroundAssessor.start
 
       markRunning
     }
@@ -91,12 +102,22 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
 
       thriftApiServer.stop
       SystemInfoService.deregisterComponent(this)
+      backgroundAssessor -= broadcastFunction
+      backgroundAssessor.stop
 
       super.stop
 
       markNotRunning
     }
     this
+  }
+
+  private val broadcastFunction: BackgroundFunction = () => {
+    SampleSourceHandlerRegistry.getSources.foreach { s =>
+      val supervisor = SampleSourceHandlerRegistry.getSupervisor(s)
+      log debug burstLocMsg(s"broadcasting metadata for source=${supervisor.name}")
+      updateMetadata(s)
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -162,9 +183,12 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
           val supervisor = SampleSourceHandlerRegistry.getSupervisor(s)
           log debug burstLocMsg(s"supervisor=${supervisor.name} worker=${w.nodeName}")
           supervisor.onSampleStoreDataLocusAdded(convertToLocus(worker))
-          updateMetadata(w.connection, s, supervisor.getBroadcastVars)
+          Future { // don't wait for the update to move on
+            updateMetadata(w.connection, s, supervisor.getBroadcastVars)
+          }
         }
       case None =>
+        log warn burstLocMsg(s"worker=$worker not found in topology")
     }
   }
 
@@ -214,7 +238,7 @@ class SampleStoreFabricSupervisorContainerContext(netConfig: FabricNetworkConfig
   /**
    * System info about component.
    *
-   * @return Case classs that will be serialized to Json
+   * @return Case class that will be serialized to Json
    */
   override def status(level: VitalsHostPort, attributes: VitalsPropertyMap): AnyRef = {
     val showConf = if (attributes.contains("showConf"))

@@ -62,28 +62,6 @@ class SampleStoreViewRequestEndpoint {
   }
 }
 
-/*
-{
-  "domain": {
-    "domainKey": 1614642,
-    "domainProperties": {"synthetic.samplestore.press.dataset": "simple-unity"}
-  },
-  "view": {
-    "viewKey": 1935817,
-    "schemaName": "unity",
-    "viewMotif": "VIEW template {\n  INCLUDE user WHERE user.application.firstUse.sessionTime >= (NOW - DAYS(30))\n  INCLUDE user.sessions.events where false\n}\n",
-    "storeProperties": {
-      "synthetic.samplestore.press.item.count": "5",
-      "burst.store.name": "sample",
-      "burst.samplestore.source.version": "0.0",
-      "burst.samplestore.source.name": "synthetic-samplesource"
-    },
-    "viewProperties": {
-      "burst.view.suggested.slice.count": "9"
-    }
-  }
-}
- */
 object ViewRequestTypes {
 
   case class SampleStoreDataSource(

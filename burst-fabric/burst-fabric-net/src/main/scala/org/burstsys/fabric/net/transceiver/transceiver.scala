@@ -59,7 +59,7 @@ package object transceiver extends VitalsLogger {
         })
       } catch safely {
         case t: Throwable =>
-          log error burstLocMsg(s"FAB_TX_FAIL $t", t)
+          log error(burstLocMsg(s"FAB_TX_FAIL $t", t), t)
           promise.failure(t)
       }
     }
